@@ -222,7 +222,7 @@ add_text_box(s, Inches(1.2), Inches(3.5), Inches(5.2), Inches(1.2),
              "Spin up a knowledge vault in seconds.\n"
              "Give any AI an MCP link. That\u2019s it.\n"
              "Your data lives in a graph database:\n"
-             "Things, Tags, and Tools.",
+             "Notes, Tags, and Links.",
              font_size=16, color=FG_MUTED, line_spacing=1.45)
 
 add_text_box(s, Inches(1.2), Inches(4.9), Inches(5.2), Inches(0.9),
@@ -262,7 +262,7 @@ inner.fill.fore_color.rgb = RGBColor(0xE8, 0xF5, 0xEC)
 inner.line.color.rgb = ACCENT
 inner.line.width = Pt(1)
 add_text_box(s, Inches(7.5), Inches(4.5), Inches(4.5), Inches(0.4),
-             "Parachute Server \u2014 Things \u00b7 Tags \u00b7 Tools",
+             "Parachute Server \u2014 Notes \u00b7 Tags \u00b7 Links",
              font_size=13, color=ACCENT, bold=True)
 
 add_text_box(s, Inches(9.0), Inches(5.0), Inches(1.5), Inches(0.3),
@@ -450,7 +450,7 @@ slide_headline(s, "Self-funded.\nBuilt from scratch.")
 # What exists
 items = [
     "Working app with local voice transcription + graph-native storage",
-    "MCP server with Things, Tags, Tools architecture",
+    "MCP server with Notes, Tags, Links architecture",
     "Functional pendant prototype (on stage today)",
     "Daily beta launching this month \u00b7 PBC incorporated in Colorado",
 ]
