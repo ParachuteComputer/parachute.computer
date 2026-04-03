@@ -153,12 +153,13 @@ add_text_box(s, Inches(1.2), Inches(6.3), Inches(10), Inches(0.6),
 s = new_slide()
 
 section_label(s, "The Problem")
-slide_headline(s, "Memory is shallow.\nCapture is broken.")
+slide_headline(s, "There\u2019s no knowledge layer.")
 
 add_text_box(s, Inches(1.2), Inches(3.5), Inches(10), Inches(1.5),
-             "These platforms all have memory now \u2014 but it\u2019s shallow.\n"
-             "Basically one big text file. It remembers your name,\n"
-             "not six months of your thinking.",
+             "Every AI platform stores personal context the same way:\n"
+             "one flat text file. No structure. No knowledge about your\n"
+             "projects, people, or patterns over time.\n"
+             "There\u2019s no portable, structured knowledge layer that works across tools.",
              font_size=20, color=FG_MUTED, line_spacing=1.5)
 
 add_text_box(s, Inches(1.2), Inches(5.0), Inches(10), Inches(1.2),
@@ -218,16 +219,16 @@ slide_headline(s, "Don\u2019t compete with agents.\nBuild the tool layer they al
 
 # Left column — text (keep within 5.5in to avoid diagram)
 add_text_box(s, Inches(1.2), Inches(3.5), Inches(5.2), Inches(1.2),
-             "Your data lives in a graph database organized\n"
-             "around three primitives: Things, Tags, and Tools.\n"
-             "The system speaks MCP \u2014 the open standard for\n"
-             "connecting AI to tools.",
+             "Spin up a knowledge vault in seconds.\n"
+             "Give any AI an MCP link. That\u2019s it.\n"
+             "Your data lives in a graph database:\n"
+             "Things, Tags, and Tools.",
              font_size=16, color=FG_MUTED, line_spacing=1.45)
 
 add_text_box(s, Inches(1.2), Inches(4.9), Inches(5.2), Inches(0.9),
-             "Your AI can read, search, and create structure.\n"
-             "People nodes. Project nodes.\n"
-             "A living knowledge graph.",
+             "Built on MCP \u2014 the open standard for\n"
+             "connecting AI to tools. Whatever AI you\n"
+             "already use, Parachute makes it better.",
              font_size=15, color=FG_MUTED, line_spacing=1.45)
 
 # Right column — architecture diagram
@@ -357,8 +358,8 @@ for price, desc, col in tiers:
     y += tier_spacing
 
 add_text_box(s, Inches(1.2), Inches(6.5), Inches(10), Inches(0.6),
-             "We\u2019re not competing with anyone\u2019s AI subscription.\n"
-             "$2/mo to make whatever AI you\u2019re already paying for dramatically better.",
+             "100M+ people already pay $20+/mo for AI. We\u2019re not competing with that subscription \u2014\n"
+             "we\u2019re the $2\u201310 add-on that makes it dramatically better. Free tier = zero hosting cost.",
              font_size=15, color=FG_DIM, line_spacing=1.5)
 
 
@@ -452,7 +453,6 @@ items = [
     "MCP server with Things, Tags, Tools architecture",
     "Functional pendant prototype (on stage today)",
     "Daily beta launching this month \u00b7 PBC incorporated in Colorado",
-    "Learn Vibe Build AI school (Cohort 0 complete, Cohort 1 launching) \u2014 organic growth channel",
 ]
 
 y = Inches(3.6)
@@ -536,6 +536,6 @@ add_text_box(s, Inches(1.2), Inches(6.7), Inches(10), Inches(0.4),
 
 
 # ── Save ──
-out_path = "/home/sandbox/parachute-computer/nvc-pitch-deck.pptx"
+out_path = "/Users/parachute/Code/parachute.computer/nvc-pitch-deck.pptx"
 prs.save(out_path)
 print(f"Saved to {out_path}")
