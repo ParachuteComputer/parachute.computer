@@ -1,0 +1,632 @@
+---
+permalink: /nvc/deck/
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parachute — NVC Pitch Deck</title>
+    <meta name="robots" content="noindex">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&family=JetBrains+Mono:wght@400&display=swap">
+    <style>
+        :root {
+            --bg:           #faf8f4;
+            --bg-soft:      #f3f0ea;
+            --fg:           #2c2a26;
+            --fg-muted:     #6b6860;
+            --fg-dim:       #9a9690;
+            --accent:       #4a7c59;
+            --accent-soft:  rgba(74, 124, 89, 0.08);
+            --accent-light: #6a9b77;
+            --border:       #e4e0d8;
+            --serif: 'Instrument Serif', Georgia, serif;
+            --sans:  'DM Sans', system-ui, sans-serif;
+            --mono:  'JetBrains Mono', monospace;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; scroll-snap-type: y mandatory; }
+
+        body {
+            background: var(--bg);
+            font-family: var(--sans);
+            color: var(--fg);
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        /* ── Slide structure ── */
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem 6rem;
+            border-bottom: 1px solid var(--border);
+            scroll-snap-align: start;
+            position: relative;
+        }
+        .slide:last-child { border-bottom: none; }
+
+        .slide-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent);
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+
+        .slide-headline {
+            font-family: var(--serif);
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            line-height: 1.08;
+            color: var(--fg);
+            margin-bottom: 2rem;
+        }
+        .slide-headline em {
+            font-style: italic;
+            color: var(--fg-muted);
+        }
+
+        .slide-body {
+            color: var(--fg-muted);
+            max-width: 720px;
+        }
+        .slide-body p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+        .slide-body p:last-child { margin-bottom: 0; }
+        .slide-body strong { color: var(--fg); font-weight: 500; }
+
+        /* ── Stat row ── */
+        .stat-row {
+            display: flex;
+            gap: 0;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+            max-width: 500px;
+        }
+        .stat {
+            flex: 1;
+            padding: 1.5rem;
+            border-right: 1px solid var(--border);
+            text-align: center;
+        }
+        .stat:last-child { border-right: none; }
+        .stat-num {
+            font-family: var(--serif);
+            font-size: 2.5rem;
+            color: var(--accent);
+            line-height: 1;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.4rem;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--fg-muted);
+            line-height: 1.4;
+        }
+
+        /* ── People list ── */
+        .people {
+            font-family: var(--serif);
+            font-size: 1.3rem;
+            line-height: 2.2;
+            color: var(--fg-muted);
+            max-width: 600px;
+        }
+        .people em { font-style: italic; color: var(--fg); }
+
+        /* ── Flywheel ── */
+        .flywheel {
+            display: flex;
+            flex-direction: column;
+            max-width: 500px;
+            margin: 1rem 0;
+        }
+        .fw-step {
+            font-family: var(--serif);
+            font-size: 1.35rem;
+            color: var(--fg);
+            padding: 0.85rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .fw-step:first-child { border-top: 1px solid var(--border); }
+        .fw-step.final { color: var(--accent); }
+        .fw-num {
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            color: var(--fg-dim);
+            letter-spacing: 0.06em;
+            flex-shrink: 0;
+            width: 1.5rem;
+        }
+
+        /* ── Bullet list ── */
+        .bullet-list {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0;
+            max-width: 650px;
+        }
+        .bullet-list li {
+            font-size: 1.1rem;
+            color: var(--fg-muted);
+            padding: 0.5rem 0 0.5rem 1.5rem;
+            position: relative;
+        }
+        .bullet-list li::before {
+            content: "·";
+            position: absolute;
+            left: 0.25rem;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        /* ── Tier table ── */
+        .tier-table {
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+            max-width: 600px;
+        }
+        .tier-row {
+            display: flex;
+            align-items: baseline;
+            gap: 1.25rem;
+            padding: 0.7rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .tier-row:last-child { border-bottom: none; }
+        .tier-price {
+            font-family: var(--serif);
+            font-size: 1.5rem;
+            color: var(--accent);
+            min-width: 5rem;
+            flex-shrink: 0;
+        }
+        .tier-price span { font-family: var(--sans); font-size: 0.75rem; color: var(--fg-dim); }
+        .tier-body { font-size: 0.9rem; color: var(--fg-muted); }
+        .tier-body strong { color: var(--fg); font-weight: 500; }
+        .tier-highlight { background: var(--accent-soft); }
+
+        /* ── Pendant callout ── */
+        .pendant-callout {
+            background: var(--bg-soft);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.75rem;
+            max-width: 340px;
+            position: absolute;
+            right: 6rem;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .pendant-callout .label {
+            font-size: 0.65rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent);
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+        .pendant-callout p {
+            font-size: 0.95rem;
+            color: var(--fg-muted);
+            line-height: 1.6;
+        }
+
+        /* ── Financial table ── */
+        .fin-table {
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+            max-width: 700px;
+        }
+        .fin-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .fin-table th {
+            font-size: 0.7rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--fg-dim);
+            font-weight: 500;
+            text-align: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-soft);
+        }
+        .fin-table th:first-child { text-align: left; }
+        .fin-table td {
+            font-size: 0.9rem;
+            color: var(--fg-muted);
+            padding: 0.65rem 1rem;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+        .fin-table td:first-child {
+            font-weight: 500;
+            color: var(--fg);
+            text-align: left;
+            font-size: 0.85rem;
+        }
+        .fin-table tr:last-child td { border-bottom: none; }
+        .fin-table .highlight { color: var(--accent); font-weight: 500; }
+
+        /* ── Ask box ── */
+        .ask-box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+            margin: 1rem 0;
+            max-width: 500px;
+        }
+        .ask-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 0.9rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .ask-row:last-child { border-bottom: none; }
+        .ask-row .lbl { font-size: 0.85rem; color: var(--fg-muted); }
+        .ask-row .val { font-family: var(--serif); font-size: 1.1rem; color: var(--fg); }
+
+        .close-quote {
+            font-family: var(--serif);
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            color: var(--fg);
+            margin-top: 2.5rem;
+            line-height: 1.3;
+            max-width: 550px;
+        }
+        .close-links {
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--fg-dim);
+        }
+        .close-links a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .close-links a:hover { text-decoration: underline; }
+
+        /* ── Architecture diagram (hub-and-spoke) ── */
+        .arch-diagram {
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+            max-width: 650px;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+        }
+        .arch-spoke {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .arch-spoke-label {
+            font-family: var(--mono);
+            font-size: 0.6rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--fg-dim);
+            margin-bottom: 0.25rem;
+        }
+        .arch-spoke.right { align-items: flex-end; }
+        .arch-spoke.right .arch-spoke-label { text-align: right; }
+        .arch-box {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.4rem 0.9rem;
+            font-size: 0.8rem;
+            color: var(--fg);
+            background: var(--bg);
+            white-space: nowrap;
+        }
+        .arch-hub {
+            border: 2px solid var(--accent);
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-weight: 500;
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            text-align: center;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            flex-shrink: 0;
+            margin: 0 0.25rem;
+        }
+        .arch-hub strong {
+            display: block;
+            font-size: 0.95rem;
+        }
+        .arch-connector {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            color: var(--fg-dim);
+            padding: 0 0.5rem;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.15rem;
+        }
+        .arch-connector .conn-label {
+            font-size: 0.55rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 768px) {
+            .slide { padding: 3rem 1.5rem; }
+            .pendant-callout {
+                position: static;
+                transform: none;
+                margin-top: 1.5rem;
+                max-width: 100%;
+            }
+            .stat-row { flex-direction: column; }
+            .stat { border-right: none; border-bottom: 1px solid var(--border); }
+            .stat:last-child { border-bottom: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Download bar -->
+    <div style="position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); padding: 0.75rem 2rem; display: flex; align-items: center; justify-content: space-between;">
+        <span style="font-family: var(--serif); font-size: 0.95rem; color: var(--fg);">Parachute &mdash; NVC Pitch Deck</span>
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="/nvc/ES_Parachute.pdf" download style="padding: 0.35rem 0.75rem; background: var(--accent); color: #fff; border-radius: 5px; text-decoration: none; font-size: 0.75rem; font-weight: 500;">Executive Summary (PDF)</a>
+            <a href="/nvc/Parachute.pptx" download style="padding: 0.35rem 0.75rem; background: var(--accent); color: #fff; border-radius: 5px; text-decoration: none; font-size: 0.75rem; font-weight: 500;">Pitch Deck (PPTX)</a>
+            <a href="/nvc/" style="padding: 0.35rem 0.75rem; background: var(--bg-soft); color: var(--fg); border: 1px solid var(--border); border-radius: 5px; text-decoration: none; font-size: 0.75rem; font-weight: 500;">Full Summary</a>
+        </div>
+    </div>
+
+    <!-- SLIDE 1: The Race -->
+    <section class="slide" style="padding-top: 6rem;">
+        <div class="slide-label">The Landscape</div>
+        <h2 class="slide-headline">Everyone is racing to build<br>your AI agent.</h2>
+        <div class="slide-body">
+            <p>OpenClaw. Claude Cowork. ZoComputer. Perplexity Computer. Manus. Over 100 million people already pay $20+/month for AI.</p>
+        </div>
+        <div class="stat-row">
+            <div class="stat">
+                <div class="stat-num">$50B+</div>
+                <div class="stat-label">Agentic AI market by 2030</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">44%</div>
+                <div class="stat-label">CAGR</div>
+            </div>
+        </div>
+        <div class="slide-body">
+            <p style="margin-top: 1rem; font-family: var(--serif); font-size: 1.3rem; color: var(--fg);">Features get cloned in weeks. It&rsquo;s a race to the bottom. So we stopped trying to win it.</p>
+        </div>
+    </section>
+
+    <!-- SLIDE 2: The Problem -->
+    <section class="slide">
+        <div class="slide-label">The Problem</div>
+        <h2 class="slide-headline">Memory is shallow.<br>Capture is broken.</h2>
+        <div class="slide-body">
+            <p>If features get commoditized, the only moat is <strong>personal context</strong> &mdash; and every platform stores it the same way: one flat text file. No structure. No knowledge about your projects, people, or patterns over time.</p>
+            <p>And there&rsquo;s a deeper problem: <strong>capture requires conversation.</strong> The AI is always in the middle. There&rsquo;s no way to just think for yourself and have it become context.</p>
+        </div>
+        <div class="slide-body">
+            <p style="font-family: var(--serif); font-size: 1.3rem; color: var(--fg); margin-top: 1.5rem;">Think for ourselves first. <em>Then</em> think with AI.</p>
+        </div>
+    </section>
+
+    <!-- SLIDE 3: Parachute Daily -->
+    <section class="slide">
+        <div style="display: flex; align-items: center; gap: 4rem;">
+            <div style="flex: 1;">
+                <div class="slide-label">Our Answer</div>
+                <h2 class="slide-headline">Parachute Daily.<br>Just talk.</h2>
+                <div class="slide-body">
+                    <p>A voice-first journal. Speak into a wearable pendant or your phone &mdash; on a walk, in the car, wherever thinking happens.</p>
+                    <p>Simple for humans. Native for AI. Your notes become structured data that any agent can work with &mdash; not locked inside one platform.</p>
+                </div>
+                <div style="margin-top: 1.5rem; padding: 1rem 1.25rem; background: var(--accent-soft); border-radius: 8px; max-width: 480px;">
+                    <p style="font-size: 0.95rem; color: var(--fg);"><strong>The Pendant</strong> &mdash; Wearable voice capture. Go for a walk. Talk. Your thoughts become structured knowledge by the time you&rsquo;re home.</p>
+                </div>
+            </div>
+            <div style="flex: 0 0 auto; display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
+                <img src="/nvc/images/pendant-worn.png" alt="Parachute pendant worn" style="width: 280px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+                <img src="/nvc/images/pendant-render.png" alt="Parachute pendant render" style="width: 220px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 4: Agent-Native Architecture -->
+    <section class="slide">
+        <div class="slide-label">Agent-Native</div>
+        <h2 class="slide-headline">Don&rsquo;t compete with agents.<br>Build the tool layer they all need.</h2>
+        <div class="slide-body">
+            <p>Built on <strong>MCP</strong> (Model Context Protocol) &mdash; the open standard for connecting AI to tools. Your data lives in a graph database: <strong>Things, Tags, and Tools.</strong></p>
+            <p>Whatever AI you already use, Parachute makes it better. You don&rsquo;t switch anything &mdash; you <em>add</em> Parachute.</p>
+        </div>
+        <div class="arch-diagram">
+            <div class="arch-spoke">
+                <div class="arch-spoke-label">your tools</div>
+                <span class="arch-box">Parachute Daily <span style="color: var(--fg-dim); font-size: 0.7rem;">&ensp;phone &middot; web</span></span>
+                <span class="arch-box">Parachute Pendant</span>
+            </div>
+            <div class="arch-connector">&harr;</div>
+            <div class="arch-hub">
+                <strong>Parachute Server</strong>
+                Things &middot; Tags &middot; Tools
+            </div>
+            <div class="arch-connector">
+                &harr;
+                <span class="conn-label">MCP</span>
+            </div>
+            <div class="arch-spoke right">
+                <div class="arch-spoke-label">your AI</div>
+                <span class="arch-box">Claude</span>
+                <span class="arch-box">ChatGPT</span>
+                <span class="arch-box">Any AI agent</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 5: Context Compounds -->
+    <section class="slide">
+        <div class="slide-label">The Insight</div>
+        <h2 class="slide-headline">Context compounds.</h2>
+        <div class="slide-body">
+            <p>Every entry builds a queryable graph of your thinking &mdash; portable, yours, and impossible for competitors to replicate.</p>
+        </div>
+        <div class="flywheel">
+            <div class="fw-step"><span class="fw-num">01</span> Capture thoughts in Daily</div>
+            <div class="fw-step"><span class="fw-num">02</span> Build months of personal context</div>
+            <div class="fw-step"><span class="fw-num">03</span> Connect any AI via MCP</div>
+            <div class="fw-step"><span class="fw-num">04</span> AI already knows you</div>
+            <div class="fw-step final"><span class="fw-num">&rarr;</span> Switching cost through genuine value</div>
+        </div>
+        <div class="slide-body">
+            <p style="margin-top: 1rem; font-size: 0.95rem;">Open source &middot; Local-first &middot; Public Benefit Corporation. Your data is portable, exportable, self-hostable.</p>
+        </div>
+    </section>
+
+    <!-- SLIDE 6: Business Model -->
+    <section class="slide">
+        <div class="slide-label">Business Model</div>
+        <h2 class="slide-headline">Start free.<br>Grow with every user.</h2>
+        <div class="tier-table">
+            <div class="tier-row">
+                <div class="tier-price">Free</div>
+                <div class="tier-body"><strong>Offline journal</strong> &mdash; zero hosting cost</div>
+            </div>
+            <div class="tier-row">
+                <div class="tier-price">$2<span>/mo</span></div>
+                <div class="tier-body"><strong>Cloud sync + MCP</strong> &mdash; notes on all devices, any AI</div>
+            </div>
+            <div class="tier-row">
+                <div class="tier-price">$5<span>/mo</span></div>
+                <div class="tier-body"><strong>Cloud transcription</strong> &mdash; better accuracy</div>
+            </div>
+            <div class="tier-row tier-highlight">
+                <div class="tier-price">$10<span>/mo</span></div>
+                <div class="tier-body"><strong>AI reflections + synthesis</strong> &mdash; your AI truly knows you</div>
+            </div>
+            <div class="tier-row">
+                <div class="tier-price">$100</div>
+                <div class="tier-body"><strong>Parachute Pendant</strong> &mdash; wearable voice capture hardware</div>
+            </div>
+        </div>
+        <div class="slide-body">
+            <p style="font-size: 0.9rem;">Free tier = zero hosting cost. No one switches AI &mdash; Parachute adds value wherever they are.</p>
+        </div>
+    </section>
+
+    <!-- SLIDE 7: Financial Projections -->
+    <section class="slide">
+        <div class="slide-label">Financial Projections</div>
+        <h2 class="slide-headline">Profitable by year three.</h2>
+        <div class="fin-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>2026</th>
+                        <th>2027</th>
+                        <th>2028</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Free users</td>
+                        <td>5,000</td>
+                        <td>75,000</td>
+                        <td>500,000</td>
+                    </tr>
+                    <tr>
+                        <td>Paid subscribers</td>
+                        <td>500</td>
+                        <td>8,000</td>
+                        <td>50,000</td>
+                    </tr>
+                    <tr>
+                        <td>ARR</td>
+                        <td>~$30K</td>
+                        <td class="highlight">~$480K</td>
+                        <td class="highlight">~$3M</td>
+                    </tr>
+                    <tr>
+                        <td>Total opex</td>
+                        <td>~$160K</td>
+                        <td>~$500K</td>
+                        <td>~$1.2M</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="slide-body">
+            <p style="font-size: 0.9rem;">100M+ people pay $20+/mo for AI. Lower COGS than agentic platforms. Conservative projections.</p>
+        </div>
+    </section>
+
+    <!-- SLIDE 8: Team & Traction -->
+    <section class="slide">
+        <div class="slide-label">Team & Traction</div>
+        <h2 class="slide-headline">Self-funded.<br>Built from scratch.</h2>
+        <div class="slide-body">
+            <p><strong>Working today:</strong> App with local voice transcription and graph storage. MCP server. Pendant prototype on stage. Daily beta launching this month.</p>
+            <p><strong>Learn Vibe Build</strong> &mdash; AI school and organic growth channel.</p>
+        </div>
+        <div style="margin-top: 2rem;">
+            <p style="font-family: var(--serif); font-size: 1.15rem; color: var(--fg);">Aaron Neyer &middot; Jon Bo &middot; Lucian Hymer &middot; Marvin Melzer &middot; Neil Yarnal</p>
+            <p style="font-size: 0.9rem; color: var(--fg-muted); margin-top: 0.5rem;">Startup, software, hardware, design &amp; product &mdash; an unusually balanced founding team.</p>
+            <p style="font-size: 0.8rem; color: var(--fg-dim); margin-top: 0.4rem;">CU ATLAS &middot; Ex-Google &middot; 10+ years full stack &middot; PBC in Colorado</p>
+        </div>
+    </section>
+
+    <!-- SLIDE 9: The Ask -->
+    <section class="slide">
+        <div class="slide-label">The Ask</div>
+        <h2 class="slide-headline">Raising $300K to launch<br>the memory layer.</h2>
+        <div class="ask-box">
+            <div class="ask-row"><span class="lbl">Instrument</span><span class="val">SAFE (YC standard)</span></div>
+            <div class="ask-row"><span class="lbl">Use of funds</span><span class="val">Core team full-time through 2026</span></div>
+            <div class="ask-row"><span class="lbl">Goal</span><span class="val">Production launch by June &middot; revenue immediately</span></div>
+        </div>
+        <p class="close-quote">A memory layer for humans and AI<br>to think and remember together.</p>
+        <div class="close-links">
+            Aaron Gabriel Neyer &middot; aaron@parachute.computer &middot; (513) 593-1721 &middot; Boulder, CO<br>
+            <a href="https://parachute.computer">parachute.computer</a> &middot;
+            <a href="https://github.com/OpenParachutePBC">github.com/OpenParachutePBC</a>
+        </div>
+    </section>
+
+</body>
+</html>

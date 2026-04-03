@@ -1,0 +1,282 @@
+---
+layout: base.njk
+title: "Roadmap & Scope of Work"
+description: "Parachute Computer development roadmap and scope of work for Spring 2026"
+permalink: /roadmap/
+---
+<main>
+    <div class="roadmap-header fade-up fade-up-1">
+        <h1>Spring 2026 Roadmap</h1>
+        <p class="dates">February &ndash; April 2026</p>
+        <a href="/archive/roadmap-v1.html" class="prev-link">View previous roadmap (Q1 v1)</a>
+    </div>
+
+    <section class="section">
+        <h2>Scope of Work</h2>
+        <p>This document serves as both the project roadmap for Open Parachute and the Scope of Work for ATLAS Creative Technology &amp; Design at CU Boulder.</p>
+        <dl class="sow-meta">
+            <dt>Student</dt>
+            <dd>Aaron Gabriel</dd>
+            <dt>Program</dt>
+            <dd>ATLAS, CU Boulder</dd>
+            <dt>Advisor</dt>
+            <dd>Kurt Smith</dd>
+            <dt>Meeting Cadence</dt>
+            <dd>Biweekly</dd>
+            <dt>Final Presentation</dt>
+            <dd>April 22, 2026</dd>
+            <dt>Repository</dt>
+            <dd><a href="https://github.com/OpenParachutePBC">github.com/OpenParachutePBC</a></dd>
+        </dl>
+    </section>
+
+    <section class="section">
+        <h2>Vision</h2>
+        <p>Parachute is an open-source personal AI platform built around a simple premise: <strong>instead of you learning the system, the system learns you.</strong></p>
+        <p>We're building two entry points into one coherent system&mdash;connected by an intelligent graph database that gives everything shared memory.</p>
+        <p><strong>Parachute Daily</strong> is a journaling app with gentle AI integration&mdash;daily reflections, weekly synthesis, pattern detection. Hosted service, accessible price point, designed for the 90% of people who want to think better without running a server. <a href="/vision/">Read the full vision &rarr;</a></p>
+        <p><strong>Parachute Computer</strong> is the full agentic platform&mdash;Claude Code for your entire life, not just your codebase. It combines Chat with deep context, Daily journaling, and Brain (your personal knowledge graph) into one integrated system that runs on your machine, with your data, under your control.</p>
+        <p>The two products connect through a seamless upgrade path: months of Daily journals flow into Parachute Brain, which bootstraps a system that already knows you the moment you switch.</p>
+    </section>
+
+    <section class="section">
+        <h2>Progress This Semester</h2>
+        <p>Since the semester started in mid-January, 200+ pull requests merged across the repository have transformed Parachute from an early prototype into a near-launch platform. Here's the arc:</p>
+
+        <h3>January: Foundation</h3>
+        <ul>
+            <li>Built a multi-agent daily system with reflection agents and a content-scout that processes journal entries</li>
+            <li>Added API key authentication for multi-device access</li>
+            <li>Shipped local voice transcription using Sherpa-ONNX with Parakeet models&mdash;works fully offline on macOS and Android</li>
+            <li>Built a CI/CD pipeline with code signing, notarization, and automated DMG builds for macOS distribution</li>
+            <li>Designed the product architecture and wrote the <a href="/archive/prd-modular-architecture.html">Modular Architecture PRD</a>&mdash;the design document that shaped the rebuild</li>
+            <li>Published this documentation site at openparachute.io</li>
+        </ul>
+
+        <h3>February: The Big Build</h3>
+        <ul>
+            <li>Completely rewrote the server as <strong>Parachute Computer</strong>&mdash;12,800+ lines of new code in under two weeks</li>
+            <li>Built the module system: brain, chat, and daily as independent modules with SHA-256 hash verification</li>
+            <li>Implemented three trust tiers (full / restricted / sandboxed) with Docker container isolation for untrusted sessions</li>
+            <li>Built Telegram and Discord bot connectors with a per-user pairing and approval flow</li>
+            <li>Created the <code>parachute</code> CLI for install, daemon management, config, diagnostics, module management, and updates</li>
+            <li>Added workspaces&mdash;named capability scopes that control which tools, MCPs, and models are available per session</li>
+            <li>Built the unified Flutter app with an adaptive multi-panel layout (mobile / tablet / desktop)</li>
+            <li>Decomposed large monolithic files into focused services&mdash;chat_service.dart went from 2,059 lines to 9 focused files</li>
+            <li>Built the event-driven hooks system for extending behavior at every lifecycle point</li>
+        </ul>
+
+        <h3>March: Graph as Core Infrastructure</h3>
+        <ul>
+            <li>Dissolved Brain as a standalone module&mdash;graph database became core infrastructure connecting all of Parachute</li>
+            <li>Complete brain system redesign: memory feed UI, MCP Cypher tools, graph-native entity system</li>
+            <li>Unified projects and conversation schema into a single coherent graph</li>
+            <li>Built chat system prompt modes (converse / cocreate) with skills pipeline</li>
+            <li>Shipped container file browser&mdash;full end-to-end with symlink support</li>
+            <li>Hardened Daily: durable audio staging, offline sync fixes, graph-native agent definitions (Callers &amp; Cards)</li>
+            <li>Extracted orchestrator phase methods, context system cleanup, WAL corruption fixes</li>
+            <li>UI polish across the app&mdash;approaching internal launch readiness</li>
+        </ul>
+    </section>
+
+    <section class="section">
+        <h2>What Exists Today</h2>
+
+        <h3>Parachute Computer (Server)</h3>
+        <ul>
+            <li>AI orchestration server (Python/FastAPI) wrapping the Claude Agent SDK with session management and streaming</li>
+            <li>Three trust tiers&mdash;full access, restricted, or sandboxed in Docker containers&mdash;so you control what AI can touch</li>
+            <li>Graph database as core infrastructure&mdash;an intelligent knowledge graph connecting journals, conversations, and entities across the entire system</li>
+            <li>Modular architecture: brain, chat, and daily ship as independent modules with hash verification</li>
+            <li>Workspaces that scope what tools, MCPs, and capabilities are available per session</li>
+            <li>Telegram, Discord, and Matrix bot connectors with per-user trust and a pairing approval flow</li>
+            <li>Multi-agent workspace teams&mdash;agents that spawn and coordinate sub-agents within your system</li>
+            <li>MCP server for session and journal search, workspace operations, inter-agent messaging</li>
+            <li>A real CLI (<code>parachute</code>) for install, daemon management, config, diagnostics, module management, and updates</li>
+            <li>Event-driven hooks for extending behavior at every lifecycle point</li>
+        </ul>
+
+        <h3>Parachute App (Client)</h3>
+        <ul>
+            <li>Unified Flutter app with Chat, Daily, and Brain tabs</li>
+            <li>Adaptive layout: single-panel on mobile, dual-panel on tablet, three-panel on desktop</li>
+            <li>Voice journaling with local Sherpa-ONNX transcription (works fully offline)</li>
+            <li>Brain&mdash;memory feed UI, entity browser, and Cypher query tools backed by the graph database</li>
+            <li>Chat redesign with two-phase streaming and polished session management</li>
+            <li>Workspace picker, model selection, trust level controls, bot session management</li>
+            <li>CI/CD pipeline with macOS code signing and notarized DMG builds</li>
+        </ul>
+    </section>
+
+    <section class="section">
+        <h2>Project Objectives</h2>
+        <ul>
+            <li><strong>Launch Parachute Daily</strong>&mdash;a standalone hosted journaling app with AI reflections, bringing the core Parachute experience to a much wider audience</li>
+            <li><strong>Ship Parachute Computer to real users</strong>&mdash;open-source launch to the Claude Code community, <a href="https://learnvibe.build" target="_blank">Learn Vibe Build</a> graduates, and beyond, building on the <a href="https://regenhub.xyz" target="_blank">Regen Hub</a> foundation</li>
+            <li><strong>Complete the Daily &rarr; Brain &rarr; Chat loop</strong>&mdash;journals feeding the knowledge graph, which enriches every conversation over time</li>
+            <li><strong>Design and build a hardware pendant</strong>&mdash;collaborating with Marvin Melzer to create a wearable device for always-on voice capture</li>
+            <li><strong>Grow an open-source community</strong>&mdash;launch publicly, get to 100+ active users</li>
+            <li><strong>Find a revenue path</strong>&mdash;Parachute Daily subscriptions and hosted Computer options; identify a model that reaches $1,000 MRR by April 22</li>
+            <li><strong>Maintain modular foundations</strong>&mdash;ship fast while keeping architecture decisions that support long-term extensibility</li>
+        </ul>
+    </section>
+
+    <section class="section">
+        <h2>Architecture</h2>
+        <div class="architecture-diagram">
+&#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;
+&#x2502;                     PARACHUTE APP (Flutter)                   &#x2502;
+&#x2502;        &#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;     &#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;     &#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;       &#x2502;
+&#x2502;        &#x2502;   Chat   &#x2502;     &#x2502;  Daily   &#x2502;     &#x2502;  Brain   &#x2502;       &#x2502;
+&#x2502;        &#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;     &#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;     &#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;       &#x2502;
+&#x2502;        macOS &#xB7; Android &#xB7; Web                                  &#x2502;
+&#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x252C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;
+                            &#x2502; HTTP / SSE
+&#x250C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2534;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2510;
+&#x2502;                  PARACHUTE COMPUTER (Python)                   &#x2502;
+&#x2502;   Orchestrator &#x2192; Claude SDK &#x2192; AI                              &#x2502;
+&#x2502;   Brain (memory) &#x2192; Chat &#xB7; Notes                               &#x2502;
+&#x2502;   Trust: full &#xB7; restricted &#xB7; sandboxed (Docker)               &#x2502;
+&#x2502;   Connectors: Telegram &#xB7; Discord                              &#x2502;
+&#x2502;   Workspaces &#xB7; Hooks &#xB7; CLI                                    &#x2502;
+&#x2514;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x252C;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2518;
+                            &#x2502;
+                  Brain (graph database)
+                  Your data. Your machine.</div>
+    </section>
+
+    <section class="section">
+        <h2>Success Metrics (April 22, 2026)</h2>
+        <table class="metrics-table">
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Target</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Active users</td>
+                    <td>100+ running Parachute Computer (stretch: 1,000+)</td>
+                </tr>
+                <tr>
+                    <td>Open-source traction</td>
+                    <td>GitHub stars, contributors, community engagement</td>
+                </tr>
+                <tr>
+                    <td>Brain module</td>
+                    <td>Knowledge graph that visibly improves conversations over time</td>
+                </tr>
+                <tr>
+                    <td>Hardware pendant</td>
+                    <td>Working prototype with voice capture feeding into Parachute</td>
+                </tr>
+                <tr>
+                    <td>Revenue</td>
+                    <td>Path to $1,000 MRR identified and generating initial revenue</td>
+                </tr>
+                <tr>
+                    <td>User retention</td>
+                    <td>Early users choosing Parachute over Claude.ai for daily use</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="section">
+        <h2>Timeline</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <h3>Week of Feb 10 <span class="status-badge status-done">Done</span></h3>
+                <span class="week-label"><a href="https://regenhub.xyz" target="_blank">Regen Hub</a> Launch</span>
+                <ul>
+                    <li>Automated install: one-command setup for Regen Hub members</li>
+                    <li>Deploy shared infrastructure with Telegram and Discord bots</li>
+                    <li>First community of users on Parachute Computer</li>
+                    <li>Rapid bug fixing from real-world use</li>
+                </ul>
+            </div>
+            <div class="timeline-item">
+                <h3>Weeks of Feb 17 &ndash; 24 <span class="status-badge status-done">Done</span></h3>
+                <span class="week-label">Brain Module &amp; Platform Polish</span>
+                <ul>
+                    <li>Brain v2 shipped&mdash;knowledge graph backend + Flutter UI &#10003;</li>
+                    <li>Chat UI redesign&mdash;two-phase streaming, visual polish &#10003;</li>
+                    <li>Multi-agent workspace teams &#10003;</li>
+                    <li>Matrix bot connector with bridge-aware room detection &#10003;</li>
+                    <li>Sandbox hardening and credential injection &#10003;</li>
+                </ul>
+            </div>
+            <div class="timeline-item">
+                <h3>Late February / Early March <span class="status-badge status-done">Done</span></h3>
+                <span class="week-label">Graph Redesign &amp; Polish</span>
+                <ul>
+                    <li>Graph database as core infrastructure&mdash;dissolved Brain module into foundational layer &#10003;</li>
+                    <li>Brain system redesign: memory feed UI, MCP Cypher tools &#10003;</li>
+                    <li>Schema unification&mdash;projects and conversations into coherent graph &#10003;</li>
+                    <li>Chat system prompt modes (converse / cocreate) &#10003;</li>
+                    <li>Container file browser, Daily offline sync hardening &#10003;</li>
+                </ul>
+            </div>
+            <div class="timeline-item">
+                <h3>March <span class="status-badge status-active">Now</span></h3>
+                <span class="week-label">Internal Launch &amp; Onboarding</span>
+                <ul>
+                    <li>Internal launch to Regen Hub community&mdash;full Parachute experience</li>
+                    <li>Parachute Daily standalone onboarding for broader audience</li>
+                    <li>Daily note-taking UI polish&mdash;long-form markdown, better voice interface</li>
+                    <li>Callers &amp; Cards: graph-native agent definitions for daily reflections</li>
+                    <li>Open-source launch prep: README, install guides, community channels</li>
+                    <li>Hardware pendant prototyping with Marvin Melzer</li>
+                </ul>
+            </div>
+            <div class="timeline-item">
+                <h3>Late March / Early April <span class="status-badge status-upcoming">Upcoming</span></h3>
+                <span class="week-label">Public Launch &amp; Revenue</span>
+                <ul>
+                    <li>Public launch: Claude Code community, Twitter, Hacker News</li>
+                    <li><a href="https://learnvibe.build" target="_blank">Learn Vibe Build</a> graduates onboarded</li>
+                    <li>Revenue experimentation: Daily subscriptions, hosted Computer</li>
+                    <li>Documentation polished with tutorials and guides</li>
+                </ul>
+            </div>
+            <div class="timeline-item">
+                <h3>April 1 &ndash; 22 <span class="status-badge status-upcoming">Upcoming</span></h3>
+                <span class="week-label">Final Push</span>
+                <ul>
+                    <li>Revenue model live and generating initial traction</li>
+                    <li>Hardware pendant prototype complete</li>
+                    <li>Polish based on community feedback</li>
+                    <li>New Venture Challenge final presentations (April 22)</li>
+                    <li>ATLAS final presentation (April 22)</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2>Revenue Path</h2>
+        <p>Open source is the growth engine, not a constraint. Parachute Computer is free for self-hosters. Revenue comes from making the experience easier for people who don't want to run infrastructure&mdash;and from a simpler product built for a wider audience.</p>
+        <ul>
+            <li><strong>Parachute Daily subscriptions</strong>&mdash;the entry point for most users. Hosted journaling with AI reflections at an accessible price. Simple tiers: sync, daily AI reflections, richer weekly synthesis. This is where the majority of revenue comes from at scale.</li>
+            <li><strong>Hosted Parachute Computer</strong>&mdash;a managed service for power users who want everything without running a server. Higher-margin, lower-volume.</li>
+            <li><strong>Hardware pendant</strong>&mdash;wearable voice capture device, in development with Marvin Melzer. Future revenue stream once prototyping is complete.</li>
+        </ul>
+        <p>The upgrade path is the flywheel: Daily users build months of journal context, then upgrade to Computer where Brain ingests their history and immediately knows them. Retention compounds on both sides.</p>
+        <p>Early 2026 focuses on real users and real usage. Revenue experimentation follows once usage patterns show which path has the most pull. Target: a path to $1,000 MRR identified by April 22.</p>
+    </section>
+
+    <section class="section">
+        <h2>Stretch Goals</h2>
+        <ul>
+            <li><strong>Community modules</strong>&mdash;third-party modules that extend Parachute Computer</li>
+            <li><strong>Multi-provider AI</strong>&mdash;beyond Claude: Gemini, local models, other providers through the modular agent system</li>
+        </ul>
+    </section>
+
+    <section class="cta">
+        <p>Parachute is open source and launching now.</p>
+        <a href="https://github.com/OpenParachutePBC/parachute-computer" class="button" target="_blank">GitHub</a>
+        <p class="cta-secondary">Read the <a href="/blog/">blog</a> to follow along.</p>
+    </section>
+</main>
