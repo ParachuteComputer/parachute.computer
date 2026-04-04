@@ -38,7 +38,7 @@ permalink: /nvc/deck/
             line-height: 1.6;
         }
 
-        /* ── Slide structure ── */
+        /* -- Slide structure -- */
         .slide {
             min-height: 100vh;
             display: flex;
@@ -86,7 +86,7 @@ permalink: /nvc/deck/
         .slide-body p:last-child { margin-bottom: 0; }
         .slide-body strong { color: var(--fg); font-weight: 500; }
 
-        /* ── Stat row ── */
+        /* -- Stat row -- */
         .stat-row {
             display: flex;
             gap: 0;
@@ -118,17 +118,7 @@ permalink: /nvc/deck/
             line-height: 1.4;
         }
 
-        /* ── People list ── */
-        .people {
-            font-family: var(--serif);
-            font-size: 1.3rem;
-            line-height: 2.2;
-            color: var(--fg-muted);
-            max-width: 600px;
-        }
-        .people em { font-style: italic; color: var(--fg); }
-
-        /* ── Flywheel ── */
+        /* -- Flywheel -- */
         .flywheel {
             display: flex;
             flex-direction: column;
@@ -156,28 +146,7 @@ permalink: /nvc/deck/
             width: 1.5rem;
         }
 
-        /* ── Bullet list ── */
-        .bullet-list {
-            list-style: none;
-            padding: 0;
-            margin: 0.5rem 0;
-            max-width: 650px;
-        }
-        .bullet-list li {
-            font-size: 1.1rem;
-            color: var(--fg-muted);
-            padding: 0.5rem 0 0.5rem 1.5rem;
-            position: relative;
-        }
-        .bullet-list li::before {
-            content: "·";
-            position: absolute;
-            left: 0.25rem;
-            color: var(--accent);
-            font-weight: bold;
-        }
-
-        /* ── Tier table ── */
+        /* -- Tier table -- */
         .tier-table {
             margin: 1rem 0;
             border: 1px solid var(--border);
@@ -206,33 +175,7 @@ permalink: /nvc/deck/
         .tier-body strong { color: var(--fg); font-weight: 500; }
         .tier-highlight { background: var(--accent-soft); }
 
-        /* ── Pendant callout ── */
-        .pendant-callout {
-            background: var(--bg-soft);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 1.75rem;
-            max-width: 340px;
-            position: absolute;
-            right: 6rem;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        .pendant-callout .label {
-            font-size: 0.65rem;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--accent);
-            font-weight: 500;
-            margin-bottom: 0.75rem;
-        }
-        .pendant-callout p {
-            font-size: 0.95rem;
-            color: var(--fg-muted);
-            line-height: 1.6;
-        }
-
-        /* ── Financial table ── */
+        /* -- Financial table -- */
         .fin-table {
             margin: 1rem 0;
             border: 1px solid var(--border);
@@ -273,7 +216,7 @@ permalink: /nvc/deck/
         .fin-table tr:last-child td { border-bottom: none; }
         .fin-table .highlight { color: var(--accent); font-weight: 500; }
 
-        /* ── Ask box ── */
+        /* -- Ask box -- */
         .ask-box {
             border: 1px solid var(--border);
             border-radius: 10px;
@@ -312,7 +255,7 @@ permalink: /nvc/deck/
         }
         .close-links a:hover { text-decoration: underline; }
 
-        /* ── Architecture diagram (hub-and-spoke) ── */
+        /* -- Architecture diagram (hub-and-spoke) -- */
         .arch-diagram {
             margin: 1rem 0;
             border: 1px solid var(--border);
@@ -384,18 +327,112 @@ permalink: /nvc/deck/
             text-transform: uppercase;
         }
 
-        /* ── Mobile ── */
+        /* -- Competitor landscape -- */
+        .landscape {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            max-width: 700px;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+        }
+        .landscape-quadrant {
+            padding: 1.5rem;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        .landscape-quadrant:nth-child(2n) { border-right: none; }
+        .landscape-quadrant:nth-child(n+3) { border-bottom: none; }
+        .landscape-quadrant .quad-label {
+            font-size: 0.6rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--fg-dim);
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+        .landscape-quadrant .quad-names {
+            font-family: var(--serif);
+            font-size: 1.1rem;
+            color: var(--fg-muted);
+            line-height: 1.8;
+        }
+        .landscape-quadrant.ours {
+            background: var(--accent-soft);
+        }
+        .landscape-quadrant.ours .quad-label { color: var(--accent); }
+        .landscape-quadrant.ours .quad-names { color: var(--accent); font-weight: 500; }
+
+        /* -- Persona cards -- */
+        .persona-row {
+            display: flex;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+            max-width: 900px;
+        }
+        .persona-card {
+            flex: 1;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.75rem;
+            background: #fff;
+        }
+        .persona-card .persona-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+        .persona-card .persona-who {
+            font-family: var(--serif);
+            font-size: 1.2rem;
+            color: var(--fg);
+            margin-bottom: 0.5rem;
+        }
+        .persona-card .persona-how {
+            font-size: 0.9rem;
+            color: var(--fg-muted);
+            line-height: 1.6;
+        }
+
+        /* -- GTM channels -- */
+        .gtm-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+            max-width: 800px;
+        }
+        .gtm-item {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem;
+            background: #fff;
+        }
+        .gtm-item .gtm-name {
+            font-family: var(--serif);
+            font-size: 1.1rem;
+            color: var(--fg);
+            margin-bottom: 0.35rem;
+        }
+        .gtm-item .gtm-desc {
+            font-size: 0.8rem;
+            color: var(--fg-muted);
+            line-height: 1.5;
+        }
+
+        /* -- Mobile -- */
         @media (max-width: 768px) {
             .slide { padding: 3rem 1.5rem; }
-            .pendant-callout {
-                position: static;
-                transform: none;
-                margin-top: 1.5rem;
-                max-width: 100%;
-            }
             .stat-row { flex-direction: column; }
             .stat { border-right: none; border-bottom: 1px solid var(--border); }
             .stat:last-child { border-bottom: none; }
+            .landscape { grid-template-columns: 1fr; }
+            .landscape-quadrant { border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+            .landscape-quadrant:last-child { border-bottom: none !important; }
+            .persona-row { flex-direction: column; }
+            .gtm-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -411,75 +448,62 @@ permalink: /nvc/deck/
         </div>
     </div>
 
-    <!-- SLIDE 1: The Race -->
+    <!-- SLIDE 1: Aspiration -->
     <section class="slide" style="padding-top: 6rem;">
-        <div class="slide-label">The Landscape</div>
-        <h2 class="slide-headline">Everyone is racing to build<br>your AI agent.</h2>
-        <div class="slide-body">
-            <p>OpenClaw. Claude Cowork. ZoComputer. Perplexity Computer. Manus. Over 100 million people already pay $20+/month for AI.</p>
-        </div>
-        <div class="stat-row">
-            <div class="stat">
-                <div class="stat-num">$50B+</div>
-                <div class="stat-label">Agentic AI market by 2030</div>
+        <div style="display: flex; align-items: center; gap: 4rem;">
+            <div style="flex: 1;">
+                <h2 class="slide-headline">Your thinking, captured.<br>Your AI, <em>transformed.</em></h2>
+                <div class="slide-body">
+                    <p>Go for a walk. Talk through your ideas. By the time you&rsquo;re home, your thoughts are organized, searchable, and available to any AI you use.</p>
+                    <p style="font-family: var(--serif); font-size: 1.3rem; color: var(--fg); margin-top: 1rem;">This is Parachute.</p>
+                </div>
             </div>
-            <div class="stat">
-                <div class="stat-num">44%</div>
-                <div class="stat-label">CAGR</div>
+            <div style="flex: 0 0 auto;">
+                <img src="/nvc/images/pendant-worn.png" alt="Parachute pendant worn on a walk" style="width: 320px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
             </div>
-        </div>
-        <div class="slide-body">
-            <p style="margin-top: 1rem; font-family: var(--serif); font-size: 1.3rem; color: var(--fg);">Features get cloned in weeks. It&rsquo;s a race to the bottom. So we stopped trying to win it.</p>
         </div>
     </section>
 
-    <!-- SLIDE 2: The Problem -->
+    <!-- SLIDE 2: The Product -->
+    <section class="slide">
+        <div style="display: flex; align-items: center; gap: 4rem;">
+            <div style="flex: 1;">
+                <div class="slide-label">The Product</div>
+                <h2 class="slide-headline">Parachute Daily.<br>Just talk.</h2>
+                <div class="slide-body">
+                    <p>A voice-first journal. Speak into a wearable pendant or your phone &mdash; wherever thinking happens.</p>
+                    <p>Your notes become structured knowledge that <strong>any AI can work with</strong> &mdash; not locked inside one platform.</p>
+                </div>
+            </div>
+            <div style="flex: 0 0 auto;">
+                <img src="/nvc/images/pendant-render.png" alt="Parachute pendant" style="width: 240px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 3: The Problem -->
     <section class="slide">
         <div class="slide-label">The Problem</div>
         <h2 class="slide-headline">There&rsquo;s no knowledge layer.</h2>
         <div class="slide-body">
-            <p>Every AI platform stores personal context the same way: one flat text file. No structure. No knowledge about your projects, people, or patterns over time. <strong>There&rsquo;s no portable, structured knowledge layer</strong> that works across tools.</p>
-            <p>And there&rsquo;s a deeper problem: <strong>capture requires conversation.</strong> The AI is always in the middle. There&rsquo;s no way to just think for yourself and have it become context.</p>
-        </div>
-        <div class="slide-body">
-            <p style="font-family: var(--serif); font-size: 1.3rem; color: var(--fg); margin-top: 1.5rem;">Think for ourselves first. <em>Then</em> think with AI.</p>
+            <p>Every AI stores your context the same way: <strong>one flat text file.</strong> It remembers your name, not six months of your thinking.</p>
+            <p>And capture is broken &mdash; to give your AI context, you have to <em>talk to your AI.</em> There&rsquo;s no way to think for yourself and have it become context.</p>
         </div>
     </section>
 
-    <!-- SLIDE 3: Parachute Daily -->
+    <!-- SLIDE 4: How It Works -->
     <section class="slide">
-        <div style="display: flex; align-items: center; gap: 4rem;">
-            <div style="flex: 1;">
-                <div class="slide-label">Our Answer</div>
-                <h2 class="slide-headline">Parachute Daily.<br>Just talk.</h2>
-                <div class="slide-body">
-                    <p>A voice-first journal. Speak into a wearable pendant or your phone &mdash; on a walk, in the car, wherever thinking happens.</p>
-                    <p>Simple for humans. Native for AI. Your notes become structured data that any agent can work with &mdash; not locked inside one platform.</p>
-                </div>
-                <div style="margin-top: 1.5rem; padding: 1rem 1.25rem; background: var(--accent-soft); border-radius: 8px; max-width: 480px;">
-                    <p style="font-size: 0.95rem; color: var(--fg);"><strong>The Pendant</strong> &mdash; Wearable voice capture. Go for a walk. Talk. Your thoughts become structured knowledge by the time you&rsquo;re home.</p>
-                </div>
-            </div>
-            <div style="flex: 0 0 auto; display: flex; flex-direction: column; gap: 1.5rem; align-items: center;">
-                <img src="/nvc/images/pendant-worn.png" alt="Parachute pendant worn" style="width: 280px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
-                <img src="/nvc/images/pendant-render.png" alt="Parachute pendant render" style="width: 220px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
-            </div>
-        </div>
-    </section>
-
-    <!-- SLIDE 4: Agent-Native Architecture -->
-    <section class="slide">
-        <div class="slide-label">Agent-Native</div>
-        <h2 class="slide-headline">Don&rsquo;t compete with agents.<br>Build the tool layer they all need.</h2>
+        <div class="slide-label">How It Works</div>
+        <h2 class="slide-headline">Spin up a vault. Give any AI a link.</h2>
         <div class="slide-body">
-            <p><strong>Spin up a knowledge vault in seconds. Give any AI an MCP link.</strong> That&rsquo;s it. Your data lives in a graph database: <strong>Notes, Tags, and Links.</strong></p>
-            <p>Built on MCP &mdash; the open standard for connecting AI to tools. Whatever AI you already use, Parachute makes it better. You don&rsquo;t switch anything &mdash; you <em>add</em> Parachute.</p>
+            <p>A personal knowledge graph &mdash; <strong>Notes, Tags, and Links</strong> &mdash; accessible to any AI via MCP, the open standard for connecting AI to tools.</p>
         </div>
         <div class="arch-diagram">
             <div class="arch-spoke">
-                <div class="arch-spoke-label">your tools</div>
-                <span class="arch-box">Parachute Daily <span style="color: var(--fg-dim); font-size: 0.7rem;">&ensp;phone &middot; web</span></span>
-                <span class="arch-box">Parachute Pendant</span>
+                <div class="arch-spoke-label">you</div>
+                <span class="arch-box">Parachute Daily</span>
+                <span class="arch-box">Pendant</span>
+                <span class="arch-box">Phone &middot; Web</span>
             </div>
             <div class="arch-connector">&harr;</div>
             <div class="arch-hub">
@@ -494,17 +518,62 @@ permalink: /nvc/deck/
                 <div class="arch-spoke-label">your AI</div>
                 <span class="arch-box">Claude</span>
                 <span class="arch-box">ChatGPT</span>
-                <span class="arch-box">Any AI agent</span>
+                <span class="arch-box">Gemini</span>
+                <span class="arch-box">Any agent</span>
             </div>
         </div>
     </section>
 
-    <!-- SLIDE 5: Context Compounds -->
+    <!-- SLIDE 5: Competitive Landscape -->
     <section class="slide">
-        <div class="slide-label">The Insight</div>
+        <div class="slide-label">Competitive Landscape</div>
+        <h2 class="slide-headline">Everyone builds one piece.<br>Nobody connects them.</h2>
+        <div class="landscape">
+            <div class="landscape-quadrant">
+                <div class="quad-label">Note apps &mdash; great capture, no AI</div>
+                <div class="quad-names">Obsidian<br>Apple Notes<br>Notion</div>
+            </div>
+            <div class="landscape-quadrant">
+                <div class="quad-label">AI platforms &mdash; smart, but siloed</div>
+                <div class="quad-names">ChatGPT<br>Gemini<br>Claude</div>
+            </div>
+            <div class="landscape-quadrant">
+                <div class="quad-label">Knowledge tools &mdash; power users only</div>
+                <div class="quad-names">Tana<br>Roam<br>Mem</div>
+            </div>
+            <div class="landscape-quadrant ours">
+                <div class="quad-label">Parachute &mdash; knowledge layer for all AI</div>
+                <div class="quad-names">Open &middot; Portable &middot; Agent-native<br>Works with every AI, not instead of one</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 6: Who Uses This -->
+    <section class="slide">
+        <div class="slide-label">Real-World Usage</div>
+        <h2 class="slide-headline">For anyone who thinks.</h2>
+        <div class="persona-row">
+            <div class="persona-card">
+                <div class="persona-who">The Thinker</div>
+                <div class="persona-how">Goes for a morning walk, talks through ideas. Their AI assistant already knows what they were mulling over yesterday.</div>
+            </div>
+            <div class="persona-card">
+                <div class="persona-who">The Professional</div>
+                <div class="persona-how">Voice-notes after every meeting. Months of institutional context, searchable by any tool &mdash; never trapped in one app.</div>
+            </div>
+            <div class="persona-card">
+                <div class="persona-who">The Enterprise</div>
+                <div class="persona-how">A departing team member records three days of knowledge transfer. Their expertise lives on in a structured, queryable vault.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 7: Context Compounds -->
+    <section class="slide">
+        <div class="slide-label">The Moat</div>
         <h2 class="slide-headline">Context compounds.</h2>
         <div class="slide-body">
-            <p>Every entry builds a queryable graph of your thinking &mdash; portable, yours, and impossible for competitors to replicate.</p>
+            <p>Every note builds a richer graph. The longer you use it, the more valuable it becomes &mdash; and the harder it is to leave.</p>
         </div>
         <div class="flywheel">
             <div class="fw-step"><span class="fw-num">01</span> Capture thoughts in Daily</div>
@@ -514,116 +583,120 @@ permalink: /nvc/deck/
             <div class="fw-step final"><span class="fw-num">&rarr;</span> Switching cost through genuine value</div>
         </div>
         <div class="slide-body">
-            <p style="margin-top: 1rem; font-size: 0.95rem;">Open source &middot; Local-first &middot; Public Benefit Corporation. Your data is portable, exportable, self-hostable.</p>
+            <p style="margin-top: 1rem; font-size: 0.95rem;">Open source &middot; Local-first &middot; Public Benefit Corporation.<br>Your data is portable, exportable, self-hostable.</p>
         </div>
     </section>
 
-    <!-- SLIDE 6: Business Model -->
+    <!-- SLIDE 8: Business Model + Market -->
     <section class="slide">
-        <div class="slide-label">Business Model</div>
-        <h2 class="slide-headline">Start free.<br>Grow with every user.</h2>
-        <div class="tier-table">
-            <div class="tier-row">
-                <div class="tier-price">Free</div>
-                <div class="tier-body"><strong>Offline journal</strong> &mdash; zero hosting cost</div>
+        <div style="display: flex; gap: 4rem; align-items: flex-start;">
+            <div style="flex: 1;">
+                <div class="slide-label">Business Model</div>
+                <h2 class="slide-headline">The $2&ndash;10 add-on<br>to every AI subscription.</h2>
+                <div class="tier-table">
+                    <div class="tier-row">
+                        <div class="tier-price">Free</div>
+                        <div class="tier-body"><strong>Offline journal</strong> &mdash; zero hosting cost</div>
+                    </div>
+                    <div class="tier-row">
+                        <div class="tier-price">$2<span>/mo</span></div>
+                        <div class="tier-body"><strong>Cloud sync + MCP</strong> &mdash; any AI</div>
+                    </div>
+                    <div class="tier-row">
+                        <div class="tier-price">$5<span>/mo</span></div>
+                        <div class="tier-body"><strong>Cloud transcription</strong> &mdash; better accuracy</div>
+                    </div>
+                    <div class="tier-row tier-highlight">
+                        <div class="tier-price">$10<span>/mo</span></div>
+                        <div class="tier-body"><strong>AI reflections + synthesis</strong></div>
+                    </div>
+                    <div class="tier-row">
+                        <div class="tier-price">$100</div>
+                        <div class="tier-body"><strong>Parachute Pendant</strong> &mdash; hardware</div>
+                    </div>
+                </div>
             </div>
-            <div class="tier-row">
-                <div class="tier-price">$2<span>/mo</span></div>
-                <div class="tier-body"><strong>Cloud sync + MCP</strong> &mdash; notes on all devices, any AI</div>
+            <div style="flex: 0 0 auto; padding-top: 5rem;">
+                <div class="stat-row" style="margin: 0;">
+                    <div class="stat">
+                        <div class="stat-num">100M+</div>
+                        <div class="stat-label">people already pay<br>$20+/mo for AI</div>
+                    </div>
+                </div>
+                <div class="stat-row" style="margin-top: 1rem;">
+                    <div class="stat">
+                        <div class="stat-num">$50B+</div>
+                        <div class="stat-label">agentic AI market<br>by 2030</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-num">44%</div>
+                        <div class="stat-label">CAGR</div>
+                    </div>
+                </div>
             </div>
-            <div class="tier-row">
-                <div class="tier-price">$5<span>/mo</span></div>
-                <div class="tier-body"><strong>Cloud transcription</strong> &mdash; better accuracy</div>
-            </div>
-            <div class="tier-row tier-highlight">
-                <div class="tier-price">$10<span>/mo</span></div>
-                <div class="tier-body"><strong>AI reflections + synthesis</strong> &mdash; your AI truly knows you</div>
-            </div>
-            <div class="tier-row">
-                <div class="tier-price">$100</div>
-                <div class="tier-body"><strong>Parachute Pendant</strong> &mdash; wearable voice capture hardware</div>
-            </div>
-        </div>
-        <div class="slide-body">
-            <p style="font-size: 0.9rem;">100M+ people already pay $20+/mo for AI. We&rsquo;re not competing with that subscription &mdash; we&rsquo;re the $2&ndash;10 add-on that makes it dramatically better. Free tier = zero hosting cost.</p>
         </div>
     </section>
 
-    <!-- SLIDE 7: Financial Projections -->
+    <!-- SLIDE 9: Go-to-Market -->
     <section class="slide">
-        <div class="slide-label">Financial Projections</div>
-        <h2 class="slide-headline">Profitable by year three.</h2>
-        <div class="fin-table">
-            <table>
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>2026</th>
-                        <th>2027</th>
-                        <th>2028</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Free users</td>
-                        <td>5,000</td>
-                        <td>75,000</td>
-                        <td>500,000</td>
-                    </tr>
-                    <tr>
-                        <td>Paid subscribers</td>
-                        <td>500</td>
-                        <td>8,000</td>
-                        <td>50,000</td>
-                    </tr>
-                    <tr>
-                        <td>ARR</td>
-                        <td>~$30K</td>
-                        <td class="highlight">~$480K</td>
-                        <td class="highlight">~$3M</td>
-                    </tr>
-                    <tr>
-                        <td>Total opex</td>
-                        <td>~$160K</td>
-                        <td>~$500K</td>
-                        <td>~$1.2M</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="slide-body">
-            <p style="font-size: 0.9rem;">100M+ people pay $20+/mo for AI. Lower COGS than agentic platforms. Conservative projections.</p>
+        <div class="slide-label">Go-to-Market</div>
+        <h2 class="slide-headline">Multiple channels.<br>One community.</h2>
+        <div class="gtm-grid">
+            <div class="gtm-item">
+                <div class="gtm-name">Learn Vibe Build</div>
+                <div class="gtm-desc">AI learning cohorts. Students become power users become advocates.</div>
+            </div>
+            <div class="gtm-item">
+                <div class="gtm-name">Builder community</div>
+                <div class="gtm-desc">Open source contributors and MCP developers. Ship integrations, spread the tool.</div>
+            </div>
+            <div class="gtm-item">
+                <div class="gtm-name">AI-native users</div>
+                <div class="gtm-desc">Claude, ChatGPT, Gemini power users who already want better memory and tools.</div>
+            </div>
+            <div class="gtm-item">
+                <div class="gtm-name">Voice-first audience</div>
+                <div class="gtm-desc">Walkers, commuters, journalers &mdash; people who think out loud.</div>
+            </div>
+            <div class="gtm-item">
+                <div class="gtm-name">Local hub</div>
+                <div class="gtm-desc">Boulder co-working space as a testbed and word-of-mouth engine.</div>
+            </div>
+            <div class="gtm-item">
+                <div class="gtm-name">Enterprise pilots</div>
+                <div class="gtm-desc">Knowledge capture for teams &mdash; onboarding, transitions, institutional memory.</div>
+            </div>
         </div>
     </section>
 
-    <!-- SLIDE 8: Team & Traction -->
+    <!-- SLIDE 10: Team & Traction -->
     <section class="slide">
         <div class="slide-label">Team & Traction</div>
-        <h2 class="slide-headline">Self-funded.<br>Built from scratch.</h2>
+        <h2 class="slide-headline">Self-funded. Built from scratch.</h2>
         <div class="slide-body">
-            <p><strong>Working today:</strong> App with local voice transcription and graph storage. MCP server. Pendant prototype on stage. Daily beta launching this month.</p>
+            <p><strong>Working today:</strong> App with voice transcription and graph storage. MCP server. Pendant prototype. Daily beta launching this month.</p>
         </div>
         <div style="margin-top: 2rem;">
             <p style="font-family: var(--serif); font-size: 1.15rem; color: var(--fg);">Aaron Neyer &middot; Jon Bo &middot; Lucian Hymer &middot; Marvin Melzer &middot; Neil Yarnal</p>
-            <p style="font-size: 0.9rem; color: var(--fg-muted); margin-top: 0.5rem;">Startup, software, hardware, design &amp; product &mdash; an unusually balanced founding team.</p>
+            <p style="font-size: 0.9rem; color: var(--fg-muted); margin-top: 0.5rem;">Startup, software, hardware, design &amp; product.</p>
             <p style="font-size: 0.8rem; color: var(--fg-dim); margin-top: 0.4rem;">CU ATLAS &middot; Ex-Google &middot; 10+ years full stack &middot; PBC in Colorado</p>
         </div>
     </section>
 
-    <!-- SLIDE 9: The Ask -->
+    <!-- SLIDE 11: The Ask -->
     <section class="slide">
         <div class="slide-label">The Ask</div>
-        <h2 class="slide-headline">Raising $300K to launch<br>the memory layer.</h2>
+        <h2 class="slide-headline">Raising $300K to launch<br>the knowledge layer.</h2>
         <div class="ask-box">
             <div class="ask-row"><span class="lbl">Instrument</span><span class="val">SAFE (YC standard)</span></div>
             <div class="ask-row"><span class="lbl">Use of funds</span><span class="val">Core team full-time through 2026</span></div>
             <div class="ask-row"><span class="lbl">Goal</span><span class="val">Production launch by June &middot; revenue immediately</span></div>
         </div>
-        <p class="close-quote">A memory layer for humans and AI<br>to think and remember together.</p>
+        <p class="close-quote">A knowledge layer for humans and AI<br>to think and remember together.</p>
         <div class="close-links">
             Aaron Gabriel Neyer &middot; aaron@parachute.computer &middot; (513) 593-1721 &middot; Boulder, CO<br>
             <a href="https://parachute.computer">parachute.computer</a> &middot;
-            <a href="https://github.com/OpenParachutePBC">github.com/OpenParachutePBC</a>
+            <a href="https://github.com/ParachuteComputer">github.com/ParachuteComputer</a>
         </div>
     </section>
 
