@@ -262,7 +262,7 @@ inner.fill.fore_color.rgb = RGBColor(0xE8, 0xF5, 0xEC)
 inner.line.color.rgb = ACCENT
 inner.line.width = Pt(1)
 add_text_box(s, Inches(7.5), Inches(4.5), Inches(4.5), Inches(0.4),
-             "Parachute Server \u2014 Notes \u00b7 Tags \u00b7 Links",
+             "Parachute Vault \u2014 Notes \u00b7 Tags \u00b7 Links",
              font_size=13, color=ACCENT, bold=True)
 
 add_text_box(s, Inches(9.0), Inches(5.0), Inches(1.5), Inches(0.3),
