@@ -20,7 +20,6 @@ permalink: /nvc/deck/
             --fg-dim:       #9a9690;
             --accent:       #4a7c59;
             --accent-soft:  rgba(74, 124, 89, 0.08);
-            --accent-light: #6a9b77;
             --border:       #e4e0d8;
             --serif: 'Instrument Serif', Georgia, serif;
             --sans:  'DM Sans', system-ui, sans-serif;
@@ -101,7 +100,6 @@ permalink: /nvc/deck/
         }
         body.show-notes .speaker-notes { display: block; }
 
-        /* -- Notes toggle -- */
         .notes-toggle {
             position: fixed;
             bottom: 1.5rem;
@@ -210,6 +208,47 @@ permalink: /nvc/deck/
         .tier-body strong { color: var(--fg); font-weight: 500; }
         .tier-highlight { background: var(--accent-soft); }
 
+        /* -- Financial table -- */
+        .fin-table {
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+            max-width: 600px;
+        }
+        .fin-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .fin-table th {
+            font-size: 0.65rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--fg-dim);
+            font-weight: 500;
+            text-align: center;
+            padding: 0.6rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-soft);
+        }
+        .fin-table th:first-child { text-align: left; }
+        .fin-table td {
+            font-size: 0.85rem;
+            color: var(--fg-muted);
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+        .fin-table td:first-child {
+            font-weight: 500;
+            color: var(--fg);
+            text-align: left;
+            font-size: 0.8rem;
+        }
+        .fin-table tr:last-child td { border-bottom: none; }
+        .fin-table .highlight { color: var(--accent); font-weight: 500; }
+
         /* -- Ask box -- */
         .ask-box {
             border: 1px solid var(--border);
@@ -316,7 +355,7 @@ permalink: /nvc/deck/
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0;
-            max-width: 650px;
+            max-width: 600px;
             margin: 1rem 0;
             border: 1px solid var(--border);
             border-radius: 10px;
@@ -374,26 +413,6 @@ permalink: /nvc/deck/
             line-height: 1.5;
         }
 
-        /* -- GTM channels -- */
-        .gtm-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.75rem;
-            margin: 1rem 0;
-            max-width: 700px;
-        }
-        .gtm-item {
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1rem;
-            background: #fff;
-        }
-        .gtm-item .gtm-name {
-            font-family: var(--serif);
-            font-size: 1rem;
-            color: var(--fg);
-        }
-
         /* -- Mobile -- */
         @media (max-width: 768px) {
             .slide { padding: 3rem 1.5rem; }
@@ -404,7 +423,6 @@ permalink: /nvc/deck/
             .landscape-quadrant { border-right: none !important; border-bottom: 1px solid var(--border) !important; }
             .landscape-quadrant:last-child { border-bottom: none !important; }
             .persona-row { flex-direction: column; }
-            .gtm-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -422,53 +440,60 @@ permalink: /nvc/deck/
 
     <button class="notes-toggle" onclick="document.body.classList.toggle('show-notes'); this.textContent = document.body.classList.contains('show-notes') ? 'Hide Notes' : 'Speaker Notes';">Speaker Notes</button>
 
-    <!-- SLIDE 1: Aspiration -->
+    <!-- ============================================ -->
+    <!-- SLIDE 1 — ASPIRATION                        -->
+    <!-- ============================================ -->
     <section class="slide" style="padding-top: 6rem;">
         <div style="display: flex; align-items: center; gap: 4rem;">
             <div style="flex: 1;">
-                <h2 class="slide-headline">Your thinking, captured.<br>Your AI, <em>transformed.</em></h2>
-                <p class="slide-sub">This is Parachute.</p>
+                <h2 class="slide-headline">You go for a walk.<br>You talk through your ideas.<br>Your AI <em>already knows.</em></h2>
             </div>
             <div style="flex: 0 0 auto;">
-                <img src="/nvc/images/pendant-worn.png" alt="Parachute pendant worn on a walk" style="width: 340px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+                <img src="/nvc/images/pendant-worn.png" alt="Person wearing Parachute pendant outdoors" style="width: 340px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
             </div>
         </div>
         <div class="speaker-notes">
             <div class="notes-label">Speaker Notes</div>
-            Imagine going for a walk, talking through your ideas, and by the time you're home your thoughts are organized, searchable, and available to any AI you use. That's the experience we're building. I'm wearing the device right now.
+            Imagine this: you go for a walk. You talk through what's on your mind &mdash; an idea for a project, a conversation you need to have, something you've been mulling over. By the time you're home, your thoughts are transcribed, organized, and already available to whatever AI you use. You sit down, open Claude or ChatGPT, and it already has the context. It knows what you were thinking about. That's the experience we're building. I'm wearing the device right now. This is Parachute.
         </div>
     </section>
 
-    <!-- SLIDE 2: The Product -->
+    <!-- ============================================ -->
+    <!-- SLIDE 2 — THE PROBLEM                       -->
+    <!-- ============================================ -->
+    <section class="slide">
+        <div class="slide-label">The Problem</div>
+        <h2 class="slide-headline">There&rsquo;s no<br>knowledge layer.</h2>
+        <p class="slide-sub">Every AI stores your context as <strong>one flat text file.</strong></p>
+        <div class="speaker-notes">
+            <div class="notes-label">Speaker Notes</div>
+            Every AI platform &mdash; ChatGPT, Claude, Gemini &mdash; stores your personal context the same way: one big text file. It remembers your name, maybe a few preferences. It doesn't know six months of your thinking. And to give it context, you have to talk to it directly. There's no way to just think for yourself &mdash; on a walk, in the car &mdash; and have that become context your AI can use. The knowledge layer between you and your AI doesn't exist. We're building it.
+        </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- SLIDE 3 — THE PRODUCT                       -->
+    <!-- ============================================ -->
     <section class="slide">
         <div style="display: flex; align-items: center; gap: 4rem;">
             <div style="flex: 1;">
                 <div class="slide-label">The Product</div>
-                <h2 class="slide-headline">Parachute Daily.<br>Just talk.</h2>
-                <p class="slide-sub">Voice-first journal. Pendant or phone.<br>Simple for humans. Native for AI.</p>
+                <h2 class="slide-headline">Parachute Daily.</h2>
+                <p class="slide-sub">Voice-first journal. Wearable pendant. Any AI.</p>
             </div>
             <div style="flex: 0 0 auto;">
-                <img src="/nvc/images/pendant-render.png" alt="Parachute pendant" style="width: 240px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+                <img src="/nvc/images/pendant-render.png" alt="Parachute pendant" style="width: 260px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
             </div>
         </div>
         <div class="speaker-notes">
             <div class="notes-label">Speaker Notes</div>
-            Parachute Daily is a voice-first journal. You speak into a wearable pendant or your phone &mdash; on a walk, in the car, wherever thinking happens. Your thoughts get transcribed and structured into a personal knowledge graph. No learning curve, just talk. The pendant is a wearable voice capture device &mdash; press a button, talk, and your thoughts are structured by the time you're home. Working prototype, on stage today.
+            Parachute Daily is a voice-first journal. You speak into a wearable pendant or your phone &mdash; wherever thinking happens. Your words get transcribed and structured into a personal knowledge graph: notes, tags, and links. Simple for humans, native for AI. The pendant is a wearable voice capture device &mdash; press a button, talk, your thoughts are structured by the time you're home. Working prototype, on stage today.
         </div>
     </section>
 
-    <!-- SLIDE 3: The Problem -->
-    <section class="slide">
-        <div class="slide-label">The Problem</div>
-        <h2 class="slide-headline">There&rsquo;s no<br>knowledge layer.</h2>
-        <p class="slide-sub">Every AI stores your context as <strong>one flat text file.</strong><br>No structure. No portability. No depth.</p>
-        <div class="speaker-notes">
-            <div class="notes-label">Speaker Notes</div>
-            Every AI platform &mdash; ChatGPT, Claude, Gemini &mdash; stores your personal context the same way: one big text file. It remembers your name, not six months of your thinking. And capture is broken: to give your AI context, you have to talk to your AI. There's no way to think for yourself and have it become context. We need tools that help us think for ourselves first, then think with AI. That quality of independent thinking is what makes AI most useful.
-        </div>
-    </section>
-
-    <!-- SLIDE 4: How It Works -->
+    <!-- ============================================ -->
+    <!-- SLIDE 4 — HOW IT WORKS                      -->
+    <!-- ============================================ -->
     <section class="slide">
         <div class="slide-label">How It Works</div>
         <h2 class="slide-headline">Spin up a vault.<br>Give any AI a link.</h2>
@@ -498,11 +523,13 @@ permalink: /nvc/deck/
         </div>
         <div class="speaker-notes">
             <div class="notes-label">Speaker Notes</div>
-            Your data lives in a personal knowledge graph &mdash; Notes, Tags, and Links &mdash; accessible to any AI via MCP, the open standard for connecting AI to tools. You spin up a vault in seconds and give any AI a link. That's it. Whatever AI you already use, Parachute makes it better. You don't switch anything &mdash; you add Parachute.
+            Your data lives in a Parachute Vault &mdash; a personal knowledge graph organized around notes, tags, and links. It's accessible to any AI via MCP, the open standard Anthropic created for connecting AI to tools. You spin up a vault in seconds and give any AI a link. That's the whole setup. Whatever AI you already use &mdash; Claude, ChatGPT, Gemini &mdash; Parachute makes it better. You don't switch anything. You add Parachute.
         </div>
     </section>
 
-    <!-- SLIDE 5: Competitive Landscape -->
+    <!-- ============================================ -->
+    <!-- SLIDE 5 — COMPETITIVE LANDSCAPE              -->
+    <!-- ============================================ -->
     <section class="slide">
         <div class="slide-label">Competitive Landscape</div>
         <h2 class="slide-headline">Everyone builds one piece.</h2>
@@ -526,13 +553,15 @@ permalink: /nvc/deck/
         </div>
         <div class="speaker-notes">
             <div class="notes-label">Speaker Notes</div>
-            Note apps like Obsidian and Apple Notes have great capture but no AI integration. AI platforms like ChatGPT and Gemini are smart but their memory is siloed &mdash; trapped inside one ecosystem. Knowledge tools like Tana and Roam are powerful but only for power users. Nobody connects them. Parachute is the knowledge layer that works across all of them. Open, portable, agent-native. We don't compete with anyone's AI &mdash; we make every AI better. And yes, Gemini and ChatGPT will eventually build something like this, but it'll be locked inside their walled garden. We're the layer that works across ecosystems.
+            Note apps like Obsidian and Apple Notes are great for capture, but they have no AI integration. AI platforms like ChatGPT and Gemini are smart, but their memory is siloed inside their own ecosystem. Knowledge tools like Tana and Roam are powerful but only accessible to power users. Nobody connects these worlds. Parachute is the knowledge layer that works across all of them &mdash; open, portable, agent-native. Gemini and ChatGPT will eventually build something like this, but it'll be trapped inside their walled garden. We're the open layer that works across ecosystems. That's the differentiator.
         </div>
     </section>
 
-    <!-- SLIDE 6: Who Uses This -->
+    <!-- ============================================ -->
+    <!-- SLIDE 6 — WHO USES THIS                     -->
+    <!-- ============================================ -->
     <section class="slide">
-        <div class="slide-label">Real-World Usage</div>
+        <div class="slide-label">Who Uses This</div>
         <h2 class="slide-headline">For anyone who thinks.</h2>
         <div class="persona-row">
             <div class="persona-card">
@@ -545,36 +574,20 @@ permalink: /nvc/deck/
             </div>
             <div class="persona-card">
                 <div class="persona-who">The Enterprise</div>
-                <div class="persona-how">Knowledge transfer. Expertise lives on in a queryable vault.</div>
+                <div class="persona-how">Knowledge transfer. Expertise lives on in a vault.</div>
             </div>
         </div>
         <div class="speaker-notes">
             <div class="notes-label">Speaker Notes</div>
-            Three real journeys. The thinker goes for a morning walk, talks through ideas, and their AI assistant already knows what they were mulling over yesterday. The professional voice-notes after every meeting &mdash; months of institutional context, searchable by any tool, never trapped in one app. And the enterprise use case: a departing team member records three days of knowledge transfer. Their expertise lives on in a structured, queryable vault. Baby boomers with five years left working, companies that want a smooth transition &mdash; there's a real enterprise pathway here.
+            Three journeys. The thinker goes for a morning walk, talks through their ideas, and their AI already knows what they were mulling over yesterday. That's our immediate customer &mdash; the everyday person who wants a better way to think alongside their AI. The professional voice-notes after every meeting &mdash; months of institutional context, searchable by any tool, never trapped in one app. And the enterprise opportunity: a departing team member records days of knowledge transfer. Their expertise lives on in a structured, queryable vault. That enterprise pathway &mdash; knowledge capture for transitions, onboarding, institutional memory &mdash; is where we see significant expansion.
         </div>
     </section>
 
-    <!-- SLIDE 7: Context Compounds -->
+    <!-- ============================================ -->
+    <!-- SLIDE 7 — BUSINESS MODEL + MARKET + NUMBERS -->
+    <!-- ============================================ -->
     <section class="slide">
-        <div class="slide-label">The Moat</div>
-        <h2 class="slide-headline">Context compounds.</h2>
-        <div class="flywheel">
-            <div class="fw-step"><span class="fw-num">01</span> Capture thoughts</div>
-            <div class="fw-step"><span class="fw-num">02</span> Build personal context</div>
-            <div class="fw-step"><span class="fw-num">03</span> Connect any AI</div>
-            <div class="fw-step"><span class="fw-num">04</span> AI already knows you</div>
-            <div class="fw-step final"><span class="fw-num">&rarr;</span> Switching cost through genuine value</div>
-        </div>
-        <p class="slide-sub" style="margin-top: 1rem; font-size: 0.9rem;">Open source &middot; Local-first &middot; Public Benefit Corporation</p>
-        <div class="speaker-notes">
-            <div class="notes-label">Speaker Notes</div>
-            Every note builds a richer graph. The longer you use it, the more valuable it becomes &mdash; and the harder it is to leave. But we're not locking anyone in. Your data is portable, exportable, self-hostable. We're open source, local-first, and a Public Benefit Corporation. The switching cost comes from genuine value, not vendor lock-in.
-        </div>
-    </section>
-
-    <!-- SLIDE 8: Business Model + Market -->
-    <section class="slide">
-        <div style="display: flex; gap: 4rem; align-items: flex-start;">
+        <div style="display: flex; gap: 3rem; align-items: flex-start;">
             <div style="flex: 1;">
                 <div class="slide-label">Business Model</div>
                 <h2 class="slide-headline">The $2&ndash;10 add-on.</h2>
@@ -601,50 +614,36 @@ permalink: /nvc/deck/
                     </div>
                 </div>
             </div>
-            <div style="flex: 0 0 auto; padding-top: 4.5rem;">
+            <div style="flex: 0 0 auto; min-width: 280px;">
                 <div class="stat-row" style="margin: 0;">
                     <div class="stat">
                         <div class="stat-num">100M+</div>
                         <div class="stat-label">people pay $20+/mo<br>for AI already</div>
                     </div>
                 </div>
-                <div class="stat-row" style="margin-top: 1rem;">
-                    <div class="stat">
-                        <div class="stat-num">$50B+</div>
-                        <div class="stat-label">agentic AI market<br>by 2030</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-num">44%</div>
-                        <div class="stat-label">CAGR</div>
-                    </div>
+                <div class="fin-table" style="margin-top: 1rem;">
+                    <table>
+                        <thead>
+                            <tr><th></th><th>2026</th><th>2027</th><th>2028</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Paid users</td><td>500</td><td>8,000</td><td>50,000</td></tr>
+                            <tr><td>ARR</td><td>~$30K</td><td class="highlight">~$480K</td><td class="highlight">~$3M</td></tr>
+                            <tr><td>Opex</td><td>~$160K</td><td>~$500K</td><td>~$1.2M</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
         <div class="speaker-notes">
             <div class="notes-label">Speaker Notes</div>
-            We're not competing with anyone's AI subscription. 100 million people already pay $20+/mo for AI. We're the $2&ndash;10 add-on that makes it dramatically better. Free tier has zero hosting cost &mdash; it's an offline journal. Each paid tier adds cloud features. The pendant is a one-time hardware purchase. The agentic AI market is projected at $50B+ by 2030 at 44% CAGR. We sit underneath all of it.
+            We're not competing with anyone's AI subscription. Over 100 million people already pay $20+/mo for AI. We're the $2&ndash;10 add-on that makes it dramatically better. Free tier has zero hosting cost &mdash; it's a fully offline journal. Each paid tier adds cloud features. The pendant is a one-time hardware purchase. On the right: conservative projections. 500 paid users in year one, scaling to 50,000 by 2028. ARR grows from $30K to $3M. We're profitable by year three. Lower COGS than agentic platforms because we're not running inference &mdash; we're storing and serving structured data. Go-to-market: AI learning cohorts through Learn Vibe Build, open source builder community, AI power users who already want better tools, voice-first journalers, our Boulder co-working space as a local testbed, and enterprise pilots for knowledge capture.
         </div>
     </section>
 
-    <!-- SLIDE 9: Go-to-Market -->
-    <section class="slide">
-        <div class="slide-label">Go-to-Market</div>
-        <h2 class="slide-headline">Multiple channels.<br>One community.</h2>
-        <div class="gtm-grid">
-            <div class="gtm-item"><div class="gtm-name">AI learning cohorts</div></div>
-            <div class="gtm-item"><div class="gtm-name">Open source community</div></div>
-            <div class="gtm-item"><div class="gtm-name">AI power users</div></div>
-            <div class="gtm-item"><div class="gtm-name">Voice-first audience</div></div>
-            <div class="gtm-item"><div class="gtm-name">Local co-working hub</div></div>
-            <div class="gtm-item"><div class="gtm-name">Enterprise pilots</div></div>
-        </div>
-        <div class="speaker-notes">
-            <div class="notes-label">Speaker Notes</div>
-            We have multiple go-to-market channels that feed one community. Learn Vibe Build is an AI learning school &mdash; students become power users become advocates. We have an open source builder community and MCP developers shipping integrations. We're targeting AI-native users who already want better memory. Voice-first audience &mdash; walkers, commuters, journalers. A Boulder co-working space as a local testbed and word-of-mouth engine. And enterprise pilots for knowledge capture &mdash; onboarding, transitions, institutional memory.
-        </div>
-    </section>
-
-    <!-- SLIDE 10: Team & Traction -->
+    <!-- ============================================ -->
+    <!-- SLIDE 8 — TEAM & TRACTION                   -->
+    <!-- ============================================ -->
     <section class="slide">
         <div class="slide-label">Team & Traction</div>
         <h2 class="slide-headline">Self-funded.<br>Built from scratch.</h2>
@@ -654,11 +653,13 @@ permalink: /nvc/deck/
         </div>
         <div class="speaker-notes">
             <div class="notes-label">Speaker Notes</div>
-            Working today: app with local voice transcription and graph storage. MCP server. Pendant prototype &mdash; I'm wearing it. Daily beta launching this month. PBC incorporated in Colorado. The team: I'm finishing my MS at CU ATLAS in Creative Technology &amp; Design, also hold an MA in Ecopsychology. Jon Bo is co-leading Daily as founding engineer. Lucian Hymer is co-leading the server, also founding engineer, ex-Google. Marvin Melzer built the pendant prototype. Neil Yarnal handles brand and design. An unusually balanced team across product, software, hardware, and design.
+            Everything you've seen is working today. App with local voice transcription and graph storage. MCP server. Pendant prototype &mdash; I'm wearing it right now. Daily beta launching this month. PBC incorporated in Colorado. The team: I'm finishing my MS at CU ATLAS in Creative Technology &amp; Design, also hold an MA in Ecopsychology. Jon Bo is co-leading Daily as founding engineer. Lucian Hymer co-leads the server &mdash; founding engineer, ex-Google. Marvin Melzer built the pendant. Neil Yarnal handles brand and design. We're an unusually balanced founding team across product, software, hardware, and design &mdash; and we've built everything you see self-funded.
         </div>
     </section>
 
-    <!-- SLIDE 11: The Ask -->
+    <!-- ============================================ -->
+    <!-- SLIDE 9 — THE ASK                           -->
+    <!-- ============================================ -->
     <section class="slide">
         <div class="slide-label">The Ask</div>
         <h2 class="slide-headline">$300K to launch<br>the knowledge layer.</h2>
@@ -675,7 +676,7 @@ permalink: /nvc/deck/
         </div>
         <div class="speaker-notes">
             <div class="notes-label">Speaker Notes</div>
-            We're raising $300K on a SAFE to get the core team full-time through 2026. Goal is production launch by June with revenue immediately. A knowledge layer for humans and AI to think and remember together.
+            We're raising $300K on a SAFE to get the core team full-time through 2026. Production launch by June with revenue immediately. A knowledge layer for humans and AI to think and remember together.
         </div>
     </section>
 
