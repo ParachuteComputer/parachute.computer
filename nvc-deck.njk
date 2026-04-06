@@ -451,7 +451,7 @@ permalink: /nvc/deck/
                 <p class="slide-sub">A knowledge layer that makes any AI truly yours.</p>
             </div>
             <div style="flex: 0 0 auto;">
-                <img src="/nvc/images/pendant-worn.png" alt="Person wearing Parachute pendant outdoors" style="width: 340px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+                <img src="/nvc/images/slide1.png" alt="Person walking with Parachute pendant, knowledge graph flowing from their thoughts" style="width: 380px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
             </div>
         </div>
         <div class="speaker-notes">
@@ -464,9 +464,16 @@ permalink: /nvc/deck/
     <!-- SLIDE 2 — THE RACE                          -->
     <!-- ============================================ -->
     <section class="slide">
-        <div class="slide-label">The Landscape</div>
-        <h2 class="slide-headline">Everyone is building<br>AI agents.</h2>
-        <p class="slide-sub">OpenClaw. Claude Cowork. Perplexity Computer. Manus.<br>We were too. Features get cloned in weeks. <strong>So we stopped trying to win that race.</strong></p>
+        <div style="display: flex; align-items: center; gap: 4rem;">
+            <div style="flex: 1;">
+                <div class="slide-label">The Landscape</div>
+                <h2 class="slide-headline">Everyone is building<br>AI agents.</h2>
+                <p class="slide-sub">OpenClaw. Claude Cowork. Perplexity Computer. Manus.<br>We were too. Features get cloned in weeks. <strong>So we stopped trying to win that race.</strong></p>
+            </div>
+            <div style="flex: 0 0 auto;">
+                <img src="/nvc/images/slide2.png" alt="Crowded landscape of AI assistant icons" style="width: 420px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+            </div>
+        </div>
         <div class="speaker-notes">
             <div class="notes-label">Speaker Notes</div>
             OpenClaw. Claude Cowork. Perplexity Computer. Manus. There are dozens of companies racing to build the best AI agent. Over 100 million people already pay $20+/month for AI. We started here too &mdash; we were building an agentic computing platform, a full AI-powered operating system. But we watched features get cloned in weeks. Every new capability one platform shipped, three others had within a month. It's a race to the bottom, and the big labs have billions of dollars to outspend everyone. Some startups in this space get acquired &mdash; Liminary, backed by Madrona, is doing something adjacent. But they're building within the agent race. We stopped trying to win that race. We asked: what's actually missing? What do all of these agents need that none of them are building?
@@ -520,30 +527,7 @@ permalink: /nvc/deck/
         <div class="slide-label">How It Works</div>
         <h2 class="slide-headline">Spin up a vault.<br>Give any AI a link.</h2>
         <p class="slide-sub" style="margin-bottom: 0.75rem;">Built on <strong>MCP</strong> &mdash; the open standard for connecting AI to tools.<br>Your data stays yours. Works with every AI, not instead of one.</p>
-        <div class="arch-diagram">
-            <div class="arch-spoke">
-                <div class="arch-spoke-label">you</div>
-                <span class="arch-box">Parachute Daily</span>
-                <span class="arch-box">Pendant</span>
-                <span class="arch-box">Phone &middot; Web</span>
-            </div>
-            <div class="arch-connector">&harr;</div>
-            <div class="arch-hub">
-                <strong>Parachute Vault</strong>
-                Notes &middot; Tags &middot; Links
-            </div>
-            <div class="arch-connector">
-                &harr;
-                <span class="conn-label">MCP</span>
-            </div>
-            <div class="arch-spoke right">
-                <div class="arch-spoke-label">your AI</div>
-                <span class="arch-box">Claude</span>
-                <span class="arch-box">ChatGPT</span>
-                <span class="arch-box">Gemini</span>
-                <span class="arch-box">Any agent</span>
-            </div>
-        </div>
+        <img src="/nvc/images/slide5.png" alt="Parachute Vault architecture: phone, browser, and pendant connect to Parachute Vault, which connects via MCP to Claude, ChatGPT, and Gemini" style="max-width: 700px; width: 100%; margin: 1rem 0;">
         <div class="speaker-notes">
             <div class="notes-label">Speaker Notes</div>
             Your data lives in a Parachute Vault &mdash; a personal knowledge graph organized around notes, tags, and links. It's accessible to any AI via MCP, the open standard Anthropic created for connecting AI to tools. You spin up a vault in seconds and give any AI a link. That's the whole setup. Whatever AI you already use &mdash; Claude, ChatGPT, Gemini &mdash; Parachute makes it better. You don't switch anything. You add Parachute. This is how we stay independent from any one LLM. We're not tied to a single model. We speak an open protocol that any AI can use. As users settle into different AI camps, we're the layer that works across all of them. That's why we're not in the race to the bottom on AI features &mdash; we're building the infrastructure underneath it.
@@ -582,20 +566,7 @@ permalink: /nvc/deck/
     <section class="slide">
         <div class="slide-label">Who Uses This</div>
         <h2 class="slide-headline">Who needs this first?</h2>
-        <div class="persona-row">
-            <div class="persona-card" style="border-color: var(--accent); border-width: 2px;">
-                <div class="persona-who" style="color: var(--accent);">Beachhead: The AI Journaler</div>
-                <div class="persona-how">Morning walk. Talk through ideas. AI already knows yesterday.</div>
-            </div>
-            <div class="persona-card">
-                <div class="persona-who">Next: The Professional</div>
-                <div class="persona-how">Voice-notes after meetings. Months of context, any tool.</div>
-            </div>
-            <div class="persona-card">
-                <div class="persona-who">Then: Enterprise</div>
-                <div class="persona-how">Knowledge transfer. Expertise lives on in a vault.</div>
-            </div>
-        </div>
+        <img src="/nvc/images/slide7.png" alt="Three personas: AI Journaler, Professional, Enterprise" style="max-width: 800px; width: 100%; margin: 1rem 0; border-radius: 12px;">
         <div class="speaker-notes">
             <div class="notes-label">Speaker Notes</div>
             Our beachhead customer is the AI journaler &mdash; someone who already uses Claude or ChatGPT daily and journals or takes voice notes, but is frustrated that their AI doesn't know what they were thinking about yesterday. They want a better way to think for themselves and have that thinking available to their AI. That's our first 500 paid users. We're reaching them through Learn Vibe Build, our AI learning cohorts, and through the Claude and ChatGPT power-user communities where this need is already being discussed. Next is the professional &mdash; voice-notes after meetings, months of institutional context, searchable by any tool, never trapped in one app. And then enterprise: a departing team member records days of knowledge transfer. Their expertise lives on in a structured, queryable vault. Think about retiring baby boomers with decades of institutional knowledge &mdash; companies will pay for a smooth way to capture that. Each stage expands the market, but we start narrow and specific.
