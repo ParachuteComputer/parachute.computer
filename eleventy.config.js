@@ -10,6 +10,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("nvc/**/*.docx");
   eleventyConfig.addPassthroughCopy("nvc/**/*.png");
   eleventyConfig.addPassthroughCopy("nvc/**/*.jpg");
+  eleventyConfig.addPassthroughCopy("nvc/**/*.jpeg");
 
   // Ignore non-content files
   eleventyConfig.ignores.add("CLAUDE.md");
