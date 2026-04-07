@@ -312,71 +312,32 @@ add_speaker_notes(s, (
 s = new_slide()
 
 section_label(s, "Competitive Landscape")
-slide_headline(s, "The magic exists.\nIt's not accessible.", top=Inches(1.4), size=42)
+slide_headline(s, "Obsidian for everyone.", top=Inches(1.4), size=44, width=Inches(8))
 
-# Quadrant
-quad_left = Inches(0.8)
-quad_top = Inches(4.0)
-quad_w = Inches(6.0)
-quad_h = Inches(2.6)
+slide_sub(s, "Power users are already pairing structured notes with AI —\n"
+             "and it's transformative. But it requires markdown files,\n"
+             "plugins, and a command line.\n"
+             "\n"
+             "We're making the same magic the default.",
+          top=Inches(3.2), size=14, width=Inches(7))
 
-# Outer container
-outer = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
-                           quad_left, quad_top, quad_w, quad_h)
-outer.fill.solid()
-outer.fill.fore_color.rgb = WHITE
-outer.line.color.rgb = BORDER
-outer.line.width = Pt(0.75)
-
-# Top-left: Note apps
-add_text_box(s, quad_left + Inches(0.3), quad_top + Inches(0.2),
-             Inches(2.5), Inches(0.3), "NOTE APPS",
-             font_size=8, color=FG_DIM, bold=True)
-add_text_box(s, quad_left + Inches(0.3), quad_top + Inches(0.5),
-             Inches(2.5), Inches(0.7),
-             "Obsidian · Apple Notes · Notion",
-             font_size=13, color=FG_MUTED, font_name=FONT_SERIF)
-
-# Top-right: AI platforms
-add_text_box(s, quad_left + Inches(3.1), quad_top + Inches(0.2),
-             Inches(2.5), Inches(0.3), "AI PLATFORMS",
-             font_size=8, color=FG_DIM, bold=True)
-add_text_box(s, quad_left + Inches(3.1), quad_top + Inches(0.5),
-             Inches(2.5), Inches(0.7),
-             "ChatGPT · Gemini · Claude",
-             font_size=13, color=FG_MUTED, font_name=FONT_SERIF)
-
-# Bottom: Parachute (highlighted)
-para_top = quad_top + Inches(1.4)
-para = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
-                          quad_left + Inches(0.15), para_top,
-                          quad_w - Inches(0.3), Inches(1.05))
-para.fill.solid()
-para.fill.fore_color.rgb = ACCENT_SOFT
-para.line.fill.background()
-
-add_text_box(s, quad_left + Inches(0.3), para_top + Inches(0.15),
-             Inches(5), Inches(0.3),
-             "PARACHUTE — ACCESSIBLE TO EVERYONE",
-             font_size=8, color=ACCENT, bold=True)
-add_text_box(s, quad_left + Inches(0.3), para_top + Inches(0.45),
-             Inches(5), Inches(0.5),
-             "Open · Portable · Agent-native",
-             font_size=14, color=ACCENT, bold=True, font_name=FONT_SERIF)
+add_image(s, "slide6.png", Inches(7.5), Inches(2.0), width=Inches(5.3))
 
 add_speaker_notes(s, (
-    "Note apps like Obsidian and Apple Notes are great for capture, but they "
-    "have no AI integration. Obsidian is especially interesting — 8 people, "
-    "bootstrapped, profitable, over a million users, with a growing community "
-    "connecting it to Claude Code and other AI tools. Give an AI a structured "
-    "knowledge base and it can work magic. But it requires markdown files, "
-    "plugin configuration, command-line tools. 99% of people will never do that. "
-    "AI platforms like ChatGPT and Gemini are smart but their memory is siloed "
-    "inside their own ecosystem. Parachute takes the magic of structured "
-    "knowledge + AI and makes it accessible to everyone. No file system, no CLI. "
-    "Just a vault you spin up in seconds with a link any AI can use. The PKM "
-    "market is $2.5 billion and growing 16% annually. We're building the version "
-    "that scales to the other 99%."
+    "Obsidian is the most interesting thing happening in personal knowledge "
+    "tools right now. It's a private bootstrapped company — they don't share "
+    "user numbers and the founder has said most public estimates are wrong, so "
+    "I won't quote a number, but it's significant and growing fast. What "
+    "matters is the trend: power users are pairing Obsidian with Claude Code "
+    "and other AI tools, and the results are genuinely transformative. Give an "
+    "AI a structured knowledge base and it can work magic. But it requires "
+    "markdown files, plugin configuration, command-line tools, and file system "
+    "access. It's incredible for developers. 99% of people will never do that. "
+    "Parachute takes that exact same magic — structured knowledge plus AI — "
+    "and makes it the default. A simple voice-first app. No setup. No CLI. "
+    "Works with whatever AI you already use — Claude, ChatGPT, Gemini, any "
+    "agent that speaks MCP. We're not competing with Obsidian. We're bringing "
+    "what they pioneered to the rest of the world."
 ))
 
 
