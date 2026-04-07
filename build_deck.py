@@ -1,10 +1,11 @@
-"""Build NVC pitch deck for Parachute — pivoted narrative.
-9 slides, brand palette, agent-native framing."""
+"""Build NVC pitch deck for Parachute.
+10 slides, image-forward, with speaker notes."""
 
+import os
 from pptx import Presentation
-from pptx.util import Inches, Pt, Emu
+from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
+from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.oxml.ns import qn
 
@@ -15,11 +16,18 @@ FG       = RGBColor(0x2C, 0x2A, 0x26)
 FG_MUTED = RGBColor(0x6B, 0x68, 0x60)
 FG_DIM   = RGBColor(0x9A, 0x96, 0x90)
 ACCENT   = RGBColor(0x4A, 0x7C, 0x59)
+ACCENT_SOFT = RGBColor(0xE8, 0xF1, 0xEA)
 WHITE    = RGBColor(0xFF, 0xFF, 0xFF)
 BORDER   = RGBColor(0xE4, 0xE0, 0xD8)
 
 SLIDE_W = Inches(13.333)
 SLIDE_H = Inches(7.5)
+
+FONT_SERIF = "Georgia"
+FONT_SANS = "Calibri"
+FONT_MONO = "Courier New"
+
+IMAGES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nvc", "images")
 
 prs = Presentation()
 prs.slide_width = SLIDE_W
@@ -27,17 +35,115 @@ prs.slide_height = SLIDE_H
 
 blank_layout = prs.slide_layouts[6]
 
-# ── Font choices (safe for presentation machines) ──
-FONT_SERIF = "Georgia"
-FONT_SANS = "Calibri"
-FONT_MONO = "Courier New"
 
+# ─────────────────────────────────────────────────
+# Helpers
+# ─────────────────────────────────────────────────
 
 def set_slide_bg(slide, color=BG):
     bg = slide.background
     fill = bg.fill
     fill.solid()
     fill.fore_color.rgb = color
+
+
+def add_text_box(slide, left, top, width, height, text, font_size=18,
+                 color=FG, bold=False, italic=False, alignment=PP_ALIGN.LEFT,
+                 font_name=FONT_SANS, line_spacing=1.2):
+    txBox = slide.shapes.add_textbox(left, top, width, height)
+    tf = txBox.text_frame
+    tf.word_wrap = True
+    tf.margin_left = 0
+    tf.margin_right = 0
+    tf.margin_top = 0
+    tf.margin_bottom = 0
+    p = tf.paragraphs[0]
+    p.text = text
+    p.font.size = Pt(font_size)
+    p.font.color.rgb = color
+    p.font.bold = bold
+    p.font.italic = italic
+    p.font.name = font_name
+    p.alignment = alignment
+    p.space_after = Pt(0)
+    p.space_before = Pt(0)
+    if line_spacing != 1.0:
+        p.line_spacing = line_spacing
+    return tf
+
+
+def section_label(slide, text, top=Inches(0.9), left=Inches(0.8)):
+    add_text_box(slide, left, top, Inches(5), Inches(0.4),
+                 text.upper(), font_size=11, color=ACCENT, bold=True,
+                 font_name=FONT_SANS)
+
+
+def slide_headline(slide, text, top=Inches(1.4), size=42, left=Inches(0.8), width=Inches(8)):
+    txBox = slide.shapes.add_textbox(left, top, width, Inches(2.5))
+    tf = txBox.text_frame
+    tf.word_wrap = True
+    tf.margin_left = 0
+    lines = text.split("\n")
+    for i, line in enumerate(lines):
+        if i == 0:
+            p = tf.paragraphs[0]
+        else:
+            p = tf.add_paragraph()
+        p.text = line
+        p.font.size = Pt(size)
+        p.font.color.rgb = FG
+        p.font.bold = False
+        p.font.name = FONT_SERIF
+        p.line_spacing = 1.05
+        p.space_after = Pt(0)
+        p.space_before = Pt(0)
+    return tf
+
+
+def slide_sub(slide, text, top, left=Inches(0.8), width=Inches(8), size=15, color=FG_MUTED):
+    txBox = slide.shapes.add_textbox(left, top, width, Inches(1.5))
+    tf = txBox.text_frame
+    tf.word_wrap = True
+    tf.margin_left = 0
+    lines = text.split("\n")
+    for i, line in enumerate(lines):
+        if i == 0:
+            p = tf.paragraphs[0]
+        else:
+            p = tf.add_paragraph()
+        p.text = line
+        p.font.size = Pt(size)
+        p.font.color.rgb = color
+        p.font.name = FONT_SANS
+        p.line_spacing = 1.4
+        p.space_after = Pt(0)
+        p.space_before = Pt(0)
+    return tf
+
+
+def add_image(slide, filename, left, top, width=None, height=None):
+    path = os.path.join(IMAGES_DIR, filename)
+    if not os.path.exists(path):
+        print(f"  WARNING: missing {filename}")
+        return None
+    if width and height:
+        return slide.shapes.add_picture(path, left, top, width=width, height=height)
+    if width:
+        return slide.shapes.add_picture(path, left, top, width=width)
+    if height:
+        return slide.shapes.add_picture(path, left, top, height=height)
+    return slide.shapes.add_picture(path, left, top)
+
+
+def add_speaker_notes(slide, text):
+    notes_slide = slide.notes_slide
+    notes_tf = notes_slide.notes_text_frame
+    notes_tf.text = text
+
+
+def add_footer(slide, text="parachute.computer"):
+    add_text_box(slide, Inches(0.8), Inches(7.05), Inches(5), Inches(0.3),
+                 text, font_size=9, color=FG_DIM, font_name=FONT_SANS)
 
 
 def add_brand_bar(slide):
@@ -48,49 +154,6 @@ def add_brand_bar(slide):
     shape.line.fill.background()
 
 
-def add_footer(slide, text="parachute.computer"):
-    txBox = slide.shapes.add_textbox(
-        Inches(1.2), Inches(7.0), Inches(4), Inches(0.3))
-    tf = txBox.text_frame
-    p = tf.paragraphs[0]
-    p.text = text
-    p.font.size = Pt(9)
-    p.font.color.rgb = FG_DIM
-    p.font.name = FONT_SANS
-
-
-def add_text_box(slide, left, top, width, height, text, font_size=18,
-                 color=FG, bold=False, alignment=PP_ALIGN.LEFT,
-                 font_name=FONT_SANS, line_spacing=1.2):
-    txBox = slide.shapes.add_textbox(left, top, width, height)
-    tf = txBox.text_frame
-    tf.word_wrap = True
-    p = tf.paragraphs[0]
-    p.text = text
-    p.font.size = Pt(font_size)
-    p.font.color.rgb = color
-    p.font.bold = bold
-    p.font.name = font_name
-    p.alignment = alignment
-    p.space_after = Pt(0)
-    p.space_before = Pt(0)
-    if line_spacing != 1.0:
-        p.line_spacing = line_spacing
-    return tf
-
-
-def section_label(slide, text, top=Inches(1.2)):
-    add_text_box(slide, Inches(1.2), top, Inches(4), Inches(0.4),
-                 text.upper(), font_size=11, color=ACCENT, bold=True,
-                 font_name=FONT_SANS)
-
-
-def slide_headline(slide, text, top=Inches(1.7), size=40):
-    add_text_box(slide, Inches(1.2), top, Inches(10), Inches(1.5),
-                 text, font_size=size, color=FG, bold=False,
-                 font_name=FONT_SERIF, line_spacing=1.05)
-
-
 def new_slide():
     s = prs.slides.add_slide(blank_layout)
     set_slide_bg(s)
@@ -99,443 +162,476 @@ def new_slide():
     return s
 
 
-def remove_table_borders(table):
-    for row_idx in range(len(table.rows)):
-        for col_idx in range(len(table.columns)):
-            cell = table.cell(row_idx, col_idx)
-            tc = cell._tc
-            tcPr = tc.get_or_add_tcPr()
-            for border_name in ['a:lnL', 'a:lnR', 'a:lnT', 'a:lnB']:
-                ln = tcPr.find(qn(border_name))
-                if ln is None:
-                    ln = tcPr.makeelement(qn(border_name), {})
-                    tcPr.append(ln)
-                ln.set('w', '6350')  # 0.5pt
-                solidFill = ln.find(qn('a:solidFill'))
-                if solidFill is None:
-                    solidFill = ln.makeelement(qn('a:solidFill'), {})
-                    ln.append(solidFill)
-                srgbClr = solidFill.find(qn('a:srgbClr'))
-                if srgbClr is None:
-                    srgbClr = solidFill.makeelement(qn('a:srgbClr'), {})
-                    solidFill.append(srgbClr)
-                srgbClr.set('val', 'E4E0D8')
+# ═══════════════════════════════════════════════
+# SLIDE 1 — ASPIRATION
+# ═══════════════════════════════════════════════
+s = new_slide()
+
+add_text_box(s, Inches(0.8), Inches(0.9), Inches(6), Inches(0.6),
+             "Parachute", font_size=28, color=FG, font_name=FONT_SERIF)
+
+slide_headline(s, "Capture. Connect. Compound.", top=Inches(2.2), size=48, width=Inches(8))
+
+slide_sub(s, "A knowledge layer that makes any AI truly yours.",
+          top=Inches(4.4), size=18)
+
+add_image(s, "slide1.png", Inches(7.5), Inches(1.0), width=Inches(5.0))
+
+add_speaker_notes(s, (
+    "A thought on a walk. A note after a meeting. An idea at 2am. "
+    "Right now, those are scattered — lost in apps that don't talk to each other "
+    "and invisible to the AI tools we rely on. Parachute captures your thinking "
+    "wherever you are, connects it into a structured knowledge graph, and "
+    "compounds it over time into something that makes every AI you use more "
+    "personal, more capable, more yours. I'm wearing one of our capture devices "
+    "right now. This is Parachute."
+))
 
 
 # ═══════════════════════════════════════════════
-# SLIDE 1 — The Race
+# SLIDE 2 — THE RACE
 # ═══════════════════════════════════════════════
 s = new_slide()
 
 section_label(s, "The Landscape")
-slide_headline(s, "Everyone is racing to build\nyour AI agent.")
+slide_headline(s, "Everyone is building\nAI agents.", top=Inches(1.4), size=44)
 
-add_text_box(s, Inches(1.2), Inches(3.5), Inches(10), Inches(1.0),
-             "OpenClaw. Claude Cowork. ZoComputer. Perplexity Computer. Manus.\n"
-             "Over 100 million people already pay $20+/month for AI.",
-             font_size=18, color=FG_MUTED, line_spacing=1.5)
+slide_sub(s, "OpenClaw. Claude Cowork. Perplexity Computer. Manus.\n"
+             "We were too. Features get cloned in weeks.\n"
+             "So we stopped trying to win that race.",
+          top=Inches(4.0), size=16)
 
-# Market stat
-add_text_box(s, Inches(1.2), Inches(5.0), Inches(3), Inches(1.2),
-             "$50B+", font_size=64, color=ACCENT, font_name=FONT_SERIF)
-add_text_box(s, Inches(4.5), Inches(5.25), Inches(5), Inches(0.8),
-             "agentic AI market by 2030 \u00b7 44% CAGR",
-             font_size=16, color=FG_MUTED, line_spacing=1.4)
+add_image(s, "slide2.png", Inches(7.2), Inches(1.4), width=Inches(5.5))
 
-add_text_box(s, Inches(1.2), Inches(6.3), Inches(10), Inches(0.6),
-             "Features get cloned in weeks. It\u2019s a race to the bottom. So we stopped trying to win it.",
-             font_size=22, color=FG, bold=False, font_name=FONT_SERIF)
+add_speaker_notes(s, (
+    "OpenClaw. Claude Cowork. Perplexity Computer. Manus. There are dozens of "
+    "companies racing to build the best AI agent. Over 100 million people already "
+    "pay $20+/month for AI. We started here too — we were building an agentic "
+    "computing platform. But we watched features get cloned in weeks. Every new "
+    "capability one platform shipped, three others had within a month. It's a "
+    "race to the bottom, and the big labs have billions of dollars to outspend "
+    "everyone. So we stopped trying to win that race. We asked: what's actually "
+    "missing? What do all of these agents need that none of them are building?"
+))
 
 
 # ═══════════════════════════════════════════════
-# SLIDE 2 — The Problem
+# SLIDE 3 — THE PROBLEM
 # ═══════════════════════════════════════════════
 s = new_slide()
 
 section_label(s, "The Problem")
-slide_headline(s, "There\u2019s no knowledge layer.")
+slide_headline(s, "There's no\nknowledge layer.", top=Inches(1.4), size=44)
 
-add_text_box(s, Inches(1.2), Inches(3.5), Inches(10), Inches(1.5),
-             "Every AI platform stores personal context the same way:\n"
-             "one flat text file. No structure. No knowledge about your\n"
-             "projects, people, or patterns over time.\n"
-             "There\u2019s no portable, structured knowledge layer that works across tools.",
-             font_size=20, color=FG_MUTED, line_spacing=1.5)
+slide_sub(s, "Every AI stores your context as one flat text file.\n"
+             "And to give it context, you have to talk to it.\n"
+             "There's no way to just think and have it become context.",
+          top=Inches(4.2), size=15)
 
-add_text_box(s, Inches(1.2), Inches(5.0), Inches(10), Inches(1.2),
-             "And there\u2019s a deeper problem: how your thinking gets into\n"
-             "the system. You can talk to your AI, but that\u2019s a conversation \u2014\n"
-             "the AI is always in the middle.",
-             font_size=18, color=FG_MUTED, line_spacing=1.5)
+add_image(s, "slide3.jpeg", Inches(7.2), Inches(1.6), width=Inches(5.5))
 
-add_text_box(s, Inches(1.2), Inches(6.3), Inches(10), Inches(0.6),
-             "Tools that help us think for ourselves \u2014 not just think with AI \u2014\n"
-             "produce the quality of thinking that makes AI most useful.",
-             font_size=20, color=FG, font_name=FONT_SERIF, line_spacing=1.3)
-
-
-# ═══════════════════════════════════════════════
-# SLIDE 3 — Parachute Daily
-# ═══════════════════════════════════════════════
-s = new_slide()
-
-section_label(s, "Our Answer")
-slide_headline(s, "Parachute Daily.\nJust talk.")
-
-add_text_box(s, Inches(1.2), Inches(3.5), Inches(5.5), Inches(2.8),
-             "A voice-first journal.\n\n"
-             "Speak into a wearable pendant or your phone \u2014\n"
-             "on a walk, in the car, wherever thinking happens.\n\n"
-             "Simple for humans. Native for AI.\n"
-             "No learning curve. Just talk.",
-             font_size=18, color=FG_MUTED, line_spacing=1.5)
-
-# Pendant callout
-shape = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
-                           Inches(7.8), Inches(3.5), Inches(4.5), Inches(3.0))
-shape.fill.solid()
-shape.fill.fore_color.rgb = BG_SOFT
-shape.line.color.rgb = BORDER
-shape.line.width = Pt(1)
-
-add_text_box(s, Inches(8.2), Inches(3.8), Inches(3.7), Inches(0.4),
-             "THE PENDANT", font_size=11, color=ACCENT, bold=True)
-add_text_box(s, Inches(8.2), Inches(4.3), Inches(3.7), Inches(2.0),
-             "Wearable voice capture device.\n\n"
-             "Press a button. Talk.\n"
-             "Your thoughts are transcribed and\n"
-             "structured by the time you\u2019re home.\n\n"
-             "Working prototype on stage today.",
-             font_size=16, color=FG_MUTED, line_spacing=1.45)
+add_speaker_notes(s, (
+    "Every AI platform — ChatGPT, Claude, Gemini — stores your personal context "
+    "the same way: one big text file. It remembers your name, maybe a few "
+    "preferences. It doesn't know six months of your thinking. And to give it "
+    "context, you have to talk to it directly. There's no way to just think for "
+    "yourself — on a walk, in the car — and have that become context your AI "
+    "can use. You might ask, 'why not just dictate into ChatGPT?' Because then "
+    "your thoughts are trapped inside one platform, unstructured, unsearchable, "
+    "and gone the moment you switch tools. The knowledge layer between you and "
+    "your AI doesn't exist. We're building it."
+))
 
 
 # ═══════════════════════════════════════════════
-# SLIDE 4 — Agent-Native Architecture
+# SLIDE 4 — THE PRODUCT
 # ═══════════════════════════════════════════════
 s = new_slide()
 
-section_label(s, "Agent-Native")
-slide_headline(s, "Don\u2019t compete with agents.\nBuild the tool layer they all need.")
+section_label(s, "The Product")
+slide_headline(s, "Parachute Daily.", top=Inches(1.4), size=48)
 
-# Left column — text (keep within 5.5in to avoid diagram)
-add_text_box(s, Inches(1.2), Inches(3.5), Inches(5.2), Inches(1.2),
-             "Spin up a knowledge vault in seconds.\n"
-             "Give any AI an MCP link. That\u2019s it.\n"
-             "Your data lives in a graph database:\n"
-             "Notes, Tags, and Links.",
-             font_size=16, color=FG_MUTED, line_spacing=1.45)
+slide_sub(s, "Voice-first journal. Talk or type. Phone, web, or pendant.\n"
+             "Open source · Local-first · Your data is yours.",
+          top=Inches(3.5), size=16)
 
-add_text_box(s, Inches(1.2), Inches(4.9), Inches(5.2), Inches(0.9),
-             "Built on MCP \u2014 the open standard for\n"
-             "connecting AI to tools. Whatever AI you\n"
-             "already use, Parachute makes it better.",
-             font_size=15, color=FG_MUTED, line_spacing=1.45)
+add_image(s, "slide4.png", Inches(7.0), Inches(1.4), width=Inches(5.7))
 
-# Right column — architecture diagram
-diag_left = Inches(7.0)
-diag_width = Inches(5.5)
-shape = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
-                           diag_left, Inches(3.0), diag_width, Inches(3.8))
-shape.fill.solid()
-shape.fill.fore_color.rgb = WHITE
-shape.line.color.rgb = BORDER
-shape.line.width = Pt(1)
-
-dl = Inches(7.4)  # text left within diagram
-add_text_box(s, dl, Inches(3.2), Inches(4.5), Inches(0.3),
-             "YOU", font_size=10, color=FG_DIM, bold=True, font_name=FONT_MONO)
-add_text_box(s, dl, Inches(3.5), Inches(4.5), Inches(0.4),
-             "Parachute Daily  \u00b7  Pendant  \u00b7  Phone", font_size=14, color=FG)
-
-add_text_box(s, Inches(9.2), Inches(3.9), Inches(1), Inches(0.3),
-             "\u2193", font_size=14, color=FG_DIM, font_name=FONT_MONO,
-             alignment=PP_ALIGN.CENTER)
-
-add_text_box(s, dl, Inches(4.2), Inches(4.5), Inches(0.3),
-             "DATA", font_size=10, color=ACCENT, bold=True, font_name=FONT_MONO)
-
-# Accent box for server
-inner = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
-                           Inches(7.3), Inches(4.45), Inches(4.8), Inches(0.5))
-inner.fill.solid()
-inner.fill.fore_color.rgb = RGBColor(0xE8, 0xF5, 0xEC)
-inner.line.color.rgb = ACCENT
-inner.line.width = Pt(1)
-add_text_box(s, Inches(7.5), Inches(4.5), Inches(4.5), Inches(0.4),
-             "Parachute Vault \u2014 Notes \u00b7 Tags \u00b7 Links",
-             font_size=13, color=ACCENT, bold=True)
-
-add_text_box(s, Inches(9.0), Inches(5.0), Inches(1.5), Inches(0.3),
-             "\u2193 MCP", font_size=10, color=FG_DIM, font_name=FONT_MONO,
-             alignment=PP_ALIGN.CENTER)
-
-add_text_box(s, dl, Inches(5.3), Inches(4.5), Inches(0.3),
-             "AGENTS", font_size=10, color=FG_DIM, bold=True, font_name=FONT_MONO)
-add_text_box(s, dl, Inches(5.6), Inches(4.5), Inches(0.4),
-             "Claude  \u00b7  ChatGPT  \u00b7  OpenClaw  \u00b7  Any AI", font_size=14, color=FG)
-
-# Thesis line — bottom, full width
-add_text_box(s, Inches(1.2), Inches(6.3), Inches(11), Inches(0.6),
-             "We\u2019re not trying to build the most intelligent tool. We\u2019re building the most important tool for intelligent systems to use.",
-             font_size=18, color=FG, font_name=FONT_SERIF, line_spacing=1.2)
+add_speaker_notes(s, (
+    "Parachute Daily is a voice-first journal. Talk or type — on your phone, "
+    "on the web, or through a wearable pendant. Your words get transcribed and "
+    "structured into a personal knowledge graph: notes, tags, and links. Simple "
+    "for humans, native for AI. Most people will start with the app on their "
+    "phone. The pendant is an accessory for people who want frictionless voice "
+    "capture — press a button, talk on a walk, your thoughts are structured by "
+    "the time you're home. Working prototype, on stage today. On privacy: this "
+    "is a Public Benefit Corporation. The code is open source. Your data is "
+    "local-first — it lives on your device by default. The cloud is opt-in, "
+    "and if you choose it, we use end-to-end encryption. You can export "
+    "everything, self-host, or leave at any time. We designed this for trust "
+    "from day one, not as an afterthought."
+))
 
 
 # ═══════════════════════════════════════════════
-# SLIDE 5 — Context Compounds
+# SLIDE 5 — HOW IT WORKS
 # ═══════════════════════════════════════════════
 s = new_slide()
 
-section_label(s, "The Insight")
-slide_headline(s, "Context compounds.")
+section_label(s, "How It Works")
+slide_headline(s, "Spin up a vault.\nGive any AI a link.", top=Inches(1.4), size=42)
 
-add_text_box(s, Inches(1.2), Inches(3.3), Inches(10), Inches(0.8),
-             "Every note, every voice entry builds a richer personal data layer \u2014\n"
-             "not a flat text file, but a real graph that can be queried across months and years.",
-             font_size=20, color=FG_MUTED, line_spacing=1.5)
+slide_sub(s, "Built on MCP — the open standard for connecting AI to tools.\n"
+             "Your data stays yours. Works with every AI, not instead of one.",
+          top=Inches(4.2), size=14)
 
-# Flywheel
-steps = [
-    ("01", "Capture thoughts in Daily"),
-    ("02", "Build months of personal context"),
-    ("03", "Connect any AI via MCP"),
-    ("04", "AI already knows you"),
-    ("\u2192",  "Switching cost through genuine value"),
-]
+add_image(s, "slide5.png", Inches(2.5), Inches(5.2), width=Inches(8.0))
 
-y = Inches(4.6)
-for num, text in steps:
-    is_final = num == "\u2192"
-    col = ACCENT if is_final else FG
-    num_col = ACCENT if is_final else FG_DIM
+# If we have room — make it bigger / center it
+# Actually, place the diagram center-bottom
+# Let me re-think the layout: top has headline+sub, bottom has the diagram
 
-    add_text_box(s, Inches(1.5), y, Inches(0.6), Inches(0.45),
-                 num, font_size=14, color=num_col, font_name=FONT_MONO)
-    add_text_box(s, Inches(2.2), y, Inches(6), Inches(0.45),
-                 text, font_size=20, color=col, font_name=FONT_SERIF,
-                 bold=is_final)
-    y += Inches(0.5)
-
-add_text_box(s, Inches(7.5), Inches(4.6), Inches(5), Inches(2.0),
-             "Open source (AGPL-3.0)\n"
-             "Local-first\n"
-             "Public Benefit Corporation\n\n"
-             "Your data is yours \u2014\n"
-             "portable, exportable, self-hostable.",
-             font_size=16, color=FG_MUTED, line_spacing=1.5)
+add_speaker_notes(s, (
+    "Your data lives in a Parachute Vault — a personal knowledge graph organized "
+    "around notes, tags, and links. It's accessible to any AI via MCP, the open "
+    "standard Anthropic created for connecting AI to tools. You spin up a vault "
+    "in seconds and give any AI a link. That's the whole setup. Whatever AI you "
+    "already use — Claude, ChatGPT, Gemini — Parachute makes it better. You "
+    "don't switch anything. You add Parachute. This is how we stay independent "
+    "from any one LLM. We're not tied to a single model. We speak an open "
+    "protocol that any AI can use. As users settle into different AI camps, "
+    "we're the layer that works across all of them. That's why we're not in "
+    "the race to the bottom on AI features — we're building the infrastructure "
+    "underneath it."
+))
 
 
 # ═══════════════════════════════════════════════
-# SLIDE 6 — Business Model
+# SLIDE 6 — COMPETITIVE LANDSCAPE
+# ═══════════════════════════════════════════════
+s = new_slide()
+
+section_label(s, "Competitive Landscape")
+slide_headline(s, "The magic exists.\nIt's not accessible.", top=Inches(1.4), size=42)
+
+# Quadrant
+quad_left = Inches(0.8)
+quad_top = Inches(4.0)
+quad_w = Inches(6.0)
+quad_h = Inches(2.6)
+
+# Outer container
+outer = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
+                           quad_left, quad_top, quad_w, quad_h)
+outer.fill.solid()
+outer.fill.fore_color.rgb = WHITE
+outer.line.color.rgb = BORDER
+outer.line.width = Pt(0.75)
+
+# Top-left: Note apps
+add_text_box(s, quad_left + Inches(0.3), quad_top + Inches(0.2),
+             Inches(2.5), Inches(0.3), "NOTE APPS",
+             font_size=8, color=FG_DIM, bold=True)
+add_text_box(s, quad_left + Inches(0.3), quad_top + Inches(0.5),
+             Inches(2.5), Inches(0.7),
+             "Obsidian · Apple Notes · Notion",
+             font_size=13, color=FG_MUTED, font_name=FONT_SERIF)
+
+# Top-right: AI platforms
+add_text_box(s, quad_left + Inches(3.1), quad_top + Inches(0.2),
+             Inches(2.5), Inches(0.3), "AI PLATFORMS",
+             font_size=8, color=FG_DIM, bold=True)
+add_text_box(s, quad_left + Inches(3.1), quad_top + Inches(0.5),
+             Inches(2.5), Inches(0.7),
+             "ChatGPT · Gemini · Claude",
+             font_size=13, color=FG_MUTED, font_name=FONT_SERIF)
+
+# Bottom: Parachute (highlighted)
+para_top = quad_top + Inches(1.4)
+para = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
+                          quad_left + Inches(0.15), para_top,
+                          quad_w - Inches(0.3), Inches(1.05))
+para.fill.solid()
+para.fill.fore_color.rgb = ACCENT_SOFT
+para.line.fill.background()
+
+add_text_box(s, quad_left + Inches(0.3), para_top + Inches(0.15),
+             Inches(5), Inches(0.3),
+             "PARACHUTE — ACCESSIBLE TO EVERYONE",
+             font_size=8, color=ACCENT, bold=True)
+add_text_box(s, quad_left + Inches(0.3), para_top + Inches(0.45),
+             Inches(5), Inches(0.5),
+             "Open · Portable · Agent-native",
+             font_size=14, color=ACCENT, bold=True, font_name=FONT_SERIF)
+
+add_speaker_notes(s, (
+    "Note apps like Obsidian and Apple Notes are great for capture, but they "
+    "have no AI integration. Obsidian is especially interesting — 8 people, "
+    "bootstrapped, profitable, over a million users, with a growing community "
+    "connecting it to Claude Code and other AI tools. Give an AI a structured "
+    "knowledge base and it can work magic. But it requires markdown files, "
+    "plugin configuration, command-line tools. 99% of people will never do that. "
+    "AI platforms like ChatGPT and Gemini are smart but their memory is siloed "
+    "inside their own ecosystem. Parachute takes the magic of structured "
+    "knowledge + AI and makes it accessible to everyone. No file system, no CLI. "
+    "Just a vault you spin up in seconds with a link any AI can use. The PKM "
+    "market is $2.5 billion and growing 16% annually. We're building the version "
+    "that scales to the other 99%."
+))
+
+
+# ═══════════════════════════════════════════════
+# SLIDE 7 — WHO USES THIS
+# ═══════════════════════════════════════════════
+s = new_slide()
+
+section_label(s, "Who Uses This")
+slide_headline(s, "Who needs this first?", top=Inches(1.4), size=44, width=Inches(12))
+
+add_image(s, "slide7.png", Inches(1.5), Inches(3.2), width=Inches(10.3))
+
+add_speaker_notes(s, (
+    "Our beachhead customer is the AI journaler — someone who already uses "
+    "Claude or ChatGPT daily and journals or takes voice notes, but is "
+    "frustrated that their AI doesn't know what they were thinking about "
+    "yesterday. That's our first 500 paid users. We reach them through Learn "
+    "Vibe Build, our AI learning cohorts, and through the Claude and ChatGPT "
+    "power-user communities. Next is the professional — voice-notes after "
+    "meetings, months of institutional context, searchable by any tool, never "
+    "trapped in one app. Then enterprise: a departing team member records days "
+    "of knowledge transfer. Their expertise lives on in a structured, queryable "
+    "vault. Think about retiring baby boomers with decades of institutional "
+    "knowledge — companies will pay for a smooth way to capture that. Each "
+    "stage expands the market, but we start narrow and specific."
+))
+
+
+# ═══════════════════════════════════════════════
+# SLIDE 8 — BUSINESS MODEL + MARKET
 # ═══════════════════════════════════════════════
 s = new_slide()
 
 section_label(s, "Business Model")
-slide_headline(s, "Start free.\nGrow with every user.")
+slide_headline(s, "The $2–10 add-on.", top=Inches(1.4), size=44, width=Inches(7))
+
+# Tier table on the left
+tier_left = Inches(0.8)
+tier_top = Inches(3.0)
+tier_w = Inches(6.5)
+tier_row_h = Inches(0.55)
 
 tiers = [
-    ("Free",    "Offline journal + on-device transcription. Zero hosting cost.",       FG_DIM),
-    ("$2/mo",   "Cloud sync + MCP access \u2014 your notes available to any AI",       FG_MUTED),
-    ("$5/mo",   "Cloud transcription + cleanup \u2014 server-side, better accuracy",   FG_MUTED),
-    ("$10/mo",  "AI reflections, vector search, and synthesis",                        ACCENT),
+    ("Free", "Offline journal", False),
+    ("$2/mo", "Cloud sync + MCP", False),
+    ("$5/mo", "Cloud transcription", False),
+    ("$10/mo", "AI reflections + synthesis", True),
+    ("$100", "Pendant", False),
 ]
 
-y = Inches(3.4)
-tier_spacing = Inches(0.7)
-for price, desc, col in tiers:
-    is_highlight = price == "$10/mo"
-    if is_highlight:
-        shape = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
-                                   Inches(1.0), y - Inches(0.1),
-                                   Inches(10.5), Inches(0.55))
-        shape.fill.solid()
-        shape.fill.fore_color.rgb = RGBColor(0xE8, 0xF5, 0xEC)
-        shape.line.fill.background()
+# Outer container
+tier_outer = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
+                                tier_left, tier_top, tier_w,
+                                tier_row_h * len(tiers) + Inches(0.1))
+tier_outer.fill.solid()
+tier_outer.fill.fore_color.rgb = WHITE
+tier_outer.line.color.rgb = BORDER
+tier_outer.line.width = Pt(0.75)
 
-    add_text_box(s, Inches(1.2), y, Inches(1.8), Inches(0.4),
-                 price, font_size=22, color=col, font_name=FONT_SERIF)
-    add_text_box(s, Inches(3.2), y + Inches(0.03), Inches(8), Inches(0.4),
-                 desc, font_size=15, color=FG_MUTED)
-    y += tier_spacing
+for i, (price, desc, highlight) in enumerate(tiers):
+    row_top = tier_top + Inches(0.05) + (tier_row_h * i)
 
-add_text_box(s, Inches(1.2), Inches(6.5), Inches(10), Inches(0.6),
-             "100M+ people already pay $20+/mo for AI. We\u2019re not competing with that subscription \u2014\n"
-             "we\u2019re the $2\u201310 add-on that makes it dramatically better. Free tier = zero hosting cost.",
-             font_size=15, color=FG_DIM, line_spacing=1.5)
+    if highlight:
+        bg = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
+                                tier_left + Inches(0.05), row_top,
+                                tier_w - Inches(0.1), tier_row_h)
+        bg.fill.solid()
+        bg.fill.fore_color.rgb = ACCENT_SOFT
+        bg.line.fill.background()
 
+    add_text_box(s, tier_left + Inches(0.4), row_top + Inches(0.12),
+                 Inches(1.8), Inches(0.4),
+                 price, font_size=18, color=ACCENT, font_name=FONT_SERIF)
+    add_text_box(s, tier_left + Inches(2.2), row_top + Inches(0.18),
+                 Inches(4), Inches(0.4),
+                 desc, font_size=13, color=FG_MUTED, bold=True)
 
-# ═══════════════════════════════════════════════
-# SLIDE 7 — Financial Projections
-# ═══════════════════════════════════════════════
-s = new_slide()
+# Right side: market stat + projections
+right_left = Inches(8.0)
 
-section_label(s, "Financial Projections")
-slide_headline(s, "Profitable by year three.")
+# Big stat
+add_text_box(s, right_left, Inches(2.0), Inches(5), Inches(1.2),
+             "100M+", font_size=52, color=ACCENT, font_name=FONT_SERIF)
+add_text_box(s, right_left, Inches(3.1), Inches(5), Inches(0.8),
+             "people pay $20+/mo for AI already",
+             font_size=12, color=FG_MUTED)
 
-headers = ["", "2026", "2027", "2028"]
+# Projections table
+proj_top = Inches(4.2)
+proj_left = right_left
+proj_w = Inches(4.8)
+
+proj_outer = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
+                                proj_left, proj_top, proj_w, Inches(2.2))
+proj_outer.fill.solid()
+proj_outer.fill.fore_color.rgb = WHITE
+proj_outer.line.color.rgb = BORDER
+proj_outer.line.width = Pt(0.75)
+
+# Header
+header_top = proj_top + Inches(0.1)
+add_text_box(s, proj_left + Inches(0.2), header_top, Inches(1.5), Inches(0.3),
+             "", font_size=9, color=FG_DIM, bold=True)
+add_text_box(s, proj_left + Inches(1.7), header_top, Inches(1), Inches(0.3),
+             "2026", font_size=9, color=FG_DIM, bold=True, alignment=PP_ALIGN.CENTER)
+add_text_box(s, proj_left + Inches(2.7), header_top, Inches(1), Inches(0.3),
+             "2027", font_size=9, color=FG_DIM, bold=True, alignment=PP_ALIGN.CENTER)
+add_text_box(s, proj_left + Inches(3.7), header_top, Inches(1), Inches(0.3),
+             "2028", font_size=9, color=FG_DIM, bold=True, alignment=PP_ALIGN.CENTER)
+
 rows = [
-    ["Free users", "5,000", "75,000", "500,000"],
-    ["Paid subscribers", "500", "8,000", "50,000"],
-    ["Avg rev / subscriber", "~$5/mo", "~$5/mo", "~$5/mo"],
-    ["ARR", "~$30K", "~$480K", "~$3M"],
-    ["Team costs", "~$150K", "~$400K", "~$800K"],
-    ["Infra + COGS", "~$10K", "~$100K", "~$400K"],
-    ["Total opex", "~$160K", "~$500K", "~$1.2M"],
+    ("Paid users", "500", "8,000", "50,000"),
+    ("ARR", "~$30K", "~$480K", "~$3M"),
+    ("Opex", "~$160K", "~$500K", "~$1.2M"),
 ]
 
-col_widths = [Inches(2.8), Inches(1.8), Inches(1.8), Inches(1.8)]
-table_left = Inches(1.5)
-table_top = Inches(3.3)
+for i, (label, c1, c2, c3) in enumerate(rows):
+    row_top = proj_top + Inches(0.5) + Inches(0.45 * i)
+    add_text_box(s, proj_left + Inches(0.2), row_top, Inches(1.5), Inches(0.3),
+                 label, font_size=11, color=FG, bold=True)
+    is_arr = label == "ARR"
+    color = ACCENT if is_arr else FG_MUTED
+    bold = is_arr
+    add_text_box(s, proj_left + Inches(1.7), row_top, Inches(1), Inches(0.3),
+                 c1, font_size=11, color=color, bold=bold, alignment=PP_ALIGN.CENTER)
+    add_text_box(s, proj_left + Inches(2.7), row_top, Inches(1), Inches(0.3),
+                 c2, font_size=11, color=color, bold=bold, alignment=PP_ALIGN.CENTER)
+    add_text_box(s, proj_left + Inches(3.7), row_top, Inches(1), Inches(0.3),
+                 c3, font_size=11, color=color, bold=bold, alignment=PP_ALIGN.CENTER)
 
-tbl_shape = s.shapes.add_table(len(rows) + 1, 4, table_left, table_top,
-                                sum(col_widths), Inches(3.0))
-tbl = tbl_shape.table
-
-for i, w in enumerate(col_widths):
-    tbl.columns[i].width = w
-
-# Style header
-for i, h in enumerate(headers):
-    cell = tbl.cell(0, i)
-    cell.text = h
-    for p in cell.text_frame.paragraphs:
-        p.font.size = Pt(11)
-        p.font.color.rgb = FG_DIM
-        p.font.bold = True
-        p.font.name = FONT_SANS
-        p.alignment = PP_ALIGN.CENTER if i > 0 else PP_ALIGN.LEFT
-    cell.fill.solid()
-    cell.fill.fore_color.rgb = BG_SOFT
-
-# Style data rows
-for r, row_data in enumerate(rows):
-    for c, val in enumerate(row_data):
-        cell = tbl.cell(r + 1, c)
-        cell.text = val
-        for p in cell.text_frame.paragraphs:
-            p.font.size = Pt(12)
-            p.font.name = FONT_SANS
-            p.alignment = PP_ALIGN.CENTER if c > 0 else PP_ALIGN.LEFT
-            if r == 3 and c > 0:  # ARR row highlight
-                p.font.color.rgb = ACCENT
-                p.font.bold = True
-            elif c == 0:
-                p.font.color.rgb = FG
-                p.font.bold = True
-                p.font.size = Pt(11)
-            else:
-                p.font.color.rgb = FG_MUTED
-        cell.fill.solid()
-        if r == 3:
-            cell.fill.fore_color.rgb = RGBColor(0xF0, 0xF8, 0xF2)
-        elif r % 2 == 0:
-            cell.fill.fore_color.rgb = WHITE
-        else:
-            cell.fill.fore_color.rgb = BG
-
-remove_table_borders(tbl)
-
-add_text_box(s, Inches(1.5), Inches(6.5), Inches(9), Inches(0.4),
-             "100M+ AI users are all potential customers. Conservative given the scale of the opportunity.",
-             font_size=13, color=FG_DIM)
+add_speaker_notes(s, (
+    "We're not competing with anyone's AI subscription. Over 100 million people "
+    "already pay $20+/mo for AI. We're the $2–10 add-on that makes it "
+    "dramatically better. Free tier has zero hosting cost — it's a fully "
+    "offline journal. Each paid tier adds cloud features. The pendant is a "
+    "one-time hardware purchase. Lower COGS than agentic platforms because "
+    "we're not running inference. The path from 500 to 50,000: our first 500 "
+    "come from three channels — Learn Vibe Build AI cohorts, the Claude and "
+    "ChatGPT power-user communities, and our Boulder co-working space as a "
+    "local testbed. Those 500 users generate the case studies and word-of-mouth "
+    "that fuel organic growth. By year two, we add the open source developer "
+    "community building MCP integrations, and early professional users. Year "
+    "three, enterprise pilots for knowledge capture. Each channel compounds. "
+    "We're not relying on paid acquisition. CAC stays low because the product "
+    "sells itself once someone sees what their AI can do with six months of "
+    "structured context."
+))
 
 
 # ═══════════════════════════════════════════════
-# SLIDE 8 — Self-funded + Team
+# SLIDE 9 — TEAM & TRACTION
 # ═══════════════════════════════════════════════
 s = new_slide()
 
 section_label(s, "Team & Traction")
-slide_headline(s, "Self-funded.\nBuilt from scratch.")
+slide_headline(s, "Self-funded.\nBuilt from scratch.", top=Inches(1.4), size=44)
 
-# What exists
-items = [
-    "Working app with local voice transcription + graph-native storage",
-    "MCP server with Notes, Tags, Links architecture",
-    "Functional pendant prototype (on stage today)",
-    "Daily beta launching this month \u00b7 PBC incorporated in Colorado",
-]
-
-y = Inches(3.6)
-for item in items:
-    add_text_box(s, Inches(1.3), y + Inches(0.02), Inches(0.3), Inches(0.3),
-                 "\u2022", font_size=12, color=ACCENT)
-    add_text_box(s, Inches(1.7), y, Inches(5), Inches(0.35),
-                 item, font_size=13, color=FG_MUTED, line_spacing=1.2)
-    y += Inches(0.42)
-
-# Team card
-shape = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
-                           Inches(7.5), Inches(3.3), Inches(5), Inches(3.2))
-shape.fill.solid()
-shape.fill.fore_color.rgb = BG_SOFT
-shape.line.color.rgb = BORDER
-shape.line.width = Pt(1)
-
-add_text_box(s, Inches(7.9), Inches(3.5), Inches(4), Inches(0.35),
-             "THE TEAM", font_size=11, color=ACCENT, bold=True)
+slide_sub(s, "Working app · MCP server · Pendant prototype · Beta launching this month",
+          top=Inches(4.0), size=13)
 
 team = [
-    ("Aaron Gabriel Neyer", "Founder \u00b7 Product & architecture"),
-    ("Jon Bo", "Daily co-lead \u00b7 Founding engineer"),
-    ("Lucian Hymer", "Server co-lead \u00b7 Founding engineer"),
-    ("Marvin Melzer", "Hardware \u00b7 Pendant prototype"),
+    ("Aaron Neyer", "Co-founder · Product & architecture"),
+    ("Jon Bo", "Co-founder · Parachute Daily lead"),
+    ("Lucian Hymer", "AI & infrastructure"),
+    ("Marvin Melzer", "Pendant hardware"),
     ("Neil Yarnal", "Brand & design"),
 ]
 
-y = Inches(4.0)
-for name, role in team:
-    add_text_box(s, Inches(7.9), y, Inches(4.5), Inches(0.28),
-                 name, font_size=13, color=FG, bold=True)
-    add_text_box(s, Inches(7.9), y + Inches(0.25), Inches(4.5), Inches(0.28),
-                 role, font_size=11, color=FG_MUTED)
-    y += Inches(0.5)
+team_top = Inches(4.6)
+for i, (name, role) in enumerate(team):
+    row_top = team_top + Inches(0.4 * i)
+    add_text_box(s, Inches(0.8), row_top, Inches(3), Inches(0.35),
+                 name, font_size=14, color=FG, font_name=FONT_SERIF)
+    add_text_box(s, Inches(3.5), row_top + Inches(0.05), Inches(7), Inches(0.35),
+                 "— " + role, font_size=11, color=FG_MUTED)
 
-add_text_box(s, Inches(1.2), Inches(6.5), Inches(10), Inches(0.5),
-             "MA Ecopsychology \u00b7 MS Creative Technology & Design (CU ATLAS, graduating May 2026) \u00b7 Founding engineer \u00d72 \u00b7 Ex-Google \u00b7 10+ years full stack",
-             font_size=12, color=FG_DIM)
+add_speaker_notes(s, (
+    "Everything you've seen is working today. App with local voice transcription "
+    "and graph storage. MCP server. Pendant prototype — I'm wearing it right "
+    "now. Daily beta launching this month. PBC incorporated in Colorado. Me: "
+    "finishing my MS at CU ATLAS in Creative Technology & Design, also hold an "
+    "MA in Ecopsychology. Ex-Google. 10+ years full stack. Jon Bo is my "
+    "co-founder and leads Parachute Daily — he's been a 3x founding engineer, "
+    "and he's also an avid note-taker, journaler, and writer with an incredibly "
+    "strong product sense and a gift for simple, stable architecture. He's the "
+    "ideal person to build this. Lucian Hymer leads AI and infrastructure. "
+    "Marvin Melzer built the pendant prototype. Neil Yarnal handles brand and "
+    "design. We've built everything you see self-funded."
+))
 
 
 # ═══════════════════════════════════════════════
-# SLIDE 9 — The Ask
+# SLIDE 10 — THE ASK
 # ═══════════════════════════════════════════════
 s = new_slide()
 
 section_label(s, "The Ask")
-slide_headline(s, "Raising $300K to launch\nthe memory layer.")
+slide_headline(s, "$300K to launch\nthe knowledge layer.", top=Inches(1.4), size=44)
 
-# Ask card
-shape = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
-                           Inches(1.0), Inches(3.3), Inches(6), Inches(2.2))
-shape.fill.solid()
-shape.fill.fore_color.rgb = WHITE
-shape.line.color.rgb = BORDER
-shape.line.width = Pt(1)
+# Ask box
+ask_left = Inches(0.8)
+ask_top = Inches(4.0)
+ask_w = Inches(6)
+ask_h = Inches(2.0)
+
+ask_outer = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
+                               ask_left, ask_top, ask_w, ask_h)
+ask_outer.fill.solid()
+ask_outer.fill.fore_color.rgb = WHITE
+ask_outer.line.color.rgb = BORDER
+ask_outer.line.width = Pt(0.75)
 
 ask_items = [
-    ("Instrument", "SAFE (YC standard)"),
-    ("Use of funds", "Core team full-time through 2026"),
-    ("Goal", "Production launch by June \u00b7 revenue immediately"),
+    ("Instrument", "SAFE"),
+    ("Use of funds", "Core team through 2026"),
+    ("Goal", "Launch by June · revenue immediately"),
 ]
 
-y = Inches(3.55)
-for label, val in ask_items:
-    add_text_box(s, Inches(1.4), y, Inches(2.2), Inches(0.4),
-                 label, font_size=13, color=FG_DIM)
-    add_text_box(s, Inches(3.6), y, Inches(3.2), Inches(0.4),
-                 val, font_size=16, color=FG, font_name=FONT_SERIF)
-    y += Inches(0.55)
+for i, (label, val) in enumerate(ask_items):
+    row_top = ask_top + Inches(0.25) + Inches(0.55 * i)
+    add_text_box(s, ask_left + Inches(0.4), row_top, Inches(2), Inches(0.3),
+                 label, font_size=11, color=FG_MUTED)
+    add_text_box(s, ask_left + Inches(2.5), row_top, Inches(3.5), Inches(0.3),
+                 val, font_size=14, color=FG, font_name=FONT_SERIF)
 
-# Closing
-add_text_box(s, Inches(1.2), Inches(5.8), Inches(10), Inches(1.0),
-             "A memory layer for humans and AI\nto think and remember together.",
-             font_size=28, color=FG, font_name=FONT_SERIF, line_spacing=1.3)
+# Closing quote
+add_text_box(s, Inches(7.5), Inches(3.2), Inches(5.2), Inches(2),
+             "A knowledge layer for humans and AI",
+             font_size=22, color=FG, font_name=FONT_SERIF, line_spacing=1.3)
+add_text_box(s, Inches(7.5), Inches(3.65), Inches(5.2), Inches(2),
+             "to think and remember together.",
+             font_size=22, color=FG, font_name=FONT_SERIF, line_spacing=1.3)
 
-add_text_box(s, Inches(1.2), Inches(6.7), Inches(10), Inches(0.4),
-             "Aaron Gabriel Neyer  \u00b7  aaron@parachute.computer  \u00b7  (513) 593-1721  \u00b7  Boulder, CO",
-             font_size=12, color=FG_DIM)
+# Contact
+add_text_box(s, Inches(7.5), Inches(5.2), Inches(5.5), Inches(0.4),
+             "Aaron Gabriel Neyer  ·  aaron@parachute.computer",
+             font_size=10, color=FG_DIM)
+add_text_box(s, Inches(7.5), Inches(5.45), Inches(5.5), Inches(0.4),
+             "(513) 593-1721  ·  Boulder, CO",
+             font_size=10, color=FG_DIM)
+add_text_box(s, Inches(7.5), Inches(5.75), Inches(5.5), Inches(0.4),
+             "parachute.computer  ·  github.com/ParachuteComputer",
+             font_size=10, color=ACCENT)
+
+add_speaker_notes(s, (
+    "We're raising $300K on a SAFE to get the core team full-time through 2026. "
+    "Production launch by June with revenue immediately. A knowledge layer for "
+    "humans and AI to think and remember together."
+))
 
 
-# ── Save ──
-out_path = "/Users/parachute/Code/parachute.computer/nvc-pitch-deck.pptx"
+# ─────────────────────────────────────────────────
+# Save
+# ─────────────────────────────────────────────────
+out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nvc-pitch-deck.pptx")
 prs.save(out_path)
 print(f"Saved to {out_path}")
