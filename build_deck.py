@@ -312,32 +312,34 @@ add_speaker_notes(s, (
 s = new_slide()
 
 section_label(s, "Competitive Landscape")
-slide_headline(s, "Obsidian for everyone.", top=Inches(1.4), size=44, width=Inches(8))
+slide_headline(s, "Notion traps you.\nObsidian loses you.", top=Inches(1.4), size=42, width=Inches(8))
 
-slide_sub(s, "Power users are already pairing structured notes with AI —\n"
-             "and it's transformative. But it requires markdown files,\n"
-             "plugins, and a command line.\n"
+slide_sub(s, "Notion is where 100M people store their thinking — locked inside\n"
+             "one platform, accessible only to their AI. Obsidian is where\n"
+             "power users pair structured notes with AI — but it takes\n"
+             "markdown, plugins, and a command line.\n"
              "\n"
-             "We're making the same magic the default.",
-          top=Inches(3.2), size=14, width=Inches(7))
+             "Parachute is human-native and agent-native. The road between.",
+          top=Inches(3.6), size=13, width=Inches(7))
 
 add_image(s, "slide6.png", Inches(7.5), Inches(2.0), width=Inches(5.3))
 
 add_speaker_notes(s, (
-    "Obsidian is the most interesting thing happening in personal knowledge "
-    "tools right now. It's a private bootstrapped company — they don't share "
-    "user numbers and the founder has said most public estimates are wrong, so "
-    "I won't quote a number, but it's significant and growing fast. What "
-    "matters is the trend: power users are pairing Obsidian with Claude Code "
-    "and other AI tools, and the results are genuinely transformative. Give an "
-    "AI a structured knowledge base and it can work magic. But it requires "
-    "markdown files, plugin configuration, command-line tools, and file system "
-    "access. It's incredible for developers. 99% of people will never do that. "
-    "Parachute takes that exact same magic — structured knowledge plus AI — "
-    "and makes it the default. A simple voice-first app. No setup. No CLI. "
-    "Works with whatever AI you already use — Claude, ChatGPT, Gemini, any "
-    "agent that speaks MCP. We're not competing with Obsidian. We're bringing "
-    "what they pioneered to the rest of the world."
+    "Two big competitors. Notion has 100 million users. It's where teams and "
+    "individuals are increasingly storing their knowledge, and people are using "
+    "AI to create Notion content all the time. But Notion is a walled garden "
+    "— your data is locked inside their platform, and the AI that runs on it "
+    "is theirs. The moment you want to use Claude or ChatGPT or whatever's "
+    "next, you're copy-pasting things out. Obsidian is the most interesting "
+    "thing happening at the power-user end. Bootstrapped, profitable, beloved "
+    "— and a growing community is pairing it with Claude Code to do incredible "
+    "things with structured knowledge plus AI. But it requires markdown files, "
+    "plugin configuration, command-line tools. 99% of people will never do "
+    "that. So Notion traps you and Obsidian loses you. Parachute is the third "
+    "way. Human-native — voice-first, simple, no setup. Agent-native — built "
+    "on MCP, works with any AI you choose. Your knowledge layer comes with "
+    "you, regardless of which AI you use today or tomorrow. We're not picking "
+    "a fight with Notion or Obsidian. We're the open road between them."
 ))
 
 
