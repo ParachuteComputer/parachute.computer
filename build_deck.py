@@ -591,5 +591,8 @@ add_speaker_notes(s, (
 # Save
 # ─────────────────────────────────────────────────
 out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nvc-pitch-deck.pptx")
+served_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nvc", "Parachute.pptx")
 prs.save(out_path)
+prs.save(served_path)
 print(f"Saved to {out_path}")
+print(f"Saved to {served_path}")
