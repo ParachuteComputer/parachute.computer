@@ -314,13 +314,8 @@ s = new_slide()
 section_label(s, "Competitive Landscape")
 slide_headline(s, "Notion traps you.\nObsidian loses you.", top=Inches(1.4), size=42, width=Inches(8))
 
-slide_sub(s, "Notion is where 100M people store their thinking — locked inside\n"
-             "one platform, accessible only to their AI. Obsidian is where\n"
-             "power users pair structured notes with AI — but it takes\n"
-             "markdown, plugins, and a command line.\n"
-             "\n"
-             "Parachute is human-native and agent-native. The road between.",
-          top=Inches(3.6), size=13, width=Inches(7))
+slide_sub(s, "Parachute is human-native and agent-native.\nThe road between.",
+          top=Inches(4.2), size=16, width=Inches(7))
 
 add_image(s, "slide6.png", Inches(7.5), Inches(2.0), width=Inches(5.3))
 
