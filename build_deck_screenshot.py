@@ -1,119 +1,199 @@
-"""Build NVC pitch deck by screenshotting the web version of each slide.
-Produces pixel-perfect PPTX that matches the web styling exactly."""
+"""Build NVC pitch deck PPTX from screenshots of the web deck.
+
+Generates a Keynote-compatible PPTX where each slide is a full-bleed
+screenshot of the corresponding web slide. Speaker notes are pulled
+from the .speaker-notes elements in the source njk and embedded in
+the PPTX notes pane.
+
+Why screenshots? Keynote on macOS has long-standing compatibility issues
+with python-pptx-generated PPTX files. Screenshot-based PPTX files have
+no such issues — they're just images, which every tool reads cleanly.
+
+Usage:
+  python3 build_deck_screenshot.py
+"""
 
 import http.server
 import os
+import re
+import shutil
+import socketserver
+import subprocess
 import tempfile
 import threading
 from pathlib import Path
+
 from playwright.sync_api import sync_playwright
 from pptx import Presentation
 from pptx.util import Inches
 
-SITE_DIR = Path(__file__).parent / "website" / "_site"
+ROOT = Path(__file__).parent
+SITE_DIR = ROOT / "_site"
+DECK_NJK = ROOT / "nvc-deck.njk"
+OUT_PPTX = ROOT / "nvc-pitch-deck.pptx"
+SERVED_PPTX = ROOT / "nvc" / "Parachute.pptx"
+
 PORT = 8765
 DECK_URL = f"http://localhost:{PORT}/nvc/deck/"
-SLIDE_WIDTH = Inches(13.333)
-SLIDE_HEIGHT = Inches(7.5)
+
+SLIDE_W = Inches(13.333)
+SLIDE_H = Inches(7.5)
+
+# Capture viewport (will be 2x for retina-quality)
 VIEWPORT_W = 1280
 VIEWPORT_H = 720
-DEVICE_SCALE = 2  # 2x for crisp output (2560x1440 actual pixels)
+DEVICE_SCALE = 2
+
+
+def build_eleventy():
+    print("Building eleventy site...")
+    subprocess.run(["npx", "@11ty/eleventy"], cwd=ROOT, check=True)
+
+
+class _Handler(http.server.SimpleHTTPRequestHandler):
+    def log_message(self, format, *args):
+        pass  # silence
 
 
 def _start_server():
-    """Start a local HTTP server serving the _site directory."""
-    handler = http.server.SimpleHTTPRequestHandler
-    server = http.server.HTTPServer(("localhost", PORT), handler)
+    os.chdir(SITE_DIR)
+    handler = _Handler
+    server = socketserver.TCPServer(("localhost", PORT), handler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     return server
 
 
 def screenshot_slides(output_dir: str) -> list[str]:
-    """Open the deck page and screenshot each .slide section."""
-    os.chdir(SITE_DIR)
     server = _start_server()
     paths = []
-    with sync_playwright() as p:
-        browser = p.chromium.launch()
-        page = browser.new_page(
-            viewport={"width": VIEWPORT_W, "height": VIEWPORT_H},
-            device_scale_factor=DEVICE_SCALE,
-        )
-        page.goto(DECK_URL, wait_until="networkidle")
-
-        # Hide the fixed download bar so it doesn't overlay slides
-        page.evaluate("document.querySelector('div[style*=\"position: fixed\"]')?.remove()")
-
-        slides = page.query_selector_all("section.slide")
-        print(f"Found {len(slides)} slides")
-
-        for i, slide in enumerate(slides):
-            # Scroll slide into view and force it to fill the viewport
-            slide.scroll_into_view_if_needed()
-            # Screenshot at exact 16:9 ratio
-            box = slide.bounding_box()
-            path = os.path.join(output_dir, f"slide_{i+1:02d}.png")
-
-            # Set slide to exact viewport dimensions for clean capture
-            page.evaluate("""(el) => {
-                el.style.minHeight = '100vh';
-                el.style.height = '100vh';
-                el.style.maxHeight = '100vh';
-                el.style.overflow = 'hidden';
-            }""", slide)
-            slide.scroll_into_view_if_needed()
-            page.wait_for_timeout(200)  # let fonts settle
-
-            # Take a full-page-width screenshot of just this element
-            # Clip to exact 16:9 dimensions
-            box = slide.bounding_box()
-            page.screenshot(
-                path=path,
-                clip={
-                    "x": 0,
-                    "y": box["y"],
-                    "width": VIEWPORT_W,
-                    "height": VIEWPORT_H,
-                },
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            ctx = browser.new_context(
+                viewport={"width": VIEWPORT_W, "height": VIEWPORT_H},
+                device_scale_factor=DEVICE_SCALE,
             )
-            paths.append(path)
-            print(f"  Captured slide {i+1}")
+            page = ctx.new_page()
+            page.goto(DECK_URL, wait_until="networkidle")
 
-        browser.close()
-    server.shutdown()
+            # Hide download bar, notes toggle, and speaker notes
+            page.add_style_tag(content="""
+                div[style*='position: fixed'] { display: none !important; }
+                .notes-toggle { display: none !important; }
+                .speaker-notes { display: none !important; }
+                html { scroll-snap-type: none !important; }
+            """)
+
+            page.wait_for_timeout(800)
+
+            slides = page.query_selector_all("section.slide")
+            print(f"Found {len(slides)} slides")
+
+            for i, slide in enumerate(slides):
+                # Force the slide to fill exactly the viewport for clean capture
+                page.evaluate("""(el) => {
+                    el.style.minHeight = '100vh';
+                    el.style.height = '100vh';
+                    el.style.maxHeight = '100vh';
+                    el.style.overflow = 'hidden';
+                    el.style.paddingTop = '4rem';
+                    el.style.paddingBottom = '4rem';
+                }""", slide)
+
+                slide.scroll_into_view_if_needed()
+                page.wait_for_timeout(300)
+
+                box = slide.bounding_box()
+                path = os.path.join(output_dir, f"slide_{i+1:02d}.png")
+                page.screenshot(
+                    path=path,
+                    clip={
+                        "x": 0,
+                        "y": box["y"],
+                        "width": VIEWPORT_W,
+                        "height": VIEWPORT_H,
+                    },
+                )
+                paths.append(path)
+                print(f"  Captured slide {i+1}")
+
+            browser.close()
+    finally:
+        server.shutdown()
+        os.chdir(ROOT)
+
     return paths
 
 
-def build_pptx(image_paths: list[str], output_path: str):
-    """Create a PPTX with each screenshot as a full-bleed slide image."""
+def extract_speaker_notes() -> list[str]:
+    """Pull speaker notes from the source njk file."""
+    with open(DECK_NJK, "r") as f:
+        content = f.read()
+
+    pattern = (
+        r'<div class="speaker-notes">\s*'
+        r'<div class="notes-label">Speaker Notes</div>\s*'
+        r'(.*?)\s*'
+        r'</div>'
+    )
+    matches = re.findall(pattern, content, re.DOTALL)
+
+    notes = []
+    for match in matches:
+        text = match.strip()
+        # Strip HTML tags
+        text = re.sub(r"<[^>]+>", "", text)
+        # Decode common entities
+        text = (text
+                .replace("&mdash;", "—")
+                .replace("&ndash;", "–")
+                .replace("&middot;", "·")
+                .replace("&rsquo;", "'")
+                .replace("&lsquo;", "'")
+                .replace("&ldquo;", '"')
+                .replace("&rdquo;", '"')
+                .replace("&amp;", "&")
+                .replace("&nbsp;", " "))
+        # Collapse whitespace
+        text = re.sub(r"\s+", " ", text).strip()
+        notes.append(text)
+
+    return notes
+
+
+def build_pptx(image_paths: list[str], speaker_notes: list[str]):
+    print("Building PPTX...")
     prs = Presentation()
-    prs.slide_width = SLIDE_WIDTH
-    prs.slide_height = SLIDE_HEIGHT
-    blank_layout = prs.slide_layouts[6]  # blank
+    prs.slide_width = SLIDE_W
+    prs.slide_height = SLIDE_H
+    blank_layout = prs.slide_layouts[6]
 
-    for img_path in image_paths:
+    for i, img_path in enumerate(image_paths):
         slide = prs.slides.add_slide(blank_layout)
-        slide.shapes.add_picture(img_path, 0, 0, SLIDE_WIDTH, SLIDE_HEIGHT)
+        slide.shapes.add_picture(img_path, 0, 0, SLIDE_W, SLIDE_H)
 
-    prs.save(output_path)
-    print(f"Saved {output_path} ({len(image_paths)} slides)")
+        if i < len(speaker_notes):
+            notes_slide = slide.notes_slide
+            notes_slide.notes_text_frame.text = speaker_notes[i]
+
+    prs.save(OUT_PPTX)
+    SERVED_PPTX.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(OUT_PPTX, SERVED_PPTX)
+    print(f"Saved {OUT_PPTX}")
+    print(f"Copied to {SERVED_PPTX}")
+    size_mb = os.path.getsize(OUT_PPTX) / 1024 / 1024
+    print(f"Size: {size_mb:.1f} MB")
 
 
 def main():
-    repo_root = Path(__file__).parent
-    output_pptx = repo_root / "nvc-pitch-deck.pptx"
-    deploy_pptx = repo_root / "website" / "nvc" / "Parachute.pptx"
+    build_eleventy()
+    speaker_notes = extract_speaker_notes()
+    print(f"Extracted {len(speaker_notes)} speaker notes")
 
     with tempfile.TemporaryDirectory() as tmpdir:
         images = screenshot_slides(tmpdir)
-        build_pptx(images, str(output_pptx))
-
-    # Copy to website deployment path
-    deploy_pptx.parent.mkdir(parents=True, exist_ok=True)
-    import shutil
-    shutil.copy2(output_pptx, deploy_pptx)
-    print(f"Copied to {deploy_pptx}")
+        build_pptx(images, speaker_notes)
 
 
 if __name__ == "__main__":
