@@ -1,13 +1,16 @@
 """Build NVC pitch deck PPTX from screenshots of the web deck.
 
 Generates a Keynote-compatible PPTX where each slide is a full-bleed
-screenshot of the corresponding web slide. Speaker notes are pulled
-from the .speaker-notes elements in the source njk and embedded in
-the PPTX notes pane.
+screenshot of the corresponding web slide.
 
 Why screenshots? Keynote on macOS has long-standing compatibility issues
-with python-pptx-generated PPTX files. Screenshot-based PPTX files have
-no such issues — they're just images, which every tool reads cleanly.
+with python-pptx-generated files. Screenshot-based PPTX files sidestep
+this — they're just full-bleed images, which every tool reads cleanly.
+
+Note: speaker notes are NOT embedded in the PPTX. python-pptx's notes
+generation is one of the things Keynote rejects. Notes live in the web
+deck (toggle the button in the bottom-right) and are read from there
+during presentation prep.
 
 Usage:
   python3 build_deck_screenshot.py
@@ -15,7 +18,6 @@ Usage:
 
 import http.server
 import os
-import re
 import shutil
 import socketserver
 import subprocess
@@ -29,7 +31,6 @@ from pptx.util import Inches
 
 ROOT = Path(__file__).parent
 SITE_DIR = ROOT / "_site"
-DECK_NJK = ROOT / "nvc-deck.njk"
 OUT_PPTX = ROOT / "nvc-pitch-deck.pptx"
 SERVED_PPTX = ROOT / "nvc" / "Parachute.pptx"
 
@@ -126,56 +127,16 @@ def screenshot_slides(output_dir: str) -> list[str]:
     return paths
 
 
-def extract_speaker_notes() -> list[str]:
-    """Pull speaker notes from the source njk file."""
-    with open(DECK_NJK, "r") as f:
-        content = f.read()
-
-    pattern = (
-        r'<div class="speaker-notes">\s*'
-        r'<div class="notes-label">Speaker Notes</div>\s*'
-        r'(.*?)\s*'
-        r'</div>'
-    )
-    matches = re.findall(pattern, content, re.DOTALL)
-
-    notes = []
-    for match in matches:
-        text = match.strip()
-        # Strip HTML tags
-        text = re.sub(r"<[^>]+>", "", text)
-        # Decode common entities
-        text = (text
-                .replace("&mdash;", "—")
-                .replace("&ndash;", "–")
-                .replace("&middot;", "·")
-                .replace("&rsquo;", "'")
-                .replace("&lsquo;", "'")
-                .replace("&ldquo;", '"')
-                .replace("&rdquo;", '"')
-                .replace("&amp;", "&")
-                .replace("&nbsp;", " "))
-        # Collapse whitespace
-        text = re.sub(r"\s+", " ", text).strip()
-        notes.append(text)
-
-    return notes
-
-
-def build_pptx(image_paths: list[str], speaker_notes: list[str]):
+def build_pptx(image_paths: list[str]):
     print("Building PPTX...")
     prs = Presentation()
     prs.slide_width = SLIDE_W
     prs.slide_height = SLIDE_H
     blank_layout = prs.slide_layouts[6]
 
-    for i, img_path in enumerate(image_paths):
+    for img_path in image_paths:
         slide = prs.slides.add_slide(blank_layout)
         slide.shapes.add_picture(img_path, 0, 0, SLIDE_W, SLIDE_H)
-
-        if i < len(speaker_notes):
-            notes_slide = slide.notes_slide
-            notes_slide.notes_text_frame.text = speaker_notes[i]
 
     prs.save(OUT_PPTX)
     SERVED_PPTX.parent.mkdir(parents=True, exist_ok=True)
@@ -188,12 +149,10 @@ def build_pptx(image_paths: list[str], speaker_notes: list[str]):
 
 def main():
     build_eleventy()
-    speaker_notes = extract_speaker_notes()
-    print(f"Extracted {len(speaker_notes)} speaker notes")
 
     with tempfile.TemporaryDirectory() as tmpdir:
         images = screenshot_slides(tmpdir)
-        build_pptx(images, speaker_notes)
+        build_pptx(images)
 
 
 if __name__ == "__main__":
