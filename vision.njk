@@ -12,100 +12,99 @@ permalink: /vision/
 
     <section class="section">
         <h2>The Problem</h2>
-        <p>Most people have thoughts scattered across a dozen places. Voice memos here, typed notes there, AI conversations that start fresh every time. The tools that could help you think better don't actually know you&mdash;and the ones that could know you don't feel safe to trust with your real thinking.</p>
-        <p>The result: your best thinking disappears. Your AI can't build on what you've already worked through. And every morning, you start from scratch.</p>
-        <p>Parachute is built around a different premise: <strong>instead of you learning the system, the system learns you.</strong></p>
+        <p>Every AI you use stores your context as one flat text file. Whatever you said yesterday, your AI doesn't really remember. And to give it context, you have to talk to it&mdash;there's no way to just <em>think</em> and have it become context.</p>
+        <p>Meanwhile, your thoughts are scattered across a dozen places. Voice memos here, typed notes there, conversations that start fresh every time. The tools that could help you think better don't actually know you. And the moment you switch AI providers, you start over.</p>
+        <p>Parachute is built around a different shape: <strong>an open knowledge layer for humans and AI to think and remember together.</strong></p>
     </section>
 
     <section class="section">
-        <h2>Two Products</h2>
-        <p>We're building two entry points into one coherent system&mdash;connected by an intelligent graph database that gives everything shared memory.</p>
+        <h2>Two pieces, one graph</h2>
+        <p>Parachute Daily is how you put thoughts in. Parachute Vault is where they live, and how every AI you use reads them. They share one schema and one storage layer: notes, tags, links. No migration step. No copy-paste. Same data all the way through.</p>
 
         <div class="products" style="margin-top: 2rem;">
             <div class="product">
                 <div style="display: flex; align-items: baseline; gap: 1rem; margin-bottom: 0.5rem;">
                     <h3 style="margin-top: 0; margin-bottom: 0;">Parachute Daily</h3>
-                    <span class="status">Hosted &middot; Subscription</span>
+                    <span class="status">Flutter &middot; iOS, Android, macOS</span>
                 </div>
-                <p>A journaling app with gentle AI integration. Designed for the 90% of people who want to think more clearly and stay connected to their own ideas&mdash;without self-hosting a server or diving into agentic AI.</p>
-                <p>You journal however you naturally think: voice, typing, wherever you are. Each day, an AI reflects your writing back to you&mdash;surfacing what mattered, asking questions to deepen the thinking, noticing patterns over time. It builds a simple profile of you from your own words: the projects you're working on, the people in your life, the things you keep returning to.</p>
+                <p>A voice-first journaling and capture app. Three tabs: <strong>Reader</strong> for content to process (briefs, articles, digests), <strong>Capture</strong> for voice memos and typed thoughts, and <strong>Vault</strong> for searching and browsing everything. Local on-device transcription via Sherpa-ONNX, fully offline-capable, with a SQLite cache that flushes to your vault when you reconnect.</p>
                 <ul>
-                    <li><strong>Daily reflections</strong> &mdash; AI reads your entries and reflects back what's most salient</li>
-                    <li><strong>Weekly synthesis</strong> &mdash; a digest of themes, progress, and patterns from the week</li>
-                    <li><strong>Gentle profile building</strong> &mdash; the graph quietly captures what the app has learned about you</li>
-                    <li><strong>Voice-first capture</strong> &mdash; local on-device transcription, works offline</li>
-                    <li><strong>Your data</strong> &mdash; stored locally in an embedded graph database you own, portable and exportable</li>
+                    <li><strong>Voice-first capture</strong> &mdash; local transcription, works fully offline</li>
+                    <li><strong>Three-tab UI</strong> &mdash; Reader, Capture, and Vault for browse and search</li>
+                    <li><strong>Phone, web, pendant</strong> &mdash; capture wherever you think</li>
+                    <li><strong>Offline-first</strong> &mdash; SQLite cache + pending-write queue</li>
+                    <li><strong>Vault sync</strong> &mdash; writes through to your Parachute Vault when connected</li>
                 </ul>
-                <p style="margin-top: 1.25rem; margin-bottom: 0;"><em>For anyone who wants to think better. No setup required.</em></p>
+                <p style="margin-top: 1.25rem; margin-bottom: 0;"><em>The way you put thoughts in.</em> &middot; <a href="https://github.com/ParachuteComputer/parachute-daily" target="_blank">Source &rarr;</a></p>
             </div>
 
             <div class="product">
                 <div style="display: flex; align-items: baseline; gap: 1rem; margin-bottom: 0.5rem;">
-                    <h3 style="margin-top: 0; margin-bottom: 0;">Parachute Computer</h3>
+                    <h3 style="margin-top: 0; margin-bottom: 0;">Parachute Vault</h3>
                     <span class="status">Open Source &middot; Self-Hosted</span>
                 </div>
-                <p>A full personal AI platform. If Parachute Daily is a journaling companion, Parachute Computer is the whole extended mind&mdash;Claude Code for your entire life, not just your codebase.</p>
-                <p>It runs on your machine, connects to your existing tools, and orchestrates AI agents with real capabilities: searching your knowledge, running code, managing files, operating across Telegram, Discord, and Matrix. An intelligent graph database sits at the core, connecting everything into one coherent memory. Three trust tiers keep you in control of what AI can touch.</p>
+                <p>A self-hosted personal knowledge graph, exposed over <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>. Notes, tags, links, full-text search, semantic search, wikilink auto-linking, Obsidian import/export. One command sets up a daemon on port 1940 and registers it with Claude Code. Each vault is its own SQLite database&mdash;run as many as you want.</p>
                 <ul>
-                    <li><strong>Brain</strong> &mdash; explore and query your personal knowledge graph&mdash;journals, conversations, entities, and connections all in one place</li>
-                    <li><strong>Chat</strong> &mdash; AI conversations with full context and deep tool access</li>
-                    <li><strong>Workspaces</strong> &mdash; named capability scopes for different kinds of sessions</li>
-                    <li><strong>Bot connectors</strong> &mdash; Telegram, Discord, Matrix with per-platform trust levels</li>
-                    <li><strong>Multi-agent teams</strong> &mdash; agents that spawn and coordinate sub-agents within your system</li>
-                    <li><strong>Three trust tiers</strong> &mdash; full access, restricted, or sandboxed in Docker</li>
+                    <li><strong>20+ MCP tools</strong> &mdash; create, search, tag, link, traverse, find paths, semantic search</li>
+                    <li><strong>REST API</strong> &mdash; full CRUD over notes, tags, links, attachments</li>
+                    <li><strong>Wikilink auto-linking</strong> &mdash; <code>[[wikilinks]]</code> automatically become graph edges</li>
+                    <li><strong>Semantic search</strong> &mdash; vector embeddings via sqlite-vec, OpenAI or local Ollama</li>
+                    <li><strong>Obsidian interop</strong> &mdash; import or export existing vaults bidirectionally</li>
+                    <li><strong>Multi-vault</strong> &mdash; one daemon, many isolated vaults, per-vault API keys</li>
                 </ul>
-                <p style="margin-top: 1.25rem; margin-bottom: 0;"><em>For developers, researchers, and power users. Open source, free to self-host.</em></p>
+                <p style="margin-top: 1.25rem; margin-bottom: 0;"><em>Where they live, and how every AI reads them.</em> &middot; <a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank">Source &rarr;</a></p>
             </div>
         </div>
     </section>
 
     <section class="section">
-        <h2>The Connection</h2>
-        <p>Daily and Computer aren't parallel tracks&mdash;they're the same path at different stages.</p>
-        <p>When you're ready to go deeper, everything you've built in Daily comes with you. Your journal entries flow into the knowledge graph, which extracts entities, builds connections, and immediately bootstraps a system that already knows you. The first conversation you have with Parachute Computer will reference projects you've been working on, people in your life, questions you've been exploring&mdash;because they're already in your graph.</p>
+        <h2>Built on an open standard</h2>
+        <p>The reason Parachute works with every AI you use is <strong>MCP</strong>&mdash;the Model Context Protocol. It's the open standard Anthropic created for connecting AI to tools, and it's now supported by Claude, ChatGPT, and a growing list of others. A Parachute Vault is just an MCP server. You hand any AI a link, and it gets a personal knowledge graph it can read, write, and reason over.</p>
+        <p>That's how we stay independent from any single LLM. We're not building the next AI&mdash;we're building the infrastructure underneath. As people settle into different AI camps, Parachute is the layer that travels with them.</p>
         <div style="background: var(--accent-soft); border: 1px solid rgba(74,124,89,0.12); border-radius: 10px; padding: 2rem; margin: 2rem 0; max-width: var(--content-width);">
-            <p style="margin-bottom: 0.5rem; font-family: var(--serif); font-size: 1.1rem; color: var(--fg);">The upgrade path</p>
+            <p style="margin-bottom: 0.5rem; font-family: var(--serif); font-size: 1.1rem; color: var(--fg);">The shape</p>
             <p style="margin-bottom: 0; font-size: 0.9rem; color: var(--fg-muted); line-height: 1.8;">
-                Start journaling in Daily &rarr;
-                Build months of context &rarr;
-                Switch to Computer &rarr;
-                Brain ingests your history &rarr;
-                System already knows you
+                Capture in Daily &rarr;
+                Stored in Vault &rarr;
+                Exposed via MCP &rarr;
+                Available to every AI you use &rarr;
+                Same memory, every tool
             </p>
         </div>
-        <p>The architecture makes this seamless. Daily writes directly to the same graph database that Computer reads. There's no migration wizard, no import step&mdash;your data is already there.</p>
     </section>
 
     <section class="section">
         <h2>Business Model</h2>
-        <p>Open source is our growth engine, not a constraint. Parachute Computer is free and always will be for people who self-host. Revenue comes from making it easier for people who don't want to run infrastructure.</p>
+        <p>Parachute Vault is free and open source for self-hosters, always. Revenue comes from making the experience effortless for people who don't want to run a server, and from add-ons that compose on top of the free core.</p>
         <ul>
-            <li><strong>Parachute Daily</strong> &mdash; hosted subscription. Simple tiers: sync across devices, AI daily reflections, richer weekly synthesis. Accessible price point. This is where most users start.</li>
-            <li><strong>Hosted Parachute Computer</strong> &mdash; managed service for power users who want all the capability without running a server. Higher-margin, lower-volume.</li>
-            <li><strong>Hardware pendant</strong> &mdash; wearable device for always-on voice capture, feeding directly into Daily or Computer. In active development with Marvin Melzer.</li>
+            <li><strong>Free</strong> &mdash; offline journal + self-hosted vault. No hosting cost on our side.</li>
+            <li><strong>$2/mo</strong> &mdash; hosted vault: cloud sync, MCP endpoint, multi-device.</li>
+            <li><strong>$5/mo</strong> &mdash; cloud transcription so capture doesn't depend on your laptop being on.</li>
+            <li><strong>$10/mo</strong> &mdash; AI reflections and weekly synthesis on top of your vault.</li>
+            <li><strong>$100 once</strong> &mdash; the pendant. Always-on voice capture, in development with Marvin Melzer.</li>
         </ul>
-        <p>Early 2026 is about real users and real usage. Revenue experimentation follows once usage patterns show which path has the most pull. Target: a path to $1,000 MRR identified by April 22.</p>
+        <p>We're not competing with anyone's AI subscription. Over 100 million people already pay $20+/mo for AI. Parachute is the $2&ndash;10 add-on that makes whichever one they use dramatically better.</p>
     </section>
 
     <section class="section">
         <h2>Traction</h2>
         <ul>
-            <li><strong>200+ pull requests</strong> merged since January &mdash; averaging 3+ per day at peak</li>
-            <li><strong>Regen Hub</strong> &mdash; first community of real users running Parachute Computer</li>
-            <li><strong>Graph-native architecture</strong> &mdash; intelligent graph database as core infrastructure, connecting journals, chat, and brain into one coherent memory</li>
+            <li><strong>Working app</strong> &mdash; Parachute Daily with local voice transcription, three-tab UI, offline-first</li>
+            <li><strong>MCP server</strong> &mdash; Parachute Vault with 20+ tools, semantic search, Obsidian interop, one-command install</li>
+            <li><strong>Pendant prototype</strong> &mdash; PCB and enclosure designed and printed in-house</li>
+            <li><strong>Beta launching this month</strong> &mdash; on track for production launch by June</li>
+            <li><strong>NVC pitch</strong> &mdash; advancing through CU Boulder's New Venture Challenge</li>
             <li><strong>ATLAS CU Boulder</strong> &mdash; Scope of Work project with final presentation April 22</li>
-            <li><strong>Investor conversations</strong> active &mdash; approaching initial funding round</li>
         </ul>
     </section>
 
     <section class="section">
         <h2>Team</h2>
         <ul>
-            <li><strong>Aaron Gabriel Neyer</strong> &mdash; founder, product vision, architecture. ATLAS CU Boulder.</li>
-            <li><strong>Jon Bo</strong> &mdash; Parachute Daily co-lead. Shapes simplicity when things get too complicated.</li>
-            <li><strong>Lucian Hymer</strong> &mdash; Parachute Computer co-lead. Architecture and deep systems work.</li>
-            <li><strong>Marvin Melzer</strong> &mdash; hardware pendant. ATLAS grad student, developing wearable voice capture device as independent study.</li>
-            <li><strong>Neil Yarnal</strong> &mdash; brand and design. Gives Parachute its visual identity.</li>
+            <li><strong>Aaron G Neyer</strong> &mdash; interwoven vision builder. Founder. ATLAS CU Boulder, MA in Ecopsychology, ex-Google.</li>
+            <li><strong>Jon Bo</strong> &mdash; tasteful product architect. Leads Parachute Daily. 3x founding engineer.</li>
+            <li><strong>Lucian Hymer</strong> &mdash; agentic system wizard. Leads Parachute Vault and the agent layer.</li>
+            <li><strong>Marvin Melzer</strong> &mdash; elegant hardware craftsman. ATLAS grad student building the pendant.</li>
         </ul>
     </section>
 
@@ -116,14 +115,14 @@ permalink: /vision/
             <li><strong>Voice-first.</strong> Talking is often more natural than typing. We meet people where their thinking actually happens&mdash;on walks, in the car, away from the desk.</li>
             <li><strong>Open source as trust.</strong> The only way to deserve trust with personal thinking is transparency. You can see exactly what the software does.</li>
             <li><strong>AI as partner.</strong> The goal isn't to automate your thinking. It's to help you think more clearly, remember more completely, make connections you might have missed.</li>
-            <li><strong>Start simple, grow deep.</strong> Parachute Daily works for anyone. Parachute Computer grows with you. The path from one to the other should feel like a natural next step, not a migration.</li>
+            <li><strong>Open standards, not walled gardens.</strong> We build on MCP so your knowledge layer travels with you across every AI you use today and every AI that comes next.</li>
         </ul>
     </section>
 
     <section class="cta">
         <h2>Open source and launching now</h2>
-        <p>Install Parachute Computer, follow the roadmap, or get in touch.</p>
-        <a href="https://github.com/OpenParachutePBC/parachute-computer" class="button" target="_blank">GitHub</a>
+        <p>Spin up a vault, follow the roadmap, or get in touch.</p>
+        <a href="https://github.com/ParachuteComputer" class="button" target="_blank">GitHub</a>
         <p class="cta-secondary"><a href="/roadmap/">Read the roadmap &rarr;</a></p>
     </section>
 </main>

@@ -1,7 +1,7 @@
 ---
 layout: base.njk
 title: ""
-description: "Your journal and your AI, sharing one memory. Open source, local-first, voice-first."
+description: "The note-taking system you have been looking for. An open knowledge layer for humans and AI to think and remember together."
 permalink: /
 ---
 <main>
@@ -11,82 +11,85 @@ permalink: /
             <p class="quote">"The mind is like a parachute&mdash;it doesn't work if it's not open."</p>
             <p class="quote-attr">&mdash; Frank Zappa</p>
         </div>
-        <h1 class="fade-up fade-up-2">Parachute Computer</h1>
-        <p class="tagline fade-up fade-up-3">Your journal and your AI, sharing one memory</p>
-        <p class="subtitle fade-up fade-up-4">Open source &middot; Local-first &middot; Voice-first</p>
+        <h1 class="fade-up fade-up-2">Parachute</h1>
+        <p class="tagline fade-up fade-up-3">The note-taking system you've been looking for</p>
+        <p class="subtitle fade-up fade-up-4">Voice-first &middot; Open source &middot; Works with any AI</p>
     </section>
 
     <!-- What it is -->
     <section class="section fade-up fade-up-5">
-        <h2>What Is Parachute?</h2>
-        <p>Parachute is your daily note-taking system and your AI chatbot, built on your own infrastructure, connected by an intelligent graph database that gives your whole system coherent memory.</p>
-        <p>You write, you think, you capture voice notes on walks. In the background, your AI works&mdash;remembering your projects, your people, your patterns. <strong>Instead of you learning the system, the system learns you.</strong></p>
+        <h2>An open knowledge layer</h2>
+        <p>Every AI you use stores your context as one flat text file. Whatever you said yesterday, your AI doesn't really remember. And to give it context, you have to talk to it&mdash;there's no way to just <em>think</em> and have it become context.</p>
+        <p>Parachute is a different shape: a personal knowledge graph organized around <strong>notes, tags, and links</strong>, accessible to any AI via <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>&mdash;the open standard for connecting AI to tools. You spin up a vault, give any AI a link, and that's the whole setup. Whatever AI you already use&mdash;Claude, ChatGPT, Gemini&mdash;Parachute makes it smarter.</p>
     </section>
 
-    <!-- Two Paths -->
+    <!-- Two pieces -->
     <section class="section fade-up fade-up-6">
-        <h2>Two Ways In</h2>
+        <h2>Two pieces</h2>
 
         <div class="products paths">
             <div class="product">
-                <p class="path-label">Start here</p>
+                <p class="path-label">Capture</p>
                 <h3>Parachute Daily</h3>
-                <p>Voice-first journaling that works completely offline. Capture thoughts on walks, in the car, wherever you think. Your notes stay on your device in a local graph database you own.</p>
-                <p>Coming soon: daily reflections that surface what mattered, patterns you didn't notice, and connections across your thinking.</p>
+                <p>Voice-first journal. Talk or type, on phone, web, or pendant. Three tabs&mdash;Reader, Capture, Vault&mdash;so you can think out loud, process what you've read, and find anything later. Local on-device transcription, offline-first, syncs to your vault when you're connected.</p>
+                <p><a href="https://github.com/ParachuteComputer/parachute-daily" target="_blank">github.com/ParachuteComputer/parachute-daily &rarr;</a></p>
             </div>
 
             <div class="product">
-                <p class="path-label">Go deeper</p>
-                <h3>Parachute Computer</h3>
-                <p>Your own AI infrastructure. Chat with full context across every conversation. A knowledge graph that grows with you. Agents that work while you think. Runs on your machine, open source.</p>
-                <p>If you've used Claude Code, think of this as Claude Code for your whole life&mdash;not just your codebase.</p>
+                <p class="path-label">Store</p>
+                <h3>Parachute Vault</h3>
+                <p>A self-hosted knowledge graph with notes, tags, links, full-text and semantic search&mdash;exposed over MCP. One command sets up a daemon, configures Claude Code, and gives any AI agent a personal vault. Imports and exports Obsidian. Your data lives in SQLite, on your machine.</p>
+                <p><a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank">github.com/ParachuteComputer/parachute-vault &rarr;</a></p>
             </div>
         </div>
 
-        <p>Everything in Daily flows into your Computer's memory. No migration, no export. The same files, the same graph. Start simple, grow when you're ready.</p>
+        <p>Daily writes into the Vault. The Vault speaks MCP. Any AI you use reads from the same memory. No migration, no export step&mdash;the same notes, the same graph, all the way through.</p>
     </section>
 
     <!-- How It Works -->
     <section class="section">
-        <h2>How It Works</h2>
+        <h2>How it works</h2>
         <div class="architecture-diagram">
-You -> App (Flutter) -> Parachute Computer -> AI
-                              |
-                        Brain (memory)
-                         /         \
-                      Chat        Notes</div>
-        <p>One app. One server. One memory. Your data lives on your machine in a local embedded graph database&mdash;portable, exportable, entirely yours. <a href="/architecture/">Read the full docs &rarr;</a></p>
+   Phone &middot; Web &middot; Pendant
+              &darr;
+       Parachute Daily
+              &darr;
+      Parachute Vault &mdash;&mdash;&mdash;&mdash; MCP &mdash;&mdash;&mdash;&mdash;&rarr; Claude &middot; ChatGPT &middot; Gemini
+              &darr;
+       SQLite on disk
+       (yours, portable, exportable)</div>
+        <p>Notes, tags, links. One graph. Spoken to by every tool you use.</p>
     </section>
 
     <!-- Principles -->
     <section class="section">
         <h2>Principles</h2>
         <ul>
-            <li><strong>Local-first.</strong> Your data lives on your device in a local graph database. If we disappeared tomorrow, your data would still be there&mdash;portable, exportable, entirely yours.</li>
-            <li><strong>Voice-first.</strong> Talking is often more natural than typing. We meet people where their thinking actually happens.</li>
-            <li><strong>Open source as trust.</strong> The only way to deserve trust with personal thinking is transparency. You can see exactly what the software does.</li>
-            <li><strong>AI as partner.</strong> The goal isn't to automate your thinking. It's to help you think more clearly, remember more completely, make connections you might have missed.</li>
+            <li><strong>Voice-first.</strong> Talking is often more natural than typing. We meet people where their thinking actually happens&mdash;on walks, in the car, away from the desk.</li>
+            <li><strong>Local-first.</strong> Your data lives on your machine in a SQLite database. If we disappeared tomorrow, your data would still be there&mdash;portable, exportable, entirely yours.</li>
+            <li><strong>Open standard.</strong> Built on MCP. Works with whatever AI you already use, and whatever you use next. We're not tied to a single model.</li>
+            <li><strong>Open source as trust.</strong> The only way to deserve trust with personal thinking is transparency. You can read every line of code that touches your notes.</li>
         </ul>
     </section>
 
     <!-- Get Started -->
     <section class="section">
-        <h2>Get Started</h2>
-        <p>Parachute is in active development with a small community of early users. The code is open source and on GitHub.</p>
+        <h2>Get started</h2>
+        <p>Parachute is in active development. Both repos are open source.</p>
         <div class="product">
-            <h3>Explore on GitHub</h3>
+            <h3>Run a vault</h3>
             <div class="code-inline">
-                <code>git clone https://github.com/OpenParachutePBC/parachute-computer.git</code>
+                <code>git clone https://github.com/ParachuteComputer/parachute-vault &amp;&amp; cd parachute-vault &amp;&amp; bun install &amp;&amp; bun src/cli.ts vault init</code>
             </div>
-            <p>Requires Python 3.11+ and a Claude OAuth token (<code>claude setup-token</code>) for the server. Flutter for the app. Daily works offline with no server needed.</p>
+            <p>Requires <a href="https://bun.sh" target="_blank">Bun</a>. <code>vault init</code> walks you through setup, starts a background daemon on port 1940, and configures Claude Code's MCP automatically. From there, point Parachute Daily at it&mdash;or just talk to your favorite AI and watch it reach into your vault.</p>
         </div>
     </section>
 
     <!-- CTA -->
     <section class="cta">
-        <h2>One system that remembers</h2>
-        <p>Parachute is growing with a community of people who want their tools to actually know them. Follow along or dive in.</p>
-        <a href="https://github.com/OpenParachutePBC/parachute-computer" class="button" target="_blank">View on GitHub</a>
+        <h2>A knowledge layer for humans and AI</h2>
+        <p>To think and remember together. Open source, launching now.</p>
+        <a href="https://github.com/ParachuteComputer" class="button" target="_blank">View on GitHub</a>
         <p class="cta-secondary">Read the <a href="/blog/">blog</a> &middot; <a href="/roadmap/">roadmap</a> &middot; <a href="/vision/">vision</a></p>
     </section>
 </main>
