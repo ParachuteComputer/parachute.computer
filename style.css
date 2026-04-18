@@ -82,6 +82,14 @@ a:hover {
 .fade-up-5 { animation-delay: 0.45s; }
 .fade-up-6 { animation-delay: 0.55s; }
 
+@media (prefers-reduced-motion: reduce) {
+    .fade-up {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+}
+
 /* ============================================
    Navigation — clean, grounded
    ============================================ */
@@ -219,6 +227,32 @@ main {
 }
 
 /* ============================================
+   Hero install block
+   ============================================ */
+
+.hero-install {
+    max-width: 640px;
+    margin: 2.5rem auto 0;
+}
+
+.hero-install .code-inline {
+    margin: 0 0 0.85rem;
+    text-align: center;
+}
+
+.hero-install .code-inline code {
+    font-size: 0.95rem;
+    color: var(--fg);
+}
+
+.install-note {
+    font-size: 0.85rem;
+    color: var(--fg-dim);
+    text-align: center;
+    line-height: 1.6;
+}
+
+/* ============================================
    Sections
    ============================================ */
 
@@ -331,6 +365,36 @@ main {
     padding: 0.2rem 0.65rem;
     letter-spacing: 0.03em;
     font-weight: 500;
+}
+
+/* Product status trio (landing page) */
+.status-trio {
+    grid-template-columns: 1fr;
+}
+
+.status-trio .product + .product {
+    margin-top: 0;
+}
+
+.product-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.product-head h3 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.product-links {
+    margin-top: 1rem !important;
+    margin-bottom: 0 !important;
+    font-size: 0.9rem;
+    color: var(--fg-dim);
 }
 
 /* ============================================
