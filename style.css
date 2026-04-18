@@ -313,6 +313,44 @@ main {
     font-weight: 500;
 }
 
+/* SoW completion page — numbered lists and pull quote */
+.section ol.sow-ordered {
+    list-style: none;
+    counter-reset: sow-counter;
+    margin-bottom: 1.25rem;
+}
+
+.section ol.sow-ordered li {
+    counter-increment: sow-counter;
+    padding-left: 2.25rem;
+}
+
+.section ol.sow-ordered li::before {
+    content: counter(sow-counter) ".";
+    color: var(--accent-light);
+    font-family: var(--serif);
+    font-size: 1em;
+    left: 0.25rem;
+    width: 1.5rem;
+    text-align: left;
+}
+
+.section blockquote.sow-quote {
+    border-left: 2px solid var(--accent-light);
+    padding: 0.25rem 0 0.25rem 1.5rem;
+    margin: 1.5rem 0;
+    max-width: var(--content-width);
+    color: var(--fg);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.15rem;
+    line-height: 1.7;
+}
+
+.roadmap-header .prev-link + .prev-link {
+    margin-left: 0.5rem;
+}
+
 /* ============================================
    Cards / Products
    ============================================ */
