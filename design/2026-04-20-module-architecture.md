@@ -210,21 +210,72 @@ This is the **canonical description** of a module — machine-readable, everythi
 
 ## Extensibility path
 
-A third-party wants to build a Parachute-compatible service:
+**A first-class goal**: any package, any scope, any name. The ecosystem doesn't require `@openparachute/` or a `parachute-*` prefix for a module to plug in. First-party packages are just the ones the Parachute team ships; they follow the same contracts as everyone else.
 
-1. Implement the 4 minimum contracts (info, icon, services.json, well-known availability).
-2. Pick a canonical port outside the reserved Parachute range (1939–1949).
-3. Optionally implement config (`/.parachute/config/schema`, `/.parachute/config`).
-4. Optionally accept hub-issued OAuth tokens with your scope namespace.
-5. Publish to npm as `@yourorg/parachute-<name>`.
+A third-party wants to build a Parachute-compatible module:
 
-The CLI's `install` command works the same way:
+1. Implement the 4 minimum contracts (info, icon, services.json registration on install, well-known reachability).
+2. Ship a **`.parachute/module.json`** in the npm package describing the integration:
 
-```
-parachute install @yourorg/foo
-```
+   ```json
+   {
+     "name": "my-service",
+     "manifestName": "my-service",
+     "displayName": "My Service",
+     "tagline": "What the service does",
+     "kind": "api",
+     "port": 7001,
+     "paths": ["/my-service"],
+     "health": "/health",
+     "startCmd": ["bin/my-service", "serve"],
+     "scopes": { "defines": ["my-service:read", "my-service:write"] },
+     "dependencies": { "vault": { "optional": true, "scopes": ["vault:read"] } }
+   }
+   ```
 
-If the package implements the contracts, the hub renders it automatically. No special blessing required.
+   This is the **canonical self-description** of a module — everything the CLI and hub need, declared in one file the author controls.
+
+3. Pick a port outside the reserved Parachute range (1939–1949). CLI warns on install if you land inside it, but doesn't block.
+
+4. Optionally implement config (`/.parachute/config/schema`, `/.parachute/config`).
+
+5. Optionally accept hub-issued OAuth tokens with your scope namespace.
+
+6. Publish to npm under **any** scope — `@yourorg/foo`, `something-parachute`, `my-cool-thing`, anything. The package's `module.json` is what makes it a Parachute module, not its name.
+
+### How the CLI consumes this
+
+`parachute install <package>` runs:
+
+1. `bun add -g <package>` — standard npm install, no naming constraint.
+2. Reads `<package>/.parachute/module.json` from the installed artifact.
+3. Validates it against the module-manifest schema.
+4. Writes a services.json entry using the declared `name`, `port`, `paths`, `health`, `displayName`, `tagline`, `kind`.
+5. Registers the declared `startCmd` so `parachute start <name>` knows what to spawn.
+
+The CLI's first-party `SERVICE_SPECS` record becomes a thin fallback for packages that pre-date the module.json convention (or retires entirely once all first-party packages ship module.json). Today it's hardcoded for vault/notes/scribe/channel — **that hardcoding is a first-party shortcut, not an architectural limit**.
+
+### Scope namespacing
+
+Third-party modules declare their own scope namespace matching the module name. A `my-service` module defines `my-service:read`, `my-service:write`, etc. Hub renders consent for these scopes the same as first-party ones. The hub-as-OAuth-issuer architecture means the hub signs tokens with these scopes and the module validates them against the hub's JWKS.
+
+No central registry for scope names is required — names are scoped by module name, which is already unique across the ecosystem (services.json entries must have unique names).
+
+### What this requires from the CLI before it's real
+
+Not blocking launch, but the work items when we pick this up:
+
+- Replace hardcoded `SERVICE_SPECS` with "discover from installed package's `module.json`."
+- `parachute install` drops the `knownServices()` check; accepts any package string.
+- Validation step for module.json schema at install time (reject malformed modules early).
+- Hub renders any services.json entry regardless of `name` prefix. (Already true — hub doesn't inspect names.)
+- Port-coherence enforcement stays as a warning (already the case per the `service-spec.ts` port-reservation table).
+
+### Why this matters
+
+The module protocol stays **open by construction**. Parachute's ecosystem doesn't succeed because we built enough first-party modules — it succeeds when third parties can build Parachute-compatible tools without asking us first. The contracts are the standard; the Parachute CLI + hub are the reference implementation; the ecosystem is anyone who speaks the protocol.
+
+Comparable: the Model Context Protocol (MCP) works this way. Anthropic doesn't control who builds MCP servers — the spec controls the contract, and anyone implementing it is a first-class participant. Parachute's module protocol is the same shape.
 
 ## Phasing recap
 
