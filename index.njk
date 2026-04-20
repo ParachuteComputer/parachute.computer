@@ -1,7 +1,7 @@
 ---
 layout: base.njk
 title: ""
-description: "Parachute Vault is a self-hosted knowledge graph that any AI can read and write, over the open MCP protocol. Available now."
+description: "Parachute is a self-hostable ecosystem for your knowledge — a vault any AI can read and write, a web app for humans, voice transcription, and a single-command installer. Open source, MCP-native, available now."
 permalink: /
 ---
 <main>
@@ -12,14 +12,14 @@ permalink: /
             <p class="quote-attr">&mdash; Frank Zappa</p>
         </div>
         <h1 class="fade-up fade-up-2">Parachute</h1>
-        <p class="tagline fade-up fade-up-3">A self-hosted knowledge graph that any AI can read and write</p>
+        <p class="tagline fade-up fade-up-3">A self-hostable ecosystem for your knowledge</p>
         <p class="subtitle fade-up fade-up-4">Open source &middot; Built on <a href="https://modelcontextprotocol.io" target="_blank">MCP</a> &middot; Available now</p>
 
         <div class="hero-install fade-up fade-up-5">
             <div class="code-inline">
-                <code>bun add -g @openparachute/vault &amp;&amp; parachute vault init</code>
+                <code>bun add -g @openparachute/cli &amp;&amp; parachute install vault</code>
             </div>
-            <p class="install-note">Requires <a href="https://bun.sh" target="_blank">Bun</a>. One command spins up your vault, starts a background daemon, and registers it with Claude Code's MCP. <a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank">View on GitHub &rarr;</a></p>
+            <p class="install-note">Requires <a href="https://bun.sh" target="_blank">Bun</a>. One command installs the CLI, sets up a vault, and registers it with Claude Code. Add Notes, Scribe, and more the same way. <a href="https://github.com/ParachuteComputer/parachute-cli" target="_blank">View on GitHub &rarr;</a></p>
         </div>
     </section>
 
@@ -27,10 +27,10 @@ permalink: /
     <section class="section fade-up fade-up-6">
         <h2>An open knowledge layer</h2>
         <p>Every AI you use stores your context as one flat text file. Whatever you said yesterday, your AI doesn't really remember. And to give it context, you have to talk to it&mdash;there's no way to just <em>think</em> and have it become context.</p>
-        <p>Parachute is a different shape: a personal knowledge graph organized around <strong>notes, tags, and links</strong>, accessible to any AI via <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>&mdash;the open standard for connecting AI to tools. You spin up a vault, give any AI a link, and that's the whole setup. Whatever AI you already use&mdash;Claude, ChatGPT, Gemini&mdash;Parachute makes it smarter.</p>
+        <p>Parachute is a different shape: a personal knowledge graph organized around <strong>notes, tags, and links</strong>, accessible to any AI via <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>&mdash;the open standard for connecting AI to tools. You spin up a vault, give any AI a link, and that's the whole setup. Whatever AI you already use&mdash;Claude, ChatGPT, Gemini&mdash;Parachute makes it smarter. And when you want a human interface, Notes is a browser-based companion that talks to the same vault.</p>
     </section>
 
-    <!-- Three pieces / status trio -->
+    <!-- The ecosystem -->
     <section class="section">
         <h2>Where things stand</h2>
 
@@ -40,7 +40,7 @@ permalink: /
                     <h3>Parachute Vault</h3>
                     <span class="status-badge status-done">Available</span>
                 </div>
-                <p>Self-hosted knowledge graph, exposed over MCP. Notes, tags, links, full-text and semantic search, Obsidian import/export. One command sets up a daemon on port 1940 and registers it with Claude Code. Each vault is its own SQLite database&mdash;your data, your machine.</p>
+                <p>The knowledge graph itself. Self-hosted, Bun-based, SQLite-backed. Exposed over both <a href="https://modelcontextprotocol.io" target="_blank">MCP</a> (for AI) and a REST API (for humans and tools). Notes, tags, wikilinks, attachments, voice-memo transcripts, full-text and graph queries. Obsidian import/export. Each vault is its own database&mdash;your data, your machine, fully portable.</p>
                 <p class="product-links">
                     <a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank">GitHub &rarr;</a>
                     &middot;
@@ -50,14 +50,14 @@ permalink: /
 
             <div class="product">
                 <div class="product-head">
-                    <h3>Parachute Daily</h3>
-                    <span class="status-badge status-active">Private Beta</span>
+                    <h3>Parachute Notes</h3>
+                    <span class="status-badge status-done">Available</span>
                 </div>
-                <p>Voice-first capture app. Three tabs&mdash;Reader, Capture, Vault&mdash;so you can think out loud, process what you've read, and find anything later. Local on-device transcription, offline-first, syncs to your vault when you're connected. Currently in private beta on iOS, Android, and macOS; public beta coming soon.</p>
+                <p>A browser-based companion for your vault. Installable PWA: works offline, syncs when you reconnect. Write, link, tag, search, graph-browse&mdash;and capture voice memos that auto-transcribe (when Scribe is installed). Point it at any vault URL, do a one-time OAuth handshake, and it's your local-first note-taking app. Replaces the earlier Parachute Daily&mdash;same workflow, now on every device with a browser.</p>
                 <p class="product-links">
-                    <a href="https://openparachute.substack.com" target="_blank">Get notified &rarr;</a>
+                    <a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank">GitHub &rarr;</a>
                     &middot;
-                    <a href="https://github.com/ParachuteComputer/parachute-daily" target="_blank">GitHub &rarr;</a>
+                    <a href="https://www.npmjs.com/package/@openparachute/notes" target="_blank">npm &rarr;</a>
                 </p>
             </div>
 
@@ -66,27 +66,29 @@ permalink: /
                     <h3>Parachute Cloud</h3>
                     <span class="status-badge status-upcoming">Coming Soon</span>
                 </div>
-                <p>The done-for-you hosted path: cloud-managed vault, multi-device sync, optional cloud transcription and AI reflections, no server to run. Self-hosting the Vault stays free forever&mdash;Cloud is for people who'd rather we run it.</p>
+                <p>The done-for-you hosted path: cloud-managed vault, multi-device sync, optional cloud transcription and AI reflections, no server to run. Self-hosting the ecosystem stays free forever&mdash;Cloud is for people who'd rather we run it.</p>
                 <p class="product-links">
                     <a href="https://openparachute.substack.com" target="_blank">Get notified &rarr;</a>
                 </p>
             </div>
         </div>
+
+        <p class="ecosystem-also">Also in the ecosystem: <a href="https://github.com/ParachuteComputer/parachute-scribe" target="_blank"><strong>Scribe</strong></a> (on-device audio transcription), <a href="https://github.com/ParachuteComputer/parachute-channel" target="_blank"><strong>Channel</strong></a> (messaging gateway for Claude Code), and the <a href="https://github.com/ParachuteComputer/parachute-cli" target="_blank"><strong>CLI</strong></a> that coordinates everything. Install any of them with <code>parachute install &lt;service&gt;</code>.</p>
     </section>
 
     <!-- How It Works -->
     <section class="section">
         <h2>How it works</h2>
         <div class="architecture-diagram">
-   Phone &middot; Web &middot; Pendant
+   Browser &middot; Phone (PWA) &middot; Pendant
               &darr;
-       Parachute Daily
-              &darr;
-      Parachute Vault &mdash;&mdash;&mdash;&mdash; MCP &mdash;&mdash;&mdash;&mdash;&rarr; Claude &middot; ChatGPT &middot; Gemini
-              &darr;
-       SQLite on disk
-       (yours, portable, exportable)</div>
-        <p>Notes, tags, links. One graph. Spoken to by every tool you use. <em>Today, the Vault is live and any MCP-capable AI can talk to it. Daily and Cloud are next.</em></p>
+       Parachute Notes &mdash;&mdash; REST &mdash;&mdash;&rarr;
+                                         &#8594;  Parachute Vault  &mdash;&mdash; MCP &mdash;&mdash;&rarr; Claude &middot; ChatGPT &middot; Gemini
+   Parachute Scribe &mdash; transcribe &mdash;&rarr;
+                                                  &darr;
+                                        SQLite on disk
+                                        (yours, portable, exportable)</div>
+        <p>One graph. One address (a single HTTPS URL via Tailscale or your own domain). Every tool, human or AI, spoken to through the same APIs. <em>Today: Vault, Notes, Scribe, and the CLI are live. Cloud is next.</em></p>
     </section>
 
     <!-- Principles -->
@@ -103,8 +105,11 @@ permalink: /
     <!-- CTA -->
     <section class="cta">
         <h2>A knowledge layer for humans and AI</h2>
-        <p>Parachute Vault is open source and available now. Spin one up, point your AI at it, and start building memory.</p>
-        <a href="https://github.com/ParachuteComputer/parachute-vault" class="button" target="_blank">Get the Vault</a>
+        <p>Parachute is open source and available now. Install the CLI, spin up a vault, point your AI at it, open Notes in a browser, and start building memory.</p>
+        <div class="code-inline" style="margin: 1.5rem auto; max-width: 640px;">
+            <code>bun add -g @openparachute/cli &amp;&amp; parachute install vault</code>
+        </div>
+        <a href="https://github.com/ParachuteComputer/parachute-cli" class="button" target="_blank">Get Started on GitHub</a>
         <p class="cta-secondary">Read the <a href="/blog/">blog</a> &middot; <a href="/roadmap/">roadmap</a> &middot; <a href="/vision/">vision</a></p>
     </section>
 </main>
