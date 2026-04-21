@@ -1,300 +1,62 @@
 ---
 layout: base.njk
-title: "Roadmap & Scope of Work"
-description: "Parachute Computer development roadmap and scope of work for Spring 2026"
+title: "Roadmap"
+description: "Where Parachute is going. What's shipped, what's next, how to follow along."
 permalink: /roadmap/
 ---
 <main>
     <div class="roadmap-header fade-up fade-up-1">
-        <h1>Spring 2026 Roadmap</h1>
-        <p class="dates">February &ndash; April 2026</p>
-        <a href="/archive/roadmap-v1.html" class="prev-link">View previous roadmap (Q1 v1)</a>
-        <a href="/sow-completion/" class="prev-link">Final project completion report &rarr;</a>
+        <h1>Roadmap</h1>
+        <p class="dates">Updated 2026-04-21 &middot; Refreshed every couple of weeks</p>
     </div>
 
     <section class="section">
-        <h2>Scope of Work</h2>
-        <p>This document serves as both the project roadmap for Open Parachute and the Scope of Work for ATLAS Creative Technology &amp; Design at CU Boulder.</p>
-        <dl class="sow-meta">
-            <dt>Student</dt>
-            <dd>Aaron Gabriel</dd>
-            <dt>Program</dt>
-            <dd>ATLAS, CU Boulder</dd>
-            <dt>Advisor</dt>
-            <dd>Kurt Smith</dd>
-            <dt>Meeting Cadence</dt>
-            <dd>Biweekly</dd>
-            <dt>Final Presentation</dt>
-            <dd>April 22, 2026</dd>
-            <dt>Repository</dt>
-            <dd><a href="https://github.com/ParachuteComputer">github.com/ParachuteComputer</a></dd>
-        </dl>
-    </section>
-
-    <section class="section">
-        <h2>Vision</h2>
-        <p>Parachute is an open knowledge layer for humans and AI to think and remember together. The shape: a personal knowledge graph organized around <strong>notes, tags, and links</strong>, accessible to any AI via MCP&mdash;the open standard for connecting AI to tools.</p>
-        <p>We ship two pieces that share one schema and one storage layer.</p>
-        <p><strong>Parachute Daily</strong> is the way you put thoughts in. A voice-first journaling and capture app for phone, web, and pendant, with three tabs: Reader, Capture, and Vault. Local on-device transcription, fully offline-capable, syncs to your vault when connected. <a href="/vision/">Read the full vision &rarr;</a></p>
-        <p><strong>Parachute Vault</strong> is where they live, and how every AI you use reads them. A self-hosted knowledge graph exposed over MCP, with 20+ tools, semantic search, wikilink auto-linking, and Obsidian import/export. One command sets it up. Each vault is its own SQLite database.</p>
-    </section>
-
-    <section class="section">
-        <h2>Progress This Semester</h2>
-        <p>Since the semester started in mid-January, 200+ pull requests merged across the repository have transformed Parachute from an early prototype into a near-launch platform. Here's the arc:</p>
-
-        <h3>January: Foundation</h3>
+        <h2>Here now</h2>
+        <p>The self-hostable base shipped at launch. Every piece below installs with <code>parachute install &lt;service&gt;</code>.</p>
         <ul>
-            <li>Built a multi-agent daily system with reflection agents and a content-scout that processes journal entries</li>
-            <li>Added API key authentication for multi-device access</li>
-            <li>Shipped local voice transcription using Sherpa-ONNX with Parakeet models&mdash;works fully offline on macOS and Android</li>
-            <li>Built a CI/CD pipeline with code signing, notarization, and automated DMG builds for macOS distribution</li>
-            <li>Designed the product architecture and wrote the <a href="/archive/prd-modular-architecture.html">Modular Architecture PRD</a>&mdash;the design document that shaped the rebuild</li>
-            <li>Published this documentation site at openparachute.io</li>
-        </ul>
-
-        <h3>February: The Big Build</h3>
-        <ul>
-            <li>Completely rewrote the server as <strong>Parachute Computer</strong>&mdash;12,800+ lines of new code in under two weeks</li>
-            <li>Built the module system: brain, chat, and daily as independent modules with SHA-256 hash verification</li>
-            <li>Implemented three trust tiers (full / restricted / sandboxed) with Docker container isolation for untrusted sessions</li>
-            <li>Built Telegram and Discord bot connectors with a per-user pairing and approval flow</li>
-            <li>Created the <code>parachute</code> CLI for install, daemon management, config, diagnostics, module management, and updates</li>
-            <li>Added workspaces&mdash;named capability scopes that control which tools, MCPs, and models are available per session</li>
-            <li>Built the unified Flutter app with an adaptive multi-panel layout (mobile / tablet / desktop)</li>
-            <li>Decomposed large monolithic files into focused services&mdash;chat_service.dart went from 2,059 lines to 9 focused files</li>
-            <li>Built the event-driven hooks system for extending behavior at every lifecycle point</li>
-        </ul>
-
-        <h3>March: Graph as Core Infrastructure</h3>
-        <ul>
-            <li>Dissolved Brain as a standalone module&mdash;the graph became core infrastructure connecting everything</li>
-            <li>Memory feed UI, MCP Cypher tools, graph-native entity system</li>
-            <li>Unified projects and conversation schema into a single coherent graph</li>
-            <li>Hardened Daily: durable audio staging, offline sync fixes, graph-native agent definitions (Callers &amp; Cards)</li>
-            <li>UI polish across the app&mdash;approaching launch readiness</li>
-        </ul>
-
-        <h3>Late March / Early April: The Vault Pivot</h3>
-        <ul>
-            <li>Recognized the right shape: an open knowledge layer accessible to any AI via MCP, not a closed agent platform tied to one orchestrator</li>
-            <li>Spun out <strong>Parachute Vault</strong> as a focused standalone repo (Bun + TypeScript + bun:sqlite)&mdash;notes, tags, links, and 20+ MCP tools as the core primitives</li>
-            <li>One-command install: <code>vault init</code> creates a vault, starts a launchd/systemd daemon on port 1940, and registers it with Claude Code's MCP automatically</li>
-            <li>Multi-vault support: one daemon hosts many isolated SQLite vaults, each with its own API key and per-vault MCP description</li>
-            <li>Wikilink auto-linking, semantic search via sqlite-vec, bidirectional Obsidian import/export</li>
-            <li>Refocused <strong>Parachute Daily</strong> on capture: three-tab UI (Reader / Capture / Vault), offline cache, vault sync</li>
-            <li>NVC pitch built and presented&mdash;framed Parachute as "the note-taking system you've been looking for"</li>
+            <li><strong>Parachute Vault</strong> &mdash; the knowledge graph. SQLite-backed, REST + <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>, wikilinks, full-text and semantic search, Obsidian import/export. <a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank">Source &rarr;</a></li>
+            <li><strong>Parachute Lens</strong> &mdash; browser-based companion for your vault. Installable PWA, works offline, voice capture with auto-transcription. <a href="https://github.com/ParachuteComputer/parachute-lens" target="_blank">Source &rarr;</a></li>
+            <li><strong>Parachute Scribe</strong> &mdash; Whisper-compatible transcription API. Runs locally by default; BYO cloud provider if you want one. <a href="https://github.com/ParachuteComputer/parachute-scribe" target="_blank">Source &rarr;</a></li>
+            <li><strong>Parachute Channel</strong> &mdash; messaging gateway that lets Claude Code agents reach you through Telegram, Discord, and other channels. <a href="https://github.com/ParachuteComputer/parachute-channel" target="_blank">Source &rarr;</a></li>
+            <li><strong>Parachute CLI</strong> &mdash; the coordinator. <code>install</code>, <code>start</code>, <code>stop</code>, <code>expose</code>, lifecycle for every service. <a href="https://github.com/ParachuteComputer/parachute-cli" target="_blank">Source &rarr;</a></li>
         </ul>
     </section>
 
     <section class="section">
-        <h2>What Exists Today</h2>
-
-        <h3>Parachute Vault</h3>
+        <h2>Next few weeks</h2>
+        <p>Post-launch stabilization. Small, steady improvements driven by what early users run into.</p>
         <ul>
-            <li>Self-hosted knowledge graph with notes, tags, links, attachments &mdash; one SQLite database per vault, multi-vault on one daemon</li>
-            <li>20+ MCP tools: get/create/update/delete notes, search, tag/untag, links, graph traversal, find-path, semantic search</li>
-            <li>REST API with full CRUD, full-text search (FTS5), and a Whisper-compatible transcription endpoint via parachute-scribe</li>
-            <li>Wikilink auto-linking with alias, anchor, and embed support; auto-resolves dangling links when targets appear</li>
-            <li>Semantic search via sqlite-vec with pluggable embedding providers (OpenAI, local Ollama)</li>
-            <li>Bidirectional Obsidian import/export preserving frontmatter, tags, wikilinks, and paths</li>
-            <li><code>parachute vault</code> CLI: init, status, create, list, remove, import, export, config, restart</li>
-            <li>Background daemon via launchd (Mac) and systemd (Linux); Docker, Railway, and Fly.io deployment configs</li>
-            <li>Per-vault API keys with localhost bypass; remote access via Cloudflare Tunnel</li>
-        </ul>
-
-        <h3>Parachute Daily</h3>
-        <ul>
-            <li>Flutter app for iOS, Android, and macOS (<code>computer.parachute.daily</code>)</li>
-            <li>Three-tab UI: <strong>Reader</strong> (content to process), <strong>Capture</strong> (voice and typed thoughts), <strong>Vault</strong> (search and browse)</li>
-            <li>Voice capture with local Sherpa-ONNX transcription&mdash;works fully offline</li>
-            <li>Offline-first architecture: SQLite cache + pending-write queue that flushes when reconnected to the vault</li>
-            <li>Speaks the Parachute Vault REST API directly; multi-vault aware</li>
-            <li>Saved views, tag browser, full-text search</li>
-        </ul>
-
-        <h3>Parachute Pendant</h3>
-        <ul>
-            <li>PCB designed and printed in-house; wood front panel prototype</li>
-            <li>Hardware pendant for always-on voice capture, feeding directly into a vault</li>
+            <li><strong>Lens polish</strong> &mdash; quick-switcher, pinned and archived views, the today view, path tree. Mobile PWA refinement.</li>
+            <li><strong>Vault atomic tag operations</strong> &mdash; rename and merge tags cleanly across a whole vault in one request, so clients don't have to orchestrate it.</li>
+            <li><strong>Unified audio retention</strong> &mdash; control whether voice-memo originals stay on disk, stay until transcribed, or never persist, across every client at once.</li>
+            <li><strong>Hub-hosted OAuth</strong> &mdash; one ecosystem sign-in that issues tokens carrying a service catalog, so clients discover what's installed rather than hard-coding paths. <a href="/docs/">Architecture sketch &rarr;</a></li>
         </ul>
     </section>
 
     <section class="section">
-        <h2>Project Objectives</h2>
+        <h2>A little further out</h2>
         <ul>
-            <li><strong>Launch Parachute Daily beta</strong>&mdash;voice-first capture app live on iOS and macOS, syncing into a Parachute Vault</li>
-            <li><strong>Ship Parachute Vault publicly</strong>&mdash;open-source launch to the Claude Code, MCP, and Obsidian communities</li>
-            <li><strong>Production launch by June</strong>&mdash;Daily and Vault stable enough for non-technical paying users</li>
-            <li><strong>Build the pendant</strong>&mdash;working v1 hardware that captures audio and writes to a vault</li>
-            <li><strong>Win or place at the New Venture Challenge</strong>&mdash;CU Boulder Spring 2026</li>
-            <li><strong>Find a revenue path</strong>&mdash;tiered $2&ndash;10/mo add-on model; identify the channel that gets us to the first 2,000 paid users</li>
+            <li><strong>Parachute Cloud</strong> &mdash; the done-for-you hosted path: managed vault, multi-device sync, cloud transcription, no server to run. Same shape as self-hosted, same portability. <a href="/docs/">Deployment sketch &rarr;</a></li>
+            <li><strong>Native mobile wrapper</strong> &mdash; a Capacitor- or Tauri-wrapped build of Lens that unlocks background recording, on-device offline transcription, and pendant integration on phones. The PWA handles most of what most people need; the native wrapper handles the things a browser can't.</li>
+            <li><strong>Configuration portal</strong> &mdash; the hub page renders per-module settings forms automatically from each module's JSON Schema. You won't need the CLI for most config changes.</li>
+            <li><strong>Fine-grained scopes</strong> &mdash; clients ask for exactly what they need (read-only, read-write, per-vault, eventually per-folder). Foundation for third-party modules that users can trust partially.</li>
+            <li><strong>Pendant</strong> &mdash; always-on voice capture hardware, writing directly to your vault. Prototype PCB and enclosure exist; a shippable v1 comes through the native-wrapper path.</li>
         </ul>
     </section>
 
     <section class="section">
-        <h2>Architecture</h2>
-        <div class="architecture-diagram">
-   Phone &middot; Web &middot; Pendant
-              &darr;
-   PARACHUTE DAILY (Flutter)
-   Reader &middot; Capture &middot; Vault
-              &darr; HTTP / REST
-   PARACHUTE VAULT (Bun + TypeScript)
-   Notes &middot; Tags &middot; Links &middot; Search
-   ----------------------------------------
-   |  REST API  |  MCP tools  |  --&gt;  Claude &middot; ChatGPT &middot; Gemini
-   ----------------------------------------
-              &darr;
-   SQLite (one DB per vault)
-   Your data. Your machine.</div>
-    </section>
-
-    <section class="section">
-        <h2>Success Metrics (April 22, 2026)</h2>
-        <table class="metrics-table">
-            <thead>
-                <tr>
-                    <th>Metric</th>
-                    <th>Target</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Parachute Vault</td>
-                    <td>Public open-source release with one-command install</td>
-                </tr>
-                <tr>
-                    <td>Parachute Daily</td>
-                    <td>Beta on iOS and macOS, syncing into a Vault</td>
-                </tr>
-                <tr>
-                    <td>Pendant</td>
-                    <td>Working v1 hardware capturing audio into a vault</td>
-                </tr>
-                <tr>
-                    <td>Active users</td>
-                    <td>First 100 users running Parachute end-to-end (stretch: 1,000+)</td>
-                </tr>
-                <tr>
-                    <td>Open-source traction</td>
-                    <td>GitHub stars, MCP-community visibility, contributors</td>
-                </tr>
-                <tr>
-                    <td>Revenue path</td>
-                    <td>Tiered $2&ndash;10/mo model live; first paying users on hosted vaults</td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
-
-    <section class="section">
-        <h2>Timeline</h2>
-        <div class="timeline">
-            <div class="timeline-item">
-                <h3>Week of Feb 10 <span class="status-badge status-done">Done</span></h3>
-                <span class="week-label"><a href="https://regenhub.xyz" target="_blank">Regen Hub</a> Launch</span>
-                <ul>
-                    <li>Automated install: one-command setup for Regen Hub members</li>
-                    <li>Deploy shared infrastructure with Telegram and Discord bots</li>
-                    <li>First community of users on Parachute Computer</li>
-                    <li>Rapid bug fixing from real-world use</li>
-                </ul>
-            </div>
-            <div class="timeline-item">
-                <h3>Weeks of Feb 17 &ndash; 24 <span class="status-badge status-done">Done</span></h3>
-                <span class="week-label">Brain Module &amp; Platform Polish</span>
-                <ul>
-                    <li>Brain v2 shipped&mdash;knowledge graph backend + Flutter UI &#10003;</li>
-                    <li>Chat UI redesign&mdash;two-phase streaming, visual polish &#10003;</li>
-                    <li>Multi-agent workspace teams &#10003;</li>
-                    <li>Matrix bot connector with bridge-aware room detection &#10003;</li>
-                    <li>Sandbox hardening and credential injection &#10003;</li>
-                </ul>
-            </div>
-            <div class="timeline-item">
-                <h3>Late February / Early March <span class="status-badge status-done">Done</span></h3>
-                <span class="week-label">Graph Redesign &amp; Polish</span>
-                <ul>
-                    <li>Graph database as core infrastructure&mdash;dissolved Brain module into foundational layer &#10003;</li>
-                    <li>Brain system redesign: memory feed UI, MCP Cypher tools &#10003;</li>
-                    <li>Schema unification&mdash;projects and conversations into coherent graph &#10003;</li>
-                    <li>Chat system prompt modes (converse / cocreate) &#10003;</li>
-                    <li>Container file browser, Daily offline sync hardening &#10003;</li>
-                </ul>
-            </div>
-            <div class="timeline-item">
-                <h3>Late March <span class="status-badge status-done">Done</span></h3>
-                <span class="week-label">The Vault Pivot</span>
-                <ul>
-                    <li>Spun out Parachute Vault as a focused standalone repo&mdash;Bun + TypeScript + bun:sqlite &#10003;</li>
-                    <li>20+ MCP tools, REST API, FTS5 search, semantic search via sqlite-vec &#10003;</li>
-                    <li>One-command <code>vault init</code>: daemon, launchd/systemd, Claude Code MCP registration &#10003;</li>
-                    <li>Multi-vault support, per-vault API keys, per-vault MCP descriptions &#10003;</li>
-                    <li>Bidirectional Obsidian import/export, wikilink auto-linking &#10003;</li>
-                    <li>Refocused Parachute Daily on capture: three-tab UI (Reader / Capture / Vault) &#10003;</li>
-                </ul>
-            </div>
-            <div class="timeline-item">
-                <h3>Early April <span class="status-badge status-active">Now</span></h3>
-                <span class="week-label">NVC Pitch &amp; Beta Launch</span>
-                <ul>
-                    <li>New Venture Challenge pitching&mdash;Parachute as the open knowledge layer</li>
-                    <li>Parachute Daily beta on iOS and macOS</li>
-                    <li>Public Vault release: README polish, install docs, deployment guides</li>
-                    <li>Pendant v1: PCB and enclosure assembly with Marvin Melzer</li>
-                    <li>First paying users on hosted vaults</li>
-                </ul>
-            </div>
-            <div class="timeline-item">
-                <h3>April 1 &ndash; 22 <span class="status-badge status-upcoming">Upcoming</span></h3>
-                <span class="week-label">Final Push</span>
-                <ul>
-                    <li>Public launch: Claude Code, MCP, and Obsidian communities; Twitter; Hacker News</li>
-                    <li><a href="https://learnvibe.build" target="_blank">Learn Vibe Build</a> graduates onboarded</li>
-                    <li>Pendant v1 capturing audio end-to-end into a vault</li>
-                    <li>New Venture Challenge final presentations (April 22)</li>
-                    <li>ATLAS final presentation (April 22)</li>
-                </ul>
-            </div>
-            <div class="timeline-item">
-                <h3>May &ndash; June <span class="status-badge status-upcoming">Upcoming</span></h3>
-                <span class="week-label">Production Launch</span>
-                <ul>
-                    <li>Production-grade Parachute Daily and Vault for non-technical paying users</li>
-                    <li>Hosted vault tier scaled and stable</li>
-                    <li>Pendant pre-orders if v1 hardware proves out</li>
-                    <li>SAFE round closed; core team full-time through 2026</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
-    <section class="section">
-        <h2>Revenue Path</h2>
-        <p>Parachute Vault is free and open source for self-hosters, always. Revenue comes from making the experience effortless for people who don't want to run a server, and from add-ons that compose on top of the free core. We're not competing with anyone's AI subscription&mdash;we're the $2&ndash;10 add-on that makes whichever AI you already use dramatically better.</p>
+        <h2>Longer arc</h2>
+        <p>Parachute is open-source and modular on purpose. The longer arc is less a timeline and more a shape: an ecosystem of small, composable modules that all speak a common contract, so you can mix the official ones with community ones with your own. The canonical architecture lives in <a href="/docs/">the design notes</a>.</p>
         <ul>
-            <li><strong>Free</strong>&mdash;offline journal and self-hosted vault. No hosting cost on our side.</li>
-            <li><strong>$2/mo</strong>&mdash;hosted vault: cloud sync, MCP endpoint, multi-device. Lower COGS than agentic platforms because we're storing structured data, not running inference.</li>
-            <li><strong>$5/mo</strong>&mdash;cloud transcription so capture never depends on your laptop being on.</li>
-            <li><strong>$10/mo</strong>&mdash;AI reflections and weekly synthesis on top of your vault.</li>
-            <li><strong>$100 once</strong>&mdash;the pendant. Always-on voice capture, in development with Marvin Melzer.</li>
-        </ul>
-        <p>Our first 2,000 paid users come from three channels: Learn Vibe Build AI cohorts, the Claude and ChatGPT power-user communities where people are actively looking for better memory tools, and our Boulder co-working space as a local testbed.</p>
-    </section>
-
-    <section class="section">
-        <h2>Stretch Goals</h2>
-        <ul>
-            <li><strong>Hosted vault tier</strong>&mdash;managed Parachute Vault on Cloudflare Workers + D1 + R2 for users who want zero setup</li>
-            <li><strong>Pendant pre-orders</strong>&mdash;if v1 proves out with the core team, open ordering for the broader community</li>
-            <li><strong>Community MCP integrations</strong>&mdash;third-party tools that read and write to a vault over MCP</li>
+            <li><strong>Third-party modules</strong> &mdash; anyone can build a service that plugs into a Parachute hub. Calendar, email, chat, custom agents. The hub renders them like they were native.</li>
+            <li><strong>AI reflections</strong> &mdash; longer-horizon synthesis over your vault (weekly digests, patterns across time), as a module you choose to install rather than a built-in.</li>
         </ul>
     </section>
 
     <section class="cta">
-        <p>Parachute is open source and launching now.</p>
-        <a href="https://github.com/ParachuteComputer" class="button" target="_blank">GitHub</a>
-        <p class="cta-secondary">Read the <a href="/blog/">blog</a> to follow along.</p>
+        <h2>Follow along</h2>
+        <p>The <a href="/blog/">blog</a> is the primary channel for product updates and thinking. The <a href="https://github.com/ParachuteComputer" target="_blank">GitHub org</a> is where the work happens in public.</p>
+        <a href="/blog/" class="button">Read the blog</a>
+        <p class="cta-secondary">Or <a href="/docs/">read the design notes</a>.</p>
     </section>
 </main>
