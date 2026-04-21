@@ -79,21 +79,17 @@ All pages use `_includes/base.njk` for nav and footer. Blog posts additionally u
 **Logo**: "Parachute Computer" (links to `/`)
 **Footer**: Copyright + same four links
 
-All template links use absolute paths (`/blog/`, `/architecture/`, `/roadmap/`).
+All template links use absolute paths (`/blog/`, `/docs/`, `/roadmap/`).
 
-**Architecture docs** are passthrough-copied as static HTML. They have their own nav bar (updated separately). Their relative links use `../` to reach the site root.
+Historical architecture HTML and NVC/pitch content live under `archive/` (see `archive/architecture-v1/` and `archive/nvc/`). They're passthrough-copied but not linked from the main nav.
 
 ---
 
-## Architecture Docs
+## Technical reference
 
-These are technical reference docs for developers. They describe how the server and app work internally.
+Current-era architecture lives in `design/` as markdown design notes, indexed from `docs.njk`. Older HTML architecture docs are in `archive/architecture-v1/` for historical reference only.
 
-**When to update**: After significant architectural changes (new modules, API redesigns, trust model changes). Not after every commit.
-
-**What belongs here**: System diagrams, API documentation, data flow, component overviews. Things that help a new contributor understand the system.
-
-**What doesn't belong here**: File manifests, issue lists, line-number references. These go stale immediately. Use GitHub's own tools for that.
+**When to update design notes**: After significant architectural changes (new modules, API redesigns, trust model changes). Not after every commit.
 
 ---
 
@@ -109,7 +105,7 @@ These are technical reference docs for developers. They describe how the server 
 - Blog is the primary public communication channel (replaces Substack)
 - Just write markdown — 11ty handles the rest
 
-### Architecture Docs
+### Design notes
 - Review after major PRs that change system architecture
 - Don't maintain file counts, line numbers, or other fast-changing metrics
 - Link to GitHub for anything that changes frequently
