@@ -19,7 +19,7 @@ permalink: /
             <div class="code-inline">
                 <code>bun add -g @openparachute/cli &amp;&amp; parachute install vault</code>
             </div>
-            <p class="install-note">Requires <a href="https://bun.sh" target="_blank">Bun</a>. One command installs the CLI, sets up a vault, and registers it with Claude Code. Add Notes, Scribe, and more the same way. <a href="https://github.com/ParachuteComputer/parachute-cli" target="_blank">View on GitHub &rarr;</a></p>
+            <p class="install-note">Requires <a href="https://bun.sh" target="_blank">Bun</a>. One command installs the CLI, sets up a vault, and registers it with Claude Code. Add Lens, Scribe, and more the same way. <a href="https://github.com/ParachuteComputer/parachute-cli" target="_blank">View on GitHub &rarr;</a></p>
         </div>
     </section>
 
@@ -27,7 +27,7 @@ permalink: /
     <section class="section fade-up fade-up-6">
         <h2>An open knowledge layer</h2>
         <p>Every AI you use stores your context as one flat text file. Whatever you said yesterday, your AI doesn't really remember. And to give it context, you have to talk to it&mdash;there's no way to just <em>think</em> and have it become context.</p>
-        <p>Parachute is a different shape: a personal knowledge graph organized around <strong>notes, tags, and links</strong>, accessible to any AI via <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>&mdash;the open standard for connecting AI to tools. You spin up a vault, give any AI a link, and that's the whole setup. Whatever AI you already use&mdash;Claude, ChatGPT, Gemini&mdash;Parachute makes it smarter. And when you want a human interface, Notes is a browser-based companion that talks to the same vault.</p>
+        <p>Parachute is a different shape: a personal knowledge graph organized around <strong>notes, tags, and links</strong>, accessible to any AI via <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>&mdash;the open standard for connecting AI to tools. You spin up a vault, give any AI a link, and that's the whole setup. Whatever AI you already use&mdash;Claude, ChatGPT, Gemini&mdash;Parachute makes it smarter. And when you want a human interface, Lens is a browser-based companion that talks to the same vault.</p>
     </section>
 
     <!-- The ecosystem -->
@@ -50,14 +50,14 @@ permalink: /
 
             <div class="product">
                 <div class="product-head">
-                    <h3>Parachute Notes</h3>
+                    <h3>Parachute Lens</h3>
                     <span class="status-badge status-done">Available</span>
                 </div>
                 <p>A browser-based companion for your vault. Installable PWA: works offline, syncs when you reconnect. Write, link, tag, search, graph-browse&mdash;and capture voice memos that auto-transcribe (when Scribe is installed). Point it at any vault URL, do a one-time OAuth handshake, and it's your local-first note-taking app. Replaces the earlier Parachute Daily&mdash;same workflow, now on every device with a browser.</p>
                 <p class="product-links">
-                    <a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank">GitHub &rarr;</a>
+                    <a href="https://github.com/ParachuteComputer/parachute-lens" target="_blank">GitHub &rarr;</a>
                     &middot;
-                    <a href="https://www.npmjs.com/package/@openparachute/notes" target="_blank">npm &rarr;</a>
+                    <a href="https://www.npmjs.com/package/@openparachute/lens" target="_blank">npm &rarr;</a>
                 </p>
             </div>
 
@@ -82,13 +82,13 @@ permalink: /
         <div class="architecture-diagram">
    Browser &middot; Phone (PWA) &middot; Pendant
               &darr;
-       Parachute Notes &mdash;&mdash; REST &mdash;&mdash;&rarr;
+       Parachute Lens &mdash;&mdash;&mdash; REST &mdash;&mdash;&rarr;
                                          &#8594;  Parachute Vault  &mdash;&mdash; MCP &mdash;&mdash;&rarr; Claude &middot; ChatGPT &middot; Gemini
    Parachute Scribe &mdash; transcribe &mdash;&rarr;
                                                   &darr;
                                         SQLite on disk
                                         (yours, portable, exportable)</div>
-        <p>One graph. One address (a single HTTPS URL via Tailscale or your own domain). Every tool, human or AI, spoken to through the same APIs. <em>Today: Vault, Notes, Scribe, and the CLI are live. Cloud is next.</em></p>
+        <p>One graph. One address (a single HTTPS URL via Tailscale or your own domain). Every tool, human or AI, spoken to through the same APIs. <em>Today: Vault, Lens, Scribe, and the CLI are live. Cloud is next.</em></p>
     </section>
 
     <!-- Principles -->
@@ -105,7 +105,7 @@ permalink: /
     <!-- CTA -->
     <section class="cta">
         <h2>A knowledge layer for humans and AI</h2>
-        <p>Parachute is open source and available now. Install the CLI, spin up a vault, point your AI at it, open Notes in a browser, and start building memory.</p>
+        <p>Parachute is open source and available now. Install the CLI, spin up a vault, point your AI at it, open Lens in a browser, and start building memory.</p>
         <div class="code-inline" style="margin: 1.5rem auto; max-width: 640px;">
             <code>bun add -g @openparachute/cli &amp;&amp; parachute install vault</code>
         </div>
