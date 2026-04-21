@@ -128,3 +128,25 @@ GitHub Pages deployment needs to run `npx @11ty/eleventy` and serve `_site/`. Op
 - Or configure GitHub Pages to use a GitHub Action workflow instead of serving directly from `website/`
 
 **CNAME**: `parachute.computer` (DNS needs to point to GitHub Pages)
+
+---
+
+## Design notes
+
+Architecture design notes live in `design/` — documents that anchor post-launch direction without committing code. Currently (2026-04-20):
+
+- `2026-04-20-module-architecture.md` — the canonical module protocol (info, config, services.json, well-known), third-party extensibility path, scope format
+- `2026-04-20-hub-as-portal-oauth-and-service-catalog.md` — OAuth architecture with hub-as-issuer, phasing, service catalog in token response
+- `2026-04-20-cloud-offering-sketch.md` — cloud deployment shape (tenant-per-subdomain, Postgres-backed, CDN-hosted Notes, pooled Scribe)
+
+These are reference material; update them when the shape they describe changes. Cross-cutting patterns that apply to multiple repos live in [`../parachute-patterns/`](../parachute-patterns) and should be linked here rather than duplicated.
+
+## Post-merge hygiene
+
+When a PR is merged, locally:
+
+```
+git checkout main && git pull
+```
+
+Site is Eleventy-built; drift between local checkout and origin/main doesn't break a running daemon (site is a static build), but it still causes confusion — the local `_site/` output reflects whatever branch is checked out, not main. Convention caught and documented across Parachute repos 2026-04-21.
