@@ -1096,3 +1096,21 @@ footer p:first-child {
         margin-bottom: 3rem;
     }
 }
+
+.alpha-tag {
+    display: inline-block;
+    vertical-align: middle;
+    font-family: var(--mono);
+    font-size: 0.65em;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.55rem;
+    margin-left: 0.75rem;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    color: var(--accent);
+    background: transparent;
+    position: relative;
+    top: -0.35em;
+}

@@ -1,95 +1,84 @@
 ---
 layout: post.njk
 title: "Parachute is here"
-subtitle: "The ecosystem launches today: Vault, Lens, Scribe, and a single-command installer"
+subtitle: "An open memory layer for your AIs — install in one line, works with every tool that speaks MCP"
 date: 2026-04-23T12:00:00
 author: "Aaron G Neyer"
 permalink: /blog/parachute-is-here/
-description: "Parachute is now available. One command installs the ecosystem: Vault for the knowledge graph, Lens for the web app, Scribe for voice transcription, all coordinated by a single CLI."
+description: "Your AI's memory is fragmented. Even inside one company's tools — Claude Code, Claude Chats, Claude Cowork — each conversation starts from scratch. Parachute Vault is a persistent memory layer any AI can read and write to. Notes, tags, links, on your machine, over MCP."
 ---
 
-Four months ago I wrote [Opening the Parachute](/blog/opening-the-parachute/) — a description of what I wanted to build and why. Today it's real, and it's open source, and you can install it with one line.
+Your AI's memory is fragmented. Claude Code doesn't know what you said to Claude in the browser. Claude Cowork doesn't know what Claude Code is working on. Even inside one company's ecosystem, every chat starts from scratch. Across ChatGPT, Gemini, or any other tool you use, it's worse — each one a walled garden.
+
+Today we're launching **Parachute Vault** — an open memory layer that any AI can read and write to. One knowledge graph, on your machine, connected to every tool you use.
 
 ```sh
 bun add -g @openparachute/cli && parachute install vault
 ```
 
-Add Lens and Scribe the same way:
+That's the entire install. You now have a self-hosted knowledge graph — SQLite on disk, exposed over MCP + REST — organized around **notes, tags, and links**. Obsidian-adjacent vocabulary, now accessible to every AI you talk to.
+
+## Use it immediately
+
+Run that install inside any Claude Code session — Claude Code picks up the MCP automatically and can start reading and writing your vault before you leave the terminal.
+
+Want it elsewhere? One more command:
 
 ```sh
-parachute install lens
-parachute install scribe
-```
-
-Then expose the whole thing at an HTTPS URL on your tailnet (or publicly):
-
-```sh
-parachute start
 parachute expose tailnet
 ```
 
-That's it. Your own knowledge graph, your own writing app, your own transcription — all running on your machine, reachable from every device you own, accessible to any AI that speaks [MCP](https://modelcontextprotocol.io).
+Now your vault is reachable at an HTTPS URL on your tailnet. Point Claude Desktop at it. Point ChatGPT Desktop at it. Point Claude Cowork, Gemini, your own custom agent — anything that speaks MCP — at the same URL. They all read and write to the same graph.
 
-## What's here today
+For public exposure through Tailscale Funnel:
 
-**Parachute Vault** — the knowledge graph itself. Self-hosted, SQLite-backed, Bun-native. Notes, tags, links, attachments, full-text and graph queries. Exposed over both a REST API (for humans and tools) and [MCP](https://modelcontextprotocol.io) (for AI). Import from and export to Obsidian. Each vault is its own database on your disk, portable and entirely yours.
-
-**Parachute Lens** — a browser-based companion for the Vault. Installable as a [PWA](https://web.dev/progressive-web-apps/) so it works offline on your phone, your laptop, any device with a modern browser. Write, link, tag, search, graph-browse, drop in voice memos that auto-transcribe. Point it at a vault URL, do a one-time OAuth handshake, and that's the setup. The earlier Parachute Daily — which required a native app install — is retired; Lens replaces it with the same workflow but works everywhere.
-
-**Parachute Scribe** — audio transcription. Whisper-compatible API (`POST /v1/audio/transcriptions`) plus optional LLM cleanup. Runs locally on your machine by default, using [parakeet-mlx](https://github.com/senstella/parakeet-mlx) for on-device transcription. You can BYO a cloud provider for higher-quality models.
-
-**Parachute CLI** — the coordinator. `install`, `start`, `stop`, `status`, `logs`, `expose` — one command for every lifecycle step across every service. Also a small hub page at your root URL that lists what you've installed.
-
-## How it fits together
-
-```
-  Browser · Phone (PWA) · Pendant
-             ↓
-  Parachute Lens ───── REST ──→
-                              ↘
-  Parachute Scribe ── transcribe ──→ Parachute Vault ── MCP ──→ Claude · ChatGPT · Gemini
-                                          ↓
-                                   SQLite on disk
-                                   (yours, portable, exportable)
+```sh
+parachute expose public
 ```
 
-Each service is a module. The CLI hosts them, coordinates them, and exposes them under a single HTTPS URL. The hub page at the root lists everything you have. Everything speaks a common contract — `/.parachute/info`, `/.well-known/parachute.json` — so adding a new module (a `Pendant`, a `Calendar`, a third-party service built by someone else) doesn't require re-architecting anything.
+Same URL shape, now reachable from anywhere.
 
-The URL shape stays consistent whether you're on your tailnet, on the public internet via Tailscale Funnel, or (eventually) on Parachute Cloud:
+## What this unlocks
 
-```
-/                       → the hub
-/lens                   → Lens
-/vault/default          → Vault API (MCP + REST)
-/scribe                 → Scribe API
-/.well-known/parachute.json   → ecosystem discovery
-```
+- **Persistent memory across every AI you use.** The notes your Claude Code session wrote are there for ChatGPT to read an hour later. What you capture on your phone is context for the next chat you open on your laptop.
+- **A compounding knowledge base.** As your AIs read and write, the graph grows. Wikilinks resolve, tags accrete, notes point at each other. Queries get richer over time — not because the index is bigger, but because the shape of what's there gets more useful.
+- **Your data, your hardware.** It's a SQLite file on your disk. If Parachute disappeared tomorrow, your graph is still there.
 
-## What I care about most
+## Security-first install
 
-**Local-first.** Your data lives on your machine in a SQLite database. If this project disappeared tomorrow, your data would still be there — portable, exportable, and entirely yours. No lock-in, no cloud dependency, no phone-home.
+The default install runs a local daemon on `127.0.0.1:1940` — nothing reaches the network without you asking. When you `expose tailnet`, traffic stays on your tailnet. When you `expose public`, you'll be prompted to set up **OAuth + 2FA** on the vault — we strongly recommend it. API tokens are also available for programmatic access (useful for your own agents, scripts, or services you want to pin tightly).
 
-**Open standard.** Everything's built on [MCP](https://modelcontextprotocol.io). Whatever AI you use today, whatever AI you'll use next year — Parachute works with it.
+Scope-per-token is coming — so you can give a read-only integration read-only access, or limit an agent to one corner of your graph. Not in this launch, but queued.
 
-**Open source, AGPL.** You can read every line of code that touches your notes. The only way to earn trust with personal thinking is transparency.
+## The shape
 
-**Extensible by design.** The module contracts are small and stable. If you want to build your own service that plugs into Parachute — your own capture surface, your own AI agent, your own integration — the ecosystem will render it like it was native. No vendor relationship required.
+Vault is the core. Self-hosted, SQLite-backed, runs as a local daemon, imports and exports Obsidian markdown.
+
+If you want a UI to view and edit your notes through, we've built one — an alpha-quality PWA you can install or fork. It's an example, not the definitive front-end. Run your own, modify this one, or build something new. The API is open.
+
+This is **alpha**. The core works, but interfaces will shift, docs are thin, edges are rough. AGPL, and open to contribution.
+
+## What we care about most
+
+**Local-first.** Your data is a SQLite file on your disk.
+
+**Open standard.** Everything speaks [MCP](https://modelcontextprotocol.io). Whatever AI you use today or next year, Parachute works with it.
+
+**Open source, AGPL.** Read every line of code that touches your notes.
+
+**Extensible.** The service contracts are small and stable. Plug in your own modules.
 
 ## What's next
 
-Launch week was focused on the self-hostable base. Post-launch directions:
+- **Hub-issued OAuth** — one sign-in across every module in your ecosystem.
+- **Per-token scopes** — fine-grained permissions for agents and integrations.
+- **Config portal** — per-module settings rendered from each module's JSON Schema.
+- **Parachute Cloud** — a hosted path for people who'd rather not self-host. Same architecture, same guarantees.
 
-- **Identity architecture**: migrating OAuth to the hub origin (the seam is in place; the implementation lives in Vault today) so eventually every module shares one ecosystem sign-in.
-- **Configuration portal**: the hub will render per-module settings forms automatically, pulled from each module's JSON Schema. You won't need the CLI for most config changes.
-- **Scopes**: fine-grained permissions so clients request only what they need — read-only, read-write, per-vault, eventually per-folder.
-- **Parachute Cloud**: the hosted path for people who'd rather not run their own services. Same architecture, same URL shape, same portability guarantee. Coming in a few months.
+The [roadmap](/roadmap/) is live. The [source](https://github.com/ParachuteComputer) is open.
 
-If you want to follow along, the [roadmap](/roadmap/) is live and the [source](https://github.com/ParachuteComputer) is open.
-
-If you'd like to try it, the install walkthrough is on the [front page](/). For anyone who was using Parachute Daily: whatever you'd synced into your vault is still there. Install Lens, point it at the same vault, and your notes are waiting.
-
-If you find anything broken: please [open an issue](https://github.com/ParachuteComputer). I'm launching this small and listening carefully.
+If you try it, tell us what breaks. [Open an issue.](https://github.com/ParachuteComputer) We're launching this small and listening.
 
 Thanks for being here.
 
-— Aaron
+— The Parachute team
