@@ -20,7 +20,14 @@ permalink: /install/
             <code>bun add -g @openparachute/cli &amp;&amp; parachute install vault</code>
         </div>
 
-        <p>This installs the Parachute CLI, creates a Vault, and starts it as a background daemon on <code>127.0.0.1:1940</code>. You'll be asked one question: whether to add the Vault as an MCP server in your <code>~/.claude.json</code> (default yes).</p>
+        <p>This installs the Parachute CLI, creates a Vault, and starts it as a background daemon on <code>127.0.0.1:1940</code>. You'll be asked two yes/no questions (both default yes):</p>
+
+        <ol>
+            <li><strong>Install Vault as an MCP server in Claude Code?</strong> &mdash; writes the MCP config into <code>~/.claude.json</code> so Claude Code picks it up next session.</li>
+            <li><strong>Generate an API token for other clients?</strong> &mdash; prints a <code>pvt_...</code> token at the end for pasting into Codex, Goose, OpenCode, Cursor, Zed, Cline, scripts, or <code>curl</code>.</li>
+        </ol>
+
+        <p>Non-interactive? Pass <code>--mcp</code>/<code>--no-mcp</code> and <code>--token</code>/<code>--no-token</code>. Piped installs default to yes on both.</p>
 
         <p>Verify:</p>
         <div class="code-inline">
