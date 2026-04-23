@@ -29,9 +29,9 @@ permalink: /install/
     </section>
 
     <section class="section">
-        <h2>2. Use it with Claude Code</h2>
+        <h2>2. Use it with your local MCP client</h2>
 
-        <p>That's it — no second step. The install adds your Vault as an MCP server to <code>~/.claude.json</code>, and Claude Code picks it up on the next session. Open a project, ask Claude to write a note, query your graph, or trace connections:</p>
+        <p><strong>Claude Code</strong> is the zero-config path — the install adds your Vault as an MCP server to <code>~/.claude.json</code>, and Claude Code picks it up on the next session. Open a project and try:</p>
 
         <ul>
             <li><em>"Save a note about today's decision — tag it #product, link to #vault."</em></li>
@@ -39,9 +39,13 @@ permalink: /install/
             <li><em>"Show me everything connected to last week's design review."</em></li>
         </ul>
 
-        <p>The MCP tools <code>create-note</code>, <code>query-notes</code>, <code>update-note</code>, <code>list-tags</code>, <code>find-path</code>, and <code>vault-info</code> are all available. Memory carries across every Claude Code session forever; context accretes instead of starting over.</p>
+        <p>All nine MCP tools are available: <code>create-note</code>, <code>query-notes</code>, <code>update-note</code>, <code>delete-note</code>, <code>list-tags</code>, <code>update-tag</code>, <code>delete-tag</code>, <code>find-path</code>, <code>vault-info</code>. Memory carries across every session forever; context accretes instead of starting over.</p>
 
-        <p>Other local MCP clients (Codex, your own agents) can connect to the same endpoint at <code>http://127.0.0.1:1940/vault/default/mcp</code>.</p>
+        <p><strong>Other local MCP clients</strong> — <a href="https://github.com/openai/codex" target="_blank">Codex</a>, <a href="https://github.com/block/goose" target="_blank">Goose</a>, <a href="https://opencode.ai" target="_blank">OpenCode</a>, <a href="https://cursor.com" target="_blank">Cursor</a>, <a href="https://zed.dev" target="_blank">Zed</a>, <a href="https://github.com/cline/cline" target="_blank">Cline</a>, your own agent — connect to the same endpoint:</p>
+        <div class="code-inline">
+            <code>http://127.0.0.1:1940/vault/default/mcp</code>
+        </div>
+        <p>Each client has its own way to register an MCP server — usually a settings entry pointing at that URL. Parachute is client-agnostic; Claude Code just gets the one-line auto-wire.</p>
     </section>
 
     <section class="section">
