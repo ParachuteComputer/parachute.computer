@@ -68,4 +68,4 @@ The [install guide](/install/) has the rest. Public HTTPS + claude.ai / ChatGPT 
 
 I'm really looking forward to seeing what you build with it.
 
-— Aaron, on behalf of the Parachute team
+— Aaron Gabriel & the Parachute team
