@@ -1,11 +1,11 @@
 ---
 layout: post.njk
-title: "Parachute is here"
+title: "Introducing Parachute Vault"
 subtitle: "An open memory layer for your AI, your own mind, and everything you use"
 date: 2026-04-23T12:00:00
 author: "Aaron G Neyer"
-permalink: /blog/parachute-is-here/
-description: "Frank Zappa said the mind is like a parachute — it doesn't work if it's not open. That applies just as well to our extended mind. Today I'm launching Parachute Vault and Parachute Notes: an open, self-hosted knowledge layer that any AI you use can read and write to."
+permalink: /blog/introducing-parachute-vault/
+description: "Frank Zappa said the mind is like a parachute — it doesn't work if it's not open. That applies to our extended mind too. Today I'm introducing Parachute Vault: an open, self-hosted knowledge graph that any local MCP client can read and write to — starting with Claude Code."
 ---
 
 > The mind is like a parachute. It doesn't work if it's not open.
@@ -30,23 +30,23 @@ And they're right. It's real. When it works, it's magic.
 
 The catch is that getting there has always required a lot of upfront effort to architect the whole system. Everybody who really uses these tools has lived the paradox: *spending more time thinking about your second brain than using your second brain*. The tools are amazing if you invest. Most people never get to "amazing" because the investment is so steep.
 
-Something's changing. LLMs can now do the architecting with us. Some people are already wiring Claude Code into their Obsidian, or plugging an MCP into Tana. But these are still not the most intuitive experiences — in Tana your data is trapped in Tana's ecosystem, and in Obsidian your data is on a file system rather than a real database, which limits what you can build on top of it.
+Something's changing. LLMs can now do the architecting with us. Some people are already wiring Claude Code into their Obsidian, or plugging an MCP into Tana. But these are still not the most intuitive experiences — in Tana your data is trapped in Tana's ecosystem, and in Obsidian your data is on a file system rather than a real database, which limits what you can build on top of it. And for either of them, the code itself is closed — if what you need doesn't match what they ship, you're stuck either doing things their way or moving your data elsewhere.
 
 ## What we built
 
 **Parachute Vault** is a graph database for your knowledge. Notes, tags, links, and structured metadata — on your machine, in a SQLite file that's yours, portable, and doesn't require us to exist. Every operation is exposed over [MCP](https://modelcontextprotocol.io), and to any script, app, or tool you write via REST.
 
-Today the cleanest on-ramp is **Claude Code**: install the Vault, open a session, and Claude's already reading and writing to your graph — no config, no copy-paste, no per-session context rebuild. Notes from this morning's session become context for this afternoon's. Tags accrete, wikilinks resolve, the graph compounds. Any other local MCP client — Codex, your own agents — talks to the same endpoint.
+Today the cleanest on-ramp is **Claude Code**: install the Vault, open a session, and Claude's already reading and writing to your graph — no config, no copy-paste, no per-session context rebuild. Notes from this morning's session become context for this afternoon's. Tags accrete, wikilinks resolve, the graph compounds. Any other local MCP client — Codex, Goose, OpenCode, Cursor, Zed, Cline, your own agent — talks to the same endpoint.
 
 **claude.ai, ChatGPT, Gemini come next.** The plumbing exists; we're finishing the polish on public HTTPS exposure and the custom-connector OAuth flow. Those land in the next couple of weeks — we wanted to ship the single-client experience well before promising the many-client one. The architecture was designed around it from day one.
 
 The install is one line; [the install guide](/install/) has the rest.
 
-## What we also built — and why it's just one example
+## A reference UI — if you want one
 
-**Parachute Notes** is an alpha PWA that talks to any Vault. Browse, edit, capture voice memos, install on your phone. It's real and it works.
+**Parachute Notes** is a web interface for your Vault. Run `parachute install notes`, open `localhost:1942/notes` in your browser, point it at your Vault, and you've got note browsing, search, tag views, a graph visualization, markdown editor with live preview, and voice capture with auto-transcription. Usable today as a local web app on your laptop. The mobile-PWA install flow lands alongside public HTTPS exposure in the next few weeks.
 
-It's also explicitly not the definitive front-end. Our hope is that you might build your own. In this new era, it's genuinely possible to build a front-end that works how *your* brain works — not how a design team at some company guessed it might. Take our code, fork it, read the API, build something that's uniquely yours. That's the invitation.
+It's also explicitly not the definitive front-end. Our hope is that you might build your own. In this new era, it's genuinely possible to build a front-end that works how *your* brain works — not how a design team at some company guessed it might. [Fork the source](https://github.com/ParachuteComputer/parachute-notes) — Vite + React + TypeScript, AGPL — read the Vault's API, and build something that's uniquely yours. That's the invitation.
 
 ## Where this goes
 
@@ -60,7 +60,7 @@ The [roadmap](/roadmap/) is live. The [source](https://github.com/ParachuteCompu
 bun add -g @openparachute/cli && parachute install vault
 ```
 
-Start a Claude Code session after install and your Vault's tools are right there — `create-note`, `query-notes`, `update-note`, `list-tags`, `find-path`, `vault-info`. Ask Claude to save something, pull what you've written about a topic, or walk the graph. That's the whole loop.
+Start a Claude Code session after install and your Vault's tools are right there — `create-note`, `query-notes`, `update-note`, `delete-note`, `list-tags`, `update-tag`, `delete-tag`, `find-path`, `vault-info`. Ask Claude to save something, pull what you've written about a topic, walk the graph. That's the whole loop.
 
 The [install guide](/install/) has the rest. Public HTTPS + claude.ai / ChatGPT connectors land in the next few weeks; subscribe via [the blog](/blog/) or watch the [GitHub org](https://github.com/ParachuteComputer) for the announcement. If something breaks now, [open an issue](https://github.com/ParachuteComputer) — we're launching this small and listening carefully.
 
