@@ -32,37 +32,35 @@ permalink: /install/
     <section class="section">
         <h2>2. Make it reachable from the web</h2>
 
-        <p>So far, your Vault only answers on <code>localhost</code>. That's enough for Claude Code. To use it from Claude on the web, ChatGPT, your phone, or any MCP-capable tool running somewhere else, you need a public HTTPS URL.</p>
+        <p>So far, your Vault is bound to <code>127.0.0.1</code> on port 1940 — only Claude Code on the same machine can see it. To use it from Claude on the web, ChatGPT, your phone, or any MCP-capable tool somewhere else, you need a public HTTPS URL. Two options, both free. Pick based on what you already have:</p>
 
-        <p>Pick the provider you already have installed (or find more accessible):</p>
-
-        <h3>Tailscale Funnel — stable URL, free, no domain needed</h3>
+        <h3>Tailscale Funnel — no domain needed</h3>
         <div class="code-inline">
             <code>parachute expose public</code>
         </div>
-        <p>Wraps <a href="https://tailscale.com/kb/1223/funnel" target="_blank">Tailscale Funnel</a>. Your Vault lands at <code>https://&lt;machine&gt;.&lt;tailnet&gt;.ts.net/vault/default</code>. If you don't have Tailscale installed, the command tells you where to get it; one <code>tailscale up</code> plus enabling Funnel in the <a href="https://login.tailscale.com/admin/acls" target="_blank">Tailscale admin console</a> (Access Controls → add a <code>funnel</code> ACL) is a 5-minute one-time setup. URL persists across restarts.</p>
+        <p>Wraps <a href="https://tailscale.com/kb/1223/funnel" target="_blank">Tailscale Funnel</a>. Your Vault lands at <code>https://&lt;machine&gt;.&lt;tailnet&gt;.ts.net/vault/default</code> — stable across restarts, no custom domain required. If you don't have Tailscale installed, the command tells you where to get it; <code>tailscale up</code> plus enabling Funnel in the <a href="https://login.tailscale.com/admin/acls" target="_blank">Tailscale admin console</a> (Access Controls → add a <code>funnel</code> ACL) is a one-time 5-minute setup.</p>
 
-        <h3>Cloudflare Tunnel — ephemeral URL, 30 seconds, zero config</h3>
+        <h3>Cloudflare Tunnel — use your own domain</h3>
         <div class="code-inline">
-            <code>parachute expose public --cloudflare</code>
+            <code>parachute expose public --cloudflare --domain vault.example.com</code>
         </div>
-        <p>Wraps a <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/trycloudflare/" target="_blank">Cloudflare Quick Tunnel</a>. Requires <code>cloudflared</code> (<code>brew install cloudflared</code> on macOS); no account, no domain. Your Vault lands at <code>https://&lt;random&gt;.trycloudflare.com/vault/default</code>. Great for demos and "try it from claude.ai right now" — the URL is ephemeral, so it changes every time you restart the tunnel.</p>
+        <p>Wraps a <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/" target="_blank">Cloudflare Named Tunnel</a>. Requires <code>cloudflared</code> (<code>brew install cloudflared</code> on macOS) and a domain added to your Cloudflare account (any registrar — Cloudflare just manages DNS). On first run: <code>cloudflared tunnel login</code>, pick the zone, then the command above creates the tunnel, routes DNS, starts the daemon. Your Vault lands at <code>https://vault.example.com/vault/default</code> — your chosen hostname, stable across restarts.</p>
 
         <p>Want it tailnet-only (your devices, not the public internet)? Use <code>parachute expose tailnet</code> — same URL shape as Tailscale Funnel, just not reachable externally.</p>
 
-        <h3>Recommended: add OAuth or API tokens before sharing the URL</h3>
-        <p>By default the Vault trusts any client that reaches it. When you put it behind a public URL, pick at least one of these:</p>
+        <h3>Authenticate clients</h3>
+        <p>The Vault is auth-gated by default — every request to <code>/api/*</code> and <code>/mcp</code> requires a valid token or completed OAuth session. When you put the Vault behind a public URL, you're not <em>adding</em> auth; you're deciding how new clients prove they should have access. Two paths:</p>
         <ul>
-            <li><strong>OAuth + 2FA</strong> — right for human clients (claude.ai, ChatGPT, Notes). One-time setup:
+            <li><strong>OAuth + TOTP 2FA</strong> — right for human clients (claude.ai, ChatGPT, Notes). One-time setup:
                 <div class="code-inline"><code>parachute vault set-password &amp;&amp; parachute vault 2fa enroll</code></div>
-                Clients complete a browser handshake once per device; per-device tokens are revocable.
+                Clients complete a browser handshake the first time they connect; per-client tokens are tracked and revocable.
             </li>
             <li><strong>API tokens</strong> — right for scripts, agents, or services you control end-to-end:
-                <div class="code-inline"><code>parachute vault tokens create --scope vault:write</code></div>
-                Long-lived bearer token; paste it into the client's <code>Authorization</code> header. Revocable per token.
+                <div class="code-inline"><code>parachute vault tokens create --scope vault:read</code></div>
+                Creates a read-only token. Use <code>--scope vault:write</code> or <code>--scope vault:admin</code> for broader access; no flag at all gives a full-scope token. Paste the token into the client's <code>Authorization: Bearer &lt;token&gt;</code> header. Revocable per token.
             </li>
         </ul>
-        <p>Either works on its own. Both together is fine. What matters is that <em>something</em> is gating writes once the Vault is reachable from the outside.</p>
+        <p>Neither is a prerequisite for the other; either works on its own. Full auth reference in <a href="https://github.com/ParachuteComputer/parachute-vault/blob/main/docs/auth-model.md" target="_blank">docs/auth-model.md</a>.</p>
     </section>
 
     <section class="section">
@@ -95,6 +93,8 @@ permalink: /install/
             <li><strong>Claude Code doesn't see the MCP.</strong> Start a new Claude Code session (config is loaded at session start). Run <code>/mcp</code> in Claude Code to confirm. If it's missing, <code>parachute-vault mcp-install</code> adds it.</li>
             <li><strong><code>parachute expose public</code> says "funnel not enabled".</strong> Enable it in the <a href="https://login.tailscale.com/admin/acls" target="_blank">Tailscale admin console</a> → Access Controls → add a <code>funnel</code> nodeAttrs rule, and turn on MagicDNS + HTTPS Certificates in DNS.</li>
             <li><strong><code>parachute expose public --cloudflare</code> says cloudflared is not installed.</strong> <code>brew install cloudflared</code> on macOS, <a href="https://pkg.cloudflare.com/install" target="_blank">pkg.cloudflare.com/install</a> on Linux.</li>
+            <li><strong>Cloudflare says "not logged in" or the domain isn't in your zones.</strong> Run <code>cloudflared tunnel login</code> (browser flow) after install; add your domain at <a href="https://dash.cloudflare.com" target="_blank">dash.cloudflare.com</a> → Add site if needed.</li>
+            <li><strong>Something on your LAN used to reach the Vault but doesn't anymore.</strong> The Vault now binds <code>127.0.0.1</code> by default. If you intentionally expose it via nginx / Caddy / another reverse proxy from a different host, set <code>VAULT_BIND=0.0.0.0</code> in <code>~/.parachute/vault/.env</code> and restart.</li>
             <li><strong>OAuth fails with "No pending flow".</strong> You clicked a home-screen shortcut before completing the handshake. Open the Vault URL in a regular tab and restart the OAuth flow.</li>
         </ul>
 
