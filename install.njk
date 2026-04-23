@@ -4,123 +4,92 @@ title: "Install"
 description: "How to install Parachute Vault, connect it to Claude Code, Claude, ChatGPT, and everything else you use. Local first, public when you want it."
 permalink: /install/
 ---
-<main class="install-page">
+<main>
 
-    <header class="install-header fade-up fade-up-1">
-        <h1>Install</h1>
-        <p class="tagline">From zero to "Claude has persistent memory" in one command. Optional paths if you want it reachable from anywhere.</p>
-    </header>
+    <section class="hero">
+        <h1 class="fade-up fade-up-2">Install</h1>
+        <p class="tagline fade-up fade-up-3">From zero to "Claude has persistent memory" in one command. Public HTTPS in one more.</p>
+    </section>
 
-    <nav class="install-toc fade-up fade-up-2" aria-label="On this page">
-        <a href="#quick-start">1. Quick start (Claude Code)</a>
-        <a href="#claude-chat">2. Use it from Claude, ChatGPT, and the web</a>
-        <a href="#tailnet">3. Reach it from your other devices</a>
-        <a href="#beyond">4. Beyond your laptop</a>
-        <a href="#troubleshooting">5. Troubleshooting</a>
-    </nav>
+    <section class="section">
+        <h2>1. Install the Vault</h2>
 
-    <!-- Quick start -->
-    <section class="section fade-up fade-up-3" id="quick-start">
-        <h2>1. Quick start</h2>
-        <p>Requires <a href="https://bun.sh" target="_blank">Bun</a>. Run this in any terminal:</p>
+        <p>Requires <a href="https://bun.sh" target="_blank">Bun</a>. Run this anywhere:</p>
 
         <div class="code-inline">
             <code>bun add -g @openparachute/cli &amp;&amp; parachute install vault</code>
         </div>
 
-        <p>What just happened:</p>
-        <ul>
-            <li>The Parachute CLI is installed globally.</li>
-            <li>Parachute Vault is installed and running as a background daemon on <code>127.0.0.1:1940</code> (launchd on macOS, systemd on Linux).</li>
-            <li>The Vault MCP is added to your <code>~/.claude.json</code>. Claude Code picks it up on the next session — no restart needed for future sessions.</li>
-            <li>An API token is generated and stored locally in <code>~/.claude.json</code> as a Bearer header.</li>
-        </ul>
+        <p>This installs the Parachute CLI, creates a Vault, and starts it as a background daemon on <code>127.0.0.1:1940</code>. You'll be asked one question: whether to add the Vault as an MCP server in your <code>~/.claude.json</code> (default yes — Claude Code picks it up on the next session).</p>
 
-        <p>Start a new Claude Code session. Ask it to write a note, query your vault, whatever. The MCP tools <code>create-note</code>, <code>query-notes</code>, <code>update-note</code>, etc. are all available.</p>
-
-        <p>If you ever want to check or restart it: <code>parachute status</code>, <code>parachute restart vault</code>, <code>parachute logs vault</code>.</p>
-    </section>
-
-    <!-- Claude Chat / ChatGPT / Web -->
-    <section class="section" id="claude-chat">
-        <h2>2. Use it from Claude, ChatGPT, and the web</h2>
-        <p>Claude (web + Desktop + mobile) and ChatGPT (web + Desktop) all connect to external MCPs via their Connectors UI — you paste a public HTTPS URL once and it's available everywhere you use the app. To give them access to your Vault, you need to make your Vault reachable from outside your laptop over HTTPS.</p>
-
-        <p>Two paths, both free. Pick the one that matches what you already have:</p>
-
-        <h3>Path A: Tailscale Funnel (no domain required)</h3>
-        <p>If you don't have your own domain, this is the easier path. Tailscale gives you a free <code>*.ts.net</code> URL.</p>
-        <ol>
-            <li>Install <a href="https://tailscale.com/download" target="_blank">Tailscale</a> (free for personal use, 2 minutes) and run <code>tailscale up</code>.</li>
-            <li>Enable <a href="https://tailscale.com/kb/1223/funnel" target="_blank">Tailscale Funnel</a> on your tailnet (admin console → Access Controls → add a <code>funnel</code> ACL, and enable HTTPS in DNS settings).</li>
-            <li>Run <code>parachute expose public</code>. Your Vault is now at <code>https://&lt;machine&gt;.&lt;tailnet&gt;.ts.net/vault/default</code>.</li>
-            <li>Set up an owner password and 2FA on the Vault — required before you expose it publicly:
-                <div class="code-inline"><code>parachute vault set-password &amp;&amp; parachute vault 2fa enroll</code></div>
-            </li>
-            <li>In <a href="https://claude.ai/settings/connectors" target="_blank">claude.ai → Settings → Connectors</a>, click "Add custom connector" and paste your Vault URL. Complete the OAuth handshake.</li>
-            <li>For ChatGPT: <a href="https://chatgpt.com" target="_blank">chatgpt.com</a> → Settings → Connectors → same flow.</li>
-        </ol>
-
-        <h3>Path B: Cloudflare Tunnel (if you have a domain)</h3>
-        <p>If you already use Cloudflare for DNS on a domain, <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/" target="_blank">Cloudflare Tunnel</a> gives you a stable public URL routed through your own domain.</p>
-        <ol>
-            <li>Install <code>cloudflared</code>: <code>brew install cloudflared</code> on macOS, or <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/" target="_blank">see downloads</a>.</li>
-            <li><code>cloudflared tunnel login</code>, then create a tunnel: <code>cloudflared tunnel create parachute</code>.</li>
-            <li>Route DNS: <code>cloudflared tunnel route dns parachute vault.yourdomain.com</code>.</li>
-            <li>Run the tunnel pointing at your local Vault: <code>cloudflared tunnel --url http://localhost:1940 run parachute</code>.</li>
-            <li>Set up owner password + 2FA on the Vault (step 4 above — required before exposing publicly).</li>
-            <li>In claude.ai / ChatGPT Connectors, paste <code>https://vault.yourdomain.com/vault/default</code> and complete OAuth.</li>
-        </ol>
-
-        <h3>Quick test (not for production)</h3>
-        <p>Cloudflare also has an ephemeral "quick tunnel" that works in 30 seconds without an account: <code>cloudflared tunnel --url http://localhost:1940</code>. The URL is random and expires when you stop the command — good for testing, bad for claude.ai since the URL changes.</p>
-    </section>
-
-    <!-- Tailnet only -->
-    <section class="section" id="tailnet">
-        <h2>3. Reach it from your own devices (tailnet-only)</h2>
-        <p>If you want your Vault accessible from your phone, tablet, and other devices <em>without</em> exposing it to the public internet, use <a href="https://tailscale.com/kb/1312/serve" target="_blank">Tailscale Serve</a> instead of Funnel:</p>
+        <p>Verify:</p>
         <div class="code-inline">
-            <code>parachute expose tailnet</code>
+            <code>parachute status</code>
         </div>
-        <p>Vault is now reachable at <code>https://&lt;machine&gt;.&lt;tailnet&gt;.ts.net/vault/default</code> from any device on your tailnet. External services like claude.ai can't reach it (that's the point) — use this when you only want your own devices talking to the graph.</p>
+        <p>Start a new Claude Code session and your Vault is there — ask Claude to write a note, query your notes, whatever. The MCP tools <code>create-note</code>, <code>query-notes</code>, <code>update-note</code>, and friends are all available.</p>
     </section>
 
-    <!-- Beyond your laptop -->
-    <section class="section" id="beyond">
-        <h2>4. Beyond your laptop</h2>
-        <p>Your laptop sleeps. A background daemon is great for real-time use but not ideal if you want your Vault always reachable. Two paths:</p>
+    <section class="section">
+        <h2>2. Make it reachable from the web</h2>
 
-        <h3>Wait for Parachute Cloud</h3>
-        <p>We're working on a hosted version with the same architecture, same guarantees, no server to run. <a href="https://openparachute.substack.com" target="_blank">Subscribe for updates</a>. Coming in the next few weeks.</p>
+        <p>So far, your Vault only answers on <code>localhost</code>. That's enough for Claude Code. To use it from Claude on the web, ChatGPT, your phone, or any MCP-capable tool running somewhere else, you need a public HTTPS URL.</p>
 
-        <h3>Run it yourself</h3>
-        <p>Parachute Vault is Bun + SQLite. It runs anywhere you can run Bun on a Linux box:</p>
-        <ul>
-            <li>A small always-on Mac or Raspberry Pi on your network</li>
-            <li>A cheap VPS (Render, Railway, Fly.io, Hetzner, DigitalOcean, Vultr)</li>
-            <li>A home server you already have</li>
-        </ul>
-        <p>The <a href="https://github.com/ParachuteComputer/parachute-vault/tree/main/deploy" target="_blank">deploy/ directory</a> in the vault repo has a systemd unit for Linux. Install Bun, clone the repo, <code>bun src/cli.ts init</code>, enable the systemd unit. Expose with Cloudflare Tunnel or Caddy + your domain.</p>
-        <p>We haven't published step-by-step VPS guides yet — want to see one? <a href="https://github.com/ParachuteComputer/parachute-vault/issues" target="_blank">File an issue</a>, and tell us which provider.</p>
+        <p>Before exposing publicly, set an owner password and 2FA on the Vault. The CLI will prompt you during <code>parachute install vault</code> if you haven't yet; or anytime later:</p>
+
+        <div class="code-inline">
+            <code>parachute vault set-password &amp;&amp; parachute vault 2fa enroll</code>
+        </div>
+
+        <p>Then:</p>
+
+        <div class="code-inline">
+            <code>parachute expose public</code>
+        </div>
+
+        <p>This wraps <a href="https://tailscale.com/kb/1223/funnel" target="_blank">Tailscale Funnel</a> — free for personal use, no domain needed. Your Vault lands at <code>https://&lt;machine&gt;.&lt;tailnet&gt;.ts.net/vault/default</code>. If you don't already have Tailscale installed, the command will tell you where to get it; running <code>tailscale up</code> once, then enabling Funnel in the <a href="https://login.tailscale.com/admin/acls" target="_blank">Tailscale admin console</a> (Access Controls → add a <code>funnel</code> ACL), is a 5-minute one-time setup.</p>
+
+        <p>Want it tailnet-only (your devices, not the public internet)? Use <code>parachute expose tailnet</code> instead — same URL shape, but external services like Claude on the web can't reach it.</p>
+
+        <p class="subtle-note">Prefer Cloudflare Tunnel, Caddy, or your own reverse proxy? Those work too — point them at <code>http://localhost:1940</code>. We're <a href="https://github.com/ParachuteComputer/parachute-cli/issues" target="_blank">tracking</a> native CLI support for Cloudflare Tunnel; for now it's a manual setup.</p>
     </section>
 
-    <!-- Troubleshooting -->
-    <section class="section" id="troubleshooting">
-        <h2>5. Troubleshooting</h2>
+    <section class="section">
+        <h2>3. Connect from Claude, ChatGPT, or any MCP client</h2>
+
+        <p>Once your Vault has a public URL, add it as a custom connector:</p>
+
         <ul>
-            <li><strong>Port 1940 is already in use.</strong> Something else is bound to Vault's default port. Check with <code>lsof -i :1940</code>. Either stop the other process or set <code>PORT=</code> in <code>~/.parachute/vault/.env</code>.</li>
-            <li><strong>Claude Code doesn't see the MCP.</strong> Start a new Claude Code session — the MCP config is loaded at session start. Run <code>/mcp</code> inside Claude Code to confirm. If missing, check <code>~/.claude.json</code> has a <code>parachute-vault</code> entry with a Bearer token header.</li>
-            <li><strong>401 Unauthorized on MCP calls.</strong> Your API token isn't attached. Check the Bearer header in <code>~/.claude.json</code> matches <code>~/.parachute/vault/</code> config output of <code>parachute vault tokens list</code>.</li>
-            <li><strong><code>parachute expose public</code> fails with "funnel not enabled".</strong> Go to your <a href="https://login.tailscale.com/admin/acls" target="_blank">Tailscale admin</a> → Access Controls → add a <code>nodeAttrs</code> rule granting <code>funnel</code>. Also enable MagicDNS + HTTPS Certificates under DNS.</li>
-            <li><strong>claude.ai OAuth fails with "No pending OAuth flow".</strong> You clicked the home-screen shortcut before completing the handshake. Open the Vault connector URL in a regular tab and restart the OAuth flow.</li>
-            <li><strong>Voice memo doesn't transcribe.</strong> Install Scribe: <code>parachute install scribe</code>. Make sure <code>SCRIBE_URL=http://127.0.0.1:1943</code> is set in <code>~/.parachute/vault/.env</code>, then <code>parachute restart vault</code>.</li>
+            <li><strong>Claude</strong> (web / Desktop / mobile): <a href="https://claude.ai/settings/connectors" target="_blank">claude.ai → Settings → Connectors</a>, click "Add custom connector", paste your Vault URL (e.g. <code>https://...ts.net/vault/default</code>), complete the OAuth handshake.</li>
+            <li><strong>ChatGPT</strong> (web / Desktop): <a href="https://chatgpt.com" target="_blank">chatgpt.com</a> → Settings → Connectors → same flow.</li>
+            <li><strong>Any other MCP-capable tool</strong>: point it at the same URL. Auth is OAuth by default; API tokens also available via <code>parachute vault tokens create</code> if you prefer a long-lived bearer token.</li>
         </ul>
+    </section>
+
+    <section class="section">
+        <h2>Running it somewhere other than your laptop</h2>
+
+        <p>Your laptop sleeps. If you want your Vault always on, you have options:</p>
+
+        <p><strong>Wait for Parachute Cloud.</strong> We're working on a hosted version — same architecture, same guarantees, no server to run. <a href="https://openparachute.substack.com" target="_blank">Subscribe for updates</a>.</p>
+
+        <p><strong>Run it on a Linux box yourself.</strong> Vault is Bun + SQLite. Install Bun, clone the repo, <code>bun src/cli.ts init</code>, enable the systemd unit in <a href="https://github.com/ParachuteComputer/parachute-vault/tree/main/deploy" target="_blank">deploy/</a>. Any VPS works — Render, Railway, Fly.io, Hetzner, DigitalOcean, or a home server. We don't have step-by-step per-provider guides yet; want one? <a href="https://github.com/ParachuteComputer/parachute-vault/issues" target="_blank">Open an issue</a>.</p>
+    </section>
+
+    <section class="section">
+        <h2>Troubleshooting</h2>
+
+        <ul>
+            <li><strong>Port 1940 already in use.</strong> <code>lsof -i :1940</code> to see what's there. Change ports in <code>~/.parachute/vault/.env</code>.</li>
+            <li><strong>Claude Code doesn't see the MCP.</strong> Start a new Claude Code session (config is loaded at session start). Run <code>/mcp</code> in Claude Code to confirm. If it's missing, <code>parachute-vault mcp-install</code> adds it.</li>
+            <li><strong><code>parachute expose public</code> says "funnel not enabled".</strong> Enable it in the <a href="https://login.tailscale.com/admin/acls" target="_blank">Tailscale admin console</a> → Access Controls → add a <code>funnel</code> nodeAttrs rule, and turn on MagicDNS + HTTPS Certificates in DNS.</li>
+            <li><strong>OAuth fails with "No pending flow".</strong> You clicked a home-screen shortcut before completing the handshake. Open the Vault URL in a regular tab and restart the OAuth flow.</li>
+            <li><strong>Voice memos don't transcribe.</strong> <code>parachute install scribe</code>, then make sure <code>SCRIBE_URL=http://127.0.0.1:1943</code> is in <code>~/.parachute/vault/.env</code>, and <code>parachute restart vault</code>.</li>
+        </ul>
+
         <p>Found something we missed? <a href="https://github.com/ParachuteComputer/parachute-vault/issues" target="_blank">Open an issue</a>.</p>
     </section>
 
     <section class="cta">
-        <h2>Ready to try it?</h2>
         <div class="code-inline" style="margin: 1.5rem auto; max-width: 640px;">
             <code>bun add -g @openparachute/cli &amp;&amp; parachute install vault</code>
         </div>
