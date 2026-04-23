@@ -34,11 +34,13 @@ Something's changing. LLMs can now do the architecting with us. Some people are 
 
 ## What we built
 
-**Parachute Vault** is a graph database for your knowledge. Notes, tags, links, and structured metadata — on your machine, in a SQLite file that's yours, portable, and doesn't require us to exist. Every operation is available to every AI you use over [MCP](https://modelcontextprotocol.io), and to any script, app, or tool you write via REST.
+**Parachute Vault** is a graph database for your knowledge. Notes, tags, links, and structured metadata — on your machine, in a SQLite file that's yours, portable, and doesn't require us to exist. Every operation is exposed over [MCP](https://modelcontextprotocol.io), and to any script, app, or tool you write via REST.
 
-Spin up a vault, point any AI at it — Claude Code, Claude in the browser, ChatGPT, Gemini, your own agent — and they all read and write to the same graph. Notes written in one session are context for the next. What you capture on your phone shows up in tomorrow's chat. Tags accrete, wikilinks resolve, the graph compounds.
+Today the cleanest on-ramp is **Claude Code**: install the Vault, open a session, and Claude's already reading and writing to your graph — no config, no copy-paste, no per-session context rebuild. Notes from this morning's session become context for this afternoon's. Tags accrete, wikilinks resolve, the graph compounds. Any other local MCP client — Codex, your own agents — talks to the same endpoint.
 
-The install is one line; [the install guide](/install/) walks through making it reachable from the web, setting up auth, and wiring it into whatever tool you want.
+**claude.ai, ChatGPT, Gemini come next.** The plumbing exists; we're finishing the polish on public HTTPS exposure and the custom-connector OAuth flow. Those land in the next couple of weeks — we wanted to ship the single-client experience well before promising the many-client one. The architecture was designed around it from day one.
+
+The install is one line; [the install guide](/install/) has the rest.
 
 ## What we also built — and why it's just one example
 
@@ -58,7 +60,9 @@ The [roadmap](/roadmap/) is live. The [source](https://github.com/ParachuteCompu
 bun add -g @openparachute/cli && parachute install vault
 ```
 
-The [install guide](/install/) has the rest. If something breaks, [open an issue](https://github.com/ParachuteComputer) — we're launching this small and listening carefully.
+Start a Claude Code session after install and your Vault's tools are right there — `create-note`, `query-notes`, `update-note`, `list-tags`, `find-path`, `vault-info`. Ask Claude to save something, pull what you've written about a topic, or walk the graph. That's the whole loop.
+
+The [install guide](/install/) has the rest. Public HTTPS + claude.ai / ChatGPT connectors land in the next few weeks; subscribe via [the blog](/blog/) or watch the [GitHub org](https://github.com/ParachuteComputer) for the announcement. If something breaks now, [open an issue](https://github.com/ParachuteComputer) — we're launching this small and listening carefully.
 
 I'm really looking forward to seeing what you build with it.
 

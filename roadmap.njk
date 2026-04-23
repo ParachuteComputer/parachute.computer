@@ -15,7 +15,7 @@ permalink: /roadmap/
         <p>The self-hostable base shipped at launch. Every piece below installs with <code>parachute install &lt;service&gt;</code>.</p>
         <ul>
             <li><strong>Parachute Vault</strong> &mdash; the knowledge graph. SQLite-backed, REST + <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>, wikilinks, full-text and semantic search, Obsidian import/export. <a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank">Source &rarr;</a></li>
-            <li><strong>Parachute Lens</strong> &mdash; browser-based companion for your vault. Installable PWA, works offline, voice capture with auto-transcription. <a href="https://github.com/ParachuteComputer/parachute-lens" target="_blank">Source &rarr;</a></li>
+            <li><strong>Parachute Notes</strong> &mdash; browser-based companion for your vault. Installable PWA, works offline, voice capture with auto-transcription. <a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank">Source &rarr;</a></li>
             <li><strong>Parachute Scribe</strong> &mdash; Whisper-compatible transcription API. Runs locally by default; BYO cloud provider if you want one. <a href="https://github.com/ParachuteComputer/parachute-scribe" target="_blank">Source &rarr;</a></li>
             <li><strong>Parachute Channel</strong> &mdash; messaging gateway that lets Claude Code agents reach you through Telegram, Discord, and other channels. <a href="https://github.com/ParachuteComputer/parachute-channel" target="_blank">Source &rarr;</a></li>
             <li><strong>Parachute CLI</strong> &mdash; the coordinator. <code>install</code>, <code>start</code>, <code>stop</code>, <code>expose</code>, lifecycle for every service. <a href="https://github.com/ParachuteComputer/parachute-cli" target="_blank">Source &rarr;</a></li>
@@ -26,7 +26,8 @@ permalink: /roadmap/
         <h2>Next few weeks</h2>
         <p>Post-launch stabilization. Small, steady improvements driven by what early users run into.</p>
         <ul>
-            <li><strong>Lens polish</strong> &mdash; quick-switcher, pinned and archived views, the today view, path tree. Mobile PWA refinement.</li>
+            <li><strong>Public HTTPS exposure + web-AI connectors</strong> &mdash; polishing the Tailscale Funnel and Cloudflare Tunnel paths, and the OAuth handshake for custom connectors in <strong>claude.ai</strong>, <strong>ChatGPT</strong>, and <strong>Gemini</strong>. The plumbing is live; we're smoothing the on-ramp before announcing broadly.</li>
+            <li><strong>Notes polish</strong> &mdash; quick-switcher, pinned and archived views, the today view, path tree. Mobile PWA refinement.</li>
             <li><strong>Vault atomic tag operations</strong> &mdash; rename and merge tags cleanly across a whole vault in one request, so clients don't have to orchestrate it.</li>
             <li><strong>Unified audio retention</strong> &mdash; control whether voice-memo originals stay on disk, stay until transcribed, or never persist, across every client at once.</li>
             <li><strong>Hub-hosted OAuth</strong> &mdash; one ecosystem sign-in that issues tokens carrying a service catalog, so clients discover what's installed rather than hard-coding paths. <a href="/docs/">Architecture sketch &rarr;</a></li>

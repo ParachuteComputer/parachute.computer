@@ -1,80 +1,55 @@
 ---
 layout: base.njk
 title: "Install"
-description: "How to install Parachute Vault, connect it to Claude Code, Claude, ChatGPT, and everything else you use. Local first, public when you want it."
+description: "How to install Parachute Vault and connect it to Claude Code. Local-first; web clients coming soon."
 permalink: /install/
 ---
 <main>
 
     <section class="hero">
         <h1 class="fade-up fade-up-2">Install</h1>
-        <p class="tagline fade-up fade-up-3">From zero to "Claude has persistent memory" in one command. Public HTTPS in one more.</p>
+        <p class="tagline fade-up fade-up-3">From zero to "Claude Code has persistent memory" in one command.</p>
     </section>
 
     <section class="section">
         <h2>1. Install the Vault</h2>
 
-        <p>Requires <a href="https://bun.sh" target="_blank">Bun</a>. Run this anywhere:</p>
+        <p>Requires <a href="https://bun.sh" target="_blank">Bun</a> 1.3.0 or later. Check with <code>bun --version</code>; upgrade with <code>bun upgrade</code>. Then run this anywhere:</p>
 
         <div class="code-inline">
             <code>bun add -g @openparachute/cli &amp;&amp; parachute install vault</code>
         </div>
 
-        <p>This installs the Parachute CLI, creates a Vault, and starts it as a background daemon on <code>127.0.0.1:1940</code>. You'll be asked one question: whether to add the Vault as an MCP server in your <code>~/.claude.json</code> (default yes — Claude Code picks it up on the next session).</p>
-
-        <p><strong>On bun 1.2.x</strong> you'll likely see <code>InvalidPackageResolution: failed to parse lockfile</code> and/or <code>FileNotFound: failed opening node_modules/package dir</code> warnings during <code>bun add</code>. These are cosmetic — the package actually installs. Keep going. <code>bun upgrade</code> to 1.3.x makes them go away entirely; CLI 0.2.1+ tolerates them automatically during <code>parachute install</code>.</p>
+        <p>This installs the Parachute CLI, creates a Vault, and starts it as a background daemon on <code>127.0.0.1:1940</code>. You'll be asked one question: whether to add the Vault as an MCP server in your <code>~/.claude.json</code> (default yes).</p>
 
         <p>Verify:</p>
         <div class="code-inline">
             <code>parachute status</code>
         </div>
-        <p>Start a new Claude Code session and your Vault is there — ask Claude to write a note, query your notes, whatever. The MCP tools <code>create-note</code>, <code>query-notes</code>, <code>update-note</code>, and friends are all available.</p>
     </section>
 
     <section class="section">
-        <h2>2. Make it reachable from the web</h2>
+        <h2>2. Use it with Claude Code</h2>
 
-        <p>So far, your Vault is bound to <code>127.0.0.1</code> on port 1940 — only Claude Code on the same machine can see it. To use it from Claude on the web, ChatGPT, your phone, or any MCP-capable tool somewhere else, you need a public HTTPS URL. Two options, both free. Pick based on what you already have:</p>
+        <p>That's it — no second step. The install adds your Vault as an MCP server to <code>~/.claude.json</code>, and Claude Code picks it up on the next session. Open a project, ask Claude to write a note, query your graph, or trace connections:</p>
 
-        <h3>Tailscale Funnel — no domain needed</h3>
-        <div class="code-inline">
-            <code>parachute expose public</code>
-        </div>
-        <p>Wraps <a href="https://tailscale.com/kb/1223/funnel" target="_blank">Tailscale Funnel</a>. Your Vault lands at <code>https://&lt;machine&gt;.&lt;tailnet&gt;.ts.net/vault/default</code> — stable across restarts, no custom domain required. If you don't have Tailscale installed, the command tells you where to get it; <code>tailscale up</code> plus enabling Funnel in the <a href="https://login.tailscale.com/admin/acls" target="_blank">Tailscale admin console</a> (Access Controls → add a <code>funnel</code> ACL) is a one-time 5-minute setup.</p>
-
-        <h3>Cloudflare Tunnel — use your own domain</h3>
-        <div class="code-inline">
-            <code>parachute expose public --cloudflare --domain vault.example.com</code>
-        </div>
-        <p>Wraps a <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/" target="_blank">Cloudflare Named Tunnel</a>. Requires <code>cloudflared</code> (<code>brew install cloudflared</code> on macOS) and a domain added to your Cloudflare account (any registrar — Cloudflare just manages DNS). On first run: <code>cloudflared tunnel login</code>, pick the zone, then the command above creates the tunnel, routes DNS, starts the daemon. Your Vault lands at <code>https://vault.example.com/vault/default</code> — your chosen hostname, stable across restarts.</p>
-
-        <p>Want it tailnet-only (your devices, not the public internet)? Use <code>parachute expose tailnet</code> — same URL shape as Tailscale Funnel, just not reachable externally.</p>
-
-        <h3>Authenticate clients</h3>
-        <p>The Vault is auth-gated by default — every request to <code>/api/*</code> and <code>/mcp</code> requires a valid token or completed OAuth session. When you put the Vault behind a public URL, you're not <em>adding</em> auth; you're deciding how new clients prove they should have access. Two paths:</p>
         <ul>
-            <li><strong>OAuth + TOTP 2FA</strong> — right for human clients (claude.ai, ChatGPT, Notes). One-time setup:
-                <div class="code-inline"><code>parachute vault set-password &amp;&amp; parachute vault 2fa enroll</code></div>
-                Clients complete a browser handshake the first time they connect; per-client tokens are tracked and revocable.
-            </li>
-            <li><strong>API tokens</strong> — right for scripts, agents, or services you control end-to-end:
-                <div class="code-inline"><code>parachute vault tokens create --scope vault:read</code></div>
-                Creates a read-only token. Use <code>--scope vault:write</code> or <code>--scope vault:admin</code> for broader access; no flag at all gives a full-scope token. Paste the token into the client's <code>Authorization: Bearer &lt;token&gt;</code> header. Revocable per token.
-            </li>
+            <li><em>"Save a note about today's decision — tag it #product, link to #vault."</em></li>
+            <li><em>"What have I written about auth? Pull the notes tagged #auth and summarize."</em></li>
+            <li><em>"Show me everything connected to last week's design review."</em></li>
         </ul>
-        <p>Neither is a prerequisite for the other; either works on its own. Full auth reference in <a href="https://github.com/ParachuteComputer/parachute-vault/blob/main/docs/auth-model.md" target="_blank">docs/auth-model.md</a>.</p>
+
+        <p>The MCP tools <code>create-note</code>, <code>query-notes</code>, <code>update-note</code>, <code>list-tags</code>, <code>find-path</code>, and <code>vault-info</code> are all available. Memory carries across every Claude Code session forever; context accretes instead of starting over.</p>
+
+        <p>Other local MCP clients (Codex, your own agents) can connect to the same endpoint at <code>http://127.0.0.1:1940/vault/default/mcp</code>.</p>
     </section>
 
     <section class="section">
-        <h2>3. Connect from Claude, ChatGPT, or any MCP client</h2>
+        <h2>What comes next</h2>
 
-        <p>Once your Vault has a public URL, add it as a custom connector:</p>
+        <p>Public HTTPS exposure (Tailscale Funnel / Cloudflare Tunnel), custom-connector flows for <strong>claude.ai</strong>, <strong>ChatGPT</strong>, and <strong>Gemini</strong>, and the mobile Notes PWA all work today &mdash; but the edges aren't polished enough to put in front of everyone just yet. We're running these paths through the next couple of weeks of stabilization and will announce each one as it's ready.</p>
 
-        <ul>
-            <li><strong>Claude</strong> (web / Desktop / mobile): <a href="https://claude.ai/settings/connectors" target="_blank">claude.ai → Settings → Connectors</a>, click "Add custom connector", paste your Vault URL (e.g. <code>https://...ts.net/vault/default</code>), complete the OAuth handshake.</li>
-            <li><strong>ChatGPT</strong> (web / Desktop): <a href="https://chatgpt.com" target="_blank">chatgpt.com</a> → Settings → Connectors → same flow.</li>
-            <li><strong>Any other MCP-capable tool</strong>: point it at the same URL. Auth is OAuth by default; API tokens also available via <code>parachute vault tokens create</code> if you prefer a long-lived bearer token.</li>
-        </ul>
+        <p>If you want to poke at them early, <code>parachute expose --help</code> and <code>parachute install notes</code> are live. Expect rough edges; <a href="https://github.com/ParachuteComputer/parachute-vault/issues" target="_blank">file issues</a> and we'll fix.</p>
     </section>
 
     <section class="section">
@@ -93,12 +68,8 @@ permalink: /install/
         <ul>
             <li><strong>Port 1940 already in use.</strong> <code>lsof -i :1940</code> to see what's there. Change ports in <code>~/.parachute/vault/.env</code>.</li>
             <li><strong>Claude Code doesn't see the MCP.</strong> Start a new Claude Code session (config is loaded at session start). Run <code>/mcp</code> in Claude Code to confirm. If it's missing, <code>parachute-vault mcp-install</code> adds it.</li>
-            <li><strong><code>parachute expose public</code> says "funnel not enabled".</strong> Enable it in the <a href="https://login.tailscale.com/admin/acls" target="_blank">Tailscale admin console</a> → Access Controls → add a <code>funnel</code> nodeAttrs rule, and turn on MagicDNS + HTTPS Certificates in DNS.</li>
-            <li><strong><code>parachute expose public --cloudflare</code> says cloudflared is not installed.</strong> <code>brew install cloudflared</code> on macOS, <a href="https://pkg.cloudflare.com/install" target="_blank">pkg.cloudflare.com/install</a> on Linux.</li>
-            <li><strong>Cloudflare says "not logged in" or the domain isn't in your zones.</strong> Run <code>cloudflared tunnel login</code> (browser flow) after install; add your domain at <a href="https://dash.cloudflare.com" target="_blank">dash.cloudflare.com</a> → Add site if needed.</li>
             <li><strong>Something on your LAN used to reach the Vault but doesn't anymore.</strong> The Vault now binds <code>127.0.0.1</code> by default. If you intentionally expose it via nginx / Caddy / another reverse proxy from a different host, set <code>VAULT_BIND=0.0.0.0</code> in <code>~/.parachute/vault/.env</code> and restart.</li>
-            <li><strong>OAuth fails with "No pending flow".</strong> You clicked a home-screen shortcut before completing the handshake. Open the Vault URL in a regular tab and restart the OAuth flow.</li>
-            <li><strong><code>InvalidPackageResolution: failed to parse lockfile</code> or <code>FileNotFound: failed opening node_modules/package dir for package</code>.</strong> Known quirk on bun 1.2.x — the package actually installed despite the warning. CLI 0.2.1+ detects this and continues; if you're stuck on an older CLI, <code>bun upgrade</code> to 1.3.x or run the service's init directly (<code>parachute-vault init</code>, <code>parachute-scribe init</code>).</li>
+            <li><strong>Stuck on bun 1.2.x?</strong> You may see <code>InvalidPackageResolution: failed to parse lockfile</code> or <code>FileNotFound: failed opening node_modules/package dir</code> — cosmetic, the package installed anyway. CLI 0.2.1+ detects this and continues. Upgrading to bun 1.3.x makes the warnings go away entirely.</li>
         </ul>
 
         <p>Found something we missed? <a href="https://github.com/ParachuteComputer/parachute-vault/issues" target="_blank">Open an issue</a>.</p>
