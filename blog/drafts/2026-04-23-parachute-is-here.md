@@ -46,9 +46,11 @@ Same URL shape, now reachable from anywhere.
 
 ## Security-first install
 
-The default install runs a local daemon on `127.0.0.1:1940` — nothing reaches the network without you asking. When you `expose tailnet`, traffic stays on your tailnet. When you `expose public`, you'll be prompted to set up **OAuth + 2FA** on the vault — we strongly recommend it. API tokens are also available for programmatic access (useful for your own agents, scripts, or services you want to pin tightly).
+The default install runs a local daemon on `127.0.0.1:1940` — nothing reaches the network without you asking. `expose tailnet` keeps traffic on your tailnet; `expose public` puts it behind a public HTTPS URL (Tailscale Funnel by default, or `--cloudflare` for a 30-second zero-config Cloudflare Quick Tunnel).
 
-Scope-per-token is coming — so you can give a read-only integration read-only access, or limit an agent to one corner of your graph. Not in this launch, but queued.
+Before you share a public URL, gate it: either **OAuth + 2FA** for human clients like claude.ai (`parachute vault set-password && parachute vault 2fa enroll`), or **API tokens** for scripts and agents (`parachute vault tokens create`). Either works on its own; use both if you want. The goal is that *something* is gating writes once the Vault is reachable externally.
+
+Per-token scoping is coming — so you can give a read-only integration read-only access, or limit an agent to one corner of your graph. Queued, not in this launch.
 
 ## The shape
 
