@@ -1,10 +1,10 @@
 ---
 layout: post.njk
-title: "Introducing Parachute Vault"
+title: "Parachute is Here"
 subtitle: "An open memory layer for your AI, your own mind, and everything you use"
 date: 2026-04-23T12:00:00
 author: "Aaron G Neyer"
-permalink: /blog/introducing-parachute-vault/
+permalink: /blog/parachute-is-here/
 description: "Frank Zappa said the mind is like a parachute — it doesn't work if it's not open. That applies to our extended mind too. Today I'm introducing Parachute Vault: an open, self-hosted knowledge graph that any local MCP client can read and write to — starting with Claude Code."
 ---
 
