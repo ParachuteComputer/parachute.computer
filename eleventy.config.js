@@ -4,6 +4,9 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("CNAME");
   eleventyConfig.addPassthroughCopy("assets/**/*");
   eleventyConfig.addPassthroughCopy("archive/**/*");
+  // Favicon + webclip + PWA icons at site root
+  eleventyConfig.addPassthroughCopy("*.png");
+  eleventyConfig.addPassthroughCopy("site.webmanifest");
 
   // Ignore non-content files
   eleventyConfig.ignores.add("CLAUDE.md");
