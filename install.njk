@@ -22,6 +22,8 @@ permalink: /install/
 
         <p>This installs the Parachute CLI, creates a Vault, and starts it as a background daemon on <code>127.0.0.1:1940</code>. You'll be asked one question: whether to add the Vault as an MCP server in your <code>~/.claude.json</code> (default yes — Claude Code picks it up on the next session).</p>
 
+        <p><strong>On bun 1.2.x</strong> you'll likely see <code>InvalidPackageResolution: failed to parse lockfile</code> and/or <code>FileNotFound: failed opening node_modules/package dir</code> warnings during <code>bun add</code>. These are cosmetic — the package actually installs. Keep going. <code>bun upgrade</code> to 1.3.x makes them go away entirely; CLI 0.2.1+ tolerates them automatically during <code>parachute install</code>.</p>
+
         <p>Verify:</p>
         <div class="code-inline">
             <code>parachute status</code>
