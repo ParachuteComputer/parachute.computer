@@ -46,11 +46,11 @@ Same URL shape, now reachable from anywhere.
 
 ## Security-first install
 
-The default install runs a local daemon on `127.0.0.1:1940` — nothing reaches the network without you asking. `expose tailnet` keeps traffic on your tailnet; `expose public` puts it behind a public HTTPS URL (Tailscale Funnel by default, or `--cloudflare` for a 30-second zero-config Cloudflare Quick Tunnel).
+The Vault binds `127.0.0.1:1940` by default — nothing reaches the network without you asking. `expose tailnet` keeps traffic on your tailnet; `expose public` puts it behind a public HTTPS URL (Tailscale Funnel by default, or `--cloudflare --domain vault.example.com` if you'd rather use your own domain through Cloudflare Tunnel).
 
-Before you share a public URL, gate it: either **OAuth + 2FA** for human clients like claude.ai (`parachute vault set-password && parachute vault 2fa enroll`), or **API tokens** for scripts and agents (`parachute vault tokens create`). Either works on its own; use both if you want. The goal is that *something* is gating writes once the Vault is reachable externally.
+The Vault is auth-gated at every endpoint — unauthenticated requests get 401. When you expose it publicly you're not *adding* auth; you're deciding how clients prove access. Two paths, either alone works: **OAuth + TOTP 2FA** for human clients like claude.ai (`parachute vault set-password && parachute vault 2fa enroll`), or **API tokens** with scopes for scripts and agents (`parachute vault tokens create --scope vault:read` for read-only, `vault:write` for write, full-scope by default).
 
-Per-token scoping is coming — so you can give a read-only integration read-only access, or limit an agent to one corner of your graph. Queued, not in this launch.
+Finer-grained scoping (per-tag, per-path, per-resource) is coming. For now, the three scopes in the launch hierarchy are `vault:read`, `vault:write`, `vault:admin`.
 
 ## The shape
 
