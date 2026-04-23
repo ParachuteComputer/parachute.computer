@@ -4,71 +4,306 @@ title: ""
 description: "Parachute Vault is an open memory layer for your AIs. A self-hosted knowledge graph — notes, tags, links — that any AI can read and write to over MCP. Your data on your machine, connected to every tool you use."
 permalink: /
 ---
-<main>
-    <!-- Hero -->
-    <section class="hero">
-        <h1 class="fade-up fade-up-2">Parachute Vault <span class="alpha-tag">alpha</span></h1>
-        <p class="tagline fade-up fade-up-3">An open memory layer for your AIs</p>
-        <p class="subtitle fade-up fade-up-4">Your AI's memory is fragmented. Claude Code doesn't know what Claude Chats know. Claude Cowork doesn't know what Claude Code is working on. Across ChatGPT, Gemini, every tool — each a walled garden.</p>
+<style>
+/* Landing — split hero, 2x2 body grid, principles row. */
 
-        <div class="hero-install fade-up fade-up-5">
+.pl-hero {
+    padding: 5rem 0 4rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+}
+.pl-left h1 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 3.5vw, 2.75rem);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    color: var(--fg);
+    margin-bottom: 1.5rem;
+}
+.pl-label {
+    font-size: 0.72rem;
+    color: var(--fg-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin: 0 0 0.75rem;
+    font-weight: 500;
+}
+.pl-problem-list {
+    list-style: none;
+    margin: 0 0 2rem;
+    padding: 0;
+}
+.pl-problem-list li {
+    color: var(--fg-muted);
+    padding: 0.55rem 0 0.55rem 1.25rem;
+    position: relative;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    border-bottom: 1px solid var(--border);
+}
+.pl-problem-list li:last-child {
+    border-bottom: none;
+}
+.pl-problem-list li::before {
+    content: "×";
+    position: absolute;
+    left: 0;
+    color: var(--fg-dim);
+    top: 0.55rem;
+}
+
+.pl-right { padding-top: 0.25rem; }
+.pl-product-name {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    color: var(--accent);
+    font-style: italic;
+    margin-bottom: 0.5rem;
+}
+.pl-product-name .alpha-tag {
+    top: -0.25em;
+}
+.pl-desc {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+}
+.pl-desc:last-of-type { margin-bottom: 1.75rem; }
+.pl-install-note {
+    font-size: 0.83rem;
+    color: var(--fg-dim);
+    margin-top: 0.75rem;
+    line-height: 1.6;
+}
+.pl-install-note a { color: var(--fg-muted); }
+.pl-install-note a:hover { color: var(--accent); }
+.pl-cta-btn {
+    display: block;
+    background: var(--accent);
+    color: #fff;
+    padding: 0.85rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 1.25rem;
+    transition: background 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 1px 4px rgba(74, 124, 89, 0.15);
+}
+.pl-cta-btn:hover {
+    background: var(--accent-hover);
+    color: #fff;
+    transform: translateY(-1px);
+}
+.pl-secondary-links {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--fg-dim);
+}
+.pl-secondary-links a { color: var(--fg-dim); }
+.pl-secondary-links a:hover { color: var(--accent); }
+
+/* 2x2 body grid */
+.pl-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 3rem;
+}
+.pl-cell {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem 2rem;
+    background: var(--card-bg);
+}
+.pl-cell h2 {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--fg);
+    margin-bottom: 0.85rem;
+    line-height: 1.3;
+}
+.pl-cell p {
+    color: var(--fg-muted);
+    font-size: 0.92rem;
+    line-height: 1.7;
+    margin-bottom: 0.75rem;
+}
+.pl-cell p:last-child { margin-bottom: 0; }
+.pl-tool-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0.85rem 0 0;
+}
+.pl-tool-chip {
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid rgba(74, 124, 89, 0.2);
+    border-radius: 6px;
+    padding: 0.2rem 0.6rem;
+}
+
+/* Slim Notes aside — below the grid, not a co-equal cell */
+.pl-aside {
+    max-width: 760px;
+    margin: 0 auto 4rem;
+    padding: 1.25rem 1.5rem;
+    border-left: 2px solid var(--border);
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+    line-height: 1.7;
+}
+.pl-aside strong { color: var(--fg); font-weight: 500; }
+.pl-aside code {
+    background: var(--code-bg, rgba(0,0,0,0.04));
+    padding: 0.08rem 0.3rem;
+    border-radius: 4px;
+    font-size: 0.85em;
+}
+
+/* Principles row */
+.pl-principles {
+    margin-bottom: 4rem;
+}
+.pl-principles h2 {
+    font-family: var(--serif);
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin-bottom: 1.25rem;
+    color: var(--fg);
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+.pl-principles-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+.pl-principle {
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+}
+.pl-principle strong {
+    display: block;
+    color: var(--fg);
+    font-size: 0.88rem;
+    font-weight: 500;
+    margin-bottom: 0.35rem;
+}
+.pl-principle span {
+    color: var(--fg-dim);
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .pl-hero { grid-template-columns: 1fr; gap: 2.5rem; padding: 3rem 0 3rem; }
+    .pl-grid { grid-template-columns: 1fr; }
+    .pl-principles-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+    .pl-principles-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<main>
+    <section class="pl-hero fade-up fade-up-2">
+        <div class="pl-left">
+            <h1>Your AI tools don't share what they know about you.</h1>
+            <p class="pl-label">Why it exists</p>
+            <ul class="pl-problem-list">
+                <li>Claude Code, Claude Chat, ChatGPT, Gemini — each starts from scratch, siloed from the others</li>
+                <li>Inside each tool, memory is one flat pile instead of organized by project and context</li>
+            </ul>
+        </div>
+
+        <div class="pl-right">
+            <p class="pl-product-name">Parachute Vault <span class="alpha-tag">alpha</span></p>
+            <p class="pl-desc">A self-hosted knowledge graph that lives on your machine. Every AI you use reads and writes to the same graph over <a href="https://modelcontextprotocol.io" target="_blank">MCP</a> — notes, tags, links, project context. One source of truth you and your AIs share.</p>
+            <p class="pl-desc">Extensible. Open source. Your data, your hardware.</p>
+
+            <p class="pl-label">Get started</p>
             <div class="code-inline">
                 <code>bun add -g @openparachute/cli &amp;&amp; parachute install vault</code>
             </div>
-            <p class="install-note">One open knowledge graph — notes, tags, links — that every AI you use can read and write to. On your machine, over <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>. Requires <a href="https://bun.sh" target="_blank">Bun</a>.</p>
+            <p class="pl-install-note">Requires <a href="https://bun.sh" target="_blank">Bun</a>. Run inside any Claude Code session — Vault is picked up automatically.</p>
+            <a href="https://github.com/ParachuteComputer/parachute-vault" class="pl-cta-btn" target="_blank">View Parachute Vault on GitHub</a>
+            <div class="pl-secondary-links">
+                <a href="/install/">Full install guide &rarr;</a>
+                <a href="/blog/">Blog &rarr;</a>
+            </div>
         </div>
     </section>
 
-    <!-- Use it immediately -->
-    <section class="section fade-up fade-up-6">
-        <h2>Use it immediately</h2>
-        <p>Run that install inside any Claude Code session — Claude Code picks up the MCP automatically and can read and write your Vault before you leave the terminal.</p>
-        <p>Want it elsewhere? One more command:</p>
-        <div class="code-inline" style="margin: 1rem 0;">
-            <code>parachute expose tailnet</code>
+    <section class="pl-grid fade-up fade-up-3">
+        <div class="pl-cell">
+            <h2>How it connects your AIs</h2>
+            <p>Run <code>parachute expose public</code> and your Vault lands at a stable HTTPS URL. Point Claude (web / Desktop / mobile), ChatGPT, Gemini, or any MCP-capable tool at the same URL. They all read and write to the same graph.</p>
+            <p>Notes written in one session appear in the next. Project context follows you across tools, not just sessions.</p>
         </div>
-        <p>Now your Vault is reachable at an HTTPS URL on your tailnet. Point Claude Desktop at it. Point ChatGPT Desktop at it. Point Claude Cowork, Gemini, your own custom agent — anything that speaks MCP — at the same URL. They all read and write to the same graph.</p>
+        <div class="pl-cell">
+            <h2>The graph compounds over time</h2>
+            <p>Wikilinks resolve, tags accrete, notes point at each other. As your AIs read and write, context gets richer — organized by project, linked by topic, queryable as a whole.</p>
+            <p>Everything is a SQLite file on your disk. Your data is yours, portable, and doesn't require us to exist.</p>
+        </div>
+        <div class="pl-cell">
+            <h2>Simple primitives, open surface area</h2>
+            <p>Everything flows through a small MCP tool set. Your AI calls these; your own scripts, apps, and services call the same ones — AI and traditional software building on the same foundation.</p>
+            <div class="pl-tool-chips">
+                <span class="pl-tool-chip">query-notes</span>
+                <span class="pl-tool-chip">create-note</span>
+                <span class="pl-tool-chip">update-note</span>
+                <span class="pl-tool-chip">list-tags</span>
+                <span class="pl-tool-chip">find-path</span>
+                <span class="pl-tool-chip">vault-info</span>
+            </div>
+        </div>
+        <div class="pl-cell">
+            <h2>Auth-gated by default</h2>
+            <p>OAuth 2.1 + TOTP for human clients. Scoped API tokens for scripts and agents. Every endpoint requires proof — the <code>parachute expose</code> path is about making your Vault <em>reachable</em>, not about removing the gate.</p>
+            <p><a href="/install/#claude-chat">Set up for claude.ai / ChatGPT &rarr;</a></p>
+        </div>
     </section>
 
-    <!-- What this unlocks -->
-    <section class="section">
-        <h2>What this unlocks</h2>
-        <p><strong>Persistent memory across every AI you use.</strong> Notes your Claude Code session wrote are there for ChatGPT to read an hour later. What you capture on your phone becomes context for the next chat you open on your laptop.</p>
-        <p><strong>A compounding knowledge graph.</strong> As your AIs read and write, the graph grows. Wikilinks resolve, tags accrete, notes point at each other. Queries get richer over time — not because the index is bigger, but because what's there gets more useful.</p>
-        <p><strong>Your data, your hardware.</strong> It's a SQLite file on your disk. If we disappeared tomorrow, your graph is still there — portable, exportable, entirely yours.</p>
-    </section>
+    <div class="pl-aside fade-up fade-up-4">
+        <strong>Want a UI for your notes?</strong> We've built <a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank">Parachute Notes</a> — an alpha PWA that talks to your Vault. Install with <code>parachute install notes</code>, or fork it and build your own. It's an example of what any developer can build on the open API.
+    </div>
 
-    <!-- Security -->
-    <section class="section">
-        <h2>Security</h2>
-        <p>Default install is loopback-only — nothing on the network until you ask. <code>parachute expose tailnet</code> keeps traffic on your tailnet. <code>parachute expose public</code> adds Tailscale Funnel for public HTTPS and strongly recommends <strong>OAuth + 2FA</strong> on the Vault.</p>
-        <p>API tokens are available for programmatic access — useful for your own agents, scripts, or services you want to pin tightly. Per-token scoping (read-only, write-only, per-resource) is coming next.</p>
-    </section>
-
-    <!-- Optional UI -->
-    <section class="section">
-        <h2>Want a UI?</h2>
-        <p>We've built <a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank"><strong>Parachute Notes</strong></a> — an alpha-quality PWA you can install or fork. It's an example front-end, not the definitive UI. Browse, edit, capture voice memos, install on your phone. <code>parachute install notes</code>. Build your own if you prefer; the API is open.</p>
-    </section>
-
-    <!-- Principles -->
-    <section class="section">
+    <section class="pl-principles fade-up fade-up-5">
         <h2>Principles</h2>
-        <ul>
-            <li><strong>Local-first.</strong> Your data is a SQLite file on your disk.</li>
-            <li><strong>Open standard.</strong> Built on <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>. Whatever AI you use today or next year, it works with Parachute.</li>
-            <li><strong>Open source, AGPL.</strong> Read every line of code that touches your notes.</li>
-            <li><strong>Extensible.</strong> The service contracts are small and stable. Plug in your own modules.</li>
-        </ul>
-    </section>
-
-    <!-- CTA -->
-    <section class="cta">
-        <h2>Install in one line</h2>
-        <div class="code-inline" style="margin: 1.5rem auto; max-width: 640px;">
-            <code>bun add -g @openparachute/cli &amp;&amp; parachute install vault</code>
+        <div class="pl-principles-grid">
+            <div class="pl-principle">
+                <strong>Local-first</strong>
+                <span>SQLite on your disk. Nothing in the cloud unless you ask.</span>
+            </div>
+            <div class="pl-principle">
+                <strong>Open standard</strong>
+                <span>Built on <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>. Any AI today or next year.</span>
+            </div>
+            <div class="pl-principle">
+                <strong>Open source, AGPL</strong>
+                <span>Read every line of code that touches your notes.</span>
+            </div>
+            <div class="pl-principle">
+                <strong>Extensible</strong>
+                <span>Small, stable service contracts. Plug in your own modules.</span>
+            </div>
         </div>
-        <a href="https://github.com/ParachuteComputer/parachute-vault" class="button" target="_blank">Parachute Vault on GitHub</a>
-        <p class="cta-secondary"><a href="/install/">Full install guide</a> &middot; <a href="/blog/">blog</a> &middot; <a href="/roadmap/">roadmap</a> &middot; <a href="/docs/">docs</a></p>
     </section>
 </main>
