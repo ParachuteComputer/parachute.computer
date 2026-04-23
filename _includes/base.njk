@@ -14,9 +14,32 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#4a7c59">
-    <meta property="og:title" content="{{ title }}{% if title %} | {% endif %}Parachute Computer">
-    <meta property="og:description" content="{{ description or 'The note-taking system you have been looking for. Voice-first. Open source. Works with any AI via MCP.' }}">
-    <meta property="og:type" content="website">
+
+    {# Open Graph / share-preview metadata. Posts can override via
+       frontmatter: og_title, og_description, og_image, og_type. #}
+    {% set _ogTitle = og_title or title %}
+    {% set _ogDescription = og_description or description or "The note-taking system you have been looking for. An open knowledge layer for humans and AI to think and remember together." %}
+    {% set _ogImage = og_image or "/assets/og-default.jpg" %}
+    {% set _ogType = og_type or "website" %}
+    {% set _canonicalUrl = "https://parachute.computer" + (page.url or "/") %}
+
+    <meta property="og:site_name" content="Parachute Computer">
+    <meta property="og:title" content="{{ _ogTitle }}{% if _ogTitle %} | {% endif %}Parachute Computer">
+    <meta property="og:description" content="{{ _ogDescription }}">
+    <meta property="og:type" content="{{ _ogType }}">
+    <meta property="og:url" content="{{ _canonicalUrl }}">
+    <meta property="og:image" content="https://parachute.computer{{ _ogImage }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="A parachute descending over open plains at dawn, its canopy woven with a luminous knowledge graph.">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ _ogTitle }}{% if _ogTitle %} | {% endif %}Parachute Computer">
+    <meta name="twitter:description" content="{{ _ogDescription }}">
+    <meta name="twitter:image" content="https://parachute.computer{{ _ogImage }}">
+    <meta name="twitter:image:alt" content="A parachute descending over open plains at dawn, its canopy woven with a luminous knowledge graph.">
+
+    <link rel="canonical" href="{{ _canonicalUrl }}">
 </head>
 <body>
     <header>
