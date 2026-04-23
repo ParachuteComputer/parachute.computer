@@ -8,6 +8,8 @@ permalink: /blog/parachute-is-here/
 description: "Frank Zappa said the mind is like a parachute — it doesn't work if it's not open. That applies to our extended mind too. Today I'm introducing Parachute Vault: an open, self-hosted knowledge graph that any local MCP client can read and write to — starting with Claude Code."
 ---
 
+![A parachute descending over open plains at dawn, its canopy woven with a luminous knowledge graph.](/assets/blog/parachute-is-here.jpg)
+
 > The mind is like a parachute. It doesn't work if it's not open.
 >
 > — Frank Zappa
