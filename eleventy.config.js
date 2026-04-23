@@ -2,6 +2,7 @@ module.exports = function (eleventyConfig) {
   // Pass through static assets (not processed as templates)
   eleventyConfig.addPassthroughCopy("style.css");
   eleventyConfig.addPassthroughCopy("CNAME");
+  eleventyConfig.addPassthroughCopy("assets/**/*");
   eleventyConfig.addPassthroughCopy("archive/**/*");
 
   // Ignore non-content files

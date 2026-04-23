@@ -23,7 +23,13 @@ permalink: /
     letter-spacing: -0.025em;
     line-height: 1.15;
     color: var(--fg);
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.65rem;
+}
+.pl-subhead {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--fg-muted);
+    margin: 0 0 1.75rem;
 }
 .pl-label {
     font-size: 0.72rem;
@@ -39,9 +45,12 @@ permalink: /
     padding: 0;
 }
 .pl-problem-list li {
-    color: var(--fg-muted);
-    padding: 0.55rem 0 0.55rem 1.25rem;
-    position: relative;
+    color: #6E6A61;
+    display: grid;
+    grid-template-columns: 0.95rem 1fr;
+    gap: 0.9rem;
+    align-items: start;
+    padding: 0.85rem 0;
     font-size: 0.95rem;
     line-height: 1.55;
     border-bottom: 1px solid var(--border);
@@ -49,14 +58,19 @@ permalink: /
 .pl-problem-list li:last-child {
     border-bottom: none;
 }
-.pl-problem-list li::before {
-    content: "×";
-    position: absolute;
-    left: 0;
-    color: var(--fg-dim);
-    top: 0.55rem;
+.pl-problem-icon {
+    width: 1.05rem;
+    height: 1.05rem;
+    color: #6E6A61;
+    flex: none;
+    margin-top: 0.15rem;
 }
-
+.pl-problem-icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+}
 .pl-right { padding-top: 0.25rem; }
 .pl-product-name {
     font-family: var(--serif);
@@ -114,11 +128,22 @@ permalink: /
 .pl-secondary-links a:hover { color: var(--accent); }
 
 /* 2x2 body grid */
+.pl-grid-section {
+    margin-bottom: 3rem;
+}
+.pl-grid-section > h2 {
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    font-weight: 400;
+    margin-bottom: 1.2rem;
+    color: var(--fg);
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border);
+}
 .pl-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.25rem;
-    margin-bottom: 3rem;
 }
 .pl-cell {
     border: 1px solid var(--border);
@@ -126,13 +151,41 @@ permalink: /
     padding: 1.75rem 2rem;
     background: var(--card-bg);
 }
+.pl-cell-primary {
+    padding: 1.95rem 2.1rem;
+    box-shadow: 0 8px 24px rgba(44, 42, 38, 0.035);
+}
+.pl-cell-secondary {
+    background: rgba(255, 255, 255, 0.78);
+}
+.pl-cell-header {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 0.95rem;
+}
+.pl-cell-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--accent);
+    flex: none;
+}
+.pl-cell-secondary .pl-cell-icon {
+    color: var(--fg-dim);
+}
+.pl-cell-icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    stroke: currentColor;
+}
 .pl-cell h2 {
     font-family: var(--serif);
     font-size: 1.2rem;
     font-weight: 400;
     color: var(--fg);
-    margin-bottom: 0.85rem;
     line-height: 1.3;
+    margin: 0;
 }
 .pl-cell p {
     color: var(--fg-muted);
@@ -157,22 +210,101 @@ permalink: /
     padding: 0.2rem 0.6rem;
 }
 
-/* Slim Notes aside — below the grid, not a co-equal cell */
+/* Notes callout — lightweight product module */
 .pl-aside {
-    max-width: 760px;
+    max-width: 860px;
     margin: 0 auto 4rem;
-    padding: 1.25rem 1.5rem;
-    border-left: 2px solid var(--border);
-    font-size: 0.9rem;
-    color: var(--fg-muted);
-    line-height: 1.7;
+    padding: 1.45rem 1.6rem;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(243, 240, 234, 0.55) 0%, rgba(255, 255, 255, 0.92) 100%);
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(240px, 0.95fr);
+    align-items: center;
+    gap: 1.75rem;
 }
-.pl-aside strong { color: var(--fg); font-weight: 500; }
-.pl-aside code {
+.pl-aside-copy {
+    flex: 1;
+    min-width: 0;
+}
+.pl-aside-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    margin-bottom: 0.7rem;
+    font-weight: 500;
+}
+.pl-aside-eyebrow-icon {
+    width: 0.9rem;
+    height: 0.9rem;
+    color: var(--accent);
+    flex: none;
+}
+.pl-aside-eyebrow-icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    stroke: currentColor;
+}
+.pl-aside-lead {
+    font-size: 1.2rem;
+    line-height: 1.2;
+    color: var(--fg);
+    margin-bottom: 0.6rem;
+    font-family: var(--serif);
+    letter-spacing: -0.01em;
+}
+.pl-aside-body {
+    font-size: 0.93rem;
+    color: var(--fg-muted);
+    line-height: 1.65;
+    margin-bottom: 0.35rem;
+    max-width: 34rem;
+}
+.pl-aside-body a {
+    color: var(--accent);
+}
+.pl-aside-support {
+    font-size: 0.88rem;
+    color: var(--fg-dim);
+    line-height: 1.55;
+    margin-bottom: 0;
+}
+.pl-aside-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0.7rem;
+    min-width: 0;
+}
+.pl-aside-install {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    max-width: 100%;
+}
+.pl-aside-install code {
     background: var(--code-bg, rgba(0,0,0,0.04));
     padding: 0.08rem 0.3rem;
     border-radius: 4px;
     font-size: 0.85em;
+}
+.pl-aside-secondary {
+    font-size: 0.88rem;
+    color: var(--fg-muted);
+    line-height: 1.5;
+    text-align: right;
+}
+.pl-aside-secondary a {
+    color: var(--fg-muted);
+}
+.pl-aside-secondary a:hover {
+    color: var(--accent);
 }
 
 /* Principles row */
@@ -191,31 +323,71 @@ permalink: /
 .pl-principles-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
+    gap: 1.15rem;
 }
 .pl-principle {
-    padding: 1.1rem 1.25rem;
+    padding: 1.2rem 1.25rem 1.25rem;
     border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--card-bg);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.58);
+    transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+}
+.pl-principle:hover {
+    border-color: #d8d2c7;
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-1px);
+}
+.pl-principle-icon {
+    width: 1.35rem;
+    height: 1.35rem;
+    color: var(--fg-dim);
+    margin-bottom: 0.95rem;
+}
+.pl-principle:nth-child(2) .pl-principle-icon,
+.pl-principle:nth-child(4) .pl-principle-icon {
+    width: 1.45rem;
+}
+.pl-principle-icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    stroke: currentColor;
 }
 .pl-principle strong {
     display: block;
     color: var(--fg);
-    font-size: 0.88rem;
-    font-weight: 500;
-    margin-bottom: 0.35rem;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+    margin-bottom: 0.55rem;
 }
 .pl-principle span {
-    color: var(--fg-dim);
-    font-size: 0.82rem;
-    line-height: 1.5;
+    display: block;
+    color: var(--fg-muted);
+    font-size: 0.84rem;
+    line-height: 1.55;
+    max-width: 12ch;
 }
 
 @media (max-width: 768px) {
     .pl-hero { grid-template-columns: 1fr; gap: 2.5rem; padding: 3rem 0 3rem; }
     .pl-grid { grid-template-columns: 1fr; }
     .pl-principles-grid { grid-template-columns: 1fr 1fr; }
+    .pl-aside {
+        grid-template-columns: 1fr;
+        padding: 1.2rem 1.25rem;
+    }
+    .pl-aside-copy {
+        margin-bottom: 0;
+    }
+    .pl-aside-actions {
+        align-items: flex-start;
+        justify-content: flex-start;
+    }
+    .pl-aside-secondary {
+        text-align: left;
+    }
 }
 @media (max-width: 480px) {
     .pl-principles-grid { grid-template-columns: 1fr; }
@@ -225,25 +397,49 @@ permalink: /
 <main>
     <section class="pl-hero fade-up fade-up-2">
         <div class="pl-left">
-            <h1>Your AI tools don't share what they know about you.</h1>
-            <p class="pl-label">Why it exists</p>
+            <h1>Your AI has memory.</h1>
+            <p class="pl-subhead">Just not the kind that carries context.</p>
+            <p class="pl-label">Why Parachute Exists</p>
             <ul class="pl-problem-list">
-                <li>Claude Code, Claude Chat, ChatGPT, Gemini — each starts from scratch, siloed from the others</li>
-                <li>Inside each tool, memory is one flat pile instead of organized by project and context</li>
+                <li>
+                    <span class="pl-problem-icon" aria-hidden="true">
+                        <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+                            <path d="m1034.6 240.38v122.62c0 6.6992-3.5742 12.887-9.375 16.238-5.8008 3.3477-12.949 3.3477-18.75 0-5.8008-3.3516-9.375-9.5391-9.375-16.238v-122.62c0-9.9453-3.9492-19.484-10.984-26.516-7.0312-7.0352-16.57-10.984-26.516-10.984h-122.62c-6.6992 0-12.887-3.5742-16.238-9.375-3.3477-5.8008-3.3477-12.949 0-18.75 3.3516-5.8008 9.5391-9.375 16.238-9.375h122.62c19.891 0 38.969 7.9023 53.031 21.969 14.066 14.062 21.969 33.141 21.969 53.031zm-18.75 577.88c-4.9727 0-9.7422 1.9766-13.258 5.4922-3.5156 3.5156-5.4922 8.2852-5.4922 13.258v122.62c0 9.9453-3.9492 19.484-10.984 26.516-7.0312 7.0352-16.57 10.984-26.516 10.984h-122.62c-6.6992 0-12.887 3.5742-16.238 9.375-3.3477 5.8008-3.3477 12.949 0 18.75 3.3516 5.8008 9.5391 9.375 16.238 9.375h122.62c19.891 0 38.969-7.9023 53.031-21.969 14.066-14.062 21.969-33.141 21.969-53.031v-122.62c0-4.9727-1.9766-9.7422-5.4922-13.258-3.5156-3.5156-8.2852-5.4922-13.258-5.4922zm-831.75-436.5c4.9727 0 9.7422-1.9766 13.258-5.4922 3.5156-3.5156 5.4922-8.2852 5.4922-13.258v-122.62c0-9.9453 3.9492-19.484 10.984-26.516 7.0312-7.0352 16.57-10.984 26.516-10.984h122.62c6.6992 0 12.887-3.5742 16.238-9.375 3.3477-5.8008 3.3477-12.949 0-18.75-3.3516-5.8008-9.5391-9.375-16.238-9.375h-122.62c-19.891 0-38.969 7.9023-53.031 21.969-14.066 14.062-21.969 33.141-21.969 53.031v122.62c0 4.9727 1.9766 9.7422 5.4922 13.258 3.5156 3.5156 8.2852 5.4922 13.258 5.4922zm178.88 615.38h-122.62c-9.9453 0-19.484-3.9492-26.516-10.984-7.0352-7.0312-10.984-16.57-10.984-26.516v-122.62c0-6.6992-3.5742-12.887-9.375-16.238-5.8008-3.3477-12.949-3.3477-18.75 0-5.8008 3.3516-9.375 9.5391-9.375 16.238v122.62c0 19.891 7.9023 38.969 21.969 53.031 14.062 14.066 33.141 21.969 53.031 21.969h122.62c6.6992 0 12.887-3.5742 16.238-9.375 3.3477-5.8008 3.3477-12.949 0-18.75-3.3516-5.8008-9.5391-9.375-16.238-9.375zm494.62-669.19c-3.5195-3.5508-8.3125-5.5469-13.312-5.5469s-9.793 1.9961-13.312 5.5469l-231 244.69-231-243.75c-4.5898-4.8906-11.438-6.9609-17.965-5.4336-6.5312 1.5312-11.75 6.4258-13.688 12.844-1.9414 6.4219-0.3125 13.387 4.2773 18.277l232.5 245.44-232.5 245.62c-3.4922 3.5117-5.4531 8.2656-5.4531 13.219s1.9609 9.707 5.4531 13.219c3.4766 3.3516 8.1094 5.2305 12.938 5.25 5.1953-0.015625 10.152-2.1914 13.688-6l231.75-243.94 231 243.75c3.5352 3.8086 8.4922 5.9844 13.688 6 4.8281-0.019531 9.4609-1.8984 12.938-5.25 3.4922-3.5117 5.4531-8.2656 5.4531-13.219s-1.9609-9.707-5.4531-13.219l-231.75-245.44 232.5-245.62c3.3945-3.6094 5.2227-8.418 5.082-13.375-0.14062-4.9531-2.2383-9.6484-5.832-13.062z"/>
+                        </svg>
+                    </span>
+                    <span>Claude, ChatGPT, Gemini — each one learns you in isolation</span>
+                </li>
+                <li>
+                    <span class="pl-problem-icon" aria-hidden="true">
+                        <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+                            <path d="m1034.6 240.38v122.62c0 6.6992-3.5742 12.887-9.375 16.238-5.8008 3.3477-12.949 3.3477-18.75 0-5.8008-3.3516-9.375-9.5391-9.375-16.238v-122.62c0-9.9453-3.9492-19.484-10.984-26.516-7.0312-7.0352-16.57-10.984-26.516-10.984h-122.62c-6.6992 0-12.887-3.5742-16.238-9.375-3.3477-5.8008-3.3477-12.949 0-18.75 3.3516-5.8008 9.5391-9.375 16.238-9.375h122.62c19.891 0 38.969 7.9023 53.031 21.969 14.066 14.062 21.969 33.141 21.969 53.031zm-18.75 577.88c-4.9727 0-9.7422 1.9766-13.258 5.4922-3.5156 3.5156-5.4922 8.2852-5.4922 13.258v122.62c0 9.9453-3.9492 19.484-10.984 26.516-7.0312 7.0352-16.57 10.984-26.516 10.984h-122.62c-6.6992 0-12.887 3.5742-16.238 9.375-3.3477 5.8008-3.3477 12.949 0 18.75 3.3516 5.8008 9.5391 9.375 16.238 9.375h122.62c19.891 0 38.969-7.9023 53.031-21.969 14.066-14.062 21.969-33.141 21.969-53.031v-122.62c0-4.9727-1.9766-9.7422-5.4922-13.258-3.5156-3.5156-8.2852-5.4922-13.258-5.4922zm-831.75-436.5c4.9727 0 9.7422-1.9766 13.258-5.4922 3.5156-3.5156 5.4922-8.2852 5.4922-13.258v-122.62c0-9.9453 3.9492-19.484 10.984-26.516 7.0312-7.0352 16.57-10.984 26.516-10.984h122.62c6.6992 0 12.887-3.5742 16.238-9.375 3.3477-5.8008 3.3477-12.949 0-18.75-3.3516-5.8008-9.5391-9.375-16.238-9.375h-122.62c-19.891 0-38.969 7.9023-53.031 21.969-14.066 14.062-21.969 33.141-21.969 53.031v122.62c0 4.9727 1.9766 9.7422 5.4922 13.258 3.5156 3.5156 8.2852 5.4922 13.258 5.4922zm178.88 615.38h-122.62c-9.9453 0-19.484-3.9492-26.516-10.984-7.0352-7.0312-10.984-16.57-10.984-26.516v-122.62c0-6.6992-3.5742-12.887-9.375-16.238-5.8008-3.3477-12.949-3.3477-18.75 0-5.8008 3.3516-9.375 9.5391-9.375 16.238v122.62c0 19.891 7.9023 38.969 21.969 53.031 14.062 14.066 33.141 21.969 53.031 21.969h122.62c6.6992 0 12.887-3.5742 16.238-9.375 3.3477-5.8008 3.3477-12.949 0-18.75-3.3516-5.8008-9.5391-9.375-16.238-9.375zm494.62-669.19c-3.5195-3.5508-8.3125-5.5469-13.312-5.5469s-9.793 1.9961-13.312 5.5469l-231 244.69-231-243.75c-4.5898-4.8906-11.438-6.9609-17.965-5.4336-6.5312 1.5312-11.75 6.4258-13.688 12.844-1.9414 6.4219-0.3125 13.387 4.2773 18.277l232.5 245.44-232.5 245.62c-3.4922 3.5117-5.4531 8.2656-5.4531 13.219s1.9609 9.707 5.4531 13.219c3.4766 3.3516 8.1094 5.2305 12.938 5.25 5.1953-0.015625 10.152-2.1914 13.688-6l231.75-243.94 231 243.75c3.5352 3.8086 8.4922 5.9844 13.688 6 4.8281-0.019531 9.4609-1.8984 12.938-5.25 3.4922-3.5117 5.4531-8.2656 5.4531-13.219s-1.9609-9.707-5.4531-13.219l-231.75-245.44 232.5-245.62c3.3945-3.6094 5.2227-8.418 5.082-13.375-0.14062-4.9531-2.2383-9.6484-5.832-13.062z"/>
+                        </svg>
+                    </span>
+                    <span>Context disappears between sessions and platforms</span>
+                </li>
+                <li>
+                    <span class="pl-problem-icon" aria-hidden="true">
+                        <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+                            <path d="m1034.6 240.38v122.62c0 6.6992-3.5742 12.887-9.375 16.238-5.8008 3.3477-12.949 3.3477-18.75 0-5.8008-3.3516-9.375-9.5391-9.375-16.238v-122.62c0-9.9453-3.9492-19.484-10.984-26.516-7.0312-7.0352-16.57-10.984-26.516-10.984h-122.62c-6.6992 0-12.887-3.5742-16.238-9.375-3.3477-5.8008-3.3477-12.949 0-18.75 3.3516-5.8008 9.5391-9.375 16.238-9.375h122.62c19.891 0 38.969 7.9023 53.031 21.969 14.066 14.062 21.969 33.141 21.969 53.031zm-18.75 577.88c-4.9727 0-9.7422 1.9766-13.258 5.4922-3.5156 3.5156-5.4922 8.2852-5.4922 13.258v122.62c0 9.9453-3.9492 19.484-10.984 26.516-7.0312 7.0352-16.57 10.984-26.516 10.984h-122.62c-6.6992 0-12.887 3.5742-16.238 9.375-3.3477 5.8008-3.3477 12.949 0 18.75 3.3516 5.8008 9.5391 9.375 16.238 9.375h122.62c19.891 0 38.969-7.9023 53.031-21.969 14.066-14.062 21.969-33.141 21.969-53.031v-122.62c0-4.9727-1.9766-9.7422-5.4922-13.258-3.5156-3.5156-8.2852-5.4922-13.258-5.4922zm-831.75-436.5c4.9727 0 9.7422-1.9766 13.258-5.4922 3.5156-3.5156 5.4922-8.2852 5.4922-13.258v-122.62c0-9.9453 3.9492-19.484 10.984-26.516 7.0312-7.0352 16.57-10.984 26.516-10.984h122.62c6.6992 0 12.887-3.5742 16.238-9.375 3.3477-5.8008 3.3477-12.949 0-18.75-3.3516-5.8008-9.5391-9.375-16.238-9.375h-122.62c-19.891 0-38.969 7.9023-53.031 21.969-14.066 14.062-21.969 33.141-21.969 53.031v122.62c0 4.9727 1.9766 9.7422 5.4922 13.258 3.5156 3.5156 8.2852 5.4922 13.258 5.4922zm178.88 615.38h-122.62c-9.9453 0-19.484-3.9492-26.516-10.984-7.0352-7.0312-10.984-16.57-10.984-26.516v-122.62c0-6.6992-3.5742-12.887-9.375-16.238-5.8008-3.3477-12.949-3.3477-18.75 0-5.8008 3.3516-9.375 9.5391-9.375 16.238v122.62c0 19.891 7.9023 38.969 21.969 53.031 14.062 14.066 33.141 21.969 53.031 21.969h122.62c6.6992 0 12.887-3.5742 16.238-9.375 3.3477-5.8008 3.3477-12.949 0-18.75-3.3516-5.8008-9.5391-9.375-16.238-9.375zm494.62-669.19c-3.5195-3.5508-8.3125-5.5469-13.312-5.5469s-9.793 1.9961-13.312 5.5469l-231 244.69-231-243.75c-4.5898-4.8906-11.438-6.9609-17.965-5.4336-6.5312 1.5312-11.75 6.4258-13.688 12.844-1.9414 6.4219-0.3125 13.387 4.2773 18.277l232.5 245.44-232.5 245.62c-3.4922 3.5117-5.4531 8.2656-5.4531 13.219s1.9609 9.707 5.4531 13.219c3.4766 3.3516 8.1094 5.2305 12.938 5.25 5.1953-0.015625 10.152-2.1914 13.688-6l231.75-243.94 231 243.75c3.5352 3.8086 8.4922 5.9844 13.688 6 4.8281-0.019531 9.4609-1.8984 12.938-5.25 3.4922-3.5117 5.4531-8.2656 5.4531-13.219s-1.9609-9.707-5.4531-13.219l-231.75-245.44 232.5-245.62c3.3945-3.6094 5.2227-8.418 5.082-13.375-0.14062-4.9531-2.2383-9.6484-5.832-13.062z"/>
+                        </svg>
+                    </span>
+                    <span>Memory isn’t structured around you and your work</span>
+                </li>
             </ul>
         </div>
 
         <div class="pl-right">
             <p class="pl-product-name">Parachute Vault <span class="alpha-tag">alpha</span></p>
-            <p class="pl-desc">A self-hosted knowledge graph that lives on your machine. Every AI you use reads and writes to the same graph over <a href="https://modelcontextprotocol.io" target="_blank">MCP</a> — notes, tags, links, project context. One source of truth you and your AIs share.</p>
-            <p class="pl-desc">Extensible. Open source. Your data, your hardware.</p>
+            <p class="pl-desc">A shared memory layer for all your AI.<br>Runs locally on your machine.</p>
+            <p class="pl-desc">Every AI you use reads and writes to the same knowledge graph over <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>.</p>
+            <p class="pl-desc">One source of truth — across tools, sessions, and work.</p>
 
             <p class="pl-label">Get started</p>
             <div class="code-inline">
                 <code>bun add -g @openparachute/cli &amp;&amp; parachute install vault</code>
             </div>
-            <p class="pl-install-note">Requires <a href="https://bun.sh" target="_blank">Bun</a>. Run inside any Claude Code session — Vault is picked up automatically.</p>
-            <a href="https://github.com/ParachuteComputer/parachute-vault" class="pl-cta-btn" target="_blank">View Parachute Vault on GitHub</a>
+            <p class="pl-install-note">Requires <a href="https://bun.sh" target="_blank">Bun</a>. Works inside Claude Code.</p>
+            <a href="https://github.com/ParachuteComputer/parachute-vault" class="pl-cta-btn" target="_blank">View on GitHub</a>
             <div class="pl-secondary-links">
                 <a href="/install/">Full install guide &rarr;</a>
                 <a href="/blog/">Blog &rarr;</a>
@@ -251,19 +447,59 @@ permalink: /
         </div>
     </section>
 
-    <section class="pl-grid fade-up fade-up-3">
-        <div class="pl-cell">
-            <h2>How it connects your AIs</h2>
-            <p>Run <code>parachute expose public</code> and your Vault lands at a stable HTTPS URL. Point Claude (web / Desktop / mobile), ChatGPT, Gemini, or any MCP-capable tool at the same URL. They all read and write to the same graph.</p>
-            <p>Notes written in one session appear in the next. Project context follows you across tools, not just sessions.</p>
+    <section class="pl-grid-section fade-up fade-up-3">
+        <h2>How Vault Works</h2>
+        <div class="pl-grid">
+        <div class="pl-cell pl-cell-primary">
+            <div class="pl-cell-header">
+                <span class="pl-cell-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="3.2"/>
+                        <circle cx="5" cy="7" r="2"/>
+                        <circle cx="19" cy="7" r="2"/>
+                        <circle cx="6" cy="18" r="2"/>
+                        <circle cx="18" cy="18" r="2"/>
+                        <path d="M9.2 10.3 6.7 8.3M14.8 10.3l2.5-2M9.4 13.8l-2 2.4M14.6 13.8l2 2.4"/>
+                    </svg>
+                </span>
+                <h2>How Vault connects your AIs</h2>
+            </div>
+            <p>Run <code>parachute expose public</code> &rarr; your Vault gets a stable URL.</p>
+            <p>Point Claude, ChatGPT, Gemini, or any MCP tool to it. They all read and write to the same graph.</p>
+            <p>Context persists across sessions and tools.</p>
         </div>
-        <div class="pl-cell">
-            <h2>The graph compounds over time</h2>
-            <p>Wikilinks resolve, tags accrete, notes point at each other. As your AIs read and write, context gets richer — organized by project, linked by topic, queryable as a whole.</p>
-            <p>Everything is a SQLite file on your disk. Your data is yours, portable, and doesn't require us to exist.</p>
+        <div class="pl-cell pl-cell-primary">
+            <div class="pl-cell-header">
+                <span class="pl-cell-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 17v-4"/>
+                        <path d="M12 17v-8"/>
+                        <path d="M18 17v-11"/>
+                        <path d="M4 20h16"/>
+                        <circle cx="6" cy="9" r="2"/>
+                        <circle cx="12" cy="6" r="2"/>
+                        <circle cx="18" cy="4" r="2"/>
+                        <path d="M7.5 7.7 10.5 7M13.5 5.4 16.3 4.6"/>
+                    </svg>
+                </span>
+                <h2>The graph compounds over time</h2>
+            </div>
+            <p>Links form. Tags build. Notes connect.</p>
+            <p>As your AIs read and write, context gets richer &mdash; organized by project, linked by topic, queryable as a whole.</p>
+            <p>Stored locally as a SQLite file. Yours, portable, durable.</p>
         </div>
-        <div class="pl-cell">
-            <h2>Simple primitives, open surface area</h2>
+        <div class="pl-cell pl-cell-secondary">
+            <div class="pl-cell-header">
+                <span class="pl-cell-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3.5" y="4" width="7" height="7" rx="1.5"/>
+                        <rect x="13.5" y="4" width="7" height="7" rx="1.5"/>
+                        <rect x="8.5" y="13" width="7" height="7" rx="1.5"/>
+                        <path d="M10.5 7.5h3M17 11v2M8.5 13l-1.5-2"/>
+                    </svg>
+                </span>
+                <h2>Simple primitives, open surface area</h2>
+            </div>
             <p>Everything flows through a small MCP tool set. Your AI calls these; your own scripts, apps, and services call the same ones — AI and traditional software building on the same foundation.</p>
             <div class="pl-tool-chips">
                 <span class="pl-tool-chip">query-notes</span>
@@ -274,35 +510,94 @@ permalink: /
                 <span class="pl-tool-chip">vault-info</span>
             </div>
         </div>
-        <div class="pl-cell">
-            <h2>Auth-gated by default</h2>
-            <p>OAuth 2.1 + TOTP for human clients. Scoped API tokens for scripts and agents. Every endpoint requires proof — the <code>parachute expose</code> path is about making your Vault <em>reachable</em>, not about removing the gate.</p>
-            <p><a href="/install/#claude-chat">Set up for claude.ai / ChatGPT &rarr;</a></p>
+        <div class="pl-cell pl-cell-secondary">
+            <div class="pl-cell-header">
+                <span class="pl-cell-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 3 6 5.5v5.8c0 4.1 2.5 7.9 6 9.7 3.5-1.8 6-5.6 6-9.7V5.5L12 3Z"/>
+                        <rect x="9.2" y="10.2" width="5.6" height="4.8" rx="1.2"/>
+                        <path d="M10.2 10.2V9a1.8 1.8 0 1 1 3.6 0v1.2"/>
+                    </svg>
+                </span>
+                <h2>Auth-gated by default</h2>
+            </div>
+            <p>OAuth + TOTP for humans. Scoped tokens for agents.</p>
+            <p>Every request is verified.</p>
+            <p><code>parachute expose</code> makes your Vault reachable &mdash; not open.</p>
+        </div>
         </div>
     </section>
 
     <div class="pl-aside fade-up fade-up-4">
-        <strong>Want a UI for your notes?</strong> We've built <a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank">Parachute Notes</a> — an alpha PWA that talks to your Vault. Install with <code>parachute install notes</code>, or fork it and build your own. It's an example of what any developer can build on the open API.
+        <div class="pl-aside-copy">
+            <div class="pl-aside-eyebrow">
+                <span class="pl-aside-eyebrow-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 5v14M5 12h14"/>
+                        <rect x="4" y="4" width="16" height="16" rx="3"/>
+                    </svg>
+                </span>
+                <span>Reference App</span>
+            </div>
+            <p class="pl-aside-lead">Want a UI for your notes?</p>
+            <p class="pl-aside-body">We built <a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank">Parachute Notes</a> — an alpha PWA that talks to your Vault.</p>
+            <p class="pl-aside-support">It’s a reference app for the open API.</p>
+        </div>
+        <div class="pl-aside-actions">
+            <div class="pl-aside-install">
+                <code>parachute install notes</code>
+            </div>
+            <p class="pl-aside-secondary"><a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank">or fork it and build your own</a>.</p>
+        </div>
     </div>
 
     <section class="pl-principles fade-up fade-up-5">
         <h2>Principles</h2>
         <div class="pl-principles-grid">
             <div class="pl-principle">
+                <div class="pl-principle-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                        <ellipse cx="10.5" cy="6" rx="5.5" ry="2.5"/>
+                        <path d="M5 6v7c0 1.4 2.5 2.5 5.5 2.5s5.5-1.1 5.5-2.5V6"/>
+                        <path d="M16 10.8a3 3 0 1 1 6 0v1.2"/>
+                        <rect x="18" y="12" width="4" height="5" rx="1"/>
+                    </svg>
+                </div>
                 <strong>Local-first</strong>
-                <span>SQLite on your disk. Nothing in the cloud unless you ask.</span>
+                <span>SQLite on your disk.<br>Nothing in the cloud unless you ask.</span>
             </div>
             <div class="pl-principle">
+                <div class="pl-principle-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="6" cy="12" r="2.2"/>
+                        <circle cx="18" cy="7" r="2.2"/>
+                        <circle cx="18" cy="17" r="2.2"/>
+                        <path d="M8.2 11 15.8 8M8.2 13l7.6 3"/>
+                    </svg>
+                </div>
                 <strong>Open standard</strong>
-                <span>Built on <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>. Any AI today or next year.</span>
+                <span>Built on <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>.<br>Works with any AI — now or next.</span>
             </div>
             <div class="pl-principle">
-                <strong>Open source, AGPL</strong>
-                <span>Read every line of code that touches your notes.</span>
+                <div class="pl-principle-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                        <path d="m9 8-3 4 3 4M15 8l3 4-3 4"/>
+                        <path d="M10 19h8a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-8"/>
+                        <path d="M8 5H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2"/>
+                    </svg>
+                </div>
+                <strong>Open source (AGPL)</strong>
+                <span>Read every line of code<br>that touches your notes.</span>
             </div>
             <div class="pl-principle">
+                <div class="pl-principle-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 7h4v4H8zM12 13h4v4h-4zM4 13h4v4H4zM12 3h4v4h-4z"/>
+                        <path d="M10 9.5h4M14 7v2.5M8 15h4"/>
+                    </svg>
+                </div>
                 <strong>Extensible</strong>
-                <span>Small, stable service contracts. Plug in your own modules.</span>
+                <span>Small, stable contracts.<br>Plug in your own modules.</span>
             </div>
         </div>
     </section>
