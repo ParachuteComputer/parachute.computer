@@ -60,6 +60,8 @@ The [roadmap](/roadmap/) is live. The [source](https://github.com/ParachuteCompu
 
 ## Try it
 
+> **Editor's note (2026-04-26):** the npm package was renamed from `@openparachute/cli` to `@openparachute/hub` shortly after this post. The current install command is `bun add -g @openparachute/hub && parachute install vault`. See the [install guide](/install/) for the up-to-date snippet.
+
 ```sh
 bun add -g @openparachute/cli && parachute install vault
 ```
