@@ -17,10 +17,10 @@ permalink: /install/
         <p>Requires <a href="https://bun.sh" target="_blank">Bun</a> 1.3.0 or later. Check with <code>bun --version</code>; upgrade with <code>bun upgrade</code>. Then run this anywhere:</p>
 
         <div class="code-inline">
-            <code>bun add -g @openparachute/cli &amp;&amp; parachute install vault</code>
+            <code>bun add -g @openparachute/hub &amp;&amp; parachute install vault</code>
         </div>
 
-        <p>This installs the Parachute CLI, creates a Vault, and starts it as a background daemon on <code>127.0.0.1:1940</code>. You'll be asked two yes/no questions (both default yes):</p>
+        <p>This installs the Parachute Hub, creates a Vault, and starts it as a background daemon on <code>127.0.0.1:1940</code>. You'll be asked two yes/no questions (both default yes):</p>
 
         <ol>
             <li><strong>Install Vault as an MCP server in Claude Code?</strong> &mdash; writes the MCP config into <code>~/.claude.json</code> so Claude Code picks it up next session.</li>
@@ -102,7 +102,7 @@ permalink: /install/
 
     <section class="cta">
         <div class="code-inline" style="margin: 1.5rem auto; max-width: 640px;">
-            <code>bun add -g @openparachute/cli &amp;&amp; parachute install vault</code>
+            <code>bun add -g @openparachute/hub &amp;&amp; parachute install vault</code>
         </div>
         <a href="https://github.com/ParachuteComputer/parachute-vault" class="button" target="_blank">Parachute Vault on GitHub</a>
     </section>
