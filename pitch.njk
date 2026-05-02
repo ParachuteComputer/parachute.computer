@@ -7,38 +7,97 @@ og_title: "Own your context. Own your AI."
 og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-first. Open source. The substrate every agent and interface should sit on top of."
 ---
 <style>
-/* Pitch v2 — sticky video sidebar + scroll walkthrough.
-   Investor-readable top to bottom; product-manifesto-readable for everyone else. */
+/* Pitch v4 — single full-width deck + floating corner video widget.
+   Investor-readable as a click-through; "N" toggles speaker notes for depth. */
 
 .pi-page {
-    max-width: 1180px;
+    max-width: 920px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 3rem 1.5rem 5rem;
 }
 
-/* ── Two-column grid: sticky video left, walkthrough right.
-   On mobile, collapses to single column (video first). ── */
-.pi-grid {
-    display: grid;
-    grid-template-columns: minmax(360px, 1fr) minmax(0, 1.4fr);
-    gap: 3.5rem;
-    padding: 3rem 0 5rem;
-    align-items: start;
-}
-
-.pi-sticky {
-    position: sticky;
-    top: 5.5rem;
-    align-self: start;
-}
-
-/* ── Video card placeholder (real video drops in later) ── */
-.pi-video-card {
+/* ── Floating corner video widget ──
+   Collapsed: a small "▶ Watch pitch" button anchored bottom-right.
+   Expanded: the video panel slides up. Dismiss = back to collapsed.
+   When a real <video class="pi-video"> is dropped in, the deck script
+   advances slides via timeupdate while the video is playing. */
+.pi-video-widget {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 50;
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(44, 42, 38, 0.14);
     overflow: hidden;
-    box-shadow: 0 6px 24px rgba(44, 42, 38, 0.06);
+    transition: width 0.2s ease, box-shadow 0.2s ease;
+}
+.pi-video-widget[data-state="collapsed"] .pi-video-panel {
+    display: none;
+}
+.pi-video-widget[data-state="expanded"] {
+    width: 380px;
+    box-shadow: 0 12px 40px rgba(44, 42, 38, 0.2);
+}
+
+.pi-video-toggle {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    padding: 0.7rem 1.1rem;
+    cursor: pointer;
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    line-height: 1.3;
+}
+.pi-video-toggle:hover {
+    background: var(--bg-soft);
+}
+.pi-video-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+.pi-video-toggle-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.pi-video-toggle-icon svg {
+    width: 10px;
+    height: 10px;
+    fill: currentColor;
+    margin-left: 1px;
+}
+.pi-video-duration {
+    color: var(--fg-muted);
+    font-size: 0.78rem;
+    font-family: var(--mono);
+}
+.pi-video-toggle-close {
+    color: var(--fg-muted);
+    font-size: 1.1rem;
+    line-height: 1;
+}
+.pi-video-widget[data-state="collapsed"] .pi-video-toggle-close { display: none; }
+.pi-video-widget[data-state="expanded"] .pi-video-toggle-icon,
+.pi-video-widget[data-state="expanded"] .pi-video-duration { display: none; }
+
+/* ── Video panel (expanded) ── */
+.pi-video-panel {
+    border-top: 1px solid var(--border);
 }
 .pi-video-frame {
     aspect-ratio: 16 / 10;
@@ -47,13 +106,12 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
+    gap: 0.75rem;
     color: var(--fg-muted);
-    position: relative;
 }
 .pi-video-play {
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     background: var(--accent);
     color: #fff;
@@ -61,50 +119,37 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 14px rgba(74, 124, 89, 0.3);
-    transition: transform 0.15s ease, background 0.15s ease;
 }
 .pi-video-play svg {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     fill: currentColor;
-    margin-left: 4px;
-}
-.pi-video-frame:hover .pi-video-play {
-    transform: scale(1.05);
-    background: var(--accent-hover);
+    margin-left: 3px;
 }
 .pi-video-label {
     font-family: var(--mono);
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--fg-dim);
 }
 .pi-video-meta {
-    padding: 1rem 1.25rem;
+    padding: 0.85rem 1.1rem;
     border-top: 1px solid var(--border);
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     color: var(--fg-muted);
     line-height: 1.5;
 }
-.pi-video-meta strong {
-    color: var(--fg);
-    font-weight: 500;
-    display: block;
-    margin-bottom: 0.2rem;
-}
 
-.pi-sticky-aside {
-    margin-top: 1.25rem;
-    font-size: 0.82rem;
-    line-height: 1.55;
-    color: var(--fg-dim);
-}
-.pi-sticky-aside a {
-    color: var(--fg-muted);
-}
-.pi-sticky-aside a:hover {
-    color: var(--accent);
+@media (max-width: 700px) {
+    .pi-video-widget {
+        bottom: 0.75rem;
+        right: 0.75rem;
+    }
+    .pi-video-widget[data-state="expanded"] {
+        left: 0.75rem;
+        width: auto;
+    }
 }
 
 /* ── Deck column ──
@@ -555,16 +600,8 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
     margin-right: 0.6rem;
 }
 
-/* ── Mobile: stack, kill sticky ── */
+/* ── Mobile: collapse multi-col grids ── */
 @media (max-width: 900px) {
-    .pi-grid {
-        grid-template-columns: 1fr;
-        gap: 2.5rem;
-        padding: 2rem 0 4rem;
-    }
-    .pi-sticky {
-        position: static;
-    }
     .pi-traps,
     .pi-modules,
     .pi-future,
@@ -584,45 +621,14 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
 </style>
 
 <main class="pi-page">
-    <div class="pi-grid">
 
-        {# ── Sticky left column: video card + small aside ── #}
-        <aside class="pi-sticky fade-up fade-up-1">
-            <div class="pi-video-card">
-                {# TODO: replace placeholder with embedded video once Aaron records.
-                   The deck script looks for `video.pi-video` — drop in:
-                     <video class="pi-video" controls poster="..." preload="metadata">
-                       <source src="..." type="video/mp4">
-                     </video>
-                   and live-mode (timeupdate-driven slide sync) starts working.
-                   Per-slide timecodes live in data-video-start/data-video-end on each slide. #}
-                <div class="pi-video-frame" role="img" aria-label="Pitch video — coming for Boulder Startup Week">
-                    <div class="pi-video-play" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M8 5v14l11-7z"/>
-                        </svg>
-                    </div>
-                    <span class="pi-video-label">Video coming soon</span>
-                </div>
-                <div class="pi-video-meta">
-                    <strong>Aaron giving the pitch</strong>
-                    ~4 minutes &middot; recording for Boulder Startup Week
-                </div>
-            </div>
-
-            <div class="pi-sticky-aside">
-                Click through the deck on the right. When the video is recorded, playing it will advance the deck for you &mdash; pause to read at your own pace, or use the arrows to jump ahead.<br><br>
-                <a href="/install/">Install &rarr;</a><br>
-                <a href="/roadmap/">Roadmap &rarr;</a><br>
-                <a href="https://github.com/ParachuteComputer" target="_blank" rel="noopener noreferrer">github.com/ParachuteComputer &rarr;</a>
-            </div>
-        </aside>
-
-        {# ── Right column: deck.
-           Slides hidden by default (CSS); JS at bottom of file shows one at a time.
-           data-video-start / data-video-end are placeholder seconds — Aaron will
-           provide real timecodes after recording the pitch video. #}
-        <article class="pi-deck">
+    {# ── Single full-width deck.
+       Slides hidden by default (CSS); JS at bottom of file shows one at a time.
+       data-video-start / data-video-end are placeholder seconds — Aaron will
+       provide real timecodes after recording the pitch video.
+       The video lives in a floating corner widget after </main>; when a real
+       <video class="pi-video"> is dropped in there, timeupdate drives slide sync. #}
+    <article class="pi-deck fade-up fade-up-1">
 
             {# ── Slide 1: Hero ── #}
             <section class="pi-slide pi-hero fade-up fade-up-2" data-slide-id="1" data-video-start="0" data-video-end="15">
@@ -1013,7 +1019,8 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                     <div class="pi-ask-links">
                         <div><span class="pi-ask-label">Email</span><a href="mailto:aaron@parachute.computer">aaron@parachute.computer</a></div>
                         <div><span class="pi-ask-label">GitHub</span><a href="https://github.com/ParachuteComputer" target="_blank" rel="noopener noreferrer">github.com/ParachuteComputer</a></div>
-                        <div><span class="pi-ask-label">Site</span><a href="/">parachute.computer</a></div>
+                        <div><span class="pi-ask-label">Install</span><a href="/install/">parachute.computer/install</a></div>
+                        <div><span class="pi-ask-label">Roadmap</span><a href="/roadmap/">parachute.computer/roadmap</a></div>
                     </div>
                 </div>
             </section>
@@ -1026,9 +1033,40 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
             </nav>
             <p class="pi-deck-hint">← → arrow keys to navigate &middot; play the video and the deck follows along</p>
 
-        </article>
-    </div>
+    </article>
 </main>
+
+{# ── Floating corner video widget.
+   Collapsed = small "▶ Watch pitch" pill bottom-right. Click expands the panel.
+   Click × (or the toggle again) collapses. The deck script reads the
+   <video class="pi-video"> if/when it's dropped in, so the same script that
+   drove the v3 sticky-aside video drives this one too. #}
+<aside class="pi-video-widget" data-state="collapsed">
+    <button type="button" class="pi-video-toggle" aria-label="Toggle pitch video" aria-expanded="false">
+        <span class="pi-video-toggle-label">
+            <span class="pi-video-toggle-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+            </span>
+            <span>Watch pitch</span>
+        </span>
+        <span class="pi-video-duration">~4 min</span>
+        <span class="pi-video-toggle-close" aria-hidden="true">&times;</span>
+    </button>
+    <div class="pi-video-panel">
+        {# TODO: replace placeholder with embedded video once Aaron records.
+           Drop in: <video class="pi-video" controls preload="metadata" poster="..."><source src="..." type="video/mp4"></video>
+           and live-mode (timeupdate-driven slide sync) starts working. #}
+        <div class="pi-video-frame" role="img" aria-label="Pitch video — coming for Boulder Startup Week">
+            <div class="pi-video-play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <span class="pi-video-label">Video coming soon</span>
+        </div>
+        <div class="pi-video-meta">
+            Aaron giving the pitch &middot; ~4 min &middot; recording for Boulder Startup Week
+        </div>
+    </div>
+</aside>
 
 <script>
 /* Pitch deck controller.
@@ -1099,5 +1137,19 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
     }
 
     show(0);
+})();
+
+/* Floating video widget — collapsed/expanded toggle.
+   Click anywhere on the toggle bar (button, icon, or close ×) flips state. */
+(function () {
+    const widget = document.querySelector('.pi-video-widget');
+    if (!widget) return;
+    const toggle = widget.querySelector('.pi-video-toggle');
+    if (!toggle) return;
+    toggle.addEventListener('click', function () {
+        const expanded = widget.dataset.state === 'expanded';
+        widget.dataset.state = expanded ? 'collapsed' : 'expanded';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+    });
 })();
 </script>
