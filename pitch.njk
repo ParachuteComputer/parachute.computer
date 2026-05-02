@@ -107,16 +107,65 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
     color: var(--accent);
 }
 
-/* ── Walkthrough column ── */
-.pi-walkthrough > section {
-    padding: 0 0 4rem;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 4rem;
+/* ── Deck column ──
+   Only the active slide is shown; prev/next + keyboard arrows step through.
+   When a real <video> is wired up, video timeupdate drives slide changes
+   (data-video-start / data-video-end on each slide). Pause = manual mode. */
+.pi-deck .pi-slide {
+    display: none;
+    padding: 0;
 }
-.pi-walkthrough > section:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-    margin-bottom: 0;
+.pi-deck .pi-slide.is-active {
+    display: block;
+}
+
+.pi-deck-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    gap: 1rem;
+}
+.pi-deck-controls button {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 1.1rem;
+    font: inherit;
+    font-size: 0.9rem;
+    color: var(--fg);
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.pi-deck-controls button:hover:not(:disabled) {
+    background: var(--bg-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.pi-deck-controls button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+.pi-counter {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    letter-spacing: 0.04em;
+}
+.pi-deck-hint {
+    margin-top: 0.85rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--fg-muted);
+    text-align: center;
+    letter-spacing: 0.04em;
+}
+@media (max-width: 900px) {
+    .pi-deck-hint {
+        display: none;
+    }
 }
 
 .pi-eyebrow {
@@ -541,8 +590,12 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
         <aside class="pi-sticky fade-up fade-up-1">
             <div class="pi-video-card">
                 {# TODO: replace placeholder with embedded video once Aaron records.
-                   Suggested embed: <video src="..." controls poster="...">.
-                   When live, consider: autoplay muted, then unmute on first interaction. #}
+                   The deck script looks for `video.pi-video` — drop in:
+                     <video class="pi-video" controls poster="..." preload="metadata">
+                       <source src="..." type="video/mp4">
+                     </video>
+                   and live-mode (timeupdate-driven slide sync) starts working.
+                   Per-slide timecodes live in data-video-start/data-video-end on each slide. #}
                 <div class="pi-video-frame" role="img" aria-label="Pitch video — coming for Boulder Startup Week">
                     <div class="pi-video-play" aria-hidden="true">
                         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -558,18 +611,21 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
             </div>
 
             <div class="pi-sticky-aside">
-                The video plays the headline. The walkthrough on the right is the long version &mdash; for anyone who wants to read more deeply, in their own time.<br><br>
+                Click through the deck on the right. When the video is recorded, playing it will advance the deck for you &mdash; pause to read at your own pace, or use the arrows to jump ahead.<br><br>
                 <a href="/install/">Install &rarr;</a><br>
                 <a href="/roadmap/">Roadmap &rarr;</a><br>
                 <a href="https://github.com/ParachuteComputer" target="_blank" rel="noopener noreferrer">github.com/ParachuteComputer &rarr;</a>
             </div>
         </aside>
 
-        {# ── Right column: scrolling walkthrough ── #}
-        <article class="pi-walkthrough">
+        {# ── Right column: deck.
+           Slides hidden by default (CSS); JS at bottom of file shows one at a time.
+           data-video-start / data-video-end are placeholder seconds — Aaron will
+           provide real timecodes after recording the pitch video. #}
+        <article class="pi-deck">
 
-            {# ── Hero ── #}
-            <section class="pi-hero fade-up fade-up-2">
+            {# ── Slide 1: Hero ── #}
+            <section class="pi-slide pi-hero fade-up fade-up-2" data-slide-id="1" data-video-start="0" data-video-end="15">
                 <p class="pi-eyebrow">Open Parachute, PBC &middot; 2026</p>
                 <h1 class="pi-h1">Own your context.<br>Own your AI.</h1>
                 <p class="pi-lede">Self-hosted personal-AI infrastructure. Voice-first. Open source.</p>
@@ -588,8 +644,8 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 </div>
             </section>
 
-            {# ── 1. The race we stopped chasing ── #}
-            <section class="fade-up fade-up-3">
+            {# ── Slide 2: The race we stopped chasing ── #}
+            <section class="pi-slide fade-up fade-up-3" data-slide-id="2" data-video-start="15" data-video-end="45">
                 <p class="pi-label">The race we stopped chasing</p>
                 <h2 class="pi-h2">Everyone is building agents.<br>We were too. <em>We stopped.</em></h2>
                 <div class="pi-prose">
@@ -612,8 +668,8 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 </div>
             </section>
 
-            {# ── 2. Voice-first ── #}
-            <section class="fade-up fade-up-4">
+            {# ── Slide 3: Voice-first ── #}
+            <section class="pi-slide fade-up fade-up-4" data-slide-id="3" data-video-start="45" data-video-end="65">
                 <p class="pi-label">The gesture that started this</p>
                 <h2 class="pi-h2">It started with a voice note<br>on a walk.</h2>
                 <div class="pi-prose">
@@ -623,8 +679,8 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 </div>
             </section>
 
-            {# ── 3. What's broken ── #}
-            <section class="fade-up fade-up-5">
+            {# ── Slide 4: What's broken ── #}
+            <section class="pi-slide fade-up fade-up-5" data-slide-id="4" data-video-start="65" data-video-end="95">
                 <p class="pi-label">Why this is missing today</p>
                 <h2 class="pi-h2">Every layer above the data<br>is fighting for the data.</h2>
                 <div class="pi-prose" style="margin-bottom: 1rem;">
@@ -653,8 +709,8 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 </div>
             </section>
 
-            {# ── 4. The Parachute substrate ── #}
-            <section class="fade-up fade-up-5">
+            {# ── Slide 5: The Parachute substrate ── #}
+            <section class="pi-slide fade-up fade-up-5" data-slide-id="5" data-video-start="95" data-video-end="130">
                 <p class="pi-label">The substrate</p>
                 <h2 class="pi-h2">Spin up a vault.<br>Give any AI a link.</h2>
                 <div class="pi-prose">
@@ -703,8 +759,8 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 </div>
             </section>
 
-            {# ── 5. The flywheel ── #}
-            <section class="fade-up fade-up-5">
+            {# ── Slide 6: The flywheel ── #}
+            <section class="pi-slide fade-up fade-up-5" data-slide-id="6" data-video-start="130" data-video-end="155">
                 <p class="pi-label">How it compounds</p>
                 <h2 class="pi-h2">Vault at the center.<br>Agents and interfaces orbit.</h2>
                 <div class="pi-prose">
@@ -740,8 +796,8 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 </div>
             </section>
 
-            {# ── 6. What ships today ── #}
-            <section class="fade-up fade-up-5">
+            {# ── Slide 7: What ships today ── #}
+            <section class="pi-slide fade-up fade-up-5" data-slide-id="7" data-video-start="155" data-video-end="180">
                 <p class="pi-label">What ships today</p>
                 <h2 class="pi-h2">Five modules.<br>Installable with one command.</h2>
                 <div class="pi-prose">
@@ -781,8 +837,8 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 </div>
             </section>
 
-            {# ── 7. Cloud ── #}
-            <section class="fade-up fade-up-5">
+            {# ── Slide 8: Cloud ── #}
+            <section class="pi-slide fade-up fade-up-5" data-slide-id="8" data-video-start="180" data-video-end="200">
                 <p class="pi-label">The convenience path</p>
                 <h2 class="pi-h2">Self-host or let us host.<br>Same code. Same exits.</h2>
                 <div class="pi-prose">
@@ -807,8 +863,8 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 </div>
             </section>
 
-            {# ── 8. The future ── #}
-            <section class="fade-up fade-up-5">
+            {# ── Slide 9: The future ── #}
+            <section class="pi-slide fade-up fade-up-5" data-slide-id="9" data-video-start="200" data-video-end="220">
                 <p class="pi-label">Where this goes</p>
                 <h2 class="pi-h2">A substrate the whole<br>personal-AI ecosystem grows on.</h2>
                 <div class="pi-prose">
@@ -870,8 +926,8 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 <p class="pi-img-caption" style="margin-top: -0.5rem;">Pendant prototype &mdash; render, PCB, and worn. The gesture-first capture surface for the substrate underneath.</p>
             </section>
 
-            {# ── 9. Team ── #}
-            <section class="fade-up fade-up-5">
+            {# ── Slide 10: Team ── #}
+            <section class="pi-slide fade-up fade-up-5" data-slide-id="10" data-video-start="220" data-video-end="235">
                 <p class="pi-label">Team</p>
                 <h2 class="pi-h2">Small, capable, committed.</h2>
                 <div class="pi-prose">
@@ -921,8 +977,8 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 </div>
             </section>
 
-            {# ── 10. Soft ask ── #}
-            <section class="fade-up fade-up-6">
+            {# ── Slide 11: Soft ask ── #}
+            <section class="pi-slide fade-up fade-up-6" data-slide-id="11" data-video-start="235" data-video-end="9999">
                 <div class="pi-ask">
                     <p class="pi-ask-quote">Talking to aligned investors and partners &mdash; through Boulder Startup Week and beyond.</p>
                     <div class="pi-ask-links">
@@ -933,6 +989,86 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 </div>
             </section>
 
+            {# ── Deck controls: prev / counter / next ── #}
+            <nav class="pi-deck-controls" aria-label="Pitch deck navigation">
+                <button type="button" class="pi-prev" aria-label="Previous slide">&larr; Prev</button>
+                <span class="pi-counter" aria-live="polite">1 / 11</span>
+                <button type="button" class="pi-next" aria-label="Next slide">Next &rarr;</button>
+            </nav>
+            <p class="pi-deck-hint">← → arrow keys to navigate &middot; play the video and the deck follows along</p>
+
         </article>
     </div>
 </main>
+
+<script>
+/* Pitch deck controller.
+   - Default mode: click prev/next or use arrow keys.
+   - Live mode (when a real <video> is wired up): timeupdate drives the slide.
+     Pausing the video flips into manual mode; play resumes auto-sync.
+     Manual nav while video is playing pauses it (user takes the wheel).
+   The video element is currently a placeholder div; once Aaron records,
+   replace it with `<video class="pi-video" controls poster="...">...` and
+   the script picks it up automatically. */
+(function () {
+    const slides = Array.from(document.querySelectorAll('.pi-deck .pi-slide'));
+    if (slides.length === 0) return;
+
+    const counter = document.querySelector('.pi-counter');
+    const prev = document.querySelector('.pi-prev');
+    const next = document.querySelector('.pi-next');
+    const video = document.querySelector('video.pi-video');
+
+    let current = 0;
+    let manualMode = !video;
+
+    function show(i) {
+        if (i < 0 || i >= slides.length) return;
+        slides[current].classList.remove('is-active');
+        slides[i].classList.add('is-active');
+        current = i;
+        if (counter) counter.textContent = (i + 1) + ' / ' + slides.length;
+        if (prev) prev.disabled = i === 0;
+        if (next) next.disabled = i === slides.length - 1;
+    }
+
+    function takeManualControl() {
+        manualMode = true;
+        if (video && !video.paused) video.pause();
+    }
+
+    if (prev) prev.addEventListener('click', function () { takeManualControl(); show(current - 1); });
+    if (next) next.addEventListener('click', function () { takeManualControl(); show(current + 1); });
+
+    document.addEventListener('keydown', function (e) {
+        const tag = e.target && e.target.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            takeManualControl();
+            show(Math.min(current + 1, slides.length - 1));
+            e.preventDefault();
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            takeManualControl();
+            show(Math.max(current - 1, 0));
+            e.preventDefault();
+        }
+    });
+
+    if (video) {
+        video.addEventListener('play', function () { manualMode = false; });
+        video.addEventListener('pause', function () { manualMode = true; });
+        video.addEventListener('timeupdate', function () {
+            if (manualMode) return;
+            const t = video.currentTime;
+            const idx = slides.findIndex(function (s) {
+                const start = parseFloat(s.dataset.videoStart);
+                const end = parseFloat(s.dataset.videoEnd);
+                return !isNaN(start) && !isNaN(end) && t >= start && t < end;
+            });
+            if (idx >= 0 && idx !== current) show(idx);
+        });
+    }
+
+    show(0);
+})();
+</script>
