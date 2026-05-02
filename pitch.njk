@@ -155,13 +155,53 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
 /* ── Deck column ──
    Only the active slide is shown; prev/next + keyboard arrows step through.
    When a real <video> is wired up, video timeupdate drives slide changes
-   (data-video-start / data-video-end on each slide). Pause = manual mode. */
+   (data-video-start / data-video-end on each slide). Pause = manual mode.
+
+   Each slide is its own framed surface — same min-height, same padding,
+   same border, same slide-N indicator top-right. Flipping through the deck
+   feels like flipping through slides, not scrolling through sections. */
+.pi-deck { counter-reset: slide-num; }
 .pi-deck .pi-slide {
+    counter-increment: slide-num;
     display: none;
-    padding: 0;
+    position: relative;
+    min-height: 68vh;
+    padding: 3.5rem 2.75rem 3rem;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--card-bg);
+    box-shadow: 0 1px 3px rgba(44, 42, 38, 0.04);
+    box-sizing: border-box;
 }
 .pi-deck .pi-slide.is-active {
-    display: block;
+    display: flex;
+    flex-direction: column;
+}
+.pi-deck .pi-slide::after {
+    content: counter(slide-num) " / 11";
+    position: absolute;
+    top: 1.5rem;
+    right: 1.75rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--fg-dim);
+}
+/* Short-content slides (hero, ask) center their content in the frame
+   so the deck doesn't feel collapsed at the top. */
+.pi-deck .pi-slide.pi-slide-center.is-active {
+    justify-content: center;
+}
+@media (max-width: 700px) {
+    .pi-deck .pi-slide {
+        min-height: auto;
+        padding: 2.5rem 1.5rem 2rem;
+        border-radius: 10px;
+    }
+    .pi-deck .pi-slide::after {
+        top: 1rem;
+        right: 1.1rem;
+    }
 }
 
 .pi-deck-controls {
@@ -238,11 +278,19 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
 .pi-deck[data-notes="on"] .pi-slide.is-active .pi-notes {
     display: block;
 }
+/* Counter in the controls bar is visually hidden — the in-frame ::after
+   indicator is the primary surface — but kept in the DOM as a polite
+   live region so screen readers still hear "slide N of 11" on change. */
 .pi-counter {
-    font-family: var(--mono);
-    font-size: 0.85rem;
-    color: var(--fg-muted);
-    letter-spacing: 0.04em;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 .pi-deck-hint {
     margin-top: 0.85rem;
@@ -676,7 +724,7 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
     <article class="pi-deck fade-up fade-up-1">
 
             {# ── Slide 1: Hero ── #}
-            <section class="pi-slide pi-hero fade-up fade-up-2" data-slide-id="1" data-video-start="0" data-video-end="15">
+            <section class="pi-slide pi-hero pi-slide-center fade-up fade-up-2" data-slide-id="1" data-video-start="0" data-video-end="15">
                 <p class="pi-eyebrow">Open Parachute, PBC &middot; 2026</p>
                 <h1 class="pi-h1">Own your context.<br>Own your AI.</h1>
                 <p class="pi-lede">Self-hosted personal-AI infrastructure. Voice-first. Open source.</p>
@@ -1054,7 +1102,7 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
             </section>
 
             {# ── Slide 11: Soft ask ── #}
-            <section class="pi-slide fade-up fade-up-6" data-slide-id="11" data-video-start="235" data-video-end="9999">
+            <section class="pi-slide pi-slide-center fade-up fade-up-6" data-slide-id="11" data-video-start="235" data-video-end="9999">
                 <div class="pi-ask">
                     <p class="pi-ask-quote">Talking to aligned investors and partners &mdash; through Boulder Startup Week and beyond.</p>
                     <div class="pi-ask-links">
