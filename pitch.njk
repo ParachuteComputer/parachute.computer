@@ -7,38 +7,97 @@ og_title: "Own your context. Own your AI."
 og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-first. Open source. The substrate every agent and interface should sit on top of."
 ---
 <style>
-/* Pitch v2 — sticky video sidebar + scroll walkthrough.
-   Investor-readable top to bottom; product-manifesto-readable for everyone else. */
+/* Pitch v4 — single full-width deck + floating corner video widget.
+   Investor-readable as a click-through; "N" toggles speaker notes for depth. */
 
 .pi-page {
-    max-width: 1180px;
+    max-width: 920px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 3rem 1.5rem 5rem;
 }
 
-/* ── Two-column grid: sticky video left, walkthrough right.
-   On mobile, collapses to single column (video first). ── */
-.pi-grid {
-    display: grid;
-    grid-template-columns: minmax(360px, 1fr) minmax(0, 1.4fr);
-    gap: 3.5rem;
-    padding: 3rem 0 5rem;
-    align-items: start;
-}
-
-.pi-sticky {
-    position: sticky;
-    top: 5.5rem;
-    align-self: start;
-}
-
-/* ── Video card placeholder (real video drops in later) ── */
-.pi-video-card {
+/* ── Floating corner video widget ──
+   Collapsed: a small "▶ Watch pitch" button anchored bottom-right.
+   Expanded: the video panel slides up. Dismiss = back to collapsed.
+   When a real <video class="pi-video"> is dropped in, the deck script
+   advances slides via timeupdate while the video is playing. */
+.pi-video-widget {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 50;
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(44, 42, 38, 0.14);
     overflow: hidden;
-    box-shadow: 0 6px 24px rgba(44, 42, 38, 0.06);
+    transition: width 0.2s ease, box-shadow 0.2s ease;
+}
+.pi-video-widget[data-state="collapsed"] .pi-video-panel {
+    display: none;
+}
+.pi-video-widget[data-state="expanded"] {
+    width: 380px;
+    box-shadow: 0 12px 40px rgba(44, 42, 38, 0.2);
+}
+
+.pi-video-toggle {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    padding: 0.7rem 1.1rem;
+    cursor: pointer;
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    line-height: 1.3;
+}
+.pi-video-toggle:hover {
+    background: var(--bg-soft);
+}
+.pi-video-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+.pi-video-toggle-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.pi-video-toggle-icon svg {
+    width: 10px;
+    height: 10px;
+    fill: currentColor;
+    margin-left: 1px;
+}
+.pi-video-duration {
+    color: var(--fg-muted);
+    font-size: 0.78rem;
+    font-family: var(--mono);
+}
+.pi-video-toggle-close {
+    color: var(--fg-muted);
+    font-size: 1.1rem;
+    line-height: 1;
+}
+.pi-video-widget[data-state="collapsed"] .pi-video-toggle-close { display: none; }
+.pi-video-widget[data-state="expanded"] .pi-video-toggle-icon,
+.pi-video-widget[data-state="expanded"] .pi-video-duration { display: none; }
+
+/* ── Video panel (expanded) ── */
+.pi-video-panel {
+    border-top: 1px solid var(--border);
 }
 .pi-video-frame {
     aspect-ratio: 16 / 10;
@@ -47,13 +106,12 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
+    gap: 0.75rem;
     color: var(--fg-muted);
-    position: relative;
 }
 .pi-video-play {
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
     background: var(--accent);
     color: #fff;
@@ -61,50 +119,37 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 14px rgba(74, 124, 89, 0.3);
-    transition: transform 0.15s ease, background 0.15s ease;
 }
 .pi-video-play svg {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     fill: currentColor;
-    margin-left: 4px;
-}
-.pi-video-frame:hover .pi-video-play {
-    transform: scale(1.05);
-    background: var(--accent-hover);
+    margin-left: 3px;
 }
 .pi-video-label {
     font-family: var(--mono);
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--fg-dim);
 }
 .pi-video-meta {
-    padding: 1rem 1.25rem;
+    padding: 0.85rem 1.1rem;
     border-top: 1px solid var(--border);
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     color: var(--fg-muted);
     line-height: 1.5;
 }
-.pi-video-meta strong {
-    color: var(--fg);
-    font-weight: 500;
-    display: block;
-    margin-bottom: 0.2rem;
-}
 
-.pi-sticky-aside {
-    margin-top: 1.25rem;
-    font-size: 0.82rem;
-    line-height: 1.55;
-    color: var(--fg-dim);
-}
-.pi-sticky-aside a {
-    color: var(--fg-muted);
-}
-.pi-sticky-aside a:hover {
-    color: var(--accent);
+@media (max-width: 700px) {
+    .pi-video-widget {
+        bottom: 0.75rem;
+        right: 0.75rem;
+    }
+    .pi-video-widget[data-state="expanded"] {
+        left: 0.75rem;
+        width: auto;
+    }
 }
 
 /* ── Deck column ──
@@ -147,6 +192,51 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
 .pi-deck-controls button:disabled {
     opacity: 0.35;
     cursor: not-allowed;
+}
+.pi-notes-toggle[aria-pressed="true"] {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* ── Speaker notes ──
+   Hidden by default. Toggle from deck controls or press "N".
+   Visible only when the deck container carries data-notes="on".
+   The slide-level prose stays terse; long prose lives here. */
+.pi-notes {
+    display: none;
+    margin-top: 1.75rem;
+    padding: 1.1rem 1.4rem;
+    border-left: 3px solid var(--accent);
+    background: var(--bg-soft);
+    border-radius: 0 8px 8px 0;
+    color: var(--fg-muted);
+    font-size: 0.92rem;
+    line-height: 1.7;
+}
+.pi-notes::before {
+    content: "Speaker notes";
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    margin-bottom: 0.55rem;
+}
+.pi-notes p {
+    margin: 0 0 0.8rem;
+    max-width: 36rem;
+}
+.pi-notes p:last-child { margin: 0; }
+.pi-notes strong {
+    color: var(--fg);
+    font-weight: 500;
+}
+.pi-notes em { font-style: italic; }
+.pi-notes a { color: var(--accent); }
+.pi-deck[data-notes="on"] .pi-slide.is-active .pi-notes {
+    display: block;
 }
 .pi-counter {
     font-family: var(--mono);
@@ -555,16 +645,8 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
     margin-right: 0.6rem;
 }
 
-/* ── Mobile: stack, kill sticky ── */
+/* ── Mobile: collapse multi-col grids ── */
 @media (max-width: 900px) {
-    .pi-grid {
-        grid-template-columns: 1fr;
-        gap: 2.5rem;
-        padding: 2rem 0 4rem;
-    }
-    .pi-sticky {
-        position: static;
-    }
     .pi-traps,
     .pi-modules,
     .pi-future,
@@ -584,52 +666,23 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
 </style>
 
 <main class="pi-page">
-    <div class="pi-grid">
 
-        {# ── Sticky left column: video card + small aside ── #}
-        <aside class="pi-sticky fade-up fade-up-1">
-            <div class="pi-video-card">
-                {# TODO: replace placeholder with embedded video once Aaron records.
-                   The deck script looks for `video.pi-video` — drop in:
-                     <video class="pi-video" controls poster="..." preload="metadata">
-                       <source src="..." type="video/mp4">
-                     </video>
-                   and live-mode (timeupdate-driven slide sync) starts working.
-                   Per-slide timecodes live in data-video-start/data-video-end on each slide. #}
-                <div class="pi-video-frame" role="img" aria-label="Pitch video — coming for Boulder Startup Week">
-                    <div class="pi-video-play" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M8 5v14l11-7z"/>
-                        </svg>
-                    </div>
-                    <span class="pi-video-label">Video coming soon</span>
-                </div>
-                <div class="pi-video-meta">
-                    <strong>Aaron giving the pitch</strong>
-                    ~4 minutes &middot; recording for Boulder Startup Week
-                </div>
-            </div>
-
-            <div class="pi-sticky-aside">
-                Click through the deck on the right. When the video is recorded, playing it will advance the deck for you &mdash; pause to read at your own pace, or use the arrows to jump ahead.<br><br>
-                <a href="/install/">Install &rarr;</a><br>
-                <a href="/roadmap/">Roadmap &rarr;</a><br>
-                <a href="https://github.com/ParachuteComputer" target="_blank" rel="noopener noreferrer">github.com/ParachuteComputer &rarr;</a>
-            </div>
-        </aside>
-
-        {# ── Right column: deck.
-           Slides hidden by default (CSS); JS at bottom of file shows one at a time.
-           data-video-start / data-video-end are placeholder seconds — Aaron will
-           provide real timecodes after recording the pitch video. #}
-        <article class="pi-deck">
+    {# ── Single full-width deck.
+       Slides hidden by default (CSS); JS at bottom of file shows one at a time.
+       data-video-start / data-video-end are placeholder seconds — Aaron will
+       provide real timecodes after recording the pitch video.
+       The video lives in a floating corner widget after </main>; when a real
+       <video class="pi-video"> is dropped in there, timeupdate drives slide sync. #}
+    <article class="pi-deck fade-up fade-up-1">
 
             {# ── Slide 1: Hero ── #}
             <section class="pi-slide pi-hero fade-up fade-up-2" data-slide-id="1" data-video-start="0" data-video-end="15">
                 <p class="pi-eyebrow">Open Parachute, PBC &middot; 2026</p>
                 <h1 class="pi-h1">Own your context.<br>Own your AI.</h1>
                 <p class="pi-lede">Self-hosted personal-AI infrastructure. Voice-first. Open source.</p>
-                <p class="pi-prose"><strong>Parachute is the substrate every agent and interface should sit on top of.</strong> Your knowledge graph, your transcription, your auth &mdash; on your machine, talking to whatever AI you want, on your terms.</p>
+                <aside class="pi-notes">
+                    <p><strong>Parachute is the substrate every agent and interface should sit on top of.</strong> Your knowledge graph, your transcription, your auth &mdash; on your machine, talking to whatever AI you want, on your terms.</p>
+                </aside>
                 <div class="pi-img">
                     {# Reused from old NVC deck slide 1: person walking with pendant, knowledge graph flowing. #}
                     <picture>
@@ -648,11 +701,11 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
             <section class="pi-slide fade-up fade-up-3" data-slide-id="2" data-video-start="15" data-video-end="45">
                 <p class="pi-label">The race we stopped chasing</p>
                 <h2 class="pi-h2">Everyone is building agents.<br>We were too. <em>We stopped.</em></h2>
-                <div class="pi-prose">
+                <aside class="pi-notes">
                     <p>OpenAI Operator. Claude Computer Use. Manus. Devin. Perplexity. The big labs and the loudest startups are all sprinting to be <em>the</em> agent &mdash; the one that does your taxes and books your travel and answers your email.</p>
                     <p>We watched features get cloned in weeks. We watched the labs ship things our roadmap had on it, while we were still building. The labs have billions to outspend, infinite GPUs, and a head start. <strong>The agent race is a race to the bottom for everyone who isn't a lab.</strong></p>
                     <p>So we asked: what's missing? What does every agent need that none of the labs are building &mdash; because building it would weaken their lock-in?</p>
-                </div>
+                </aside>
                 <div class="pi-img">
                     {# Reused from old NVC deck slide 2: crowded agent landscape. #}
                     <picture>
@@ -672,20 +725,18 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
             <section class="pi-slide fade-up fade-up-4" data-slide-id="3" data-video-start="45" data-video-end="65">
                 <p class="pi-label">The gesture that started this</p>
                 <h2 class="pi-h2">It started with a voice note<br>on a walk.</h2>
-                <div class="pi-prose">
+                <p class="pi-lede">Voice is how Parachute meets you. Substrate is what Parachute is.</p>
+                <aside class="pi-notes">
                     <p>The simplest interface: <strong>press a button, talk</strong>. No app to open, no cursor, no prompt window. The thought fades fast; the gesture has to be faster.</p>
                     <p>That's where Parachute started, and it's still the front door for most people. A voice-first journal &mdash; capture as you walk, capture as you wake up, capture before the meeting starts. Local transcription by default. Audio never leaves your device unless you ask it to.</p>
-                    <p>But voice was the gesture, not the product. The product is what happens to the words after they're transcribed &mdash; where they live, who can read them, what compounds over time. <strong>Voice is how Parachute meets you. Substrate is what Parachute is.</strong></p>
-                </div>
+                    <p>But voice was the gesture, not the product. The product is what happens to the words after they're transcribed &mdash; where they live, who can read them, what compounds over time.</p>
+                </aside>
             </section>
 
             {# ── Slide 4: What's broken ── #}
             <section class="pi-slide fade-up fade-up-5" data-slide-id="4" data-video-start="65" data-video-end="95">
                 <p class="pi-label">Why this is missing today</p>
                 <h2 class="pi-h2">Every layer above the data<br>is fighting for the data.</h2>
-                <div class="pi-prose" style="margin-bottom: 1rem;">
-                    <p>The tools you're using already are not on your side, and the friction shows up in the same shapes:</p>
-                </div>
                 <div class="pi-traps">
                     <div class="pi-trap">
                         <strong>Notion traps you</strong>
@@ -704,19 +755,16 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                         <span>Operator runs in their cloud. Tasks live in their projects. Cowork data goes to their server. The agents are getting more powerful and your leverage is shrinking.</span>
                     </div>
                 </div>
-                <div class="pi-prose" style="margin-top: 1.5rem;">
+                <aside class="pi-notes">
+                    <p>The tools you're using already are not on your side, and the friction shows up in the same shapes &mdash; trap, lose, forget, lock in.</p>
                     <p>Parachute is the substrate underneath. Same data, different relationship: <strong>yours, on your machine, accessible to every agent and interface you choose to point at it.</strong></p>
-                </div>
+                </aside>
             </section>
 
             {# ── Slide 5: The Parachute substrate ── #}
             <section class="pi-slide fade-up fade-up-5" data-slide-id="5" data-video-start="95" data-video-end="130">
                 <p class="pi-label">The substrate</p>
                 <h2 class="pi-h2">Spin up a vault.<br>Give any AI a link.</h2>
-                <div class="pi-prose">
-                    <p>A <strong>vault</strong> is a knowledge graph that runs on your machine. SQLite-backed. Wikilinks, full-text search, semantic search. Reachable over <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer">MCP</a> &mdash; the open standard every major lab now supports &mdash; and over a plain REST API. Any AI can read and write to it.</p>
-                    <p>Around the vault, four small modules form the rest of the substrate:</p>
-                </div>
                 <div class="pi-img">
                     {# Reused from old NVC deck slide 5: phone/browser/pendant → Vault → Claude/ChatGPT/Gemini.
                        TODO: refresh diagram for current ecosystem — Hub-as-issuer + the four modules + scoped JWTs. #}
@@ -732,40 +780,36 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                     </picture>
                     <p class="pi-img-caption">Architecture diagram &mdash; any client over MCP. Refresh planned to show Hub-as-issuer + the four modules + scoped JWTs.</p>
                 </div>
-                <div class="pi-prose" style="margin-bottom: 1.25rem;">
-                    <p>The shape:</p>
-                </div>
                 <div class="pi-flywheel">
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Vault</div>
-                        <div class="pi-flywheel-body"><strong>The graph.</strong> Notes, tags, links. Search and traversal. Where everything else reads from and writes to.</div>
+                        <div class="pi-flywheel-body"><strong>The graph.</strong> Notes, tags, links. Search and traversal.</div>
                     </div>
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Scribe</div>
-                        <div class="pi-flywheel-body"><strong>The ear.</strong> Whisper-compatible transcription. Local by default; bring your own cloud if you want.</div>
+                        <div class="pi-flywheel-body"><strong>The ear.</strong> Whisper-compatible transcription. Local by default.</div>
                     </div>
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Notes</div>
-                        <div class="pi-flywheel-body"><strong>The reference interface.</strong> Installable PWA, works offline, voice capture wired to Scribe. Reference, not requirement &mdash; build your own.</div>
+                        <div class="pi-flywheel-body"><strong>The reference interface.</strong> PWA, offline, voice capture.</div>
                     </div>
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Hub</div>
-                        <div class="pi-flywheel-body"><strong>The front door.</strong> Install / start / stop / expose. OAuth issuer with scope-narrowed JWTs. Per-module admin UI rendered automatically from each module's schema.</div>
+                        <div class="pi-flywheel-body"><strong>The front door.</strong> Install, start, stop, expose. OAuth issuer with scope-narrowed JWTs.</div>
                     </div>
                 </div>
-                <div class="pi-prose" style="margin-top: 1.5rem;">
+                <aside class="pi-notes">
+                    <p>A <strong>vault</strong> is a knowledge graph that runs on your machine. SQLite-backed. Wikilinks, full-text search, semantic search. Reachable over <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer">MCP</a> &mdash; the open standard every major lab now supports &mdash; and over a plain REST API. Any AI can read and write to it.</p>
+                    <p>Around the vault, four small modules form the rest of the substrate. Notes is a reference interface, not a requirement &mdash; build your own.</p>
                     <p>And underneath it all, a small <strong>module protocol</strong> &mdash; <code>info</code>, <code>config</code>, <code>services.json</code>, <code>well-known</code> &mdash; that any third-party module can implement and plug in. Calendar, email, your own knowledge bases, your own agents. The hub renders them like they were native.</p>
                     <p>Hub-as-issuer is the part that's quietly load-bearing: <strong>one identity, many narrowly-scoped tokens</strong>. A Notes app gets read+write to the vault. A read-only AI client gets read. A third-party module gets exactly the scope it asked for. You stop trusting tools transitively.</p>
-                </div>
+                </aside>
             </section>
 
             {# ── Slide 6: The flywheel ── #}
             <section class="pi-slide fade-up fade-up-5" data-slide-id="6" data-video-start="130" data-video-end="155">
                 <p class="pi-label">How it compounds</p>
                 <h2 class="pi-h2">Vault at the center.<br>Agents and interfaces orbit.</h2>
-                <div class="pi-prose">
-                    <p>The vault is the substrate. Everything else is an orbit around it.</p>
-                </div>
                 <div class="pi-flywheel">
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Capture</div>
@@ -784,6 +828,9 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                         <div class="pi-flywheel-body">The graph gets richer. Every read makes the next read better. The substrate is the part that doesn't get cloned next quarter.</div>
                     </div>
                 </div>
+                <aside class="pi-notes">
+                    <p>The vault is the substrate. Everything else is an orbit around it. Capture grows the graph; reads compound on it; third-party modules compose new behavior on top; and over time the graph itself is the moat &mdash; the part that doesn't get cloned next quarter.</p>
+                </aside>
                 <div class="pi-img" style="margin-top: 1.75rem;">
                     {# TODO: Gemini Image Generation prompt — "Minimalist diagram of a hub-and-spoke flywheel:
                        'Vault' at the center as a glowing knowledge graph node. Around it, in orbit, are four
@@ -800,9 +847,7 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
             <section class="pi-slide fade-up fade-up-5" data-slide-id="7" data-video-start="155" data-video-end="180">
                 <p class="pi-label">What ships today</p>
                 <h2 class="pi-h2">Five modules.<br>Installable with one command.</h2>
-                <div class="pi-prose">
-                    <p><code>parachute install &lt;module&gt;</code>. The hub coordinates lifecycle, OAuth, and the service catalog. We launched the first version on <strong>April 23, 2026</strong>; everything below is live.</p>
-                </div>
+                <p class="pi-lede"><code>parachute install &lt;module&gt;</code></p>
                 <div class="pi-modules">
                     <div class="pi-mod">
                         <span class="pi-mod-tag">Core</span>
@@ -835,15 +880,16 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                         <p><code>info</code>, <code>config</code>, <code>services.json</code>, <code>well-known</code>. The contract third-party modules plug into.</p>
                     </div>
                 </div>
+                <aside class="pi-notes">
+                    <p>The hub coordinates lifecycle, OAuth, and the service catalog. We launched the first version on <strong>April 23, 2026</strong>; everything above is live and self-installable today.</p>
+                    <p>Paraclaw is the one exploration on this slide &mdash; an opinionated all-in-one Parachute distribution, fork of NanoClaw with vault integration. The committed core is the four modules + the hub.</p>
+                </aside>
             </section>
 
             {# ── Slide 8: Cloud ── #}
             <section class="pi-slide fade-up fade-up-5" data-slide-id="8" data-video-start="180" data-video-end="200">
                 <p class="pi-label">The convenience path</p>
                 <h2 class="pi-h2">Self-host or let us host.<br>Same code. Same exits.</h2>
-                <div class="pi-prose">
-                    <p>Most people don't want to run a server. <strong>Parachute Cloud</strong> is the same modules, managed for you &mdash; vault, transcription, multi-device sync, public exposure done correctly. You bring your AI client. We run the substrate.</p>
-                </div>
                 <div class="pi-tiers">
                     <div class="pi-tier">
                         <div class="pi-tier-price">Free<span>&nbsp;</span></div>
@@ -858,18 +904,19 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                         <div class="pi-tier-body"><strong>Org / pro</strong> &mdash; team vaults, private deployments, extended modules</div>
                     </div>
                 </div>
-                <div class="pi-prose" style="margin-top: 1.25rem;">
+                <aside class="pi-notes">
+                    <p>Most people don't want to run a server. <strong>Parachute Cloud</strong> is the same modules, managed for you &mdash; vault, transcription, multi-device sync, public exposure done correctly. You bring your AI client. We run the substrate.</p>
                     <p>Same shape as self-hosted. Export everything. Leave at any time. <strong>The cloud is a convenience, not a SaaS ladder.</strong> We're not pricing your context.</p>
-                </div>
+                </aside>
             </section>
 
             {# ── Slide 9: The future ── #}
             <section class="pi-slide fade-up fade-up-5" data-slide-id="9" data-video-start="200" data-video-end="220">
                 <p class="pi-label">Where this goes</p>
                 <h2 class="pi-h2">A substrate the whole<br>personal-AI ecosystem grows on.</h2>
-                <div class="pi-prose">
+                <aside class="pi-notes">
                     <p>The agent race produces a winner-take-most layer at the top. Underneath it, every person needs a place where their context lives that <strong>isn't</strong> the lab. That's the substrate, and it's open.</p>
-                </div>
+                </aside>
                 <div class="pi-future">
                     <div class="pi-future-card">
                         <strong>The pendant</strong>
@@ -930,9 +977,9 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
             <section class="pi-slide fade-up fade-up-5" data-slide-id="10" data-video-start="220" data-video-end="235">
                 <p class="pi-label">Team</p>
                 <h2 class="pi-h2">Small, capable, committed.</h2>
-                <div class="pi-prose">
+                <aside class="pi-notes">
                     <p>A core team focused on the substrate. The product is open-source and built in the open at <a href="https://github.com/ParachuteComputer" target="_blank" rel="noopener noreferrer">github.com/ParachuteComputer</a>.</p>
-                </div>
+                </aside>
                 <div class="pi-team">
                     <div class="pi-person">
                         {# TODO: replace placeholder with Aaron's photo. Suggest: assets/pitch/team-aaron.jpg #}
@@ -1013,22 +1060,55 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                     <div class="pi-ask-links">
                         <div><span class="pi-ask-label">Email</span><a href="mailto:aaron@parachute.computer">aaron@parachute.computer</a></div>
                         <div><span class="pi-ask-label">GitHub</span><a href="https://github.com/ParachuteComputer" target="_blank" rel="noopener noreferrer">github.com/ParachuteComputer</a></div>
-                        <div><span class="pi-ask-label">Site</span><a href="/">parachute.computer</a></div>
+                        <div><span class="pi-ask-label">Install</span><a href="/install/">parachute.computer/install</a></div>
+                        <div><span class="pi-ask-label">Roadmap</span><a href="/roadmap/">parachute.computer/roadmap</a></div>
                     </div>
                 </div>
             </section>
 
-            {# ── Deck controls: prev / counter / next ── #}
+            {# ── Deck controls: prev / notes / counter / next ── #}
             <nav class="pi-deck-controls" aria-label="Pitch deck navigation">
                 <button type="button" class="pi-prev" aria-label="Previous slide">&larr; Prev</button>
+                <button type="button" class="pi-notes-toggle" aria-pressed="false" aria-label="Toggle speaker notes">Notes</button>
                 <span class="pi-counter" aria-live="polite">1 / 11</span>
                 <button type="button" class="pi-next" aria-label="Next slide">Next &rarr;</button>
             </nav>
-            <p class="pi-deck-hint">← → arrow keys to navigate &middot; play the video and the deck follows along</p>
+            <p class="pi-deck-hint">← → arrows to navigate &middot; <kbd>N</kbd> toggles speaker notes &middot; play the video and the deck follows along</p>
 
-        </article>
-    </div>
+    </article>
 </main>
+
+{# ── Floating corner video widget.
+   Collapsed = small "▶ Watch pitch" pill bottom-right. Click expands the panel.
+   Click × (or the toggle again) collapses. The deck script reads the
+   <video class="pi-video"> if/when it's dropped in, so the same script that
+   drove the v3 sticky-aside video drives this one too. #}
+<aside class="pi-video-widget" data-state="collapsed" aria-label="Pitch video">
+    <button type="button" class="pi-video-toggle" aria-label="Toggle pitch video" aria-expanded="false">
+        <span class="pi-video-toggle-label">
+            <span class="pi-video-toggle-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+            </span>
+            <span>Watch pitch</span>
+            <span class="pi-video-duration">&middot; ~4 min</span>
+        </span>
+        <span class="pi-video-toggle-close" aria-hidden="true">&times;</span>
+    </button>
+    <div class="pi-video-panel">
+        {# TODO: replace placeholder with embedded video once Aaron records.
+           Drop in: <video class="pi-video" controls preload="metadata" poster="..."><source src="..." type="video/mp4"></video>
+           and live-mode (timeupdate-driven slide sync) starts working. #}
+        <div class="pi-video-frame" role="img" aria-label="Pitch video — coming for Boulder Startup Week">
+            <div class="pi-video-play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <span class="pi-video-label">Video coming soon</span>
+        </div>
+        <div class="pi-video-meta">
+            Aaron giving the pitch &middot; ~4 min &middot; recording for Boulder Startup Week
+        </div>
+    </div>
+</aside>
 
 <script>
 /* Pitch deck controller.
@@ -1099,5 +1179,46 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
     }
 
     show(0);
+})();
+
+/* Floating video widget — collapsed/expanded toggle.
+   Click anywhere on the toggle bar (button, icon, or close ×) flips state. */
+(function () {
+    const widget = document.querySelector('.pi-video-widget');
+    if (!widget) return;
+    const toggle = widget.querySelector('.pi-video-toggle');
+    if (!toggle) return;
+    toggle.addEventListener('click', function () {
+        const expanded = widget.dataset.state === 'expanded';
+        widget.dataset.state = expanded ? 'collapsed' : 'expanded';
+        toggle.setAttribute('aria-expanded', String(!expanded));
+    });
+})();
+
+/* Speaker notes — off by default. Click the button or press N to toggle.
+   CSS gates .pi-notes visibility on the deck's data-notes attribute. */
+(function () {
+    const deck = document.querySelector('.pi-deck');
+    const btn = document.querySelector('.pi-notes-toggle');
+    if (!deck) return;
+    function setNotes(on) {
+        deck.dataset.notes = on ? 'on' : 'off';
+        if (btn) {
+            btn.setAttribute('aria-pressed', String(on));
+            btn.textContent = on ? 'Hide notes' : 'Notes';
+        }
+    }
+    setNotes(false);
+    if (btn) btn.addEventListener('click', function () {
+        setNotes(deck.dataset.notes !== 'on');
+    });
+    document.addEventListener('keydown', function (e) {
+        const tag = e.target && e.target.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        if (e.key === 'n' || e.key === 'N') {
+            setNotes(deck.dataset.notes !== 'on');
+            e.preventDefault();
+        }
+    });
 })();
 </script>
