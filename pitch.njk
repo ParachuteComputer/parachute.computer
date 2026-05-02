@@ -1,0 +1,888 @@
+---
+layout: base.njk
+title: "Pitch"
+description: "Parachute is self-hosted personal-AI infrastructure. Voice-first. Open source. A substrate for every AI you use — from Open Parachute, PBC."
+permalink: /pitch/
+og_title: "Own your context. Own your AI."
+og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-first. Open source. The substrate every agent and interface should sit on top of."
+---
+<style>
+/* Pitch v2 — sticky video sidebar + scroll walkthrough.
+   Investor-readable top to bottom; product-manifesto-readable for everyone else. */
+
+.pi-page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+/* ── Two-column grid: sticky video left, walkthrough right.
+   On mobile, collapses to single column (video first). ── */
+.pi-grid {
+    display: grid;
+    grid-template-columns: minmax(360px, 1fr) minmax(0, 1.4fr);
+    gap: 3.5rem;
+    padding: 3rem 0 5rem;
+    align-items: start;
+}
+
+.pi-sticky {
+    position: sticky;
+    top: 5.5rem;
+    align-self: start;
+}
+
+/* ── Video card placeholder (real video drops in later) ── */
+.pi-video-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(44, 42, 38, 0.06);
+}
+.pi-video-frame {
+    aspect-ratio: 16 / 10;
+    background: linear-gradient(135deg, var(--bg-soft) 0%, #ece7dd 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: var(--fg-muted);
+    position: relative;
+}
+.pi-video-play {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(74, 124, 89, 0.3);
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+.pi-video-play svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+    margin-left: 4px;
+}
+.pi-video-frame:hover .pi-video-play {
+    transform: scale(1.05);
+    background: var(--accent-hover);
+}
+.pi-video-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+}
+.pi-video-meta {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    line-height: 1.5;
+}
+.pi-video-meta strong {
+    color: var(--fg);
+    font-weight: 500;
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.pi-sticky-aside {
+    margin-top: 1.25rem;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: var(--fg-dim);
+}
+.pi-sticky-aside a {
+    color: var(--fg-muted);
+}
+.pi-sticky-aside a:hover {
+    color: var(--accent);
+}
+
+/* ── Walkthrough column ── */
+.pi-walkthrough > section {
+    padding: 0 0 4rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4rem;
+}
+.pi-walkthrough > section:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.pi-eyebrow {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    margin-bottom: 1.25rem;
+}
+.pi-label {
+    display: inline-block;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+}
+
+.pi-h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.4rem, 4.4vw, 3.4rem);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    color: var(--fg);
+    margin-bottom: 1rem;
+}
+.pi-h1 em {
+    font-style: italic;
+    color: var(--fg-muted);
+}
+.pi-h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.7rem, 2.8vw, 2.25rem);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+    color: var(--fg);
+    margin-bottom: 1.4rem;
+}
+.pi-h2 em {
+    font-style: italic;
+    color: var(--fg-muted);
+}
+.pi-lede {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.2rem;
+    line-height: 1.5;
+    color: var(--fg-muted);
+    margin-bottom: 1.5rem;
+    max-width: 32rem;
+}
+
+.pi-prose {
+    color: var(--fg-muted);
+    font-size: 1rem;
+    line-height: 1.75;
+}
+.pi-prose p {
+    margin-bottom: 1rem;
+    max-width: 36rem;
+}
+.pi-prose p:last-child { margin-bottom: 0; }
+.pi-prose strong {
+    color: var(--fg);
+    font-weight: 500;
+}
+.pi-prose code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--bg-soft);
+    padding: 0.08em 0.35em;
+    border-radius: 4px;
+    color: var(--fg);
+}
+
+/* Image inside a section */
+.pi-img {
+    margin: 1.5rem 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--bg-soft);
+}
+.pi-img img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.pi-img-caption {
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+    line-height: 1.55;
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+.pi-img-placeholder {
+    aspect-ratio: 16 / 9;
+    background: repeating-linear-gradient(
+        45deg,
+        var(--bg-soft),
+        var(--bg-soft) 12px,
+        rgba(0,0,0,0.02) 12px,
+        rgba(0,0,0,0.02) 24px
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fg-dim);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    text-align: center;
+    padding: 1rem 1.5rem;
+    line-height: 1.6;
+}
+
+/* "What's broken" four-trap grid */
+.pi-traps {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+.pi-trap {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    background: var(--card-bg);
+}
+.pi-trap strong {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--fg);
+    display: block;
+    margin-bottom: 0.45rem;
+}
+.pi-trap span {
+    display: block;
+    color: var(--fg-muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
+
+/* Module grid (What ships today) */
+.pi-modules {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.9rem;
+    margin-top: 0.5rem;
+}
+.pi-mod {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.35rem;
+    background: var(--card-bg);
+}
+.pi-mod-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.6rem;
+}
+.pi-mod-tag.exploration {
+    color: var(--fg-dim);
+    background: var(--bg-soft);
+}
+.pi-mod h3 {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--fg);
+    margin: 0 0 0.35rem;
+}
+.pi-mod p {
+    font-size: 0.88rem;
+    color: var(--fg-muted);
+    line-height: 1.55;
+    margin: 0;
+}
+
+/* Flywheel diagram fallback (simple list with role-orbit framing) */
+.pi-flywheel {
+    margin-top: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--card-bg);
+    overflow: hidden;
+}
+.pi-flywheel-row {
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 8.5rem 1fr;
+    gap: 1.25rem;
+    align-items: baseline;
+}
+.pi-flywheel-row:last-child { border-bottom: none; }
+.pi-flywheel-role {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    color: var(--accent);
+}
+.pi-flywheel-body {
+    color: var(--fg-muted);
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
+.pi-flywheel-body strong {
+    color: var(--fg);
+    font-weight: 500;
+}
+
+/* Tier table */
+.pi-tiers {
+    margin-top: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--card-bg);
+}
+.pi-tier {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: 1.25rem;
+    align-items: baseline;
+    padding: 0.95rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+}
+.pi-tier:last-child { border-bottom: none; }
+.pi-tier.featured { background: var(--accent-soft); }
+.pi-tier-price {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    color: var(--accent);
+    line-height: 1;
+}
+.pi-tier-price span {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    color: var(--fg-dim);
+}
+.pi-tier-body {
+    color: var(--fg-muted);
+    font-size: 0.92rem;
+    line-height: 1.55;
+}
+.pi-tier-body strong { color: var(--fg); font-weight: 500; }
+
+/* Future cards */
+.pi-future {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+.pi-future-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    background: var(--card-bg);
+}
+.pi-future-card strong {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: var(--fg);
+    display: block;
+    margin-bottom: 0.4rem;
+}
+.pi-future-card span {
+    color: var(--fg-muted);
+    font-size: 0.88rem;
+    line-height: 1.6;
+    display: block;
+}
+
+/* Pendant gallery */
+.pi-pendant-gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+}
+.pi-pendant-gallery .pi-img {
+    margin: 0;
+}
+
+/* Team */
+.pi-team {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+.pi-person {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.35rem;
+    background: var(--card-bg);
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 1rem;
+    align-items: start;
+}
+.pi-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--serif);
+    font-size: 0.65rem;
+    color: var(--fg-dim);
+    text-align: center;
+    flex-shrink: 0;
+}
+.pi-person-body strong {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    color: var(--fg);
+    font-weight: 400;
+    display: block;
+    margin-bottom: 0.15rem;
+}
+.pi-person-body span {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--fg-muted);
+    line-height: 1.55;
+}
+.pi-person-role {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.35rem;
+    display: block;
+}
+
+/* Soft ask */
+.pi-ask {
+    margin-top: 0;
+    padding: 2rem 2rem 2.25rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: linear-gradient(180deg, var(--bg-soft) 0%, var(--card-bg) 100%);
+}
+.pi-ask-quote {
+    font-family: var(--serif);
+    font-size: clamp(1.4rem, 2.4vw, 1.75rem);
+    line-height: 1.3;
+    color: var(--fg);
+    margin-bottom: 1.5rem;
+    max-width: 36rem;
+    letter-spacing: -0.015em;
+}
+.pi-ask-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.95rem;
+    color: var(--fg-muted);
+}
+.pi-ask-links a {
+    color: var(--accent);
+}
+.pi-ask-links .pi-ask-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    margin-right: 0.6rem;
+}
+
+/* ── Mobile: stack, kill sticky ── */
+@media (max-width: 900px) {
+    .pi-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        padding: 2rem 0 4rem;
+    }
+    .pi-sticky {
+        position: static;
+    }
+    .pi-traps,
+    .pi-modules,
+    .pi-future,
+    .pi-team,
+    .pi-pendant-gallery {
+        grid-template-columns: 1fr;
+    }
+    .pi-flywheel-row {
+        grid-template-columns: 1fr;
+        gap: 0.4rem;
+    }
+    .pi-tier {
+        grid-template-columns: 5rem 1fr;
+        gap: 0.85rem;
+    }
+}
+</style>
+
+<main class="pi-page">
+    <div class="pi-grid">
+
+        {# ── Sticky left column: video card + small aside ── #}
+        <aside class="pi-sticky fade-up fade-up-1">
+            <div class="pi-video-card">
+                {# TODO: replace placeholder with embedded video once Aaron records.
+                   Suggested embed: <video src="..." controls poster="...">.
+                   When live, consider: autoplay muted, then unmute on first interaction. #}
+                <div class="pi-video-frame" role="img" aria-label="Pitch video — coming for Boulder Startup Week">
+                    <div class="pi-video-play" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                    </div>
+                    <span class="pi-video-label">Video coming soon</span>
+                </div>
+                <div class="pi-video-meta">
+                    <strong>Aaron giving the pitch</strong>
+                    ~4 minutes &middot; recording for Boulder Startup Week
+                </div>
+            </div>
+
+            <div class="pi-sticky-aside">
+                The video plays the headline. The walkthrough on the right is the long version &mdash; for anyone who wants to read more deeply, in their own time.<br><br>
+                <a href="/install/">Install &rarr;</a><br>
+                <a href="/roadmap/">Roadmap &rarr;</a><br>
+                <a href="https://github.com/ParachuteComputer" target="_blank">github.com/ParachuteComputer &rarr;</a>
+            </div>
+        </aside>
+
+        {# ── Right column: scrolling walkthrough ── #}
+        <article class="pi-walkthrough">
+
+            {# ── Hero ── #}
+            <section class="pi-hero fade-up fade-up-2">
+                <p class="pi-eyebrow">Open Parachute, PBC &middot; 2026</p>
+                <h1 class="pi-h1">Own your context.<br>Own your AI.</h1>
+                <p class="pi-lede">Self-hosted personal-AI infrastructure. Voice-first. Open source.</p>
+                <p class="pi-prose"><strong>Parachute is the substrate every agent and interface should sit on top of.</strong> Your knowledge graph, your transcription, your auth &mdash; on your machine, talking to whatever AI you want, on your terms.</p>
+                <div class="pi-img">
+                    {# Reused from old NVC deck slide 1: person walking with pendant, knowledge graph flowing.
+                       TODO: image is large (~7MB). Optimize/recompress before next pass. #}
+                    <img src="/assets/pitch/hero-pendant-walking.png" alt="A person walking outdoors with a Parachute pendant, knowledge graph flowing from their thoughts">
+                </div>
+            </section>
+
+            {# ── 1. The race we stopped chasing ── #}
+            <section class="fade-up fade-up-3">
+                <p class="pi-label">The race we stopped chasing</p>
+                <h2 class="pi-h2">Everyone is building agents.<br>We were too. <em>We stopped.</em></h2>
+                <div class="pi-prose">
+                    <p>OpenAI Operator. Claude Computer Use. Manus. Devin. Perplexity. The big labs and the loudest startups are all sprinting to be <em>the</em> agent &mdash; the one that does your taxes and books your travel and answers your email.</p>
+                    <p>We watched features get cloned in weeks. We watched the labs ship things our roadmap had on it, while we were still building. The labs have billions to outspend, infinite GPUs, and a head start. <strong>The agent race is a race to the bottom for everyone who isn't a lab.</strong></p>
+                    <p>So we asked: what's missing? What does every agent need that none of the labs are building &mdash; because building it would weaken their lock-in?</p>
+                </div>
+                <div class="pi-img">
+                    {# Reused from old NVC deck slide 2: crowded agent landscape. #}
+                    <img src="/assets/pitch/agent-race-landscape.png" alt="A crowded landscape of AI assistant icons — Operator, Cowork, Manus, Devin, Perplexity, all racing">
+                    <p class="pi-img-caption">Everyone is racing to be the agent. We're building the substrate underneath.</p>
+                </div>
+            </section>
+
+            {# ── 2. Voice-first ── #}
+            <section class="fade-up fade-up-4">
+                <p class="pi-label">The gesture that started this</p>
+                <h2 class="pi-h2">It started with a voice note<br>on a walk.</h2>
+                <div class="pi-prose">
+                    <p>The simplest interface: <strong>press a button, talk</strong>. No app to open, no cursor, no prompt window. The thought fades fast; the gesture has to be faster.</p>
+                    <p>That's where Parachute started, and it's still the front door for most people. A voice-first journal &mdash; capture as you walk, capture as you wake up, capture before the meeting starts. Local transcription by default. Audio never leaves your device unless you ask it to.</p>
+                    <p>But voice was the gesture, not the product. The product is what happens to the words after they're transcribed &mdash; where they live, who can read them, what compounds over time. <strong>Voice is how Parachute meets you. Substrate is what Parachute is.</strong></p>
+                </div>
+            </section>
+
+            {# ── 3. What's broken ── #}
+            <section class="fade-up fade-up-5">
+                <p class="pi-label">Why this is missing today</p>
+                <h2 class="pi-h2">Every layer above the data<br>is fighting for the data.</h2>
+                <div class="pi-prose" style="margin-bottom: 1rem;">
+                    <p>The tools you're using already are not on your side, and the friction shows up in the same shapes:</p>
+                </div>
+                <div class="pi-traps">
+                    <div class="pi-trap">
+                        <strong>Notion traps you</strong>
+                        <span>Your knowledge in their database. Their AI on top. Their export rules. Switching costs grow with every doc.</span>
+                    </div>
+                    <div class="pi-trap">
+                        <strong>Obsidian loses you</strong>
+                        <span>Markdown files in folders, no AI bridge. Every tool starts cold. The power users love it; everyone else gives up.</span>
+                    </div>
+                    <div class="pi-trap">
+                        <strong>ChatGPT forgets you</strong>
+                        <span>"Memory" is a flat text file with your name and a few preferences. Every new chat starts over. You re-explain yourself for the rest of your life.</span>
+                    </div>
+                    <div class="pi-trap">
+                        <strong>Vendor agents lock you in</strong>
+                        <span>Operator runs in their cloud. Tasks live in their projects. Cowork data goes to their server. The agents are getting more powerful and your leverage is shrinking.</span>
+                    </div>
+                </div>
+                <div class="pi-prose" style="margin-top: 1.5rem;">
+                    <p>Parachute is the substrate underneath. Same data, different relationship: <strong>yours, on your machine, accessible to every agent and interface you choose to point at it.</strong></p>
+                </div>
+            </section>
+
+            {# ── 4. The Parachute substrate ── #}
+            <section class="fade-up fade-up-5">
+                <p class="pi-label">The substrate</p>
+                <h2 class="pi-h2">Spin up a vault.<br>Give any AI a link.</h2>
+                <div class="pi-prose">
+                    <p>A <strong>vault</strong> is a knowledge graph that runs on your machine. SQLite-backed. Wikilinks, full-text search, semantic search. Reachable over <a href="https://modelcontextprotocol.io" target="_blank">MCP</a> &mdash; the open standard every major lab now supports &mdash; and over a plain REST API. Any AI can read and write to it.</p>
+                    <p>Around the vault, four small modules form the rest of the substrate:</p>
+                </div>
+                <div class="pi-img">
+                    {# Reused from old NVC deck slide 5: phone/browser/pendant → Vault → Claude/ChatGPT/Gemini.
+                       TODO: image is large (~5.8MB). Optimize. Also TODO: update for current ecosystem
+                       — current diagram should show Hub-as-issuer in the middle and the four modules. #}
+                    <img src="/assets/pitch/vault-architecture.png" alt="Vault architecture: phone, browser, pendant connect to Parachute Vault, which connects via MCP to Claude, ChatGPT, Gemini">
+                    <p class="pi-img-caption">Today: any client over MCP. <em>TODO: refresh diagram to show Hub-as-issuer + the four modules + scoped JWTs.</em></p>
+                </div>
+                <div class="pi-prose" style="margin-bottom: 1.25rem;">
+                    <p>The shape:</p>
+                </div>
+                <div class="pi-flywheel">
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Vault</div>
+                        <div class="pi-flywheel-body"><strong>The graph.</strong> Notes, tags, links. Search and traversal. Where everything else reads from and writes to.</div>
+                    </div>
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Scribe</div>
+                        <div class="pi-flywheel-body"><strong>The ear.</strong> Whisper-compatible transcription. Local by default; bring your own cloud if you want.</div>
+                    </div>
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Notes</div>
+                        <div class="pi-flywheel-body"><strong>The reference interface.</strong> Installable PWA, works offline, voice capture wired to Scribe. Reference, not requirement &mdash; build your own.</div>
+                    </div>
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Hub</div>
+                        <div class="pi-flywheel-body"><strong>The front door.</strong> Install / start / stop / expose. OAuth issuer with scope-narrowed JWTs. Per-module admin UI rendered automatically from each module's schema.</div>
+                    </div>
+                </div>
+                <div class="pi-prose" style="margin-top: 1.5rem;">
+                    <p>And underneath it all, a small <strong>module protocol</strong> &mdash; <code>info</code>, <code>config</code>, <code>services.json</code>, <code>well-known</code> &mdash; that any third-party module can implement and plug in. Calendar, email, your own knowledge bases, your own agents. The hub renders them like they were native.</p>
+                    <p>Hub-as-issuer is the part that's quietly load-bearing: <strong>one identity, many narrowly-scoped tokens</strong>. A Notes app gets read+write to the vault. A read-only AI client gets read. A third-party module gets exactly the scope it asked for. You stop trusting tools transitively.</p>
+                </div>
+            </section>
+
+            {# ── 5. The flywheel ── #}
+            <section class="fade-up fade-up-5">
+                <p class="pi-label">How it compounds</p>
+                <h2 class="pi-h2">Vault at the center.<br>Agents and interfaces orbit.</h2>
+                <div class="pi-prose">
+                    <p>The vault is the substrate. Everything else is an orbit around it.</p>
+                </div>
+                <div class="pi-flywheel">
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Capture</div>
+                        <div class="pi-flywheel-body">Voice (Scribe), type (Notes), drop a file, sync from elsewhere. The graph grows with how you actually think.</div>
+                    </div>
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Read</div>
+                        <div class="pi-flywheel-body">Claude Code, claude.ai, ChatGPT, Codex, Goose, Cursor, Zed &mdash; anyone speaking MCP. Custom agents and custom UIs you build yourself.</div>
+                    </div>
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Compose</div>
+                        <div class="pi-flywheel-body">Third-party modules plug in. Calendar, email, knowledge bases, niche tools. The hub wires them, scopes them, renders their config.</div>
+                    </div>
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Compound</div>
+                        <div class="pi-flywheel-body">The graph gets richer. Every read makes the next read better. The substrate is the part that doesn't get cloned next quarter.</div>
+                    </div>
+                </div>
+                <div class="pi-img" style="margin-top: 1.75rem;">
+                    {# TODO: Gemini Image Generation prompt — "Minimalist diagram of a hub-and-spoke flywheel:
+                       'Vault' at the center as a glowing knowledge graph node. Around it, in orbit, are four
+                       labeled clusters: 'Capture' (voice + text icons), 'Read' (Claude / ChatGPT / Codex glyphs),
+                       'Compose' (puzzle-piece modules), 'Compound' (a growing graph). Style: warm cream
+                       background (#faf8f4), accent green (#4a7c59), thin lines, instrument-serif labels,
+                       editorial / Stripe-press feel. Square aspect ratio. No text other than the four labels." #}
+                    <div class="pi-img-placeholder">TODO image &middot; flywheel diagram<br>(prompt in source)</div>
+                    <p class="pi-img-caption">Placeholder. Gemini Image Generation prompt in the source.</p>
+                </div>
+            </section>
+
+            {# ── 6. What ships today ── #}
+            <section class="fade-up fade-up-5">
+                <p class="pi-label">What ships today</p>
+                <h2 class="pi-h2">Five modules.<br>Installable with one command.</h2>
+                <div class="pi-prose">
+                    <p><code>parachute install &lt;module&gt;</code>. The hub coordinates lifecycle, OAuth, and the service catalog. We launched the first version on <strong>April 23, 2026</strong>; everything below is live.</p>
+                </div>
+                <div class="pi-modules">
+                    <div class="pi-mod">
+                        <span class="pi-mod-tag">Core</span>
+                        <h3>Vault</h3>
+                        <p>SQLite-backed graph. REST + MCP. Wikilinks, full-text and semantic search, Obsidian import/export.</p>
+                    </div>
+                    <div class="pi-mod">
+                        <span class="pi-mod-tag">Core</span>
+                        <h3>Scribe</h3>
+                        <p>Whisper-compatible transcription API. Local by default; BYO cloud provider.</p>
+                    </div>
+                    <div class="pi-mod">
+                        <span class="pi-mod-tag">Core</span>
+                        <h3>Notes</h3>
+                        <p>Browser-based companion for the Vault. Installable PWA, works offline, voice capture wired to Scribe.</p>
+                    </div>
+                    <div class="pi-mod">
+                        <span class="pi-mod-tag">Core</span>
+                        <h3>Hub</h3>
+                        <p>The coordinator. Install, start, stop, expose. OAuth issuer with scope-narrowed JWTs and per-module admin UIs.</p>
+                    </div>
+                    <div class="pi-mod">
+                        <span class="pi-mod-tag exploration">Exploration</span>
+                        <h3>Paraclaw</h3>
+                        <p>A Parachute distribution &mdash; a fork of NanoClaw with vault integration, exploring an opinionated all-in-one.</p>
+                    </div>
+                    <div class="pi-mod">
+                        <span class="pi-mod-tag">Patterns</span>
+                        <h3>Module protocol</h3>
+                        <p><code>info</code>, <code>config</code>, <code>services.json</code>, <code>well-known</code>. The contract third-party modules plug into.</p>
+                    </div>
+                </div>
+            </section>
+
+            {# ── 7. Cloud ── #}
+            <section class="fade-up fade-up-5">
+                <p class="pi-label">The convenience path</p>
+                <h2 class="pi-h2">Self-host or let us host.<br>Same code. Same exits.</h2>
+                <div class="pi-prose">
+                    <p>Most people don't want to run a server. <strong>Parachute Cloud</strong> is the same modules, managed for you &mdash; vault, transcription, multi-device sync, public exposure done correctly. You bring your AI client. We run the substrate.</p>
+                </div>
+                <div class="pi-tiers">
+                    <div class="pi-tier">
+                        <div class="pi-tier-price">Free<span>&nbsp;</span></div>
+                        <div class="pi-tier-body"><strong>Self-host</strong> &mdash; all modules, AGPL, run anywhere</div>
+                    </div>
+                    <div class="pi-tier featured">
+                        <div class="pi-tier-price">~$5<span>/mo</span></div>
+                        <div class="pi-tier-body"><strong>Cloud</strong> &mdash; managed vault + transcription, multi-device sync, OAuth-gated public exposure</div>
+                    </div>
+                    <div class="pi-tier">
+                        <div class="pi-tier-price">Custom<span>&nbsp;</span></div>
+                        <div class="pi-tier-body"><strong>Org / pro</strong> &mdash; team vaults, private deployments, extended modules</div>
+                    </div>
+                </div>
+                <div class="pi-prose" style="margin-top: 1.25rem;">
+                    <p>Same shape as self-hosted. Export everything. Leave at any time. <strong>The cloud is a convenience, not a SaaS ladder.</strong> We're not pricing your context.</p>
+                </div>
+            </section>
+
+            {# ── 8. The future ── #}
+            <section class="fade-up fade-up-5">
+                <p class="pi-label">Where this goes</p>
+                <h2 class="pi-h2">A substrate the whole<br>personal-AI ecosystem grows on.</h2>
+                <div class="pi-prose">
+                    <p>The agent race produces a winner-take-most layer at the top. Underneath it, every person needs a place where their context lives that <strong>isn't</strong> the lab. That's the substrate, and it's open.</p>
+                </div>
+                <div class="pi-future">
+                    <div class="pi-future-card">
+                        <strong>The pendant</strong>
+                        <span>Always-on-when-you-press-it voice capture, writing straight to your vault. Working prototype; shippable v1 lands through the native-mobile path.</span>
+                    </div>
+                    <div class="pi-future-card">
+                        <strong>Custom interfaces</strong>
+                        <span>Loveable, v0, Dia &mdash; people are building bespoke UIs at unprecedented speed. Each one needs a place to put data. Vault is that place.</span>
+                    </div>
+                    <div class="pi-future-card">
+                        <strong>Agents on substrate</strong>
+                        <span>Claude Projects, ChatGPT Tasks, OpenAI Operator. They get more powerful when they have continuity. Continuity needs a place to live that survives the model upgrade.</span>
+                    </div>
+                    <div class="pi-future-card">
+                        <strong>Third-party modules</strong>
+                        <span>Anyone can build a service that plugs into a Parachute hub. Calendar, email, knowledge bases, custom agents. The hub renders them like they were native.</span>
+                    </div>
+                </div>
+                <div class="pi-pendant-gallery">
+                    <div class="pi-img">
+                        <img src="/assets/pitch/pendant-render.png" alt="Parachute pendant — render of the wearable">
+                    </div>
+                    <div class="pi-img">
+                        <img src="/assets/pitch/pendant-pcb.png" alt="Parachute pendant — PCB and wood front panel of the prototype">
+                    </div>
+                </div>
+                <p class="pi-img-caption" style="margin-top: -0.5rem;">Pendant prototype &mdash; render and PCB. The gesture-first capture surface for the substrate underneath.</p>
+            </section>
+
+            {# ── 9. Team ── #}
+            <section class="fade-up fade-up-5">
+                <p class="pi-label">Team</p>
+                <h2 class="pi-h2">Small, capable, committed.</h2>
+                <div class="pi-prose">
+                    <p>A core team focused on the substrate. The product is open-source and built in the open at <a href="https://github.com/ParachuteComputer" target="_blank">github.com/ParachuteComputer</a>.</p>
+                </div>
+                <div class="pi-team">
+                    <div class="pi-person">
+                        {# TODO: replace placeholder with Aaron's photo. Suggest: assets/pitch/team-aaron.jpg #}
+                        <div class="pi-avatar">photo</div>
+                        <div class="pi-person-body">
+                            <span class="pi-person-role">Founder</span>
+                            <strong>Aaron Gabriel Neyer</strong>
+                            <span>Product vision and system architecture. MA Ecopsychology, MS Creative Technology &amp; Design (CU ATLAS). Ex-Google. 10+ years full-stack.</span>
+                        </div>
+                    </div>
+                    <div class="pi-person">
+                        {# TODO: replace placeholder with Neil's photo. Suggest: assets/pitch/team-neil.jpg #}
+                        <div class="pi-avatar">photo</div>
+                        <div class="pi-person-body">
+                            <span class="pi-person-role">Brand &amp; design</span>
+                            <strong>Neil Yarnal</strong>
+                            <span>Visual identity, product design, the look and feel of every surface that touches a user.</span>
+                        </div>
+                    </div>
+                    <div class="pi-person">
+                        {# TODO: replace placeholder with Benjamin's photo. Suggest: assets/pitch/team-benjamin.jpg.
+                           TODO: confirm Benjamin's exact role title and bio language with Aaron — current copy is
+                           a placeholder framing per team-lead brief. #}
+                        <div class="pi-avatar">photo</div>
+                        <div class="pi-person-body">
+                            <span class="pi-person-role">Knowledge management &amp; product ambassador</span>
+                            <strong>Benjamin Life</strong>
+                            <span>Knowledge-management practice and the bridge between Parachute and the people building serious second brains.</span>
+                        </div>
+                    </div>
+                    <div class="pi-person">
+                        {# TODO: confirm with Aaron whether Jon Bo, Lucian Hymer, Marvin Melzer should be on this
+                           list — they were in earlier decks. Brief said "Aaron, Neil, Benjamin Life" + "anyone
+                           else from the old deck still active — ask Aaron in PR description if unclear." #}
+                        <div class="pi-avatar">+</div>
+                        <div class="pi-person-body">
+                            <span class="pi-person-role">More to come</span>
+                            <strong>Co-conspirators</strong>
+                            <span>The work crosses boundaries with collaborators across vault, scribe, and hardware. Names land here as their roles solidify.</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {# ── 10. Soft ask ── #}
+            <section class="fade-up fade-up-6">
+                <div class="pi-ask">
+                    <p class="pi-ask-quote">Talking to aligned investors and partners &mdash; through Boulder Startup Week and beyond.</p>
+                    <div class="pi-ask-links">
+                        <div><span class="pi-ask-label">Email</span><a href="mailto:aaron@parachute.computer">aaron@parachute.computer</a></div>
+                        <div><span class="pi-ask-label">GitHub</span><a href="https://github.com/ParachuteComputer" target="_blank">github.com/ParachuteComputer</a></div>
+                        <div><span class="pi-ask-label">Site</span><a href="/">parachute.computer</a></div>
+                    </div>
+                </div>
+            </section>
+
+        </article>
+    </div>
+</main>
