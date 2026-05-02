@@ -1,0 +1,414 @@
+---
+layout: base.njk
+title: "Pitch"
+description: "Parachute is self-hosted personal-AI infrastructure. Own your compute, own your AI, own your data. A short pitch for Parachute Computer and Open Parachute, PBC."
+permalink: /pitch/
+---
+<style>
+/* Pitch — quiet sections, scannable headlines, simple supporting blocks. */
+
+.pi-content {
+    max-width: var(--content-width);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.pi-hero {
+    padding: 5rem 0 4rem;
+    border-bottom: 1px solid var(--border);
+}
+.pi-eyebrow {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    margin-bottom: 1.5rem;
+}
+.pi-hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.4rem, 5.5vw, 3.75rem);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    color: var(--fg);
+    margin-bottom: 1.25rem;
+}
+.pi-hero h1 em {
+    font-style: italic;
+    color: var(--fg-muted);
+}
+.pi-lede {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.3rem;
+    color: var(--fg-muted);
+    line-height: 1.5;
+    max-width: 32rem;
+}
+
+.pi-section {
+    padding: 4rem 0 3.5rem;
+    border-bottom: 1px solid var(--border);
+}
+.pi-section:last-of-type {
+    border-bottom: none;
+}
+.pi-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+}
+.pi-headline {
+    font-family: var(--serif);
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+    color: var(--fg);
+    margin-bottom: 1.75rem;
+}
+.pi-body {
+    color: var(--fg-muted);
+    font-size: 1rem;
+    line-height: 1.75;
+}
+.pi-body p {
+    margin-bottom: 1rem;
+    max-width: 36rem;
+}
+.pi-body p:last-child { margin-bottom: 0; }
+.pi-body strong { color: var(--fg); font-weight: 500; }
+
+/* Numbered list (Approach principles) */
+.pi-num-list {
+    margin-top: 0.5rem;
+    list-style: none;
+    padding: 0;
+}
+.pi-num-list li {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 1.25rem;
+    align-items: baseline;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--border);
+}
+.pi-num-list li:first-child { border-top: 1px solid var(--border); }
+.pi-num {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    color: var(--accent);
+    line-height: 1;
+}
+.pi-num-body strong {
+    display: block;
+    color: var(--fg);
+    font-weight: 500;
+    font-size: 1rem;
+    margin-bottom: 0.35rem;
+}
+.pi-num-body span {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Module grid (What ships today) */
+.pi-modules {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+.pi-mod {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.4rem 1.5rem;
+    background: var(--card-bg);
+}
+.pi-mod h3 {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--fg);
+    margin: 0 0 0.4rem;
+}
+.pi-mod p {
+    font-size: 0.92rem;
+    color: var(--fg-muted);
+    line-height: 1.6;
+    margin: 0;
+}
+.pi-mod-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.65rem;
+}
+.pi-mod-tag.exploration {
+    color: var(--fg-dim);
+    background: var(--bg-soft);
+}
+
+/* Tier table (Cloud) */
+.pi-tiers {
+    margin-top: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--card-bg);
+}
+.pi-tier {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 1.25rem;
+    align-items: baseline;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+}
+.pi-tier:last-child { border-bottom: none; }
+.pi-tier-price {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    color: var(--accent);
+    line-height: 1;
+}
+.pi-tier-price span {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    color: var(--fg-dim);
+}
+.pi-tier-body {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+    line-height: 1.55;
+}
+.pi-tier-body strong { color: var(--fg); font-weight: 500; }
+.pi-tier.featured { background: var(--accent-soft); }
+
+/* Why-now */
+.pi-why {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-top: 0.5rem;
+}
+.pi-why-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.3rem 1.5rem;
+    background: var(--card-bg);
+}
+.pi-why-card strong {
+    display: block;
+    color: var(--fg);
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 400;
+    margin-bottom: 0.45rem;
+}
+.pi-why-card span {
+    display: block;
+    color: var(--fg-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* Close */
+.pi-close {
+    padding: 5rem 0 6rem;
+    text-align: left;
+}
+.pi-close-quote {
+    font-family: var(--serif);
+    font-size: clamp(1.7rem, 3.5vw, 2.3rem);
+    line-height: 1.25;
+    color: var(--fg);
+    margin-bottom: 2rem;
+    max-width: 30rem;
+    letter-spacing: -0.015em;
+}
+.pi-close-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 640px) {
+    .pi-modules,
+    .pi-why {
+        grid-template-columns: 1fr;
+    }
+    .pi-tier {
+        grid-template-columns: 5rem 1fr;
+        gap: 0.85rem;
+    }
+}
+</style>
+
+<main class="pi-content">
+
+    <section class="pi-hero fade-up fade-up-1">
+        <p class="pi-eyebrow">Open Parachute, PBC &middot; 2026</p>
+        <h1>Own your compute.<br>Own your AI.<br><em>Own your data.</em></h1>
+        <p class="pi-lede">Parachute is self-hosted personal-AI infrastructure &mdash; opinionated, modular, and yours.</p>
+    </section>
+
+    <section class="pi-section fade-up fade-up-2">
+        <p class="pi-label">The problem</p>
+        <h2 class="pi-headline">AI is getting personal.<br>The infrastructure isn't.</h2>
+        <div class="pi-body">
+            <p>The AI you use is becoming the most intimate software in your life. It sees your work, your voice notes, your half-formed thinking. The places that data lives are someone else's database, on someone else's terms, with someone else's incentives.</p>
+            <p>Every model vendor is racing to add memory, agents, and integrations &mdash; on their server, in their format, locked to their product. The pattern is familiar, and the destination is the same: <strong>your context becomes their moat</strong>.</p>
+            <p>The alternative isn't no-AI. It's AI that runs against infrastructure you own.</p>
+        </div>
+    </section>
+
+    <section class="pi-section fade-up fade-up-3">
+        <p class="pi-label">The Parachute approach</p>
+        <h2 class="pi-headline">Modular.<br>Self-hosted.<br>Opinionated by default.</h2>
+        <div class="pi-body">
+            <ol class="pi-num-list">
+                <li>
+                    <span class="pi-num">1</span>
+                    <div class="pi-num-body">
+                        <strong>Small modules over one big platform</strong>
+                        <span>A vault, a transcriber, a notes app, a hub. Each is independently useful, written to a shared module protocol. You can run one, all, or swap any of them out.</span>
+                    </div>
+                </li>
+                <li>
+                    <span class="pi-num">2</span>
+                    <div class="pi-num-body">
+                        <strong>Self-hosted by default, cloud as a convenience</strong>
+                        <span>The whole stack runs on your laptop or your server. We also offer a managed cloud for the same code &mdash; not because you have to, because we want to.</span>
+                    </div>
+                </li>
+                <li>
+                    <span class="pi-num">3</span>
+                    <div class="pi-num-body">
+                        <strong>Open standards, not lock-in</strong>
+                        <span>Built on MCP for AI access, OAuth for delegation, JSON Schema for module config. Any AI client, any agent, any UI you want to build on top.</span>
+                    </div>
+                </li>
+                <li>
+                    <span class="pi-num">4</span>
+                    <div class="pi-num-body">
+                        <strong>One sign-in, narrowed by scope</strong>
+                        <span>The hub is the front door. It issues scope-narrowed JWTs to clients and agents, so each one gets exactly the access it needs &mdash; nothing more.</span>
+                    </div>
+                </li>
+            </ol>
+        </div>
+    </section>
+
+    <section class="pi-section fade-up fade-up-4">
+        <p class="pi-label">What ships today</p>
+        <h2 class="pi-headline">Five modules, all installable<br>with one command.</h2>
+        <div class="pi-body">
+            <p style="margin-bottom: 1.75rem;"><code>parachute install &lt;module&gt;</code> &mdash; the hub coordinates lifecycle, OAuth, and the service catalog across the rest.</p>
+            <div class="pi-modules">
+                <div class="pi-mod">
+                    <span class="pi-mod-tag">Core</span>
+                    <h3>Vault</h3>
+                    <p>The knowledge graph. SQLite-backed, REST + MCP, wikilinks, full-text and semantic search, Obsidian import/export.</p>
+                </div>
+                <div class="pi-mod">
+                    <span class="pi-mod-tag">Core</span>
+                    <h3>Scribe</h3>
+                    <p>Whisper-compatible transcription API. Runs locally by default; bring your own cloud provider if you want one.</p>
+                </div>
+                <div class="pi-mod">
+                    <span class="pi-mod-tag">Core</span>
+                    <h3>Notes</h3>
+                    <p>Browser-based companion for the Vault. Installable PWA, works offline, voice capture with auto-transcription.</p>
+                </div>
+                <div class="pi-mod">
+                    <span class="pi-mod-tag">Core</span>
+                    <h3>Hub</h3>
+                    <p>The coordinator. Install, start, stop, expose; OAuth issuer with scope-narrowed JWTs and a per-module admin UI.</p>
+                </div>
+                <div class="pi-mod">
+                    <span class="pi-mod-tag exploration">Exploration</span>
+                    <h3>Paraclaw</h3>
+                    <p>A Parachute distribution &mdash; a fork of NanoClaw with vault integration, exploring an opinionated all-in-one experience.</p>
+                </div>
+                <div class="pi-mod">
+                    <span class="pi-mod-tag">Patterns</span>
+                    <h3>Module protocol</h3>
+                    <p>Cross-cutting conventions: <code>info</code>, <code>config</code>, <code>services.json</code>, <code>well-known</code>. The contract third-party modules will plug into.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pi-section fade-up fade-up-5">
+        <p class="pi-label">Parachute Cloud</p>
+        <h2 class="pi-headline">The done-for-you path.<br>Same code, same exits.</h2>
+        <div class="pi-body">
+            <p>Most people don't want to run a server. Parachute Cloud is the hosted version of the same modules &mdash; managed vault, multi-device sync, cloud transcription, no setup. You bring your AI client; we run the infrastructure.</p>
+            <div class="pi-tiers">
+                <div class="pi-tier">
+                    <div class="pi-tier-price">Free<span>&nbsp;</span></div>
+                    <div class="pi-tier-body"><strong>Self-host</strong> &mdash; all modules, AGPL, run anywhere</div>
+                </div>
+                <div class="pi-tier featured">
+                    <div class="pi-tier-price">~$5<span>/mo</span></div>
+                    <div class="pi-tier-body"><strong>Cloud</strong> &mdash; managed vault + transcription, multi-device sync, OAuth-gated public exposure</div>
+                </div>
+                <div class="pi-tier">
+                    <div class="pi-tier-price">Custom<span>&nbsp;</span></div>
+                    <div class="pi-tier-body"><strong>Org / pro</strong> &mdash; team vaults, private deployments, extended modules</div>
+                </div>
+            </div>
+            <p style="margin-top: 1.5rem;">Same shape as self-hosted. Export everything, leave at any time. The cloud is a convenience, not a lock-in.</p>
+        </div>
+    </section>
+
+    <section class="pi-section fade-up fade-up-6">
+        <p class="pi-label">Why now</p>
+        <h2 class="pi-headline">The infrastructure layer is suddenly tractable.</h2>
+        <div class="pi-body">
+            <div class="pi-why">
+                <div class="pi-why-card">
+                    <strong>MCP is real.</strong>
+                    <span>An open protocol for AI to talk to tools, supported by every major lab. The integration layer is no longer proprietary.</span>
+                </div>
+                <div class="pi-why-card">
+                    <strong>Local models work.</strong>
+                    <span>Transcription, embeddings, and small LLMs run on a laptop today. Self-hosting isn't a sacrifice anymore.</span>
+                </div>
+                <div class="pi-why-card">
+                    <strong>People feel the lock-in.</strong>
+                    <span>The cost of pouring your context into a closed product is becoming legible. Trust is the differentiator.</span>
+                </div>
+                <div class="pi-why-card">
+                    <strong>The ecosystem is small.</strong>
+                    <span>Self-hostable, AI-native infrastructure is a clear shape that almost no one is building. The window to define it is open.</span>
+                </div>
+            </div>
+            <p style="margin-top: 1.75rem;">We're a Colorado Public Benefit Corporation. Open source isn't a distribution strategy &mdash; it's the only honest answer to "why should I trust you with this?"</p>
+        </div>
+    </section>
+
+    <section class="pi-close fade-up fade-up-6">
+        <p class="pi-close-quote">Personal-AI infrastructure, owned by the person.</p>
+        <div class="pi-close-links">
+            <a href="/install/">Install &rarr;</a>
+            <a href="/roadmap/">Roadmap &rarr;</a>
+            <a href="/blog/">Blog &rarr;</a>
+            <a href="https://github.com/ParachuteComputer" target="_blank">github.com/ParachuteComputer &rarr;</a>
+        </div>
+    </section>
+
+</main>
