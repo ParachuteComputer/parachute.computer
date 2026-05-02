@@ -1,3 +1,7 @@
+---
+title: "Hub as portal — OAuth and the service catalog"
+description: "OAuth architecture with the hub as issuer. One ecosystem sign-in, tokens carrying a service catalog, scopes that constrain what a client can reach."
+---
 # Hub as portal, OAuth, and the service catalog
 
 **Date:** 2026-04-20 (launch week — launch target 2026-04-23)
