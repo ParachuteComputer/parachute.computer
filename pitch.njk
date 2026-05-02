@@ -575,9 +575,16 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 <p class="pi-lede">Self-hosted personal-AI infrastructure. Voice-first. Open source.</p>
                 <p class="pi-prose"><strong>Parachute is the substrate every agent and interface should sit on top of.</strong> Your knowledge graph, your transcription, your auth &mdash; on your machine, talking to whatever AI you want, on your terms.</p>
                 <div class="pi-img">
-                    {# Reused from old NVC deck slide 1: person walking with pendant, knowledge graph flowing.
-                       TODO: image is large (~7MB). Optimize/recompress before next pass. #}
-                    <img src="/assets/pitch/hero-pendant-walking.png" alt="A person walking outdoors with a Parachute pendant, knowledge graph flowing from their thoughts">
+                    {# Reused from old NVC deck slide 1: person walking with pendant, knowledge graph flowing. #}
+                    <picture>
+                        <source type="image/webp"
+                                srcset="/assets/pitch/optimized/hero-pendant-walking-800w.webp 800w,
+                                        /assets/pitch/optimized/hero-pendant-walking-1600w.webp 1600w,
+                                        /assets/pitch/optimized/hero-pendant-walking-2400w.webp 2400w"
+                                sizes="(max-width: 900px) 100vw, 60vw">
+                        <img src="/assets/pitch/optimized/hero-pendant-walking-1600w.webp"
+                             alt="A person walking outdoors with a Parachute pendant, knowledge graph flowing from their thoughts">
+                    </picture>
                 </div>
             </section>
 
@@ -592,7 +599,15 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 </div>
                 <div class="pi-img">
                     {# Reused from old NVC deck slide 2: crowded agent landscape. #}
-                    <img src="/assets/pitch/agent-race-landscape.png" alt="A crowded landscape of AI assistant icons — Operator, Cowork, Manus, Devin, Perplexity, all racing">
+                    <picture>
+                        <source type="image/webp"
+                                srcset="/assets/pitch/optimized/agent-race-landscape-800w.webp 800w,
+                                        /assets/pitch/optimized/agent-race-landscape-1600w.webp 1600w"
+                                sizes="(max-width: 900px) 100vw, 60vw">
+                        <img src="/assets/pitch/optimized/agent-race-landscape-1600w.webp"
+                             alt="A crowded landscape of AI assistant icons — Operator, Cowork, Manus, Devin, Perplexity, all racing"
+                             loading="lazy">
+                    </picture>
                     <p class="pi-img-caption">Everyone is racing to be the agent. We're building the substrate underneath.</p>
                 </div>
             </section>
@@ -648,9 +663,17 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 </div>
                 <div class="pi-img">
                     {# Reused from old NVC deck slide 5: phone/browser/pendant → Vault → Claude/ChatGPT/Gemini.
-                       TODO: image is large (~5.8MB). Optimize. Also TODO: update for current ecosystem
-                       — current diagram should show Hub-as-issuer in the middle and the four modules. #}
-                    <img src="/assets/pitch/vault-architecture.png" alt="Vault architecture: phone, browser, pendant connect to Parachute Vault, which connects via MCP to Claude, ChatGPT, Gemini">
+                       TODO: refresh diagram for current ecosystem — Hub-as-issuer + the four modules + scoped JWTs. #}
+                    <picture>
+                        <source type="image/webp"
+                                srcset="/assets/pitch/optimized/vault-architecture-800w.webp 800w,
+                                        /assets/pitch/optimized/vault-architecture-1600w.webp 1600w,
+                                        /assets/pitch/optimized/vault-architecture-2400w.webp 2400w"
+                                sizes="(max-width: 900px) 100vw, 60vw">
+                        <img src="/assets/pitch/optimized/vault-architecture-1600w.webp"
+                             alt="Vault architecture: phone, browser, pendant connect to Parachute Vault, which connects via MCP to Claude, ChatGPT, Gemini"
+                             loading="lazy">
+                    </picture>
                     <p class="pi-img-caption">Architecture diagram &mdash; any client over MCP. Refresh planned to show Hub-as-issuer + the four modules + scoped JWTs.</p>
                 </div>
                 <div class="pi-prose" style="margin-bottom: 1.25rem;">
@@ -811,13 +834,37 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 </div>
                 <div class="pi-pendant-gallery">
                     <div class="pi-img">
-                        <img src="/assets/pitch/pendant-render.png" alt="Parachute pendant — render of the wearable">
+                        <picture>
+                            <source type="image/webp"
+                                    srcset="/assets/pitch/optimized/pendant-render-800w.webp 800w,
+                                            /assets/pitch/optimized/pendant-render-1600w.webp 1600w"
+                                    sizes="(max-width: 900px) 100vw, 20vw">
+                            <img src="/assets/pitch/optimized/pendant-render-1600w.webp"
+                                 alt="Parachute pendant — render of the wearable"
+                                 loading="lazy">
+                        </picture>
                     </div>
                     <div class="pi-img">
-                        <img src="/assets/pitch/pendant-pcb.png" alt="Parachute pendant — PCB and wood front panel of the prototype">
+                        <picture>
+                            <source type="image/webp"
+                                    srcset="/assets/pitch/optimized/pendant-pcb-800w.webp 800w,
+                                            /assets/pitch/optimized/pendant-pcb-1600w.webp 1600w"
+                                    sizes="(max-width: 900px) 100vw, 20vw">
+                            <img src="/assets/pitch/optimized/pendant-pcb-1600w.webp"
+                                 alt="Parachute pendant — PCB and wood front panel of the prototype"
+                                 loading="lazy">
+                        </picture>
                     </div>
                     <div class="pi-img">
-                        <img src="/assets/pitch/pendant-worn.png" alt="Parachute pendant — worn around the neck">
+                        <picture>
+                            <source type="image/webp"
+                                    srcset="/assets/pitch/optimized/pendant-worn-800w.webp 800w,
+                                            /assets/pitch/optimized/pendant-worn-1600w.webp 1600w"
+                                    sizes="(max-width: 900px) 100vw, 20vw">
+                            <img src="/assets/pitch/optimized/pendant-worn-1600w.webp"
+                                 alt="Parachute pendant — worn around the neck"
+                                 loading="lazy">
+                        </picture>
                     </div>
                 </div>
                 <p class="pi-img-caption" style="margin-top: -0.5rem;">Pendant prototype &mdash; render, PCB, and worn. The gesture-first capture surface for the substrate underneath.</p>
