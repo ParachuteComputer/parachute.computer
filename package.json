@@ -5,9 +5,14 @@
   "scripts": {
     "build": "npx @11ty/eleventy",
     "serve": "npx @11ty/eleventy --serve",
-    "clean": "rm -rf _site"
+    "clean": "rm -rf _site",
+    "dev:pages": "npx wrangler pages dev _site --d1 DB=parachute-db",
+    "db:migrate:local": "npx wrangler d1 migrations apply parachute-db --local",
+    "db:migrate:remote": "npx wrangler d1 migrations apply parachute-db --remote"
   },
   "devDependencies": {
-    "@11ty/eleventy": "^3.1.2"
+    "@11ty/eleventy": "^3.1.2",
+    "@cloudflare/workers-types": "^4.20250101.0",
+    "wrangler": "^3.99.0"
   }
 }

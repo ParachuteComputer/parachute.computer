@@ -119,11 +119,36 @@ Current-era architecture lives in `design/` as markdown design notes, indexed fr
 
 ## Deployment
 
-GitHub Pages deployment needs to run `npx @11ty/eleventy` and serve `_site/`. Options:
-- GitHub Action that builds on push to main, then deploys the `_site/` output
-- Or configure GitHub Pages to use a GitHub Action workflow instead of serving directly from `website/`
+**As of #25 (2026-05): migrated from GitHub Pages → Cloudflare Pages.** The Pages project builds with `npx @11ty/eleventy` (output `_site/`) and auto-deploys on push to main. The old GH Pages workflow is archived; the `CNAME` file is no longer load-bearing (Cloudflare manages the custom domain).
 
-**CNAME**: `parachute.computer` (DNS needs to point to GitHub Pages)
+**CNAME**: `parachute.computer` (DNS now points at Cloudflare Pages)
+
+---
+
+## Interest list / backend
+
+The site has a small backend now (issue #25): an interest-list signup form on the homepage that writes to D1.
+
+```
+functions/api/subscribe.ts    Pages Function — POST handler
+                              validates email, inserts into D1,
+                              redirects to /subscribe/thanks/
+migrations/0001_interests.sql D1 schema for the `interests` table
+wrangler.toml                 D1 binding (`DB`) + Pages config
+subscribe/thanks.njk          /subscribe/thanks/ success page
+index.njk                     hosts the inline subscribe form
+INFRASTRUCTURE.md             one-time CF setup steps Aaron runs
+```
+
+**The schema** (`interests`): `id`, `email`, `name`, `source_path`, `user_id` (reserved), `resend_contact_id` (reserved), `created_at`. No UNIQUE on email — duplicate signups preserve signal.
+
+**No de-dup, no Resend, no admin UI in V1.** Query D1 with `wrangler d1 execute parachute-db --remote --command "SELECT * FROM interests ORDER BY id DESC LIMIT 50"` when you want to see the list. V2 adds Resend; V3 links to a future Parachute user store.
+
+**Adding new Pages Functions**: drop a TypeScript file under `functions/`. The path mirrors the URL — `functions/api/subscribe.ts` → `/api/subscribe`. Export `onRequestPost` / `onRequestGet` / etc. Cloudflare's Pages docs cover the conventions.
+
+**Local dev with the function + D1**: `npx wrangler pages dev _site --d1 DB=parachute-db` (after `npm run build`). Plain `npx @11ty/eleventy --serve` works for static-only iteration.
+
+**Migrations**: `wrangler d1 migrations apply parachute-db --local` (local) or `--remote` (prod). Always pause-and-confirm before running against prod.
 
 ---
 

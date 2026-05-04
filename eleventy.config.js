@@ -10,9 +10,16 @@ module.exports = function (eleventyConfig) {
 
   // Ignore non-content files
   eleventyConfig.ignores.add("CLAUDE.md");
+  eleventyConfig.ignores.add("INFRASTRUCTURE.md");
   eleventyConfig.ignores.add("blog/drafts/**");
   eleventyConfig.ignores.add("node_modules/**");
   eleventyConfig.ignores.add("archive/**");
+  // Cloudflare Pages backend assets — not part of the static site output.
+  // Pages picks up `functions/` directly; `migrations/` + `wrangler.toml`
+  // are config, not content.
+  eleventyConfig.ignores.add("functions/**");
+  eleventyConfig.ignores.add("migrations/**");
+  eleventyConfig.ignores.add("wrangler.toml");
 
   // Date formatting filter (uses UTC to avoid timezone offset issues)
   eleventyConfig.addFilter("dateDisplay", (dateObj) => {

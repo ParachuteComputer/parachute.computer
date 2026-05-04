@@ -1,0 +1,30 @@
+# wrangler.toml — Cloudflare Pages config for parachute.computer
+#
+# Pages project (created in the CF dashboard) reads this for:
+#   - the D1 binding name (`DB`) used by functions/api/subscribe.ts
+#   - local `wrangler pages dev` development
+#
+# The Pages project's build command + output dir are set in the dashboard,
+# not here:
+#   Build command:    npx @11ty/eleventy
+#   Output directory: _site
+#   Root directory:   /
+#
+# Compatibility date is set so Pages Functions get a stable Workers
+# runtime version. nodejs_compat is enabled to match LVB and keep the
+# door open for npm modules in functions later.
+
+name = "parachute-computer"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "_site"
+
+# D1 binding — matches the database name Aaron creates in the CF
+# dashboard (suggested: `parachute-db`). The database_id below is a
+# placeholder; Aaron fills it in after `wrangler d1 create` (or after
+# creating the DB in the dashboard) and commits the real ID.
+[[d1_databases]]
+binding = "DB"
+database_name = "parachute-db"
+database_id = "PLACEHOLDER_FILL_AFTER_D1_CREATE"
+migrations_dir = "migrations"
