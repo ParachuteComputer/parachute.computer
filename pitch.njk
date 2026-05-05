@@ -487,6 +487,22 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
     color: var(--fg);
     margin: 0 0 0.35rem;
 }
+.pi-shipped-stamp {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.55);
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    line-height: 1.6;
+    color: var(--fg-dim);
+    letter-spacing: 0.01em;
+}
+.pi-shipped-stamp strong {
+    color: var(--accent);
+    font-weight: 500;
+}
 .pi-mod p {
     font-size: 0.88rem;
     color: var(--fg-muted);
@@ -928,9 +944,12 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                         <p><code>info</code>, <code>config</code>, <code>services.json</code>, <code>well-known</code>. The contract third-party modules plug into.</p>
                     </div>
                 </div>
+                <p class="pi-shipped-stamp">
+                    <strong>Latest &middot; May 5, 2026</strong> &mdash; hub 0.5.0 &middot; vault 0.4.0 &middot; scribe 0.4.0 &middot; notes 0.3.11 &middot; agent 0.1.0 &middot; scope-guard 0.1.0. All on <code>npm @latest</code>.
+                </p>
                 <aside class="pi-notes">
-                    <p>The hub coordinates lifecycle, OAuth, and the service catalog. We launched the first version on <strong>April 23, 2026</strong>; everything above is live and self-installable today.</p>
-                    <p>Parachute Agent is the one exploration on this slide &mdash; an opinionated all-in-one Parachute distribution, fork of NanoClaw with vault integration. The committed core is the four modules + the hub.</p>
+                    <p>We launched on <strong>April 23, 2026</strong>. Twelve days later, on <strong>May 5</strong>, we shipped a coordinated release across the whole ecosystem &mdash; modular per-module admin SPAs, vault-scoped tokens with a cross-vault auth boundary, and a shared JWT-validation kernel (<code>scope-guard</code>) that vault, scribe, and agent all use. Every package now stable on <code>npm @latest</code>. The arc from launch to ecosystem coherence took less than two weeks.</p>
+                    <p>Parachute Agent is the one exploration on this slide &mdash; an opinionated all-in-one Parachute distribution, fork of NanoClaw with vault integration. Renamed today from "paraclaw" for naming cohesion with the rest of the family. The committed core is the four modules + the hub.</p>
                 </aside>
             </section>
 
