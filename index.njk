@@ -439,6 +439,110 @@ permalink: /
 @media (max-width: 480px) {
     .pl-principles-grid { grid-template-columns: 1fr; }
 }
+
+/* Subscribe — quiet inline interest list, mirrors hero rhythm */
+.pl-subscribe {
+    margin: 0 auto 4rem;
+    padding: 2.25rem 2.4rem;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(243, 240, 234, 0.55) 0%, rgba(255, 255, 255, 0.92) 100%);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
+    gap: 2rem;
+    align-items: center;
+}
+.pl-subscribe-copy {
+    min-width: 0;
+}
+.pl-subscribe-eyebrow {
+    font-size: 0.72rem;
+    color: var(--fg-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.65rem;
+    font-weight: 500;
+}
+.pl-subscribe-lead {
+    font-family: var(--serif);
+    font-size: 1.45rem;
+    line-height: 1.25;
+    color: var(--fg);
+    letter-spacing: -0.015em;
+    margin-bottom: 0.5rem;
+}
+.pl-subscribe-body {
+    font-size: 0.92rem;
+    color: var(--fg-muted);
+    line-height: 1.6;
+    margin-bottom: 0;
+    max-width: 32rem;
+}
+.pl-subscribe-form {
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+    flex-wrap: wrap;
+    margin: 0;
+}
+.pl-subscribe-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.72rem 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--fg);
+    background: #fff;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.pl-subscribe-input::placeholder {
+    color: var(--fg-dim);
+}
+.pl-subscribe-input:focus {
+    outline: none;
+    border-color: var(--accent-light);
+    box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.12);
+}
+.pl-subscribe-btn {
+    background: var(--accent);
+    color: #fff;
+    padding: 0.72rem 1.4rem;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 1px 4px rgba(74, 124, 89, 0.15);
+}
+.pl-subscribe-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+}
+.pl-subscribe-error {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: #b04848;
+    line-height: 1.5;
+}
+.pl-subscribe-note {
+    margin-top: 0.7rem;
+    font-size: 0.8rem;
+    color: var(--fg-dim);
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .pl-subscribe {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 1.6rem 1.4rem;
+    }
+}
 </style>
 
 <main>
@@ -607,7 +711,43 @@ permalink: /
         </div>
     </div>
 
-    <section class="pl-principles fade-up fade-up-5">
+    <section class="pl-subscribe fade-up fade-up-5" aria-labelledby="subscribe-heading">
+        <div class="pl-subscribe-copy">
+            <p class="pl-subscribe-eyebrow">Stay in the loop</p>
+            <p class="pl-subscribe-lead" id="subscribe-heading">Get updates as Parachute opens up.</p>
+            <p class="pl-subscribe-body">Thoughtful and infrequent &mdash; new modules, design notes, and the occasional invitation to try things early.</p>
+        </div>
+        <div>
+            <form class="pl-subscribe-form" method="post" action="/api/subscribe">
+                <input
+                    type="email"
+                    name="email"
+                    required
+                    autocomplete="email"
+                    placeholder="you@example.com"
+                    aria-label="Email address"
+                    class="pl-subscribe-input"
+                />
+                <button type="submit" class="pl-subscribe-btn">Subscribe</button>
+            </form>
+            <p class="pl-subscribe-error" id="pl-subscribe-error" hidden>That didn't go through &mdash; check the email and try again.</p>
+            <p class="pl-subscribe-note">No spam. Unsubscribe any time. <a href="mailto:hello@parachute.computer">hello@parachute.computer</a> for direct contact.</p>
+        </div>
+    </section>
+    <script>
+        // Surface a subtle error if the Pages Function bounced us back.
+        // No JS dependency for the happy path — the form is a plain
+        // browser POST → 303 redirect to /subscribe/thanks/.
+        (function () {
+            var params = new URLSearchParams(window.location.search);
+            if (params.get('subscribe_error') === '1') {
+                var el = document.getElementById('pl-subscribe-error');
+                if (el) el.hidden = false;
+            }
+        })();
+    </script>
+
+    <section class="pl-principles fade-up fade-up-6">
         <h2>Principles</h2>
         <div class="pl-principles-grid">
             <div class="pl-principle">

@@ -1,0 +1,67 @@
+---
+layout: base.njk
+title: "On the list"
+description: "You're on the Parachute interest list. We'll be in touch."
+permalink: /subscribe/thanks/
+---
+<style>
+.subscribe-thanks {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+}
+.subscribe-thanks h1 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 3.5vw, 2.75rem);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    color: var(--fg);
+    margin-bottom: 1rem;
+}
+.subscribe-thanks p {
+    color: var(--fg-muted);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+}
+.subscribe-thanks .label {
+    font-size: 0.72rem;
+    color: var(--fg-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+}
+.subscribe-thanks .next {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+}
+.subscribe-thanks .next-links {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: 0.9rem;
+}
+</style>
+
+<main>
+    <section class="subscribe-thanks fade-up fade-up-2">
+        <p class="label">Interest list</p>
+        <h1>You're on the list.</h1>
+        <p>We'll be in touch as Parachute opens up &mdash; thoughtful, infrequent.</p>
+        <p>If you've got something you're trying to make with AI right now, or you're curious how Parachute fits, <a href="mailto:hello@parachute.computer">drop us a line</a>. We love hearing from people early.</p>
+
+        <div class="next">
+            <p class="label">While you're here</p>
+            <div class="next-links">
+                <a href="/install/">Install the Vault &rarr;</a>
+                <a href="/blog/">Read the blog &rarr;</a>
+                <a href="/">Back to home &rarr;</a>
+            </div>
+        </div>
+    </section>
+</main>
