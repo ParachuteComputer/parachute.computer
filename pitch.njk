@@ -16,6 +16,14 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
     padding: 3rem 1.5rem 5rem;
 }
 
+/* ── Presentation-mode chrome bookkeeping ──
+   Sticky header is ~67px. The deck reserves space for prev/notes/next
+   controls + hint below each slide. We compute slide height from those. */
+:root {
+    --pi-nav-h: 67px;
+    --pi-deck-chrome: 8.5rem; /* page padding + controls + hint, in deck mode */
+}
+
 /* ── Floating corner video widget ──
    Collapsed: a small "▶ Watch pitch" button anchored bottom-right.
    Expanded: the video panel slides up. Dismiss = back to collapsed.
@@ -178,7 +186,10 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
     flex-direction: column;
 }
 .pi-deck .pi-slide::after {
-    content: counter(slide-num) " / 10";
+    /* Use the slide's data-id rather than a CSS counter — CSS counters
+       only increment on elements that generate a box, and inactive slides
+       are `display: none`, so a counter shows the wrong number. */
+    content: attr(data-slide-id) " / 10";
     position: absolute;
     top: 1.5rem;
     right: 1.75rem;
@@ -681,6 +692,261 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
     margin-right: 0.6rem;
 }
 
+/* ── Presentation mode: viewport-bounded slides ──
+   Activates when there's enough room to behave like a real slide deck:
+   desktop width + at least ~600px of vertical space. The slide is locked
+   to the viewport, content is tightened, speaker notes become a bottom
+   drawer rather than pushing the slide off-screen.
+
+   Below this threshold (phones, short windows, tablets in portrait) the
+   default natural-flow rules above still apply — the deck just scrolls. */
+@media (min-width: 901px) and (min-height: 600px) {
+    .pi-page {
+        max-width: 1080px;
+        padding: 1.25rem 1.5rem 1.25rem;
+    }
+
+    /* Lock the active slide to the viewport.
+       The :first-child / single-slide pattern means we can target .pi-slide
+       directly: only one slide is .is-active at a time, and the rest are
+       display:none. So height applies cleanly. */
+    .pi-deck .pi-slide {
+        min-height: 0;
+        height: calc(100vh - var(--pi-nav-h) - var(--pi-deck-chrome));
+        padding: 2.5rem 2.5rem 2rem;
+        overflow: hidden;
+    }
+    .pi-deck .pi-slide.is-active {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Tighter headings + lede so they don't dominate the frame. */
+    .pi-deck .pi-slide .pi-h1 {
+        font-size: clamp(2rem, 3.6vw, 2.8rem);
+        margin-bottom: 0.8rem;
+    }
+    .pi-deck .pi-slide .pi-h2 {
+        font-size: clamp(1.45rem, 2.4vw, 1.9rem);
+        margin-bottom: 0.85rem;
+    }
+    .pi-deck .pi-slide .pi-lede {
+        font-size: 1.05rem;
+        line-height: 1.45;
+        margin-bottom: 0.9rem;
+    }
+    .pi-deck .pi-slide .pi-label,
+    .pi-deck .pi-slide .pi-eyebrow {
+        margin-bottom: 0.75rem;
+    }
+
+    /* Images: cap their height so they don't blow out the slide.
+       The .pi-img wrapper carries no chrome in deck mode and centers
+       the image. Heights are set directly on the <img> so the constraint
+       actually applies — `max-height: 100%` on the inner img requires the
+       parent to have an explicit height, which we don't have here. */
+    .pi-deck .pi-slide .pi-img {
+        margin: 0.6rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 0;
+    }
+    .pi-deck .pi-slide .pi-img picture {
+        display: inline-block;
+        max-width: 100%;
+    }
+    .pi-deck .pi-slide .pi-img img {
+        max-height: 38vh;
+        height: auto;
+        width: auto;
+        max-width: 100%;
+        object-fit: contain;
+    }
+    .pi-deck .pi-slide .pi-img-caption {
+        margin-top: 0.35rem;
+        font-size: 0.72rem;
+    }
+
+    /* Slide-specific image sizing — hero gets the most room; in-content
+       diagrams are smaller; the pendant strip on slide 8 is tiny. */
+    .pi-deck .pi-slide.pi-hero .pi-img img { max-height: 42vh; }
+    .pi-deck .pi-slide[data-slide-id="4"] .pi-img img { max-height: 18vh; }
+    .pi-deck .pi-slide[data-slide-id="4"] .pi-img { margin: 0.25rem 0; }
+    .pi-deck .pi-slide[data-slide-id="4"] .pi-img-caption { display: none; }
+    .pi-deck .pi-slide[data-slide-id="4"] .pi-h2 { margin-bottom: 0.5rem; }
+    .pi-deck .pi-slide[data-slide-id="8"] .pi-pendant-gallery { margin: 0.5rem 0 0.3rem; }
+    .pi-deck .pi-slide[data-slide-id="8"] .pi-pendant-gallery .pi-img {
+        margin: 0;
+    }
+    .pi-deck .pi-slide[data-slide-id="8"] .pi-pendant-gallery .pi-img img {
+        max-height: 11vh;
+    }
+
+    /* Hide the placeholder image on slide 5 in deck mode — the four
+       flywheel rows are the flywheel; the TODO illustration is purely
+       aspirational and pushes the slide over. It still renders on
+       mobile/short viewports for design reference. */
+    .pi-deck .pi-slide .pi-img:has(.pi-img-placeholder) {
+        display: none;
+    }
+
+    /* Flywheel — denser rows so 3-4 fit comfortably. */
+    .pi-deck .pi-slide .pi-flywheel {
+        margin-top: 0.25rem;
+    }
+    .pi-deck .pi-slide .pi-flywheel-row {
+        padding: 0.6rem 1.15rem;
+    }
+    .pi-deck .pi-slide .pi-flywheel-role {
+        font-size: 0.95rem;
+    }
+    .pi-deck .pi-slide .pi-flywheel-body {
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+
+    /* Tier table — denser rows on slide 7. */
+    .pi-deck .pi-slide .pi-tiers {
+        margin-top: 0.4rem;
+    }
+    .pi-deck .pi-slide .pi-tier {
+        padding: 0.55rem 1.15rem;
+    }
+    .pi-deck .pi-slide .pi-tier-price { font-size: 1.1rem; }
+    .pi-deck .pi-slide .pi-tier-body { font-size: 0.85rem; line-height: 1.45; }
+
+    /* Slide 7 (business) carries a lot — drop the lede and tighten everything
+       so both flywheel rows + all three tier rows fit. */
+    .pi-deck .pi-slide[data-slide-id="7"] .pi-lede {
+        display: none;
+    }
+    .pi-deck .pi-slide[data-slide-id="7"] .pi-tiers {
+        margin-top: 0.65rem !important;
+    }
+
+    /* Module grid (slide 6) — three columns × two rows for 6 items, with
+       tighter card padding so the whole grid + version stamp fits. */
+    .pi-deck .pi-slide .pi-modules {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 0.55rem;
+    }
+    .pi-deck .pi-slide .pi-mod {
+        padding: 0.65rem 0.9rem;
+    }
+    .pi-deck .pi-slide .pi-mod-tag {
+        margin-bottom: 0.25rem;
+        font-size: 0.58rem;
+        padding: 0.1rem 0.4rem;
+    }
+    .pi-deck .pi-slide .pi-mod h3 {
+        font-size: 0.95rem;
+        margin-bottom: 0.15rem;
+    }
+    .pi-deck .pi-slide .pi-mod p {
+        font-size: 0.78rem;
+        line-height: 1.4;
+    }
+    .pi-deck .pi-slide .pi-shipped-stamp {
+        margin-top: 0.45rem;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.64rem;
+        line-height: 1.4;
+    }
+    /* Slide 6: drop the lede so the 6-card grid + stamp fits. */
+    .pi-deck .pi-slide[data-slide-id="6"] .pi-lede {
+        display: none;
+    }
+    .pi-deck .pi-slide[data-slide-id="6"] .pi-h2 { margin-bottom: 0.75rem; }
+    .pi-deck .pi-slide[data-slide-id="6"] .pi-mod { padding: 0.55rem 0.85rem; }
+    .pi-deck .pi-slide[data-slide-id="6"] .pi-mod p { font-size: 0.75rem; }
+
+    /* Future cards (slide 8) — tighter. */
+    .pi-deck .pi-slide .pi-future {
+        gap: 0.55rem;
+    }
+    .pi-deck .pi-slide .pi-future-card {
+        padding: 0.7rem 1rem;
+    }
+    .pi-deck .pi-slide .pi-future-card strong {
+        font-size: 0.95rem;
+        margin-bottom: 0.2rem;
+    }
+    .pi-deck .pi-slide .pi-future-card span {
+        font-size: 0.78rem;
+        line-height: 1.45;
+    }
+    .pi-deck .pi-slide[data-slide-id="8"] .pi-h2 { margin-bottom: 0.7rem; }
+
+    /* Team grid (slide 9) — three columns on wide screens, denser cards. */
+    .pi-deck .pi-slide .pi-team {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 0.7rem;
+    }
+    .pi-deck .pi-slide .pi-person {
+        padding: 0.85rem 1rem;
+        grid-template-columns: 44px 1fr;
+        gap: 0.75rem;
+    }
+    .pi-deck .pi-slide .pi-avatar {
+        width: 44px;
+        height: 44px;
+        font-size: 0.6rem;
+    }
+    .pi-deck .pi-slide .pi-person-body strong {
+        font-size: 0.95rem;
+    }
+    .pi-deck .pi-slide .pi-person-body span {
+        font-size: 0.76rem;
+        line-height: 1.45;
+    }
+    .pi-deck .pi-slide .pi-person-role {
+        font-size: 0.62rem;
+        margin-bottom: 0.2rem;
+    }
+
+    /* Ask slide (slide 10) — already short; let it center as-is. */
+    .pi-deck .pi-slide .pi-ask {
+        padding: 1.6rem 1.75rem 1.85rem;
+    }
+
+    /* Speaker notes — overlay drawer instead of inline block.
+       When the deck has data-notes="on", the current slide's notes slide
+       in from the bottom as an overlay panel; the slide content underneath
+       stays put. Closing notes (press N again) hides the overlay. */
+    .pi-deck .pi-slide .pi-notes {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        max-height: 60%;
+        overflow-y: auto;
+        margin: 0;
+        padding: 1.1rem 2rem 1.4rem;
+        border-left: 0;
+        border-top: 3px solid var(--accent);
+        border-radius: 12px 12px 13px 13px;
+        background: rgba(247, 244, 237, 0.98);
+        box-shadow: 0 -10px 28px rgba(44, 42, 38, 0.1);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        font-size: 0.86rem;
+        line-height: 1.6;
+        z-index: 5;
+    }
+    .pi-deck .pi-slide .pi-notes p {
+        margin-bottom: 0.55rem;
+    }
+    .pi-deck-controls {
+        margin-top: 1rem;
+        padding-top: 0.85rem;
+    }
+    .pi-deck-hint {
+        margin-top: 0.5rem;
+    }
+}
+
 /* ── Mobile: collapse multi-col grids ── */
 @media (max-width: 900px) {
     .pi-modules,
@@ -1148,6 +1414,14 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
     let current = 0;
     let manualMode = !video;
 
+    // Allow ?s=N in the URL to deep-link to a slide (1-indexed).
+    // Used for screenshot automation; harmless otherwise.
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialSlideParam = parseInt(urlParams.get('s'), 10);
+    const initialSlide = (Number.isFinite(initialSlideParam) && initialSlideParam >= 1 && initialSlideParam <= slides.length)
+        ? initialSlideParam - 1
+        : 0;
+
     function show(i) {
         if (i < 0 || i >= slides.length) return;
         slides[current].classList.remove('is-active');
@@ -1195,7 +1469,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
         });
     }
 
-    show(0);
+    show(initialSlide);
 })();
 
 /* Floating video widget — collapsed/expanded toggle.
