@@ -1,10 +1,10 @@
 ---
 layout: base.njk
 title: "Pitch"
-description: "Parachute is self-hosted personal-AI infrastructure. Voice-first. Open source. A substrate for every AI you use — from Open Parachute, PBC."
+description: "Parachute is personal technology, on your terms — a memory and knowledge layer for your data and your AI. Open source. From Open Parachute, PBC."
 permalink: /pitch/
 og_title: "Own your context. Own your AI."
-og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-first. Open source. The substrate every agent and interface should sit on top of."
+og_description: "Personal technology, on your terms. A memory and knowledge layer for your data + your AI."
 ---
 <style>
 /* Pitch v4 — single full-width deck + floating corner video widget.
@@ -178,7 +178,7 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
     flex-direction: column;
 }
 .pi-deck .pi-slide::after {
-    content: counter(slide-num) " / 11";
+    content: counter(slide-num) " / 10";
     position: absolute;
     top: 1.5rem;
     right: 1.75rem;
@@ -280,7 +280,7 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
 }
 /* Counter in the controls bar is visually hidden — the in-frame ::after
    indicator is the primary surface — but kept in the DOM as a polite
-   live region so screen readers still hear "slide N of 11" on change. */
+   live region so screen readers still hear "slide N of 10" on change. */
 .pi-counter {
     position: absolute;
     width: 1px;
@@ -743,9 +743,9 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
             <section class="pi-slide pi-hero pi-slide-center fade-up fade-up-2" data-slide-id="1" data-video-start="0" data-video-end="15">
                 <p class="pi-eyebrow">Open Parachute, PBC &middot; 2026</p>
                 <h1 class="pi-h1">Own your context.<br>Own your AI.</h1>
-                <p class="pi-lede">Self-hosted personal-AI infrastructure. Voice-first. Open source.</p>
+                <p class="pi-lede">Personal technology, on your terms. A memory and knowledge layer for your data + your AI.</p>
                 <aside class="pi-notes">
-                    <p><strong>Parachute is the substrate every agent and interface should sit on top of.</strong> Your knowledge graph, your transcription, your auth &mdash; on your machine, talking to whatever AI you want, on your terms.</p>
+                    <p>Parachute is a place for your thoughts, projects, and knowledge to live &mdash; on your terms, available to whichever AI you want to use, in whichever interface fits you. Open source. Self-hostable. A few of us building it together in Boulder.</p>
                 </aside>
                 <div class="pi-img">
                     {# Reused from old NVC deck slide 1: person walking with pendant, knowledge graph flowing. #}
@@ -761,77 +761,51 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 </div>
             </section>
 
-            {# ── Slide 2: The race we stopped chasing ── #}
-            <section class="pi-slide fade-up fade-up-3" data-slide-id="2" data-video-start="15" data-video-end="45">
-                <p class="pi-label">The race we stopped chasing</p>
-                <h2 class="pi-h2">Everyone is building agents.<br>We were too. <em>We stopped.</em></h2>
-                <aside class="pi-notes">
-                    <p>OpenAI Operator. Claude Computer Use. Manus. Devin. Perplexity. The big labs and the loudest startups are all sprinting to be <em>the</em> agent &mdash; the one that does your taxes and books your travel and answers your email.</p>
-                    <p>We watched features get cloned in weeks. We watched the labs ship things our roadmap had on it, while we were still building. The labs have billions to outspend, infinite GPUs, and a head start. <strong>The agent race is a race to the bottom for everyone who isn't a lab.</strong></p>
-                    <p>So we asked: what's missing? What does every agent need that none of the labs are building &mdash; because building it would weaken their lock-in?</p>
-                </aside>
-                <div class="pi-img">
-                    {# Reused from old NVC deck slide 2: crowded agent landscape. #}
-                    <picture>
-                        <source type="image/webp"
-                                srcset="/assets/pitch/optimized/agent-race-landscape-800w.webp 800w,
-                                        /assets/pitch/optimized/agent-race-landscape-1600w.webp 1600w"
-                                sizes="(max-width: 900px) 100vw, 60vw">
-                        <img src="/assets/pitch/optimized/agent-race-landscape-1600w.webp"
-                             alt="A crowded landscape of AI assistant icons — Operator, Cowork, Manus, Devin, Perplexity, all racing"
-                             loading="lazy">
-                    </picture>
-                    <p class="pi-img-caption">Everyone is racing to be the agent. We're building the substrate underneath.</p>
-                </div>
-            </section>
-
-            {# ── Slide 3: Voice-first ── #}
-            <section class="pi-slide fade-up fade-up-4" data-slide-id="3" data-video-start="45" data-video-end="65">
-                <p class="pi-label">The gesture that started this</p>
-                <h2 class="pi-h2">It started with a voice note<br>on a walk.</h2>
-                <p class="pi-lede">Voice is how Parachute meets you. Substrate is what Parachute is.</p>
-                <aside class="pi-notes">
-                    <p>The simplest interface: <strong>press a button, talk</strong>. No app to open, no cursor, no prompt window. The thought fades fast; the gesture has to be faster.</p>
-                    <p>That's where Parachute started, and it's still the front door for most people. A voice-first journal &mdash; capture as you walk, capture as you wake up, capture before the meeting starts. Local transcription by default. Audio never leaves your device unless you ask it to.</p>
-                    <p>But voice was the gesture, not the product. The product is what happens to the words after they're transcribed &mdash; where they live, who can read them, what compounds over time.</p>
-                </aside>
-            </section>
-
-            {# ── Slide 4: What's broken ── #}
-            <section class="pi-slide fade-up fade-up-5" data-slide-id="4" data-video-start="65" data-video-end="95">
-                <p class="pi-label">Why this is missing today</p>
-                <h2 class="pi-h2">Every layer above the data<br>is fighting for the data.</h2>
-                <div class="pi-traps">
-                    <div class="pi-trap">
-                        <strong>Notion traps you</strong>
-                        <span>Your knowledge in their database. Their AI on top. Their export rules. Switching costs grow with every doc.</span>
+            {# ── Slide 2: What Parachute is (three-layer model) ── #}
+            <section class="pi-slide fade-up fade-up-3" data-slide-id="2" data-video-start="15" data-video-end="55">
+                <p class="pi-label">What Parachute is</p>
+                <h2 class="pi-h2">A personal memory and knowledge layer<br>for <em>your</em> data and <em>your</em> AI.</h2>
+                <p class="pi-lede">Parachute helps you organize your thoughts, notes, and projects in a coherent way &mdash; without you needing to architect the perfect system first. Just add things in and be in easy conversation with your AI.</p>
+                <div class="pi-flywheel">
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Vault</div>
+                        <div class="pi-flywheel-body"><strong>The memory + knowledge layer.</strong> Notes, tags, links. Self-hostable. Customizable.</div>
                     </div>
-                    <div class="pi-trap">
-                        <strong>Obsidian loses you</strong>
-                        <span>Markdown files in folders, no AI bridge. Every tool starts cold. The power users love it; everyone else gives up.</span>
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Agent</div>
+                        <div class="pi-flywheel-body"><strong>Custom knowledge agents</strong> you can spin up on any vault. Bring the AI you trust to the data you own.</div>
                     </div>
-                    <div class="pi-trap">
-                        <strong>ChatGPT forgets you</strong>
-                        <span>"Memory" is a flat text file with your name and a few preferences. Every new chat starts over. You re-explain yourself for the rest of your life.</span>
-                    </div>
-                    <div class="pi-trap">
-                        <strong>Vendor agents lock you in</strong>
-                        <span>Operator runs in their cloud. Tasks live in their projects. Cowork data goes to their server. The agents are getting more powerful and your leverage is shrinking.</span>
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Surface</div>
+                        <div class="pi-flywheel-body"><strong>Custom web interfaces</strong> to navigate, view, share, and interface with your data.</div>
                     </div>
                 </div>
                 <aside class="pi-notes">
-                    <p>The tools you're using already are not on your side, and the friction shows up in the same shapes &mdash; trap, lose, forget, lock in.</p>
-                    <p>Parachute is the substrate underneath. Same data, different relationship: <strong>yours, on your machine, accessible to every agent and interface you choose to point at it.</strong></p>
+                    <p>Think of Parachute as bringing together the best of what Obsidian offers (notes, tags, links, files on your machine) and what Notion offers (a clean place to organize a project, a life, a team) &mdash; in a truly personal interface.</p>
+                    <p>Every vault is reachable over an <strong>open REST API</strong> &mdash; so people can build whatever interface they want on top &mdash; and over <strong>MCP</strong>, so any AI system you use instantly works with your data.</p>
+                    <p>The three layers are the conceptual model. Underneath them sit the modules that ship today (vault, scribe, notes, hub, agent) &mdash; we'll get to those in a moment.</p>
                 </aside>
             </section>
 
-            {# ── Slide 5: The Parachute substrate ── #}
-            <section class="pi-slide fade-up fade-up-5" data-slide-id="5" data-video-start="95" data-video-end="130">
-                <p class="pi-label">The substrate</p>
-                <h2 class="pi-h2">Spin up a vault.<br>Give any AI a link.</h2>
+            {# ── Slide 3: Voice-first origin ── #}
+            <section class="pi-slide fade-up fade-up-4" data-slide-id="3" data-video-start="55" data-video-end="80">
+                <p class="pi-label">How it started</p>
+                <h2 class="pi-h2">A voice note on a walk.</h2>
+                <p class="pi-lede">Press a button, talk, let it land. The simplest gesture I could find for staying in conversation with what matters.</p>
+                <aside class="pi-notes">
+                    <p>Parachute started as a voice journal &mdash; <strong>press a button, talk</strong>, the thought lands. No app to open, no cursor, no prompt window. Capture as you walk, as you wake up, before the meeting starts. Local transcription by default. Audio never leaves the device unless you ask it to.</p>
+                    <p>Voice was the gesture, not the whole product. What I kept coming back to was: <em>where do these notes live afterward?</em> Where do they connect? How do they stay yours, and stay useful to whichever AI you're using next? That question is what grew into the rest of Parachute.</p>
+                </aside>
+            </section>
+
+            {# ── Slide 4: The Parachute substrate ── #}
+            <section class="pi-slide fade-up fade-up-5" data-slide-id="4" data-video-start="80" data-video-end="120">
+                <p class="pi-label">How it's built</p>
+                <h2 class="pi-h2">Spin up a vault.<br>Bring your own AI.</h2>
                 <div class="pi-img">
                     {# Reused from old NVC deck slide 5: phone/browser/pendant → Vault → Claude/ChatGPT/Gemini.
-                       TODO: refresh diagram for current ecosystem — Hub-as-issuer + the four modules + scoped JWTs. #}
+                       TODO: refresh diagram for current ecosystem — vault at center, agents + surfaces orbiting,
+                       open REST + MCP on every vault. #}
                     <picture>
                         <source type="image/webp"
                                 srcset="/assets/pitch/optimized/vault-architecture-800w.webp 800w,
@@ -842,58 +816,52 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                              alt="Vault architecture: phone, browser, pendant connect to Parachute Vault, which connects via MCP to Claude, ChatGPT, Gemini"
                              loading="lazy">
                     </picture>
-                    <p class="pi-img-caption">Architecture diagram &mdash; any client over MCP. Refresh planned to show Hub-as-issuer + the four modules + scoped JWTs.</p>
+                    <p class="pi-img-caption">Vault at the center; agents and surfaces orbit around it. Diagram refresh planned to show the three-layer model.</p>
                 </div>
                 <div class="pi-flywheel">
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Vault</div>
-                        <div class="pi-flywheel-body"><strong>The graph.</strong> Notes, tags, links. Search and traversal.</div>
+                        <div class="pi-flywheel-body"><strong>Your data.</strong> Notes, tags, links. Runs on your machine (or our cloud). Reachable via open REST API and MCP &mdash; so any tool can read and write to it.</div>
                     </div>
                     <div class="pi-flywheel-row">
-                        <div class="pi-flywheel-role">Scribe</div>
-                        <div class="pi-flywheel-body"><strong>The ear.</strong> Whisper-compatible transcription. Local by default.</div>
+                        <div class="pi-flywheel-role">Agent</div>
+                        <div class="pi-flywheel-body"><strong>Your intelligence.</strong> Custom knowledge agents you spin up on any vault. Bring the AI you trust (Claude, GPT, local) to the data you own.</div>
                     </div>
                     <div class="pi-flywheel-row">
-                        <div class="pi-flywheel-role">Notes</div>
-                        <div class="pi-flywheel-body"><strong>The reference interface.</strong> PWA, offline, voice capture.</div>
-                    </div>
-                    <div class="pi-flywheel-row">
-                        <div class="pi-flywheel-role">Hub</div>
-                        <div class="pi-flywheel-body"><strong>The front door.</strong> Install, start, stop, expose. OAuth issuer with scope-narrowed JWTs.</div>
+                        <div class="pi-flywheel-role">Surface</div>
+                        <div class="pi-flywheel-body"><strong>Your interface.</strong> Custom web views to navigate, share, and interact with your data. Notes (the PWA) is one surface; build your own, or use what we ship.</div>
                     </div>
                 </div>
                 <aside class="pi-notes">
-                    <p>A <strong>vault</strong> is a knowledge graph that runs on your machine. SQLite-backed. Wikilinks, full-text search, semantic search. Reachable over <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer">MCP</a> &mdash; the open standard every major lab now supports &mdash; and over a plain REST API. Any AI can read and write to it.</p>
-                    <p>Around the vault, four small modules form the rest of the substrate. Notes is a reference interface, not a requirement &mdash; build your own.</p>
-                    <p>And underneath it all, a small <strong>module protocol</strong> &mdash; <code>info</code>, <code>config</code>, <code>services.json</code>, <code>well-known</code> &mdash; that any third-party module can implement and plug in. Calendar, email, your own knowledge bases, your own agents. The hub renders them like they were native.</p>
-                    <p>Hub-as-issuer is the part that's quietly load-bearing: <strong>one identity, many narrowly-scoped tokens</strong>. A Notes app gets read+write to the vault. A read-only AI client gets read. A third-party module gets exactly the scope it asked for. You stop trusting tools transitively.</p>
+                    <p>The three layers sit on top of a few small modules that ship today &mdash; <strong>vault</strong> (the data), <strong>scribe</strong> (transcription), <strong>notes</strong> (a reference surface), <strong>hub</strong> (the coordinator that ties it together and handles auth), <strong>agent</strong> (an opinionated agent-on-vault distribution).</p>
+                    <p>The contract underneath: every vault speaks an <strong>open REST API</strong> for humans and tools, and <strong>MCP</strong> &mdash; the open standard every major lab now supports &mdash; for AI. That's what makes the substrate portable: you don't depend on us to use your data.</p>
                 </aside>
             </section>
 
-            {# ── Slide 6: The flywheel ── #}
-            <section class="pi-slide fade-up fade-up-5" data-slide-id="6" data-video-start="130" data-video-end="155">
+            {# ── Slide 5: The flywheel ── #}
+            <section class="pi-slide fade-up fade-up-5" data-slide-id="5" data-video-start="120" data-video-end="150">
                 <p class="pi-label">How it compounds</p>
-                <h2 class="pi-h2">Vault at the center.<br>Agents and interfaces orbit.</h2>
+                <h2 class="pi-h2">Vault grows. Agents read. Surfaces<br>render. The graph compounds.</h2>
                 <div class="pi-flywheel">
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Capture</div>
-                        <div class="pi-flywheel-body">Voice (Scribe), type (Notes), drop a file, sync from elsewhere. The graph grows with how you actually think.</div>
+                        <div class="pi-flywheel-body">Voice (Scribe), type (Notes), drop a file, sync from elsewhere. <strong>Vault</strong> grows with how you actually think.</div>
                     </div>
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Read</div>
-                        <div class="pi-flywheel-body">Claude Code, claude.ai, ChatGPT, Codex, Goose, Cursor, Zed &mdash; anyone speaking MCP. Custom agents and custom UIs you build yourself.</div>
+                        <div class="pi-flywheel-body">Claude, ChatGPT, custom <strong>agents</strong> you spin up &mdash; anyone speaking MCP or the REST API. The AI gets context; you keep ownership.</div>
                     </div>
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Compose</div>
-                        <div class="pi-flywheel-body">Third-party modules plug in. Calendar, email, knowledge bases, niche tools. The hub wires them, scopes them, renders their config.</div>
+                        <div class="pi-flywheel-body">Bespoke <strong>surfaces</strong> render the vault: dashboards, public sites, project views, knowledge wikis. One vault, many ways in.</div>
                     </div>
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Compound</div>
-                        <div class="pi-flywheel-body">The graph gets richer. Every read makes the next read better. The substrate is the part that doesn't get cloned next quarter.</div>
+                        <div class="pi-flywheel-body">The graph gets richer. Every capture, every read, every new surface makes the next one better.</div>
                     </div>
                 </div>
                 <aside class="pi-notes">
-                    <p>The vault is the substrate. Everything else is an orbit around it. Capture grows the graph; reads compound on it; third-party modules compose new behavior on top; and over time the graph itself is the moat &mdash; the part that doesn't get cloned next quarter.</p>
+                    <p>The vault is the substrate at the middle of the three-layer model. Capture grows it; agents read from it; surfaces render it; and over time the graph itself is the durable thing &mdash; the part that travels with you, regardless of which AI you're using this year.</p>
                 </aside>
                 <div class="pi-img" style="margin-top: 1.75rem;">
                     {# TODO: Gemini Image Generation prompt — "Minimalist diagram of a hub-and-spoke flywheel:
@@ -907,11 +875,11 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 </div>
             </section>
 
-            {# ── Slide 7: What ships today ── #}
-            <section class="pi-slide fade-up fade-up-5" data-slide-id="7" data-video-start="155" data-video-end="180">
-                <p class="pi-label">What ships today</p>
-                <h2 class="pi-h2">Five modules.<br>Installable with one command.</h2>
-                <p class="pi-lede"><code>parachute install &lt;module&gt;</code></p>
+            {# ── Slide 6: Where we're at ── #}
+            <section class="pi-slide fade-up fade-up-5" data-slide-id="6" data-video-start="150" data-video-end="185">
+                <p class="pi-label">Where we're at</p>
+                <h2 class="pi-h2">Soft-launched in April.<br>Open beta in about a month.</h2>
+                <p class="pi-lede">We soft-launched Vault on April 23. A small group of beta users is testing the app right now, finding it valuable, and giving us feedback that's helping us refine quickly.</p>
                 <div class="pi-modules">
                     <div class="pi-mod">
                         <span class="pi-mod-tag">Core</span>
@@ -934,9 +902,9 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                         <p>The coordinator. Install, start, stop, expose. OAuth issuer with scope-narrowed JWTs and per-module admin UIs.</p>
                     </div>
                     <div class="pi-mod">
-                        <span class="pi-mod-tag exploration">Exploration</span>
-                        <h3>Parachute Agent</h3>
-                        <p>A Parachute distribution &mdash; a fork of NanoClaw with vault integration, exploring an opinionated all-in-one.</p>
+                        <span class="pi-mod-tag">Core</span>
+                        <h3>Agent</h3>
+                        <p>A Parachute distribution &mdash; a fork of NanoClaw with vault integration. An opinionated all-in-one for spinning up knowledge agents on a vault.</p>
                     </div>
                     <div class="pi-mod">
                         <span class="pi-mod-tag">Patterns</span>
@@ -945,44 +913,55 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                     </div>
                 </div>
                 <p class="pi-shipped-stamp">
-                    <strong>Latest &middot; May 5, 2026</strong> &mdash; hub 0.5.0 &middot; vault 0.4.0 &middot; scribe 0.4.0 &middot; notes 0.3.11 &middot; agent 0.1.0 &middot; scope-guard 0.1.0. All on <code>npm @latest</code>.
+                    <strong>Latest &middot; May 11, 2026</strong> &mdash; hub 0.5.8 &middot; vault 0.4.3 &middot; scribe 0.4.2 &middot; notes 0.3.13 &middot; agent 0.1.4 &middot; scope-guard 0.2.1. All on <code>npm @latest</code>.
                 </p>
                 <aside class="pi-notes">
-                    <p>We launched on <strong>April 23, 2026</strong>. Twelve days later, on <strong>May 5</strong>, we shipped a coordinated release across the whole ecosystem &mdash; modular per-module admin SPAs, vault-scoped tokens with a cross-vault auth boundary, and a shared JWT-validation kernel (<code>scope-guard</code>) that vault, scribe, and agent all use. Every package now stable on <code>npm @latest</code>. The arc from launch to ecosystem coherence took less than two weeks.</p>
-                    <p>Parachute Agent is the one exploration on this slide &mdash; an opinionated all-in-one Parachute distribution, fork of NanoClaw with vault integration. Renamed today from "paraclaw" for naming cohesion with the rest of the family. The committed core is the four modules + the hub.</p>
+                    <p>We launched on <strong>April 23, 2026</strong>. In the eighteen days since, we shipped a coordinated ecosystem-wide auth-architecture migration (vault-scoped tokens, a shared JWT-validation kernel called <code>scope-guard</code>) plus a holistic UX rework across vault, hub, and notes &mdash; the last of it landed today. Every package stable on <code>npm @latest</code>.</p>
+                    <p>Beta users are actively using the system. We're about <strong>one month away</strong> from shipping a real solid open beta for everyday people &mdash; polished onboarding, the cloud option ready, mobile capture flow tight.</p>
                 </aside>
             </section>
 
-            {# ── Slide 8: Cloud ── #}
-            <section class="pi-slide fade-up fade-up-5" data-slide-id="8" data-video-start="180" data-video-end="200">
-                <p class="pi-label">The convenience path</p>
-                <h2 class="pi-h2">Self-host or let us host.<br>Same code. Same exits.</h2>
-                <div class="pi-tiers">
+            {# ── Slide 7: How this becomes a business ── #}
+            <section class="pi-slide fade-up fade-up-5" data-slide-id="7" data-video-start="185" data-video-end="220">
+                <p class="pi-label">How this becomes a business</p>
+                <h2 class="pi-h2">Open source builds trust.<br>Trust funds two paths.</h2>
+                <p class="pi-lede">We're open-sourcing everything. More people want technology they can truly own &mdash; and that openness is what makes both revenue paths work.</p>
+                <div class="pi-flywheel">
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Hosted</div>
+                        <div class="pi-flywheel-body"><strong>Managed Parachute.</strong> Hosted instances of vault / agent / surface &mdash; or the whole computer. A few tiers make it easy to get started, with healthy margins. The bet: open source builds trust &rarr; more self-hosters &rarr; bigger pipe of would-be hosted customers.</div>
+                    </div>
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Enterprise</div>
+                        <div class="pi-flywheel-body"><strong>Licenses + integration services.</strong> AGPL means a company weaving Parachute into a commercial system has to open-source their modifications. Many enterprises won't want that &mdash; so we offer special licenses + services to deploy Parachute as their internal knowledge / project-management / custom-agent stack. <em>The AGPL is the moat that enables this revenue line.</em></div>
+                    </div>
+                </div>
+                <div class="pi-tiers" style="margin-top: 1.25rem;">
                     <div class="pi-tier">
                         <div class="pi-tier-price">Free<span>&nbsp;</span></div>
-                        <div class="pi-tier-body"><strong>Self-host</strong> &mdash; all modules, AGPL, run anywhere</div>
+                        <div class="pi-tier-body"><strong>Self-host</strong> &mdash; everything we ship, AGPL, run anywhere</div>
                     </div>
                     <div class="pi-tier featured">
                         <div class="pi-tier-price">~$5<span>/mo</span></div>
-                        <div class="pi-tier-body"><strong>Cloud</strong> &mdash; managed vault + transcription, multi-device sync, OAuth-gated public exposure</div>
+                        <div class="pi-tier-body"><strong>Cloud</strong> &mdash; managed vault + transcription, multi-device sync, public exposure done correctly</div>
                     </div>
                     <div class="pi-tier">
                         <div class="pi-tier-price">Custom<span>&nbsp;</span></div>
-                        <div class="pi-tier-body"><strong>Org / pro</strong> &mdash; team vaults, private deployments, extended modules</div>
+                        <div class="pi-tier-body"><strong>Org / enterprise</strong> &mdash; team vaults, private deployments, special licenses, integration services</div>
                     </div>
                 </div>
                 <aside class="pi-notes">
-                    <p>Most people don't want to run a server. <strong>Parachute Cloud</strong> is the same modules, managed for you &mdash; vault, transcription, multi-device sync, public exposure done correctly. You bring your AI client. We run the substrate.</p>
-                    <p>Same shape as self-hosted. Export everything. Leave at any time. <strong>The cloud is a convenience, not a SaaS ladder.</strong> We're not pricing your context.</p>
+                    <p>The hosted side is the obvious SaaS line &mdash; most people don't want to run a server, and the cloud offer is the same modules managed for you. The unusual thing is the enterprise side: AGPL licensing makes a special-license-and-services line genuinely defensible, because a commercial integration has to either open-source itself or buy a license from us. That second path is patient, high-margin, and natural for what Parachute is.</p>
+                    <p>Same code in both paths. Export everything. Leave any time. We're not pricing your context.</p>
                 </aside>
             </section>
 
-            {# ── Slide 9: The future ── #}
-            <section class="pi-slide fade-up fade-up-5" data-slide-id="9" data-video-start="200" data-video-end="220">
+            {# ── Slide 8: Where this goes ── #}
+            <section class="pi-slide fade-up fade-up-5" data-slide-id="8" data-video-start="220" data-video-end="245">
                 <p class="pi-label">Where this goes</p>
-                <h2 class="pi-h2">A substrate the whole<br>personal-AI ecosystem grows on.</h2>
+                <h2 class="pi-h2">A substrate that grows<br>with the AI ecosystem around it.</h2>
                 <aside class="pi-notes">
-                    <p>The agent race produces a winner-take-most layer at the top. Underneath it, every person needs a place where their context lives that <strong>isn't</strong> the lab. That's the substrate, and it's open.</p>
+                    <p>Every person is going to need a place where their context lives that <strong>isn't</strong> any single AI lab &mdash; one that travels across whichever models, agents, and surfaces they're using this year and next. That's what we're building.</p>
                 </aside>
                 <div class="pi-future">
                     <div class="pi-future-card">
@@ -990,16 +969,16 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                         <span>Always-on-when-you-press-it voice capture, writing straight to your vault. Working prototype; shippable v1 lands through the native-mobile path.</span>
                     </div>
                     <div class="pi-future-card">
-                        <strong>Custom interfaces</strong>
+                        <strong>Custom surfaces</strong>
                         <span>Loveable, v0, Dia &mdash; people are building bespoke UIs at unprecedented speed. Each one needs a place to put data. Vault is that place.</span>
                     </div>
                     <div class="pi-future-card">
                         <strong>Agents on substrate</strong>
-                        <span>Claude Projects, ChatGPT Tasks, OpenAI Operator. They get more powerful when they have continuity. Continuity needs a place to live that survives the model upgrade.</span>
+                        <span>Claude, ChatGPT, custom assistants. They get more powerful when they have continuity. Continuity needs a place to live that survives the model upgrade.</span>
                     </div>
                     <div class="pi-future-card">
                         <strong>Third-party modules</strong>
-                        <span>Anyone can build a service that plugs into a Parachute hub. Calendar, email, knowledge bases, custom agents. The hub renders them like they were native.</span>
+                        <span>Anyone can build a service that plugs into a Parachute hub. Calendar, email, knowledge bases, custom agents &mdash; rendered like they were native.</span>
                     </div>
                 </div>
                 <div class="pi-pendant-gallery">
@@ -1040,8 +1019,8 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 <p class="pi-img-caption" style="margin-top: -0.5rem;">Pendant prototype &mdash; render, PCB, and worn. The gesture-first capture surface for the substrate underneath.</p>
             </section>
 
-            {# ── Slide 10: Team ── #}
-            <section class="pi-slide fade-up fade-up-5" data-slide-id="10" data-video-start="220" data-video-end="235">
+            {# ── Slide 9: Team ── #}
+            <section class="pi-slide fade-up fade-up-5" data-slide-id="9" data-video-start="245" data-video-end="265">
                 <p class="pi-label">Team</p>
                 <h2 class="pi-h2">Small, capable, committed.</h2>
                 <aside class="pi-notes">
@@ -1085,7 +1064,7 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                         <div class="pi-person-body">
                             <span class="pi-person-role">Builder</span>
                             <strong>Jon Bo</strong>
-                            <span>Tasteful product architect. Multi-time founding engineer.</span>
+                            <span>Multi-time founding engineer. Tasteful product architect.</span>
                         </div>
                     </div>
                     <div class="pi-person">
@@ -1112,10 +1091,14 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                 </div>
             </section>
 
-            {# ── Slide 11: Soft ask ── #}
-            <section class="pi-slide pi-slide-center fade-up fade-up-6" data-slide-id="11" data-video-start="235" data-video-end="9999">
+            {# ── Slide 10: The ask ── #}
+            <section class="pi-slide pi-slide-center fade-up fade-up-6" data-slide-id="10" data-video-start="265" data-video-end="9999">
+                <p class="pi-label">The ask</p>
                 <div class="pi-ask">
-                    <p class="pi-ask-quote">Talking to aligned investors and partners &mdash; through Boulder Startup Week and beyond.</p>
+                    <p class="pi-ask-quote">Raising a <strong>$150K SAFE @ $3M cap</strong> &mdash; a friends-and-family round.</p>
+                    <div class="pi-prose" style="margin-bottom: 1.5rem;">
+                        <p>Five participants at <strong>$30K each</strong> (~1% each). What this funds: continued team work for the next <strong>12 months</strong> &mdash; shipping the open beta, refining the cloud offering, growing the beta community, advancing pendant hardware.</p>
+                    </div>
                     <div class="pi-ask-links">
                         <div><span class="pi-ask-label">Email</span><a href="mailto:aaron@parachute.computer">aaron@parachute.computer</a></div>
                         <div><span class="pi-ask-label">GitHub</span><a href="https://github.com/ParachuteComputer" target="_blank" rel="noopener noreferrer">github.com/ParachuteComputer</a></div>
@@ -1123,13 +1106,16 @@ og_description: "Parachute is self-hosted personal-AI infrastructure. Voice-firs
                         <div><span class="pi-ask-label">Roadmap</span><a href="/roadmap/">parachute.computer/roadmap</a></div>
                     </div>
                 </div>
+                <aside class="pi-notes">
+                    <p>This is a friends-and-family round, not a VC round &mdash; the people closest to the work, who get what we're building and want to be part of it early. Mission-aligned-angel and broader rounds come later, once the open beta is out and we're showing real growth.</p>
+                </aside>
             </section>
 
             {# ── Deck controls: prev / notes / counter / next ── #}
             <nav class="pi-deck-controls" aria-label="Pitch deck navigation">
                 <button type="button" class="pi-prev" aria-label="Previous slide">&larr; Prev</button>
                 <button type="button" class="pi-notes-toggle" aria-pressed="false" aria-label="Toggle speaker notes">Notes</button>
-                <span class="pi-counter" aria-live="polite">1 / 11</span>
+                <span class="pi-counter" aria-live="polite">1 / 10</span>
                 <button type="button" class="pi-next" aria-label="Next slide">Next &rarr;</button>
             </nav>
             <p class="pi-deck-hint">← → arrows to navigate &middot; <kbd>N</kbd> toggles speaker notes &middot; play the video and the deck follows along</p>
