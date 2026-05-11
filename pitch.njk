@@ -423,34 +423,6 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
     line-height: 1.6;
 }
 
-/* "What's broken" four-trap grid */
-.pi-traps {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-top: 0.5rem;
-}
-.pi-trap {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.2rem 1.4rem;
-    background: var(--card-bg);
-}
-.pi-trap strong {
-    font-family: var(--serif);
-    font-size: 1.1rem;
-    font-weight: 400;
-    color: var(--fg);
-    display: block;
-    margin-bottom: 0.45rem;
-}
-.pi-trap span {
-    display: block;
-    color: var(--fg-muted);
-    font-size: 0.92rem;
-    line-height: 1.6;
-}
-
 /* Module grid (What ships today) */
 .pi-modules {
     display: grid;
@@ -711,7 +683,6 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
 
 /* ── Mobile: collapse multi-col grids ── */
 @media (max-width: 900px) {
-    .pi-traps,
     .pi-modules,
     .pi-future,
     .pi-team,
@@ -913,7 +884,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                     </div>
                 </div>
                 <p class="pi-shipped-stamp">
-                    <strong>Latest &middot; May 11, 2026</strong> &mdash; hub 0.5.8 &middot; vault 0.4.3 &middot; scribe 0.4.2 &middot; notes 0.3.13 &middot; agent 0.1.4 &middot; scope-guard 0.2.1. All on <code>npm @latest</code>.
+                    <strong>Latest &middot; May 11, 2026</strong> &mdash; hub 0.5.8 &middot; vault 0.4.3 &middot; scribe 0.4.2 &middot; notes 0.3.13 &middot; agent 0.1.4 &middot; scope-guard 0.2.1 <em>(internal JWT library shared across modules)</em>. All on <code>npm @latest</code>.
                 </p>
                 <aside class="pi-notes">
                     <p>We launched on <strong>April 23, 2026</strong>. In the eighteen days since, we shipped a coordinated ecosystem-wide auth-architecture migration (vault-scoped tokens, a shared JWT-validation kernel called <code>scope-guard</code>) plus a holistic UX rework across vault, hub, and notes &mdash; the last of it landed today. Every package stable on <code>npm @latest</code>.</p>
@@ -933,7 +904,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                     </div>
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Enterprise</div>
-                        <div class="pi-flywheel-body"><strong>Licenses + integration services.</strong> AGPL means a company weaving Parachute into a commercial system has to open-source their modifications. Many enterprises won't want that &mdash; so we offer special licenses + services to deploy Parachute as their internal knowledge / project-management / custom-agent stack. <em>The AGPL is the moat that enables this revenue line.</em></div>
+                        <div class="pi-flywheel-body"><strong>Licenses + integration services.</strong> A company that wants to weave Parachute into a commercial product has to either share their own code back &mdash; or buy a commercial license from us. Most won't want to share, so we offer special licenses + integration services to deploy Parachute as their internal knowledge / project-management / custom-agent stack. <em>The license is the moat that funds this path.</em></div>
                     </div>
                 </div>
                 <div class="pi-tiers" style="margin-top: 1.25rem;">
@@ -951,8 +922,8 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                     </div>
                 </div>
                 <aside class="pi-notes">
-                    <p>The hosted side is the obvious SaaS line &mdash; most people don't want to run a server, and the cloud offer is the same modules managed for you. The unusual thing is the enterprise side: AGPL licensing makes a special-license-and-services line genuinely defensible, because a commercial integration has to either open-source itself or buy a license from us. That second path is patient, high-margin, and natural for what Parachute is.</p>
-                    <p>Same code in both paths. Export everything. Leave any time. We're not pricing your context.</p>
+                    <p>A quick aside on the license: <strong>AGPL</strong> is the license we ship under. It says that if a company incorporates this code into a commercial product, they have to share their own code too &mdash; <em>unless</em> they buy a commercial license from us. Most enterprises won't want to share their internal code, so the license is what makes the enterprise path real revenue rather than a hope.</p>
+                    <p>The hosted side is the obvious SaaS line &mdash; most people don't want to run a server, and our cloud is the same modules managed for you. The enterprise side is the patient, higher-margin line that the open-source posture makes possible. Same code in both. Export everything. Leave any time. We're not pricing your context.</p>
                 </aside>
             </section>
 
@@ -1107,7 +1078,8 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                     </div>
                 </div>
                 <aside class="pi-notes">
-                    <p>This is a friends-and-family round, not a VC round &mdash; the people closest to the work, who get what we're building and want to be part of it early. Mission-aligned-angel and broader rounds come later, once the open beta is out and we're showing real growth.</p>
+                    <p>This is a friends-and-family round, not a VC round &mdash; the people closest to the work, who get what we're building and want to be part of it early.</p>
+                    <p><strong>Why this amount, why now:</strong> $150K is what it takes to carry the team through the open-beta launch, refine the cloud unit economics, and validate the enterprise-services path. It's deliberately small &mdash; we want shape and signal at this stage, not capital-intensive scaling. Mission-aligned-angel and seed conversations come after open beta has been live long enough to prove the loop.</p>
                 </aside>
             </section>
 
@@ -1143,14 +1115,14 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
         {# TODO: replace placeholder with embedded video once Aaron records.
            Drop in: <video class="pi-video" controls preload="metadata" poster="..."><source src="..." type="video/mp4"></video>
            and live-mode (timeupdate-driven slide sync) starts working. #}
-        <div class="pi-video-frame" role="img" aria-label="Pitch video — coming for Boulder Startup Week">
+        <div class="pi-video-frame" role="img" aria-label="Pitch video — recording soon">
             <div class="pi-video-play" aria-hidden="true">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
             </div>
             <span class="pi-video-label">Video coming soon</span>
         </div>
         <div class="pi-video-meta">
-            Aaron giving the pitch &middot; ~4 min &middot; recording for Boulder Startup Week
+            Aaron giving the pitch &middot; ~4 min &middot; recording soon
         </div>
     </div>
 </aside>
