@@ -783,6 +783,10 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
         column-gap: 3rem;
         row-gap: 0.4rem;
         align-content: center;
+        /* Reset the `justify-content: center` that `pi-slide-center` sets for
+           flex layout — harmless today since the `fr` tracks absorb leftover
+           space, but documents intent if columns ever become fixed-width. */
+        justify-content: normal;
     }
     .pi-deck .pi-slide.pi-hero .pi-eyebrow { grid-column: 1; grid-row: 1; align-self: end; margin-bottom: 0; }
     .pi-deck .pi-slide.pi-hero .pi-h1 { grid-column: 1; grid-row: 2; margin-bottom: 0.4rem; }

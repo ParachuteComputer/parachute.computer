@@ -5,7 +5,8 @@
   "scripts": {
     "build": "npx @11ty/eleventy",
     "serve": "npx @11ty/eleventy --serve",
-    "clean": "rm -rf _site"
+    "clean": "rm -rf _site",
+    "screenshots": "npx playwright install chromium && node scripts/screenshot-pitch.js"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.1.2",

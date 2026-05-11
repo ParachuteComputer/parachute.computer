@@ -1,5 +1,13 @@
 #!/usr/bin/env node
 // Screenshot every pitch slide at desktop viewport sizes.
+//
+// Prerequisite: Playwright's chromium binary must be installed:
+//   npx playwright install chromium
+// (The `npm run screenshots` script handles this for you.)
+//
+// Also expects the eleventy dev server running at http://localhost:8080:
+//   npx @11ty/eleventy --serve --port 8080
+//
 // Usage: node scripts/screenshot-pitch.js [outDir]
 const { chromium } = require('playwright');
 const fs = require('fs');
