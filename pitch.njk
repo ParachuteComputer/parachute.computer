@@ -16,6 +16,14 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
     padding: 3rem 1.5rem 5rem;
 }
 
+/* ── Presentation-mode chrome bookkeeping ──
+   Sticky header is ~67px. The deck reserves space for prev/notes/next
+   controls + hint below each slide. We compute slide height from those. */
+:root {
+    --pi-nav-h: 67px;
+    --pi-deck-chrome: 8.5rem; /* page padding + controls + hint, in deck mode */
+}
+
 /* ── Floating corner video widget ──
    Collapsed: a small "▶ Watch pitch" button anchored bottom-right.
    Expanded: the video panel slides up. Dismiss = back to collapsed.
@@ -178,7 +186,10 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
     flex-direction: column;
 }
 .pi-deck .pi-slide::after {
-    content: counter(slide-num) " / 10";
+    /* Use the slide's data-id rather than a CSS counter — CSS counters
+       only increment on elements that generate a box, and inactive slides
+       are `display: none`, so a counter shows the wrong number. */
+    content: attr(data-slide-id) " / 10";
     position: absolute;
     top: 1.5rem;
     right: 1.75rem;
@@ -681,6 +692,262 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
     margin-right: 0.6rem;
 }
 
+/* ── Presentation mode: viewport-bounded slides ──
+   Activates when there's enough room to behave like a real slide deck:
+   desktop width + at least ~600px of vertical space. The slide is locked
+   to the viewport, content is tightened, speaker notes become a bottom
+   drawer rather than pushing the slide off-screen.
+
+   Below this threshold (phones, short windows, tablets in portrait) the
+   default natural-flow rules above still apply — the deck just scrolls. */
+@media (min-width: 901px) and (min-height: 600px) {
+    .pi-page {
+        max-width: 1080px;
+        padding: 1.25rem 1.5rem 1.25rem;
+    }
+
+    /* Lock the active slide to the viewport.
+       The :first-child / single-slide pattern means we can target .pi-slide
+       directly: only one slide is .is-active at a time, and the rest are
+       display:none. So height applies cleanly. */
+    .pi-deck .pi-slide {
+        min-height: 0;
+        height: calc(100vh - var(--pi-nav-h) - var(--pi-deck-chrome));
+        padding: 2.5rem 2.5rem 2rem;
+        overflow: hidden;
+    }
+    .pi-deck .pi-slide.is-active {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Tighter headings + lede so they don't dominate the frame. */
+    .pi-deck .pi-slide .pi-h1 {
+        font-size: clamp(2rem, 3.6vw, 2.8rem);
+        margin-bottom: 0.8rem;
+    }
+    .pi-deck .pi-slide .pi-h2 {
+        font-size: clamp(1.45rem, 2.4vw, 1.9rem);
+        margin-bottom: 0.85rem;
+    }
+    .pi-deck .pi-slide .pi-lede {
+        font-size: 1.05rem;
+        line-height: 1.45;
+        margin-bottom: 0.9rem;
+    }
+    .pi-deck .pi-slide .pi-label,
+    .pi-deck .pi-slide .pi-eyebrow {
+        margin-bottom: 0.75rem;
+    }
+
+    /* Images: cap their height so they don't blow out the slide.
+       The .pi-img wrapper carries no chrome in deck mode and centers
+       the image. Heights are set directly on the <img> so the constraint
+       actually applies — `max-height: 100%` on the inner img requires the
+       parent to have an explicit height, which we don't have here. */
+    .pi-deck .pi-slide .pi-img {
+        margin: 0.6rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 0;
+    }
+    .pi-deck .pi-slide .pi-img picture {
+        display: inline-block;
+        max-width: 100%;
+    }
+    .pi-deck .pi-slide .pi-img img {
+        max-height: 38vh;
+        height: auto;
+        width: auto;
+        max-width: 100%;
+        object-fit: contain;
+    }
+    .pi-deck .pi-slide .pi-img-caption {
+        margin-top: 0.35rem;
+        font-size: 0.72rem;
+    }
+
+    /* Slide-specific image sizing — hero gets the most room; in-content
+       diagrams are smaller; the pendant strip on slide 8 is tiny. */
+    .pi-deck .pi-slide.pi-hero .pi-img img { max-height: 42vh; }
+    .pi-deck .pi-slide[data-slide-id="4"] .pi-img img { max-height: 18vh; }
+    .pi-deck .pi-slide[data-slide-id="4"] .pi-img { margin: 0.25rem 0; }
+    .pi-deck .pi-slide[data-slide-id="4"] .pi-img-caption { display: none; }
+    .pi-deck .pi-slide[data-slide-id="4"] .pi-h2 { margin-bottom: 0.5rem; }
+    .pi-deck .pi-slide[data-slide-id="8"] .pi-pendant-gallery { margin: 0.5rem 0 0.3rem; }
+    .pi-deck .pi-slide[data-slide-id="8"] .pi-pendant-gallery .pi-img {
+        margin: 0;
+    }
+    .pi-deck .pi-slide[data-slide-id="8"] .pi-pendant-gallery .pi-img img {
+        max-height: 11vh;
+    }
+
+    /* Hide the placeholder image on slide 5 in deck mode — the four
+       flywheel rows are the flywheel; the TODO illustration is purely
+       aspirational and pushes the slide over. It still renders on
+       mobile/short viewports for design reference. */
+    .pi-deck .pi-slide .pi-img:has(.pi-img-placeholder) {
+        display: none;
+    }
+
+    /* Flywheel — denser rows so 3-4 fit comfortably. */
+    .pi-deck .pi-slide .pi-flywheel {
+        margin-top: 0.25rem;
+    }
+    .pi-deck .pi-slide .pi-flywheel-row {
+        padding: 0.6rem 1.15rem;
+    }
+    .pi-deck .pi-slide .pi-flywheel-role {
+        font-size: 0.95rem;
+    }
+    .pi-deck .pi-slide .pi-flywheel-body {
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+
+    /* Tier table — denser rows on slide 7. */
+    .pi-deck .pi-slide .pi-tiers {
+        margin-top: 0.4rem;
+    }
+    .pi-deck .pi-slide .pi-tier {
+        padding: 0.55rem 1.15rem;
+    }
+    .pi-deck .pi-slide .pi-tier-price { font-size: 1.1rem; }
+    .pi-deck .pi-slide .pi-tier-body { font-size: 0.85rem; line-height: 1.45; }
+
+    /* Slide 7: tighter tier spacing (overrides the inline margin-top
+       that gives the tier table breathing room outside deck mode). */
+    .pi-deck .pi-slide[data-slide-id="7"] .pi-tiers {
+        margin-top: 0.65rem !important;
+    }
+
+    /* Module grid (slide 6) — three columns × two rows for 6 items, with
+       tighter card padding so the whole grid + version stamp fits. */
+    .pi-deck .pi-slide .pi-modules {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 0.55rem;
+    }
+    .pi-deck .pi-slide .pi-mod {
+        padding: 0.65rem 0.9rem;
+    }
+    .pi-deck .pi-slide .pi-mod-tag {
+        margin-bottom: 0.25rem;
+        font-size: 0.58rem;
+        padding: 0.1rem 0.4rem;
+    }
+    .pi-deck .pi-slide .pi-mod h3 {
+        font-size: 0.95rem;
+        margin-bottom: 0.15rem;
+    }
+    .pi-deck .pi-slide .pi-mod p {
+        font-size: 0.78rem;
+        line-height: 1.4;
+    }
+    .pi-deck .pi-slide .pi-shipped-stamp {
+        margin-top: 0.45rem;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.64rem;
+        line-height: 1.4;
+    }
+    .pi-deck .pi-slide[data-slide-id="6"] .pi-h2 { margin-bottom: 0.75rem; }
+    .pi-deck .pi-slide[data-slide-id="6"] .pi-mod { padding: 0.55rem 0.85rem; }
+    .pi-deck .pi-slide[data-slide-id="6"] .pi-mod p { font-size: 0.75rem; }
+
+    /* Future cards (slide 8) — tighter. */
+    .pi-deck .pi-slide .pi-future {
+        gap: 0.55rem;
+    }
+    .pi-deck .pi-slide .pi-future-card {
+        padding: 0.7rem 1rem;
+    }
+    .pi-deck .pi-slide .pi-future-card strong {
+        font-size: 0.95rem;
+        margin-bottom: 0.2rem;
+    }
+    .pi-deck .pi-slide .pi-future-card span {
+        font-size: 0.78rem;
+        line-height: 1.45;
+    }
+    .pi-deck .pi-slide[data-slide-id="8"] .pi-h2 { margin-bottom: 0.7rem; }
+
+    /* Team grid (slide 9) — three columns on wide screens, denser cards. */
+    .pi-deck .pi-slide .pi-team {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 0.7rem;
+    }
+    .pi-deck .pi-slide .pi-person {
+        padding: 0.85rem 1rem;
+        grid-template-columns: 44px 1fr;
+        gap: 0.75rem;
+    }
+    .pi-deck .pi-slide .pi-avatar {
+        width: 44px;
+        height: 44px;
+        font-size: 0.6rem;
+    }
+    .pi-deck .pi-slide .pi-person-body strong {
+        font-size: 0.95rem;
+    }
+    .pi-deck .pi-slide .pi-person-body span {
+        font-size: 0.76rem;
+        line-height: 1.45;
+    }
+    .pi-deck .pi-slide .pi-person-role {
+        font-size: 0.62rem;
+        margin-bottom: 0.2rem;
+    }
+
+    /* Ask slide (slide 10) — already short; let it center as-is. */
+    .pi-deck .pi-slide .pi-ask {
+        padding: 1.6rem 1.75rem 1.85rem;
+    }
+
+    /* Speaker notes — overlay drawer instead of inline block.
+       When the deck has data-notes="on", the current slide's notes slide
+       in from the bottom as an overlay panel; the slide content underneath
+       stays put. Closing notes (press N again) hides the overlay. */
+    .pi-deck .pi-slide .pi-notes {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        max-height: 60%;
+        overflow-y: auto;
+        margin: 0;
+        padding: 1.1rem 2rem 1.4rem;
+        border-left: 0;
+        border-top: 3px solid var(--accent);
+        border-radius: 12px 12px 0 0;
+        background: rgba(247, 244, 237, 0.98);
+        box-shadow: 0 -10px 28px rgba(44, 42, 38, 0.1);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        font-size: 0.86rem;
+        line-height: 1.6;
+        z-index: 5;
+    }
+    .pi-deck .pi-slide .pi-notes p {
+        margin-bottom: 0.55rem;
+        max-width: none; /* drawer is full slide width; overriding the
+                            36rem reading-line cap from the default rule */
+    }
+    /* Drawer is invoked by the user pressing N — they don't need a
+       "Speaker notes" header inside it. The default ::before label is
+       useful only in the (mobile / short-window) inline-prose form. */
+    .pi-deck .pi-slide .pi-notes::before {
+        display: none;
+    }
+    .pi-deck-controls {
+        margin-top: 1rem;
+        padding-top: 0.85rem;
+    }
+    .pi-deck-hint {
+        margin-top: 0.5rem;
+    }
+}
+
 /* ── Mobile: collapse multi-col grids ── */
 @media (max-width: 900px) {
     .pi-modules,
@@ -736,23 +1003,24 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
             <section class="pi-slide fade-up fade-up-3" data-slide-id="2" data-video-start="15" data-video-end="55">
                 <p class="pi-label">What Parachute is</p>
                 <h2 class="pi-h2">A personal memory and knowledge layer<br>for <em>your</em> data and <em>your</em> AI.</h2>
-                <p class="pi-lede">Parachute helps you organize your thoughts, notes, and projects in a coherent way &mdash; without you needing to architect the perfect system first. Just add things in and be in easy conversation with your AI.</p>
                 <div class="pi-flywheel">
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Vault</div>
-                        <div class="pi-flywheel-body"><strong>The memory + knowledge layer.</strong> Notes, tags, links. Self-hostable. Customizable.</div>
+                        <div class="pi-flywheel-body"><strong>The memory + knowledge layer.</strong> Notes, tags, links.</div>
                     </div>
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Agent</div>
-                        <div class="pi-flywheel-body"><strong>Custom knowledge agents</strong> you can spin up on any vault. Bring the AI you trust to the data you own.</div>
+                        <div class="pi-flywheel-body"><strong>Custom knowledge agents</strong> on any vault.</div>
                     </div>
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Surface</div>
-                        <div class="pi-flywheel-body"><strong>Custom web interfaces</strong> to navigate, view, share, and interface with your data.</div>
+                        <div class="pi-flywheel-body"><strong>Custom web interfaces</strong> over your data.</div>
                     </div>
                 </div>
                 <aside class="pi-notes">
-                    <p>Think of Parachute as bringing together the best of what Obsidian offers (notes, tags, links, files on your machine) and what Notion offers (a clean place to organize a project, a life, a team) &mdash; in a truly personal interface.</p>
+                    <p>Parachute helps you organize your thoughts, notes, and projects in a coherent way &mdash; without architecting the perfect system first. Add things in, be in easy conversation with your AI.</p>
+                    <p>Think of it as bringing together the best of what Obsidian offers (notes, tags, links, files on your machine) and what Notion offers (a clean place to organize a project, a life, a team) &mdash; in a truly personal interface.</p>
+                    <p><strong>Vault</strong> is self-hostable and customizable. <strong>Agents</strong> let you bring the AI you trust to the data you own. <strong>Surfaces</strong> let you navigate, view, share, and interact with your data however fits.</p>
                     <p>Every vault is reachable over an <strong>open REST API</strong> &mdash; so people can build whatever interface they want on top &mdash; and over <strong>MCP</strong>, so any AI system you use instantly works with your data.</p>
                     <p>The three layers are the conceptual model. Underneath them sit the modules that ship today (vault, scribe, notes, hub, agent) &mdash; we'll get to those in a moment.</p>
                 </aside>
@@ -792,20 +1060,23 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                 <div class="pi-flywheel">
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Vault</div>
-                        <div class="pi-flywheel-body"><strong>Your data.</strong> Notes, tags, links. Runs on your machine (or our cloud). Reachable via open REST API and MCP &mdash; so any tool can read and write to it.</div>
+                        <div class="pi-flywheel-body"><strong>Your data.</strong> Self-host or cloud. REST + MCP.</div>
                     </div>
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Agent</div>
-                        <div class="pi-flywheel-body"><strong>Your intelligence.</strong> Custom knowledge agents you spin up on any vault. Bring the AI you trust (Claude, GPT, local) to the data you own.</div>
+                        <div class="pi-flywheel-body"><strong>Your intelligence.</strong> Bring the AI you trust.</div>
                     </div>
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Surface</div>
-                        <div class="pi-flywheel-body"><strong>Your interface.</strong> Custom web views to navigate, share, and interact with your data. Notes (the PWA) is one surface; build your own, or use what we ship.</div>
+                        <div class="pi-flywheel-body"><strong>Your interface.</strong> Bespoke web views over your vault.</div>
                     </div>
                 </div>
                 <aside class="pi-notes">
-                    <p>The three layers sit on top of a few small modules that ship today &mdash; <strong>vault</strong> (the data), <strong>scribe</strong> (transcription), <strong>notes</strong> (a reference surface), <strong>hub</strong> (the coordinator that ties it together and handles auth), <strong>agent</strong> (an opinionated agent-on-vault distribution).</p>
-                    <p>The contract underneath: every vault speaks an <strong>open REST API</strong> for humans and tools, and <strong>MCP</strong> &mdash; the open standard every major lab now supports &mdash; for AI. That's what makes the substrate portable: you don't depend on us to use your data.</p>
+                    <p><strong>Vault</strong> is your data: notes, tags, links, files. Runs on your machine or our cloud. Reachable over an open REST API and MCP &mdash; so any tool can read and write to it.</p>
+                    <p><strong>Agent</strong> is your intelligence: custom knowledge agents you spin up on any vault. Bring the AI you trust (Claude, GPT, local) to the data you own.</p>
+                    <p><strong>Surface</strong> is your interface: custom web views to navigate, share, and interact with your data. Notes (the PWA) is one surface we ship; build your own, or use what we make.</p>
+                    <p>The three layers sit on top of a few small modules that ship today &mdash; <strong>vault</strong>, <strong>scribe</strong> (transcription), <strong>notes</strong>, <strong>hub</strong> (the coordinator that handles auth), <strong>agent</strong> (an opinionated agent-on-vault distribution).</p>
+                    <p>The contract underneath: every vault speaks an <strong>open REST API</strong> and <strong>MCP</strong> &mdash; the open standard every major lab now supports. That's what makes the substrate portable: you don't depend on us to use your data.</p>
                 </aside>
             </section>
 
@@ -850,7 +1121,6 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
             <section class="pi-slide fade-up fade-up-5" data-slide-id="6" data-video-start="150" data-video-end="185">
                 <p class="pi-label">Where we're at</p>
                 <h2 class="pi-h2">Soft-launched in April.<br>Open beta in about a month.</h2>
-                <p class="pi-lede">We soft-launched Vault on April 23. A small group of beta users is testing the app right now, finding it valuable, and giving us feedback that's helping us refine quickly.</p>
                 <div class="pi-modules">
                     <div class="pi-mod">
                         <span class="pi-mod-tag">Core</span>
@@ -887,8 +1157,9 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                     <strong>Latest &middot; May 11, 2026</strong> &mdash; hub 0.5.8 &middot; vault 0.4.3 &middot; scribe 0.4.2 &middot; notes 0.3.13 &middot; agent 0.1.4 &middot; scope-guard 0.2.1 <em>(internal JWT library shared across modules)</em>. All on <code>npm @latest</code>.
                 </p>
                 <aside class="pi-notes">
-                    <p>We launched on <strong>April 23, 2026</strong>. In the eighteen days since, we shipped a coordinated ecosystem-wide auth-architecture migration (vault-scoped tokens, a shared JWT-validation kernel called <code>scope-guard</code>) plus a holistic UX rework across vault, hub, and notes &mdash; the last of it landed today. Every package stable on <code>npm @latest</code>.</p>
-                    <p>Beta users are actively using the system. We're about <strong>one month away</strong> from shipping a real solid open beta for everyday people &mdash; polished onboarding, the cloud option ready, mobile capture flow tight.</p>
+                    <p>We soft-launched Vault on <strong>April 23, 2026</strong>. A small group of beta users is testing the app right now, finding it valuable, and giving us feedback that's helping us refine quickly.</p>
+                    <p>In the eighteen days since launch we shipped a coordinated ecosystem-wide auth-architecture migration (vault-scoped tokens, a shared JWT-validation kernel called <code>scope-guard</code>) plus a holistic UX rework across vault, hub, and notes &mdash; the last of it landed today. Every package stable on <code>npm @latest</code>.</p>
+                    <p>We're about <strong>one month away</strong> from shipping a solid open beta for everyday people &mdash; polished onboarding, the cloud option ready, mobile capture flow tight.</p>
                 </aside>
             </section>
 
@@ -896,15 +1167,14 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
             <section class="pi-slide fade-up fade-up-5" data-slide-id="7" data-video-start="185" data-video-end="220">
                 <p class="pi-label">How this becomes a business</p>
                 <h2 class="pi-h2">Open source builds trust.<br>Trust funds two paths.</h2>
-                <p class="pi-lede">We're open-sourcing everything. More people want technology they can truly own &mdash; and that openness is what makes both revenue paths work.</p>
                 <div class="pi-flywheel">
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Hosted</div>
-                        <div class="pi-flywheel-body"><strong>Managed Parachute.</strong> Hosted instances of vault / agent / surface &mdash; or the whole computer. A few tiers make it easy to get started, with healthy margins. The bet: open source builds trust &rarr; more self-hosters &rarr; bigger pipe of would-be hosted customers.</div>
+                        <div class="pi-flywheel-body"><strong>Managed Parachute.</strong> Tiered cloud. Open source &rarr; trust &rarr; pipeline.</div>
                     </div>
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Enterprise</div>
-                        <div class="pi-flywheel-body"><strong>Licenses + integration services.</strong> A company that wants to weave Parachute into a commercial product has to either share their own code back &mdash; or buy a commercial license from us. Most won't want to share, so we offer special licenses + integration services to deploy Parachute as their internal knowledge / project-management / custom-agent stack. <em>The license is the moat that funds this path.</em></div>
+                        <div class="pi-flywheel-body"><strong>Licenses + integration services.</strong> AGPL forces companies to share &mdash; or buy a commercial license.</div>
                     </div>
                 </div>
                 <div class="pi-tiers" style="margin-top: 1.25rem;">
@@ -913,8 +1183,8 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                         <div class="pi-tier-body"><strong>Self-host</strong> &mdash; everything we ship, AGPL, run anywhere</div>
                     </div>
                     <div class="pi-tier featured">
-                        <div class="pi-tier-price">~$5<span>/mo</span></div>
-                        <div class="pi-tier-body"><strong>Cloud</strong> &mdash; managed vault + transcription, multi-device sync, public exposure done correctly</div>
+                        <div class="pi-tier-price">$2&ndash;50<span>/mo</span></div>
+                        <div class="pi-tier-body"><strong>Cloud</strong> &mdash; managed vault + transcription + AI bundles. Scales with use.</div>
                     </div>
                     <div class="pi-tier">
                         <div class="pi-tier-price">Custom<span>&nbsp;</span></div>
@@ -922,8 +1192,10 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                     </div>
                 </div>
                 <aside class="pi-notes">
-                    <p>A quick aside on the license: <strong>AGPL</strong> is the license we ship under. It says that if a company incorporates this code into a commercial product, they have to share their own code too &mdash; <em>unless</em> they buy a commercial license from us. Most enterprises won't want to share their internal code, so the license is what makes the enterprise path real revenue rather than a hope.</p>
-                    <p>The hosted side is the obvious SaaS line &mdash; most people don't want to run a server, and our cloud is the same modules managed for you. The enterprise side is the patient, higher-margin line that the open-source posture makes possible. Same code in both. Export everything. Leave any time. We're not pricing your context.</p>
+                    <p>We're open-sourcing everything. More people want technology they can truly own &mdash; that openness is what makes both revenue paths work.</p>
+                    <p><strong>Hosted side:</strong> managed instances of vault / agent / surface &mdash; or the whole computer. A few tiers, healthy margins. The bet is open source builds trust &rarr; more self-hosters &rarr; bigger pipe of would-be hosted customers.</p>
+                    <p><strong>Enterprise side:</strong> a company that wants to weave Parachute into a commercial product has to share their own code back &mdash; <em>unless</em> they buy a commercial license. Most won't want to share, so we offer special licenses + integration services to deploy Parachute as their internal knowledge / project-management / custom-agent stack. <em>The license is the moat that funds this path.</em></p>
+                    <p><strong>Cloud pricing:</strong> starts at $2/mo to lower the friction for self-hosters considering convenience. Scales up with bundled AI access, multi-device sync, larger storage, team features. Same code as self-host. Export everything. Leave any time. We're not pricing your context.</p>
                 </aside>
             </section>
 
@@ -933,23 +1205,27 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                 <h2 class="pi-h2">A substrate that grows<br>with the AI ecosystem around it.</h2>
                 <aside class="pi-notes">
                     <p>Every person is going to need a place where their context lives that <strong>isn't</strong> any single AI lab &mdash; one that travels across whichever models, agents, and surfaces they're using this year and next. That's what we're building.</p>
+                    <p><strong>The pendant</strong> is always-on-when-you-press-it voice capture, writing straight to your vault. Working prototype today; shippable v1 lands through the native-mobile path.</p>
+                    <p><strong>Custom surfaces:</strong> Loveable, v0, Dia &mdash; people are building bespoke UIs at unprecedented speed. Each one needs a place to put data. Vault is that place.</p>
+                    <p><strong>Agents on substrate:</strong> Claude, ChatGPT, custom assistants. They get more powerful when they have continuity. Continuity needs a place to live that survives the model upgrade.</p>
+                    <p><strong>Third-party modules:</strong> anyone can build a service that plugs into a Parachute hub. Calendar, email, knowledge bases, custom agents &mdash; rendered like they were native.</p>
                 </aside>
                 <div class="pi-future">
                     <div class="pi-future-card">
                         <strong>The pendant</strong>
-                        <span>Always-on-when-you-press-it voice capture, writing straight to your vault. Working prototype; shippable v1 lands through the native-mobile path.</span>
+                        <span>Press-and-talk voice capture, straight to your vault. Working prototype.</span>
                     </div>
                     <div class="pi-future-card">
                         <strong>Custom surfaces</strong>
-                        <span>Loveable, v0, Dia &mdash; people are building bespoke UIs at unprecedented speed. Each one needs a place to put data. Vault is that place.</span>
+                        <span>Bespoke UIs at unprecedented speed. Each one needs a place to put data.</span>
                     </div>
                     <div class="pi-future-card">
                         <strong>Agents on substrate</strong>
-                        <span>Claude, ChatGPT, custom assistants. They get more powerful when they have continuity. Continuity needs a place to live that survives the model upgrade.</span>
+                        <span>AI continuity that survives the model upgrade.</span>
                     </div>
                     <div class="pi-future-card">
                         <strong>Third-party modules</strong>
-                        <span>Anyone can build a service that plugs into a Parachute hub. Calendar, email, knowledge bases, custom agents &mdash; rendered like they were native.</span>
+                        <span>Calendar, email, knowledge bases &mdash; anyone can plug into a Parachute hub.</span>
                     </div>
                 </div>
                 <div class="pi-pendant-gallery">
@@ -996,6 +1272,12 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                 <h2 class="pi-h2">Small, capable, committed.</h2>
                 <aside class="pi-notes">
                     <p>A core team focused on the substrate. The product is open-source and built in the open at <a href="https://github.com/ParachuteComputer" target="_blank" rel="noopener noreferrer">github.com/ParachuteComputer</a>.</p>
+                    <p><strong>Aaron Gabriel Neyer</strong> &mdash; MA Ecopsychology, MS Creative Technology &amp; Design (CU ATLAS). Ex-Google. 10+ years full-stack. Product vision and system architecture.</p>
+                    <p><strong>Neil Yarnal</strong> &mdash; visual identity, product design, the look and feel of every surface that touches a user.</p>
+                    <p><strong>Benjamin Life</strong> &mdash; knowledge-management practice. The bridge between Parachute and people building serious second brains.</p>
+                    <p><strong>Jon Bo</strong> &mdash; multi-time founding engineer. Tasteful product architect.</p>
+                    <p><strong>Lucian Hymer</strong> &mdash; agentic-system wizard. Multi-time founding engineer. Leads the agent layer.</p>
+                    <p><strong>Marvin Melzer</strong> &mdash; elegant hardware craftsman. Pendant prototype lead, CU ATLAS.</p>
                 </aside>
                 <div class="pi-team">
                     <div class="pi-person">
@@ -1004,7 +1286,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                         <div class="pi-person-body">
                             <span class="pi-person-role">Builder</span>
                             <strong>Aaron Gabriel Neyer</strong>
-                            <span>Product vision and system architecture. MA Ecopsychology, MS Creative Technology &amp; Design (CU ATLAS). Ex-Google. 10+ years full-stack.</span>
+                            <span>Product vision + system architecture. Ex-Google.</span>
                         </div>
                     </div>
                     <div class="pi-person">
@@ -1068,7 +1350,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                 <div class="pi-ask">
                     <p class="pi-ask-quote">Raising a <strong>$150K SAFE @ $3M cap</strong> &mdash; a friends-and-family round.</p>
                     <div class="pi-prose" style="margin-bottom: 1.5rem;">
-                        <p>Five participants at <strong>$30K each</strong> (~1% each). What this funds: continued team work for the next <strong>12 months</strong> &mdash; shipping the open beta, refining the cloud offering, growing the beta community, advancing pendant hardware.</p>
+                        <p>Funds <strong>12 months</strong> of team work: open-beta launch, cloud unit economics, enterprise-services validation.</p>
                     </div>
                     <div class="pi-ask-links">
                         <div><span class="pi-ask-label">Email</span><a href="mailto:aaron@parachute.computer">aaron@parachute.computer</a></div>
@@ -1079,6 +1361,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                 </div>
                 <aside class="pi-notes">
                     <p>This is a friends-and-family round, not a VC round &mdash; the people closest to the work, who get what we're building and want to be part of it early.</p>
+                    <p><strong>Ticket sizes:</strong> tickets typically land in the <strong>$10&ndash;50K</strong> range. Happy to discuss what feels right for you &mdash; not pre-allocated.</p>
                     <p><strong>Why this amount, why now:</strong> $150K is what it takes to carry the team through the open-beta launch, refine the cloud unit economics, and validate the enterprise-services path. It's deliberately small &mdash; we want shape and signal at this stage, not capital-intensive scaling. Mission-aligned-angel and seed conversations come after open beta has been live long enough to prove the loop.</p>
                 </aside>
             </section>
@@ -1148,6 +1431,14 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
     let current = 0;
     let manualMode = !video;
 
+    // Allow ?s=N in the URL to deep-link to a slide (1-indexed).
+    // Used for screenshot automation; harmless otherwise.
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialSlideParam = parseInt(urlParams.get('s'), 10);
+    const initialSlide = (Number.isFinite(initialSlideParam) && initialSlideParam >= 1 && initialSlideParam <= slides.length)
+        ? initialSlideParam - 1
+        : 0;
+
     function show(i) {
         if (i < 0 || i >= slides.length) return;
         slides[current].classList.remove('is-active');
@@ -1195,7 +1486,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
         });
     }
 
-    show(0);
+    show(initialSlide);
 })();
 
 /* Floating video widget — collapsed/expanded toggle.
@@ -1225,7 +1516,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
             btn.textContent = on ? 'Hide notes' : 'Notes';
         }
     }
-    setNotes(false);
+    setNotes(new URLSearchParams(window.location.search).get('notes') === 'on');
     if (btn) btn.addEventListener('click', function () {
         setNotes(deck.dataset.notes !== 'on');
     });
