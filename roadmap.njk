@@ -7,30 +7,31 @@ permalink: /roadmap/
 <main>
     <div class="roadmap-header fade-up fade-up-1">
         <h1>Roadmap</h1>
-        <p class="dates">Updated 2026-04-21 &middot; Refreshed every couple of weeks</p>
+        <p class="dates">Updated 2026-05-15 &middot; Refreshed every couple of weeks &middot; <a href="/since-launch/">What shipped since launch &rarr;</a></p>
     </div>
 
     <section class="section">
         <h2>Here now</h2>
-        <p>The self-hostable base shipped at launch. Every piece below installs with <code>parachute install &lt;service&gt;</code>.</p>
+        <p>The self-hostable base shipped 2026-04-23 and has grown in steadily since. Every piece below installs with <code>parachute install &lt;service&gt;</code>.</p>
         <ul>
-            <li><strong>Parachute Vault</strong> &mdash; the knowledge graph. SQLite-backed, REST + <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>, wikilinks, full-text and semantic search, Obsidian import/export. <a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank">Source &rarr;</a></li>
-            <li><strong>Parachute Notes</strong> &mdash; browser-based companion for your vault. Installable PWA, works offline, voice capture with auto-transcription. <a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank">Source &rarr;</a></li>
+            <li><strong>Parachute Vault</strong> &mdash; the knowledge graph. SQLite-backed, REST + <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>, wikilinks, full-text and semantic search, <strong>lossless portable-markdown export + import</strong> for git projection / disaster recovery / Obsidian round-trip, upsert-by-id on update-note, JSON int coercion in schema validation. <a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank">Source &rarr;</a></li>
+            <li><strong>Parachute Notes</strong> &mdash; browser-based companion for your vault. Installable PWA, works offline, voice capture with auto-transcription, <strong>multi-vault</strong> (one install, every vault on your hub), hierarchical capture tags, schema-audit UI, global text-size scaling. <a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank">Source &rarr;</a></li>
             <li><strong>Parachute Scribe</strong> &mdash; Whisper-compatible transcription API. Runs locally by default; BYO cloud provider if you want one. <a href="https://github.com/ParachuteComputer/parachute-scribe" target="_blank">Source &rarr;</a></li>
-            <li><strong>Parachute Channel</strong> &mdash; messaging gateway that lets Claude Code agents reach you through Telegram, Discord, and other channels. <a href="https://github.com/ParachuteComputer/parachute-channel" target="_blank">Source &rarr;</a></li>
-            <li><strong>Parachute Hub</strong> &mdash; the coordinator. <code>install</code>, <code>start</code>, <code>stop</code>, <code>expose</code>, lifecycle for every service. <a href="https://github.com/ParachuteComputer/parachute-hub" target="_blank">Source &rarr;</a></li>
+            <li><strong>Parachute Hub</strong> &mdash; the coordinator. <code>install</code>, <code>start</code>, <code>stop</code>, <code>expose</code>, lifecycle for every service. OAuth issuer with per-vault scopes and cross-origin approve flow that works across loopback, tailnet, and public layers. <a href="https://github.com/ParachuteComputer/parachute-hub" target="_blank">Source &rarr;</a></li>
+            <li><strong>Parachute Agent</strong> &mdash; a Parachute-flavored Claude Code distribution. Single binary, prewired to the hub, scoped tokens. <a href="https://github.com/ParachuteComputer/parachute-agent" target="_blank">Source &rarr;</a></li>
+            <li><strong>Parachute Channel</strong> &mdash; messaging gateway that lets Claude Code agents reach you through Telegram, Discord, and other channels. Exploration; may retire if not pulled by real use. <a href="https://github.com/ParachuteComputer/parachute-channel" target="_blank">Source &rarr;</a></li>
         </ul>
     </section>
 
     <section class="section">
         <h2>Next few weeks</h2>
-        <p>Post-launch stabilization. Small, steady improvements driven by what early users run into.</p>
+        <p>Driven by what's blocking real users plus what we've named in <a href="/since-launch/">since-launch</a>'s "still on the bench" section.</p>
         <ul>
-            <li><strong>Public HTTPS exposure + web-AI connectors</strong> &mdash; polishing the Tailscale Funnel and Cloudflare Tunnel paths, and the OAuth handshake for custom connectors in <strong>claude.ai</strong>, <strong>ChatGPT</strong>, and <strong>Gemini</strong>. The plumbing is live; we're smoothing the on-ramp before announcing broadly.</li>
-            <li><strong>Notes polish</strong> &mdash; quick-switcher, pinned and archived views, the today view, path tree. Mobile PWA refinement.</li>
+            <li><strong>Hub multi-user UX</strong> &mdash; sign-in flows, user-management UI, consent surfaces. Single-user works today; partner teams using parachute for shared workspaces are bridging this with metadata-based attribution. Concrete shape coming.</li>
+            <li><strong>Public HTTPS exposure + web-AI connectors</strong> &mdash; polishing the Tailscale Funnel and Cloudflare Tunnel paths, and the OAuth handshake for custom connectors in <strong>claude.ai</strong>, <strong>ChatGPT</strong>, and <strong>Gemini</strong>. <code>parachute expose</code> works today; we're smoothing the on-ramp before announcing broadly.</li>
+            <li><strong>Dashboard SDK</strong> &mdash; the "build a custom dashboard against the export format" pattern wants a small typed helper library. Today it's a recipe in the <a href="https://github.com/ParachuteComputer/parachute-patterns/blob/main/cookbook/vault-portable-export.md" target="_blank">cookbook</a>; tomorrow it's a package.</li>
+            <li><strong>Notes header polish</strong> &mdash; the popover landed; the chrome around it could be tighter. Pinned and archived views, the today view, path tree.</li>
             <li><strong>Vault atomic tag operations</strong> &mdash; rename and merge tags cleanly across a whole vault in one request, so clients don't have to orchestrate it.</li>
-            <li><strong>Unified audio retention</strong> &mdash; control whether voice-memo originals stay on disk, stay until transcribed, or never persist, across every client at once.</li>
-            <li><strong>Hub-hosted OAuth</strong> &mdash; one ecosystem sign-in that issues tokens carrying a service catalog, so clients discover what's installed rather than hard-coding paths. <a href="/docs/">Architecture sketch &rarr;</a></li>
         </ul>
     </section>
 
@@ -38,7 +39,7 @@ permalink: /roadmap/
         <h2>A little further out</h2>
         <ul>
             <li><strong>Parachute Cloud</strong> &mdash; the done-for-you hosted path: managed vault, multi-device sync, cloud transcription, no server to run. Same shape as self-hosted, same portability. <a href="/docs/">Deployment sketch &rarr;</a></li>
-            <li><strong>Native mobile wrapper</strong> &mdash; a Capacitor- or Tauri-wrapped build of Lens that unlocks background recording, on-device offline transcription, and pendant integration on phones. The PWA handles most of what most people need; the native wrapper handles the things a browser can't.</li>
+            <li><strong>Native mobile wrapper</strong> &mdash; a Capacitor- or Tauri-wrapped build of Notes that unlocks background recording, on-device offline transcription, and pendant integration on phones. The PWA handles most of what most people need; the native wrapper handles the things a browser can't.</li>
             <li><strong>Configuration portal</strong> &mdash; the hub page renders per-module settings forms automatically from each module's JSON Schema. You won't need the CLI for most config changes.</li>
             <li><strong>Fine-grained scopes</strong> &mdash; clients ask for exactly what they need (read-only, read-write, per-vault, eventually per-folder). Foundation for third-party modules that users can trust partially.</li>
             <li><strong>Pendant</strong> &mdash; always-on voice capture hardware, writing directly to your vault. Prototype PCB and enclosure exist; a shippable v1 comes through the native-wrapper path.</li>

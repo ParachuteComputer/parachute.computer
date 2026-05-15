@@ -22,7 +22,7 @@ permalink: /docs/
                 <a href="https://github.com/ParachuteComputer/parachute.computer/blob/main/design/2026-04-20-module-architecture.md" class="blog-post-card" target="_blank">
                     <h3>Module architecture</h3>
                     <div class="date">2026-04-20</div>
-                    <p class="excerpt">The canonical module protocol: <code>info</code>, <code>config</code>, <code>services.json</code>, <code>.well-known/parachute.json</code>. How Vault, Lens, Scribe, and third-party modules plug into a single ecosystem under one HTTPS URL.</p>
+                    <p class="excerpt">The canonical module protocol: <code>info</code>, <code>config</code>, <code>services.json</code>, <code>.well-known/parachute.json</code>. How Vault, Notes, Scribe, and third-party modules plug into a single ecosystem under one HTTPS URL.</p>
                 </a>
             </li>
             <li>
@@ -36,7 +36,7 @@ permalink: /docs/
                 <a href="https://github.com/ParachuteComputer/parachute.computer/blob/main/design/2026-04-20-cloud-offering-sketch.md" class="blog-post-card" target="_blank">
                     <h3>Parachute Cloud &mdash; architecture sketch</h3>
                     <div class="date">2026-04-20</div>
-                    <p class="excerpt">Cloud deployment shape: tenant-per-subdomain, Postgres-backed, CDN-hosted Lens, pooled Scribe. A plausible north star we refine when a first cloud user materializes.</p>
+                    <p class="excerpt">Cloud deployment shape: tenant-per-subdomain, Postgres-backed, CDN-hosted Notes, pooled Scribe. A plausible north star we refine when a first cloud user materializes.</p>
                 </a>
             </li>
         </ul>
@@ -45,12 +45,12 @@ permalink: /docs/
     <section class="section">
         <h2>Per-repo READMEs</h2>
         <ul>
-            <li><a href="https://github.com/ParachuteComputer/parachute-hub" target="_blank"><strong>parachute-hub</strong></a> &mdash; the coordinator: <code>install</code>, <code>start</code>, <code>stop</code>, <code>expose</code>, and lifecycle for every module.</li>
-            <li><a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank"><strong>parachute-vault</strong></a> &mdash; the knowledge graph. REST + MCP, SQLite-backed.</li>
-            <li><a href="https://github.com/ParachuteComputer/parachute-lens" target="_blank"><strong>parachute-lens</strong></a> &mdash; browser-based companion for your vault. Installable PWA.</li>
+            <li><a href="https://github.com/ParachuteComputer/parachute-hub" target="_blank"><strong>parachute-hub</strong></a> &mdash; the coordinator: <code>install</code>, <code>start</code>, <code>stop</code>, <code>expose</code>, and lifecycle for every module. OAuth issuer.</li>
+            <li><a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank"><strong>parachute-vault</strong></a> &mdash; the knowledge graph. REST + MCP, SQLite-backed. Portable-markdown export/import.</li>
+            <li><a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank"><strong>parachute-notes</strong></a> &mdash; browser-based companion for your vault. Installable multi-vault PWA.</li>
             <li><a href="https://github.com/ParachuteComputer/parachute-scribe" target="_blank"><strong>parachute-scribe</strong></a> &mdash; Whisper-compatible transcription API.</li>
-            <li><a href="https://github.com/ParachuteComputer/parachute-channel" target="_blank"><strong>parachute-channel</strong></a> &mdash; messaging gateway for Claude Code agents.</li>
-            <li><a href="https://github.com/ParachuteComputer/parachute-patterns" target="_blank"><strong>parachute-patterns</strong></a> &mdash; cross-repo conventions (naming, schemas, OAuth scopes, ports).</li>
+            <li><a href="https://github.com/ParachuteComputer/parachute-agent" target="_blank"><strong>parachute-agent</strong></a> &mdash; a Parachute-flavored Claude Code distribution. Single binary, prewired.</li>
+            <li><a href="https://github.com/ParachuteComputer/parachute-patterns" target="_blank"><strong>parachute-patterns</strong></a> &mdash; cross-repo conventions (naming, schemas, OAuth scopes, ports) and the <a href="https://github.com/ParachuteComputer/parachute-patterns/tree/main/cookbook" target="_blank">cookbook</a> of worked patterns.</li>
         </ul>
     </section>
 

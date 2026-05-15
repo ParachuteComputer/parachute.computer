@@ -1,6 +1,6 @@
 ---
 title: "Parachute Cloud — architecture sketch"
-description: "Cloud deployment shape: tenant-per-subdomain, Postgres-backed, CDN-hosted Lens, pooled Scribe. A plausible north star we refine when a first cloud user materializes."
+description: "Cloud deployment shape: tenant-per-subdomain, Postgres-backed, CDN-hosted Notes, pooled Scribe. A plausible north star we refine when a first cloud user materializes."
 ---
 # Parachute Cloud — architecture sketch
 

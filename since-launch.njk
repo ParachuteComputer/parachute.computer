@@ -1,0 +1,317 @@
+---
+layout: base.njk
+title: "Since launch"
+description: "Parachute launched on 2026-04-23. Three weeks in, here's what's landed — a portable export primitive, multi-vault Notes, cross-origin OAuth, and an honest list of what's still on the bench."
+permalink: /since-launch/
+---
+<style>
+.sl-hero {
+    text-align: center;
+    margin-bottom: 4rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid var(--border);
+}
+.sl-hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    color: var(--fg);
+    margin-bottom: 0.75rem;
+}
+.sl-hero p.lede {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.35rem;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    max-width: 36rem;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.35;
+}
+.sl-hero p.subhead {
+    font-size: 1rem;
+    color: var(--fg-muted);
+    line-height: 1.65;
+    max-width: 38rem;
+    margin: 0 auto;
+}
+.sl-section {
+    margin-bottom: 3.75rem;
+}
+.sl-section > h2 {
+    font-family: var(--serif);
+    font-size: 1.65rem;
+    font-weight: 400;
+    color: var(--fg);
+    letter-spacing: -0.015em;
+    margin-bottom: 0.4rem;
+}
+.sl-section > .sl-eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid rgba(74, 124, 89, 0.18);
+    border-radius: 999px;
+    padding: 0.18rem 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    display: inline-block;
+    margin-bottom: 0.85rem;
+}
+.sl-section > .sl-divider {
+    width: 2.5rem;
+    border: none;
+    border-top: 1px solid var(--accent);
+    margin: 0 0 1.5rem;
+}
+.sl-headline {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem 1.95rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(44, 42, 38, 0.025);
+}
+.sl-headline h3 {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--fg);
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.01em;
+}
+.sl-headline .sl-issue-ref {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--fg-dim);
+    margin-left: 0.5rem;
+}
+.sl-headline p {
+    color: var(--fg-muted);
+    font-size: 0.96rem;
+    line-height: 1.7;
+    margin-bottom: 0.85rem;
+}
+.sl-headline p:last-child { margin-bottom: 0; }
+.sl-headline code {
+    background: var(--bg-soft);
+    padding: 0.08rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.86em;
+    color: var(--fg);
+}
+.sl-headline a {
+    color: var(--accent);
+    border-bottom: 1px dotted rgba(74, 124, 89, 0.4);
+}
+.sl-headline a:hover {
+    color: var(--accent-hover);
+    border-bottom-color: var(--accent-hover);
+}
+.sl-row-list {
+    list-style: none;
+    margin: 0.4rem 0 0;
+    padding: 0;
+}
+.sl-row-list li {
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--fg-muted);
+    font-size: 0.93rem;
+    line-height: 1.6;
+}
+.sl-row-list li:last-child { border-bottom: none; }
+.sl-row-list strong {
+    color: var(--fg);
+    font-weight: 500;
+}
+
+.sl-bench {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.85rem 2rem;
+    margin-bottom: 3rem;
+}
+.sl-bench h2 {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: var(--fg);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+}
+.sl-bench p.bench-lede {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+    line-height: 1.65;
+    margin-bottom: 1.1rem;
+}
+.sl-bench ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.sl-bench li {
+    padding: 0.6rem 0;
+    color: var(--fg-muted);
+    font-size: 0.93rem;
+    line-height: 1.6;
+    border-bottom: 1px solid rgba(228, 224, 216, 0.6);
+    display: grid;
+    grid-template-columns: 0.6rem 1fr;
+    gap: 0.85rem;
+    align-items: start;
+}
+.sl-bench li:last-child { border-bottom: none; }
+.sl-bench li::before {
+    content: "·";
+    color: var(--fg-dim);
+    font-size: 1.4rem;
+    line-height: 1;
+    margin-top: -0.1rem;
+}
+.sl-bench strong {
+    color: var(--fg);
+    font-weight: 500;
+}
+
+.sl-cta {
+    text-align: center;
+    padding: 3rem 1rem 1rem;
+    border-top: 1px solid var(--border);
+}
+.sl-cta h2 {
+    font-family: var(--serif);
+    font-size: 1.55rem;
+    font-weight: 400;
+    color: var(--fg);
+    margin-bottom: 0.85rem;
+}
+.sl-cta p {
+    color: var(--fg-muted);
+    font-size: 0.96rem;
+    line-height: 1.65;
+    margin: 0 auto 1.5rem;
+    max-width: 36rem;
+}
+.sl-cta .code-inline {
+    max-width: 540px;
+    margin: 0 auto 1.25rem;
+}
+.sl-cta-row {
+    display: inline-flex;
+    gap: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--fg-dim);
+    margin-top: 0.5rem;
+}
+.sl-cta-row a { color: var(--fg-muted); }
+.sl-cta-row a:hover { color: var(--accent); }
+</style>
+
+<main>
+    <section class="sl-hero fade-up fade-up-1">
+        <h1>Since launch</h1>
+        <p class="lede">Three weeks in. Here's what's landed, what's next, and what's still on the bench.</p>
+        <p class="subhead">Parachute went public on <a href="/blog/parachute-is-here/">April 23</a>. Since then, the load-bearing primitive a partner team was waiting for shipped, Notes grew up enough to handle multiple vaults, and cross-origin OAuth stopped being a yak to shave. Below is the work, named honestly.</p>
+    </section>
+
+    <section class="sl-section fade-up fade-up-2">
+        <span class="sl-eyebrow">Vault</span>
+        <h2>Portable export — the load-bearing one</h2>
+        <hr class="sl-divider">
+
+        <div class="sl-headline">
+            <h3>Lossless markdown export &mdash; vault as substrate, anything else as projection <span class="sl-issue-ref">vault#308</span></h3>
+            <p><code>parachute-vault export &lt;dir&gt;</code> writes your whole vault out as one-file-per-note markdown with YAML frontmatter. <code>parachute-vault import &lt;dir&gt; --blow-away</code> replays it back to byte-equivalent state. IDs survive, typed links survive, tag schemas survive, attachments survive, multi-line metadata survives.</p>
+            <p>What that unlocks: a git repo of the export is a deterministic projection of the vault &mdash; auditable, browseable, time-travelable. Edit the same vault in Obsidian or Logseq, then re-import, and the IDs and typed links come home unbroken. Disaster recovery is "untar somewhere and run <code>import --blow-away --yes</code>." A partner team can build a custom dashboard against the export format without ever having to negotiate vault-internal access.</p>
+            <p>The whole thing is documented in <a href="https://github.com/ParachuteComputer/parachute-patterns/blob/main/cookbook/vault-portable-export.md">the cookbook</a> &mdash; format spec, round-trip guarantees, a nightly git-projection recipe, the edge cases. That cookbook is the contract.</p>
+        </div>
+
+        <ul class="sl-row-list">
+            <li><strong>Upsert-by-id on update-note.</strong> <code>if_missing: "create"</code> lets sync loops collapse query-then-create into one call. Saves a partner's nightly drift detector 500-ish round trips. <span class="sl-issue-ref">vault#309</span></li>
+            <li><strong>JSON int coercion in schema validation.</strong> Integer-typed fields stopped warning on legitimate JSON-decoded values. <span class="sl-issue-ref">vault#310</span></li>
+            <li><strong>REST/MCP symmetry on links and schema.</strong> Both surfaces now apply <code>links.add</code> on the create branch, and both surface schema-conflict warnings the same way. The "use whichever surface fits" promise is finally true at the byte level. <span class="sl-issue-ref">vault#321, vault#287</span></li>
+        </ul>
+    </section>
+
+    <section class="sl-section fade-up fade-up-3">
+        <span class="sl-eyebrow">Notes</span>
+        <h2>Grew up</h2>
+        <hr class="sl-divider">
+
+        <div class="sl-headline">
+            <h3>Multi-vault PWA &mdash; one install, every vault <span class="sl-issue-ref">notes#115</span></h3>
+            <p>The header now carries a vault popover. "Connected" lists every vault Notes has OAuthed into; "Available from your hub" lists vaults published at your hub's well-known doc that you haven't connected yet, each with an inline Connect button. One Notes install, every vault on your hub, no profile-switching tax.</p>
+            <p>If you self-host a hub with four vaults, you no longer see the same vault's URL collide with the other three. That sounds like plumbing &mdash; it was, in fact, the thing standing between Notes-as-PWA and Notes-as-daily-driver for anyone with more than one vault.</p>
+        </div>
+
+        <ul class="sl-row-list">
+            <li><strong>Hierarchical capture tags.</strong> Quick captures land under <code>capture/text</code> and <code>capture/voice</code> with a real schema, not a flat string. Future <code>capture/photo</code> / <code>capture/web-clip</code> slot in without renames. <span class="sl-issue-ref">notes#126</span></li>
+            <li><strong>Capture autosave that doesn't eat your text.</strong> The 5-second autosave is now a background draft, not a finalize-and-clear &mdash; the bug where typing "hello world" and waiting wiped your textarea is gone. <span class="sl-issue-ref">notes#134</span></li>
+            <li><strong>Schema-audit UI in Settings.</strong> See what tag schemas Notes expects vs what your vault has, with a one-click "Set up missing tags." A banner surfaces at connect-time if the active vault is misaligned. <span class="sl-issue-ref">notes#129</span></li>
+            <li><strong>Global text-size zoom.</strong> Settings &rarr; Default / Larger / Largest scales the whole app (not just the reader) and the keyboard shortcuts work the way you'd expect (Cmd-=, Cmd--, Cmd-0). <span class="sl-issue-ref">notes#127, notes#137</span></li>
+            <li><strong>Graceful vault-unreachable UX.</strong> Restart your Mac, forget to start your vault, open Notes &mdash; you get a "Vault down" banner with a Retry button and exponential backoff probing, not a blank screen and a 502 in the console. <span class="sl-issue-ref">notes#113</span></li>
+        </ul>
+    </section>
+
+    <section class="sl-section fade-up fade-up-4">
+        <span class="sl-eyebrow">Hub</span>
+        <h2>Crossed origins, found roots</h2>
+        <hr class="sl-divider">
+
+        <div class="sl-headline">
+            <h3>Cross-origin approve flow &mdash; localhost &harr; tailnet &harr; cloudflare all work <span class="sl-issue-ref">hub#245</span></h3>
+            <p>The "Cross-origin request rejected" failure when approving an OAuth client from a different layer (operator on localhost approving for a tailnet-exposed hub, or vice versa) is gone. The hub now considers itself bound to its configured issuer, its loopback aliases, and any current expose origin &mdash; matching the actual ways a real operator reaches it.</p>
+        </div>
+
+        <ul class="sl-row-list">
+            <li><strong>Per-vault hint on the approve page.</strong> When Notes asks to OAuth into <code>vault:gitcoin</code> on a four-vault hub, the operator sees <em>which</em> vault they're approving. No more guessing. <span class="sl-issue-ref">hub#244</span></li>
+            <li><strong>Per-vault keys in the OAuth services catalog.</strong> A token narrowed to one vault now carries <code>services["vault:&lt;name&gt;"].url</code>, so Notes' four-vault popover stops collapsing every entry onto the same URL. <span class="sl-issue-ref">hub#247</span></li>
+            <li><strong>Trailing-slash fix on services-proxy routing.</strong> Mount entries written with <code>paths: ["/notes/"]</code> match sub-paths properly &mdash; the silent blank-screen-when-the-SPA-shell-loads-but-no-assets-do bug is closed. <span class="sl-issue-ref">hub#197</span></li>
+            <li><strong>Install-source visibility in <code>parachute status</code>.</strong> Each row now says whether the running service is bun-linked (with the git short-SHA) or installed from npm (with the version), and flags stale <code>services.json</code> cached versions. No more spending half an hour wondering whether the bundle is fresh. <span class="sl-issue-ref">hub#243</span></li>
+        </ul>
+    </section>
+
+    <section class="sl-section fade-up fade-up-5">
+        <span class="sl-eyebrow">Patterns</span>
+        <h2>Working out loud</h2>
+        <hr class="sl-divider">
+
+        <ul class="sl-row-list">
+            <li><strong>Cookbook section, seeded.</strong> <a href="https://github.com/ParachuteComputer/parachute-patterns/blob/main/cookbook/vault-portable-export.md">Vault portable export</a> is the first entry &mdash; format, recipes, gotchas, worked example. More to follow.</li>
+            <li><strong>Building a surface on top of Parachute Vault.</strong> A new <a href="https://github.com/ParachuteComputer/parachute-patterns/blob/main/guides/building-a-surface.md">guide</a> for anyone wanting to build a UI, a dashboard, or a domain-specific tool against the vault API. <span class="sl-issue-ref">patterns#58</span></li>
+            <li><strong>Governance Rule 4 &mdash; bundle by session.</strong> One PR per coherent unit of work, multiple commits inside. The site refresh you're reading is itself the canonical example.</li>
+        </ul>
+    </section>
+
+    <section class="sl-bench fade-up fade-up-6">
+        <h2>Still on the bench</h2>
+        <p class="bench-lede">Named so the roadmap doesn't drift from reality:</p>
+        <ul>
+            <li><strong>Hub multi-user UX.</strong> Sign-in flows, user-management UI, consent surfaces. Single-user works today; multi-user is sketched and waiting for the right pull. Partner teams using parachute for shared workspaces are bridging this with a metadata-based attribution pattern in the meantime.</li>
+            <li><strong>Notes header layout.</strong> The popover landed; the header chrome around it could still be tighter. Cleanup pass queued, not blocked on anything.</li>
+            <li><strong>A dashboard SDK.</strong> The "build a custom dashboard against the export format" pattern wants a small typed helper library. Today it's a recipe; tomorrow it's a package. Shape's clear; nothing's written yet.</li>
+            <li><strong>Web-AI connectors &mdash; claude.ai, ChatGPT, Gemini.</strong> The plumbing works (<code>parachute expose</code> is live) but we haven't put any of them in front of broad users yet. Polishing the on-ramp before announcing.</li>
+        </ul>
+    </section>
+
+    <section class="sl-cta fade-up fade-up-6">
+        <h2>Try the new stuff</h2>
+        <p>If you already have a vault running, <code>parachute upgrade vault</code> picks up portable export and the schema improvements. If you don't yet:</p>
+        <div class="code-inline">
+            <code>bun add -g @openparachute/hub &amp;&amp; parachute install vault</code>
+        </div>
+        <p>Then read <a href="https://github.com/ParachuteComputer/parachute-patterns/blob/main/cookbook/vault-portable-export.md">the export cookbook</a> for a full tour of what the substrate now does.</p>
+        <div class="sl-cta-row">
+            <a href="/install/">Full install &rarr;</a>
+            <a href="/blog/">Blog &rarr;</a>
+            <a href="/roadmap/">Roadmap &rarr;</a>
+        </div>
+    </section>
+</main>
