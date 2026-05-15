@@ -1,6 +1,6 @@
 ---
 title: "Module architecture"
-description: "The canonical module protocol: info, config, services.json, .well-known/parachute.json. How Vault, Lens, Scribe, and third-party modules plug into a single ecosystem under one HTTPS URL."
+description: "The canonical module protocol: info, config, services.json, .well-known/parachute.json. How Vault, Notes, Scribe, and third-party modules plug into a single ecosystem under one HTTPS URL."
 ---
 # Parachute module architecture
 
