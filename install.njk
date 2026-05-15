@@ -66,7 +66,29 @@ permalink: /install/
 
         <p>Open <a href="http://localhost:1942/notes" target="_blank"><code>http://localhost:1942/notes</code></a>, connect it to <code>http://127.0.0.1:1940</code>, paste the API token from your vault install. You get note browsing, search, tag views, a graph visualization, voice capture with auto-transcription, and a markdown editor with live preview.</p>
 
+        <p>Notes ships <strong>multi-vault</strong>: one install, every vault on your hub. The header carries a vault popover &mdash; "Connected" lists vaults you've OAuthed into; "Available from your hub" lists vaults published at your hub's well-known doc that you haven't connected yet, each with an inline Connect button. Captures land under hierarchical <code>capture/text</code> / <code>capture/voice</code> tags; Settings &rarr; Larger / Largest scales the whole app for reading; Cmd-=, Cmd--, Cmd-0 work the way you'd expect.</p>
+
         <p>It's also a starting point: the source is <a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank">AGPL</a>, Vite + React + TypeScript, talks to the vault over the documented HTTP API. Fork it and build the UI that matches how <em>your</em> brain works.</p>
+    </section>
+
+    <section class="section">
+        <h2>4. Export your vault as portable markdown (optional)</h2>
+
+        <p>Your Vault is a SQLite file, but the whole graph round-trips losslessly through markdown + YAML:</p>
+
+        <div class="code-inline">
+            <code>parachute-vault export ~/my-vault-projection</code>
+        </div>
+
+        <p>One file per note, with frontmatter carrying ID, path, tags, metadata, typed links, and attachments. Tag schemas land in <code>.parachute/schemas/&lt;tag&gt;.yaml</code>, attachment binaries in <code>.parachute/attachments/</code>. Re-export an unchanged vault and the bytes are identical &mdash; clean git diffs.</p>
+
+        <p>Going the other way works too:</p>
+
+        <div class="code-inline">
+            <code>parachute-vault import ~/my-vault-projection --blow-away --yes</code>
+        </div>
+
+        <p>That's disaster recovery, vault migration, or "let me edit in Obsidian and re-import the changes" &mdash; same primitive, three uses. Read the <a href="https://github.com/ParachuteComputer/parachute-patterns/blob/main/cookbook/vault-portable-export.md" target="_blank">portable-export cookbook</a> for format spec, round-trip guarantees, and a nightly git-projection recipe.</p>
     </section>
 
     <section class="section">
