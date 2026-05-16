@@ -1,13 +1,13 @@
 ---
 layout: base.njk
 title: "Vault 0.2.4 → 0.4.5 — Architectural arc & migration guide (preview)"
-description: "Synthesis of what shipped in Parachute Vault between launch (0.2.4, 2026-04-23) and the 0.4.5 stable on 2026-05-15: portable export, file-extension support, upsert semantics, hub-minted auth, case-insensitive filesystem disambiguation, schema inheritance maturity, and the operator migration path."
+description: "Re-audited synthesis of what shipped in Parachute Vault from launch (0.2.4) through 0.4.5 stable on 2026-05-15: the foundational 0.3.6-rc.1 ecosystem-fit release (URL migration, CLI rename, filesystem restructure, hub JWT validation, scope enforcement, indexed metadata, atomic tag operations, server-side transcription), followed by maturation and substrate-completion phases."
 permalink: /preview/vault-0.4.5-arc/
 eleventyExcludeFromCollections: true
 ---
 <style>
 /* Preview-page typography — leans on .post-content but adds tables + suppresses
-   the drop-cap on the preview-notice. */
+   the drop-cap on the synthesis body. */
 .preview-notice {
     max-width: var(--content-width);
     margin: 2.5rem auto 3.5rem;
@@ -60,7 +60,9 @@ eleventyExcludeFromCollections: true
     font-size: inherit;
     line-height: inherit;
 }
-/* Tables — the synthesis has four of them; .post-content doesn't style tables. */
+/* Tables — the synthesis has four of them (§3 breaking changes, §4 CLI surface,
+   §4 MCP/REST surface, appendix schema migrations); .post-content doesn't style
+   tables. */
 .post-content table {
     width: 100%;
     border-collapse: collapse;
@@ -102,220 +104,284 @@ eleventyExcludeFromCollections: true
     font-size: 0.87em;
     color: var(--fg);
 }
-/* Section heading anchor: make h2/h3 anchorable by giving them generated IDs.
-   11ty by default emits markdown headings without ID; we rely on visitors
-   to ⌘+click a heading and copy the URL. Skip the in-page-anchor library
-   for now — keep the page lean. */
 </style>
 
 <main>
-    <header class="preview-hero fade-up fade-up-1">
-        <p class="preview-subhead">Preview · Parachute Vault</p>
-        <h1>Vault 0.2.4 → 0.4.5</h1>
-        <p class="preview-subhead">Architectural arc &amp; migration guide</p>
-    </header>
 
-    <aside class="preview-notice fade-up fade-up-2">
-        <p><strong>Preview draft</strong> Not yet linked from anywhere on the public site. If you got here via a direct link, your feedback is welcome &mdash; reach out to the team however you usually do. A final published version is on its way.</p>
-    </aside>
+<header class="preview-hero fade-up fade-up-1">
+    <p class="preview-subhead">Preview · Parachute Vault</p>
+    <h1>Vault 0.2.4 → 0.4.5</h1>
+    <p class="preview-subhead">Architectural arc &amp; migration guide</p>
+</header>
 
-    <div class="post-content fade-up fade-up-3">
+<aside class="preview-notice fade-up fade-up-2">
+    <p><strong>Preview — re-audited draft</strong> Replaces an earlier, incomplete synthesis. This pass covers the full 0.3.6-rc.1 → 0.4.5 chain (~39 release-candidates) including the foundational URL migration, CLI rename, hub JWT validation, scope enforcement, indexed metadata, atomic tag operations, and server-side transcription. Not yet linked from anywhere on the public site &mdash; if you got here via a direct link, your feedback is welcome.</p>
+</aside>
+
+<div class="post-content fade-up fade-up-3" markdown="1">
 
 ## § 1. The Arc
 
-Between 0.2.4 (launch, 2026-04-23) and 0.4.5 (stable, 2026-05-15), Parachute Vault moved from a working prototype to a substrate-grade platform. The arc was substrate-first: lossless portable export (vault#308, with sidecar-based metadata for non-markdown content), schema inheritance maturity (vault#270, parent tag resolution + conflict warnings), and strict multi-writer auth semantics (vault#212 Phase 4 with hub-revocation enforcement). Concurrently, file-format support expanded beyond markdown (vault#328: CSV, YAML, JSON, MDX all as first-class, with schema-aware round-trip guarantees). Single-writer sync ergonomics completed the cycle (vault#309–321: upsert semantics, JSON type coercion, link-apply symmetry). The stable 0.4.5 release marked a 22-day sprint of primarily *maturation*—closing the lossy-export gap, disambiguating path resolution under case-insensitive filesystems, and validating the entire platform against a 2296-note real-world vault with zero silent loss.
+Between 0.2.4 (launch-week tail, 2026-04-18) and 0.4.5 (stable, 2026-05-15), Parachute Vault moved from a working single-host prototype into a substrate-grade module within a larger ecosystem. Three distinct phases compose the arc.
+
+**Phase 1: ecosystem-fit (0.3.6-rc.1, the 39-rc chain that became 0.4.0).** The load-bearing phase. In a single huge release-candidate (0.3.6-rc.1) and the rc.30–rc.39 follow-ups, vault stopped being a self-contained server and became a **pure OAuth resource server inside the Parachute Computer ecosystem**. The URL surface migrated from `/vaults/<name>/...` (and unscoped `/api`, `/mcp`) to canonical `/vault/<name>/...`. The CLI binary renamed `parachute` → `parachute-vault` to free the `parachute` name for the forthcoming hub dispatcher. The filesystem moved from flat `~/.parachute/` into per-service `~/.parachute/vault/`, then again into `vault/data/` + `vault/logs/` for ecosystem hygiene. Hub-issued JWTs joined `pvt_*` as a dual-validation auth path. Scope enforcement (`vault:read`/`write`/`admin`) landed at the HTTP and MCP boundary. Indexed metadata fields shipped (generated columns + B-tree indexes) with operator-object query semantics, `has_tags`/`has_links` presence filters, and `order_by` on indexed fields. Atomic tag rename + merge endpoints retired the N+1 PATCH stopgap. Server-side transcription wired vault to scribe as canonical context provider. Tag identity reshaped from a name-only enrolment row to the single source of truth for everything *about* a tag (schema v14). The `_schemas/*` notes-as-config convention promoted to first-class tables (schema v15). Tag-scoped tokens shipped. Per-vault token storage closed the cross-vault listing surface (schema v16). Admin SPA scaffolded and remounted per-vault.
+
+**Phase 2: maturation (0.4.1 — 0.4.3).** Tag schema inheritance with `_default` as universal parent (vault#270). Hub revocation enforcement (vault#212 Phase 4 / hub#212 Phase 4) with 60s caching and fail-open/fail-closed semantics. Tag rename cascade across every surface in a single transaction (vault#240, vault#247). `note_schemas` + 6 MCP tools retire after audit revealed zero usage (vault#267, schema v17). The `synthesize-notes` MCP tool retires alongside (vault#268). `vault-info` becomes a comprehensive self-orientation projection (vault#271). HTTP bracket-style metadata filters expose the engine's full operator set (`?meta[field][op]=value`, vault#289). `dateFilter` recognizes `updated_at` (vault#286). `update-note include_content: false` returns lean `NoteIndex` shape (vault#286). MCP tool count drops 16 → 9.
+
+**Phase 3: substrate completion (0.4.4 — 0.4.5).** Hub-mint becomes the default auth path on `mcp-install`; `--legacy-pat` is the explicit fallback (vault#212 Phase A). Interactive `mcp-install` walkthrough with smart defaults (vault#292). MCP install scope expands `user|local|project` (vault#293). Portable lossless export/import via `parachute-vault export` + `import --blow-away` (vault#308). HTTP `validation_status` symmetry with MCP on create/update (vault#287). JSON integer coercion (vault#310). Upsert semantics via `update-note if_missing: "create"` (vault#309). Link-apply symmetry on create-branch (vault#321). Empty notes become a valid state (vault#323). Non-markdown content as first-class with sidecar metadata (vault#328, schema v18). Case-insensitive filesystem disambiguation (vault#327). `AmbiguousPathError` distinct from `PathConflictError` (vault#330).
+
+The headline shape: 0.2.4 was a single-host vault with OAuth + backup + tokens. 0.4.5 is an ecosystem-fit module that round-trips losslessly to git, handles non-markdown content as first-class, validates against a 2296-note real vault with zero silent loss, and lives behind a hub that issues, scopes, and revokes its tokens. The biggest single moment for an upgrading operator is **Phase 1** — the URL migration and CLI rename are active changes they have to make; everything after is mostly additive.
 
 ## § 2. Themed Changes
 
-### Theme: Portable Export & Lossless Round-Trip (Vault#308)
+### Theme: URL Surface & Naming Migrations (0.3.6-rc.1)
 
-Users gain the ability to version control their vault as git-tracked markdown—notes, schemas, relationships all survive export/import without loss of IDs, metadata, or attachment binaries. `parachute-vault export <dir>` now writes a portable-markdown format with `.parachute/vault.yaml` marker, per-tag schema files, and note-level frontmatter that round-trips byte-identically when unchanged. `parachute-vault import <dir> --blow-away` replays exported vaults into a clean target. Export-side attachment handling copies binaries into `.parachute/attachments/<id>/<name>`; import restores them to `<assetsDir>` with path-traversal guards. The invariant is pinned in integration tests: vault → export → blow-away-import → re-export produces byte-identical files.
+The single biggest upgrader-facing change in the entire arc. Three migrations land together in 0.3.6-rc.1, each reshaping how operators, clients, and scripts address vault.
 
-- **PR 1 (0.4.4-rc.9, vault#308)**: Portable-markdown export with fixed frontmatter key order (id → path → tags → metadata → links → attachments → created_at → updated_at), alpha-sorted nested objects, hand-rolled YAML quoting for type-safety.
-- **PR 1 follow-up (0.4.4-rc.10, vault#317)**: Fixed silent corruption on multi-line metadata (quoting logic for `\n\r\t`), tautology in idempotency test (parse → re-emit, not in-memory twice), and path-traversal gate.
-- **PR 2 (0.4.4-rc.11, vault#308 + vault#318)**: Attachment export/import, `--blow-away` disaster-recovery wipe-and-replay, schema + typed-link restoration, `Store.restoreNoteTimestamps` for historical timestamp preservation.
+- **URL migration `/vaults/<name>/...` → `/vault/<name>/...` (0.3.6-rc.1).** One URL shape for every client. API at `/vault/<name>/api/...`, MCP at `/vault/<name>/mcp`, OAuth at `/vault/<name>/oauth/{register,authorize,token}`, discovery at `/vault/<name>/.well-known/oauth-*`, published notes at `/vault/<name>/view/:id`. The old unscoped `/api`, `/mcp`, `/oauth/*`, `/view/*` paths and the previous **plural** `/vaults/<name>/...` prefix are gone (404). Cross-vault endpoints (`GET /vaults`, `/vaults/list`, `/health`) unchanged. The unified MCP endpoint that fanned tool calls across vaults via a `vault` param dropped; each MCP session pins to one vault by URL; `list-vaults` MCP tool no longer exposed. RFC 9728 `WWW-Authenticate: Bearer resource_metadata=…` header decorates every MCP 401.
+- **CLI rename `parachute` → `parachute-vault` (0.3.6-rc.1).** Frees the `parachute` name for the forthcoming `@openparachute/hub` dispatcher. The dispatcher (when installed) transparently forwards `parachute vault <cmd>` to `parachute-vault <cmd>`. The CLI's own arg-parser still accepts a leading `vault` prefix (`parachute-vault vault init`), so existing launchd/systemd wrappers continue working.
+- **Filesystem restructure (0.3.6-rc.1, two moves same release).** Move 1: vault state moves from `~/.parachute/` into `~/.parachute/vault/` (`.env`, `config.yaml`, `vault.log`, `vault.err`, `start.sh`, `server-path`, `vaults/`, `assets/`, `backup-last.json`, `*.db` snapshots). Ecosystem root (`~/.parachute/`) hosts multiple sibling services (`services.json` + `well-known/` stay at root, CLI-owned). Move 2: `vault/vaults/` → `vault/data/` (matches Postgres/Redis convention, avoids the doubled "vault/vaults" path); daemon logs flat in `vault/` → `vault/logs/vault.log` / `vault.err` (matches `~/.parachute/<svc>/logs/<svc>.log` convention). Both moves auto-migrating, idempotent, target-wins on conflict. Launchd plist + systemd unit point at the new subdir; `start.sh` sources `~/.parachute/vault/.env`. No operator action required.
+- **`@openparachute/cli` → `@openparachute/hub` rename-aware refresh (0.3.6-rc.1).** Upstream dispatcher repo renamed `parachute-cli` → `parachute-hub` on 2026-04-26; vault's docs and inline comments refresh. No functional changes.
 
-### Theme: Non-Markdown Content as First-Class (Vault#328)
+The combined effect: a 0.2.4 user typing `parachute vault status` against `/vaults/work/api/notes` now types `parachute-vault status` against `/vault/work/api/notes`, with state on disk re-organized under `~/.parachute/vault/data/work/`. Three simultaneous renames is unusual but they cluster in a single release-candidate by design.
 
-Vaults can now contain CSV, YAML, JSON, MDX, .txt, and custom-extension notes alongside markdown. Each note carries an `extension` field (default `md` for backward-compat). Frontmatter-compatible formats (`.md`, `.mdx`) embed metadata inline; sidecar-required formats (everything else) store metadata in `.parachute/notes-meta/<id>.yaml` with path-traversal guards. Path uniqueness is now `(path, extension)` so `Recipes/pasta.md` and `Recipes/pasta.csv` coexist. Wikilink ambiguity is resolved by explicit extension: `[[Foo.md]]` vs `[[Foo.csv]]`; bare `[[Foo]]` is refused when ambiguous.
+### Theme: Hub Integration & Multi-Writer Auth (vault#212 Phase 0–4, Phase A)
 
-- **DB schema (0.4.5-rc.1, vault#328)**: Schema v17 → v18, `ALTER TABLE notes ADD COLUMN extension TEXT NOT NULL DEFAULT 'md'`, widened uniqueness index to `(path, extension)` for multi-format support.
-- **API surface (0.4.5-rc.1, vault#328)**: MCP `create-note`, `update-note`, `query-notes` all gain optional `extension` field. REST `POST /notes` and `PATCH /notes/:id` gain symmetric field + validation (`/^[a-z0-9]{1,16}$/`, reserved `parachute` prefix guard). REST `GET /notes` accepts `?extension=csv&extension=yaml` (single or array).
-- **Export/import (0.4.5-rc.1, vault#328)**: `toPortableMarkdown` and `toSidecarYaml` both extension-aware. Import walks all content files (not just `.md`), parses inline frontmatter or looks up sidecars, skips orphaned files with warnings.
+Vault becomes a pure OAuth resource server. The trust boundary moves from "vault mints and validates its own tokens" to "vault accepts hub-issued JWTs alongside legacy `pvt_*` tokens, with the hub as canonical issuer." Six phases land across the arc.
 
-### Theme: Case-Insensitive Filesystem Support & Disambiguation (Vault#327)
+- **Phase 0 — hub as advertised issuer (0.3.6-rc.1).** `PARACHUTE_HUB_ORIGIN` env enables vault to advertise a hub as the OAuth authorization server. Discovery is origin-aware: requests via the hub origin (matched against `X-Forwarded-Host` / `Host`) get `issuer = $HUB` with `${HUB}/oauth/*` endpoints; requests via any other origin (typically loopback) get `issuer = <origin>/vault/<name>` with vault-rooted endpoints. The same vault concurrently exposes two self-consistent issuer views, so **RFC 8414 §2 issuer/origin consistency** holds on both views without per-origin configuration.
+- **Phase 1 — hub-issued JWT validation (0.3.6-rc.1).** Vault dual-validates bearer tokens. JWT-shaped tokens (`eyJ` prefix) route through `src/hub-jwt.ts`: `jose.createRemoteJWKSet` fetches the hub's JWKS (5min cache, 30s cooldown), `jwtVerify` checks RS256 signature + claims, and `iss` MUST equal the configured hub origin — the **load-bearing trust check** preventing anyone from minting against any RSA key. `pvt_*` callers continue to work; JWT-shaped tokens commit to JWT validation (no fallthrough).
+- **Phase 2 — scope enforcement at HTTP and MCP boundary (0.3.6-rc.1, schema v12).** Tokens carry OAuth-standard whitespace-separated `scopes`. HTTP: reads require `vault:read`, mutations `vault:write`, `/.parachute/config` `vault:admin`. Inheritance: `admin ⊇ write ⊇ read`. MCP: read tools (`query-notes`, `list-tags`, `find-path`, `vault-info`) require `vault:read`; mutation tools require `vault:write`. Read-only tokens only see read tools in `tools/list`; mutation `tools/call` returns `{error_type: "insufficient_scope", required_scope, granted_scopes}`. **`parachute-vault tokens create --read` is now enforcement-real** — rejected on writes with 403. Pre-v12 NULL-scope rows fall back to `legacyPermissionToScopes(permission)` for one release with a deprecation warning.
+- **Services catalog + module config endpoints (0.3.6-rc.1).** OAuth token response includes a `services` catalog sourced from `~/.parachute/services.json`. `/vault/<name>/.parachute/info` returns a locked card shape with `kind: "api"`. `/.parachute/config/schema` returns JSON Schema (draft-07); `/.parachute/config` returns effective values with `writeOnly` fields stripped. `PUT` returns 405 — Phase 3.
+- **Phase 3 — per-vault audience binding (0.4.0).** JWT audience switches from hardcoded `"hub"` to per-vault `aud: vault.<name>`. Tokens minted for `vault.work` can't replay at `vault.personal`. Old `aud: "hub"` claims validate during the rolling-update window.
+- **Phase 4 — hub revocation enforcement (0.4.1-rc.6, vault#281).** JWTs checked against `<hub-origin>/.well-known/parachute-revocation.json`. Bumps `@openparachute/scope-guard` `^0.1.0` → `^0.2.0`. **60s TTL** (matches hub's `Cache-Control: max-age=60`). **Fail-open** with last-good cache during outage; **fail-closed** only on cold-start (no last-good). Client-facing 401s for revocation codes are sanitized; full diagnostics route to the server-side audit log. Inheritable pattern across vault/scribe/agent: revocation diagnostics in audit logs, never response bodies.
+- **Phase A — hub-mint as default install (0.4.4-rc.1).** `parachute-vault mcp-install` default flips: `--mint` reads `~/.parachute/operator.token`, POSTs to hub's `/api/auth/mint-token`. `--token <bearer>` pastes existing bearer; `--legacy-pat` falls back to `pvt_*` with deprecation notice. `--scope` expands to `vault:<vault-name>:<verb>` so a JWT can't replay against other vaults on the same hub.
+- **Cross-vault token rejection (0.3.6-rc.39, vault#257, schema v16).** `tokens.vault_name TEXT` + index. New mints bind to the minting vault; cross-vault use returns 403 naming both vaults. Pre-v16 NULL-bound rows authenticate server-wide (legacy compat). `parachute-vault tokens` CLI gains `--vault <name>` and `--all` flags; list output annotates legacy rows `[server-wide]`. Defense-in-depth at every per-vault auth path.
 
-On macOS APFS and Windows NTFS, notes whose paths differ only by case (e.g. `Foo` vs `foo`) would silently collide into one file. The fix probes filesystem case-sensitivity at export time; on case-insensitive disks, colliding notes get on-disk filename suffixes (`<path>__<id-prefix>.<ext>`) while canonical paths in frontmatter stay unchanged. Import recovers truth from frontmatter via three-tier fallback: exact-case match → first remaining bucket → id-prefix. Sidecars are now multi-value `Map<key, sidecar[]>` so case-collided sidecars coexist.
+### Theme: Indexed Metadata & Query Maturity
 
-- **Export detection (0.4.5-rc.2, vault#327)**: `probeCaseSensitive` writes a tempfile with lowercase name, tests uppercase reachability, cleans up. Defaults to conservative `true` on probe failure. Builds lowercased index during export walk; collisions auto-disambiguate deterministically.
-- **API (0.4.5-rc.2, vault#330 S1)**: New `AmbiguousPathError` (distinct from `PathConflictError`), carries `candidates` array listing `(path, extension)` pairs. REST returns 409 with `error_type: "ambiguous_path"`. `getNoteByPath(path, extension?)` throws when >1 row and no extension hint.
-- **Import (0.4.5-rc.2, vault#330 S2)**: Orphaned sidecars (sidecar present, content file missing) land in `ImportStats.skipped_sidecars` with `console.warn` per entry.
+The query surface evolves from "exact-match metadata as JSON scan" to "operator-objects on indexed fields with the engine's full set."
 
-### Theme: Upsert Semantics & Sync Ergonomics (Vault#309, Vault#321)
+- **Indexed metadata fields (0.3.6-rc.1).** `update-tag` field specs gain `indexed: boolean`. When any tag schema declares a field as indexed, vault adds a VIRTUAL generated column `meta_<field>` computed from `json_extract(notes.metadata, …)` and B-tree indexes it. The index is **universal across all notes**, not partitioned by tag — once `#project` declares `status: indexed`, every note with `status` in metadata is indexed regardless of tags. `type` and `indexed` are global (all declarers must agree, mismatches throw); `description` and `enum` per-tag. A new `indexed_fields` table is the single source of truth; column + index drop when the last declarer releases the flag. Type map: `string`→TEXT, `integer`/`boolean`→INTEGER. Field names `[A-Za-z_][A-Za-z0-9_]{0,62}` for SQL-identifier safety. Indexes rebuilt idempotently on every vault init.
+- **Operator objects + `order_by` (0.3.6-rc.1).** `query-notes metadata` accepts operator objects — `{priority: {gte: 3, lt: 10}, status: {in: ["open", "in_progress"]}}`. Full set: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `in`, `not_in`, `exists`. Multiple ops on one field compose as AND. `order_by` sorts by a metadata field (with `created_at` as stable tiebreaker). Both paths require the field declared `indexed: true` — routes through `meta_<field>` to stay O(log n). Loud errors: `UNKNOWN_OPERATOR`, `FIELD_NOT_INDEXED`, `INVALID_OPERATOR_VALUE`. `ne` preserves "unset AND differs" via `(col IS NULL OR col <> ?)`. Empty `in: []` contradicts; empty `not_in: []` is a no-op. Primitive-value filters still JSON-exact-match on un-indexed fields; value shape picks the path.
+- **`has_tags` and `has_links` presence filters (0.3.6-rc.1).** Booleans on `query-notes` (MCP + REST). `has_tags: false, has_links: false` returns true loners. Implemented as correlated `EXISTS`/`NOT EXISTS` subqueries — SQLite uses existing indexes, stays O(rows). When `tag` is set, `has_tags` is ignored (tag filter is narrower and wins).
+- **HTTP bracket-style metadata filter (0.4.3-rc.2, vault#289).** Stripe/JSON:API/Strapi convention: `?meta[field][op]=value`. Array form `meta[field][in][]=v1&meta[field][in][]=v2` (also comma-separated). Shorthand `meta[field]=value` is JSON-scan fallback, no index required. Multiple params AND. Bridge for `created_at`/`updated_at` accepts only `gte` and `lt` (matches half-open `dateFilter` contract). Parser hardening guards three silent-data-loss classes: cross-column date filter, shorthand-vs-operator on the same field, `[]` array syntax outside `in`/`not_in`.
+- **`updated_at` in `dateFilter` (0.4.3-rc.1, vault#286).** Recognized as a real column alongside `created_at`. Unblocks incremental-rebuild: `{ field: "updated_at", from: lastBuildISO }`. No B-tree index today; sequential scan fine for current sizes.
+- **Flat date-param deprecation (0.4.3-rc.2, vault#288).** `?date_field=`, `?date_from=`, `?date_to=` functional through 0.5.x; bracket-style canonical going forward; planned removal 0.6.0. On overlap, bracket wins.
+- **Integer coercion (0.4.4-rc.12, vault#310).** `SchemaField.type` union adds `"integer"`. `Number.isInteger` accepts `5` and `5.0`; rejects `5.5`, `"5"`, non-zero fractional, `NaN`, `Infinity`. The Gitcoin shape (JSON-decoded integer arriving as JS Number with zero fractional) now passes cleanly without `type_mismatch` false positives.
 
-Previously, syncing external systems (like Gitcoin) had to query-then-create on 404, adding latency. `update-note` now accepts `if_missing: "fail" | "create"` (default `"fail"`, preserving current behavior). On `"create"`, treat the update payload as a create payload. Response carries `created: true|false` so sync loops know which path fired without a second query. This is idempotent: repeated calls with the same id + payload produce the same state.
+### Theme: Tag Lifecycle & Schema Cascading
 
-- **Upsert (0.4.4-rc.12, vault#309)**: `update-note if_missing: "create"` on MCP + REST PATCH. ID-vs-path heuristic: if id looks path-shaped and path isn't set, use id as path (matches Gitcoin's `Inbox/2026-05-13-meeting` canonical keys). Response `created` field on both branches. Schema defaults + validation_status fire on create branch.
-- **Link consistency (0.4.4-rc.13, vault#321 F2)**: REST PATCH `if_missing=create` now applies `links.add` (was missing); mirrors MCP exactly.
-- **Schema conflict testing (0.4.4-rc.13, vault#321 F3/F4)**: New tests pin `schema_conflict` warning on both MCP and REST when two tags declare the same field with conflicting types; first-tag-wins precedence.
+Tag identity reshapes from a name-only enrolment row into the single source of truth for everything *about* a tag.
 
-### Theme: Schema Validation Maturity (Vault#310, Vault#286)
+- **Atomic tag rename + merge endpoints (0.3.6-rc.1).** `POST /api/tags/{name}/rename` rewrites the tag across `tags`, `note_tags`, and the schema row in a single transaction. `POST /api/tags/merge` retags every note carrying any source tag onto the target (creating if missing). Rename returns `409 {error: "target_exists"}` when `new_name` exists, pointing clients at merge. Retires the prior N+1 client-side PATCH stopgap.
+- **Tag-scoped tokens Phase 1 (0.3.6-rc.30, patterns#24, schema v13).** `tokens.scoped_tags TEXT NULL`. A `pvt_*` token can carry an immutable root-tag allowlist; the token only sees and writes notes whose tags (after `_tags/<name>` hierarchy expansion) intersect that allowlist. Out-of-scope reads return 404 (no existence leak). Hub-issued JWTs always carry `scoped_tags: null` (tag-scope is vault-internal, not an OAuth claim). Use case: per-purpose paraclaw bots slicing one vault rather than spinning up separate vaults. Orphan sub-tag fail-open: `health`-allowlisted token sees `#health/food` even without an explicit hierarchy declaration (string-form `tag.split("/")[0] ∈ rawRoots` fallback).
+- **Tag identity reshape (0.3.6-rc.31, vault#244/#245, schema v14).** Six new columns on `tags`: `description`, `fields` (JSON array, same shape as old `tag_schemas.fields_json`), `relationships` (JSON object, each value `{target_tag, cardinality, description?}` — cardinality vocabulary `"one"|"optional"|"many"|"many-required"`), `parent_names` (JSON array), `created_at`, `updated_at`. Hierarchy resolver swaps from `_tags/<name>` notes-as-config to `tags.parent_names`. `tag_schemas` sidecar table drops; rows fold into `tags`. `update-tag`/`list-tags` accept and return the full record; partial-upsert (undefined preserves, null clears, empty `parent_names: []` collapses to null). Legacy `_tags/*` notes left in place as inert audit trail.
+- **`_schemas/*` retirement (0.3.6-rc.32, vault#249, schema v15).** Two new tables — `note_schemas` (definition) and `schema_mappings` (binding: `match_kind ∈ {path_prefix, tag}`, ON DELETE CASCADE) — replace `_schemas/<name>` and `_schema_defaults` notes-as-config. Six new MCP tools land (`list-note-schemas`, `update-note-schema`, `delete-note-schema`, `list-schema-mappings`, `set-schema-mapping`, `delete-schema-mapping`). Tool count 10 → 16. Cache-invalidation hook moves off note writes onto table writes — vaults that never use schemas pay zero invalidation tax on note-write.
+- **Tag schema inheritance + `_default` universal parent (0.4.1-rc.2, vault#270).** `parent_names` now drives schema inheritance: a child tag's effective `fields` = its own ∪ all ancestors' (recursive walk, cycle-safe; multi-inheritance via multiple parents). `_default` is the implicit universal parent of every note (tagged or not). **First-in-walk wins** — child's own fields outrank inherited; among parents, earlier entries outrank later. Losers surface as `schema_conflict` advisory warnings (no write blocking) with structured `schema` (winner) and `loser_schema` fields. Caveat: `_default`-scoped auth tokens grant full-vault access (expanding `_default` returns the full tag list).
+- **`note_schemas` + `schema_mappings` retire (0.4.1-rc.1, vault#267, schema v17).** Audit revealed zero rows in real vaults — the v15 standalone subsystem was a parallel path to `tags.fields` nobody used. Schema v17 drops both tables; the six MCP tools retire alongside. `/api/note-schemas` REST endpoints removed. **MCP tool count drops 16 → 9**: `query-notes`, `create-note`, `update-note`, `delete-note`, `list-tags`, `update-tag`, `delete-tag`, `find-path`, `vault-info`. `synthesize-notes` (229 LOC + 160 test LOC, zero production use) retires under vault#268.
+- **Tag rename cascade (0.4.1-rc.4, vault#240, vault#247).** `renameTag(old, new)` rewrites every surface in one `BEGIN IMMEDIATE` transaction: (1) `tags` PK row + recursive sub-tag rows; (2) `note_tags.tag_name` FK refs; (3) `tags.parent_names` JSON arrays; (4) `tokens.scoped_tags` JSON arrays — replaces the prior fail-closed 409; (5) `indexed_fields.declarer_tags`; (6) note body `#oldname` / `[[_tags/oldname]]` references; (7) `_tags/<oldname>` config-note paths. Pre-flight collision check. **Breaking** for callers relying on the 409 — cascade returns `200` with per-surface counts. LIKE wildcards (`%`, `_`) inside tag names escaped at every pre-filter call site (a tag literally named `task_` was producing `LIKE 'task_%'` matching `taskX` rows — review-fold tightened this load-bearing).
 
-JSON type coercion and constraint validation hardened. Integer-typed fields now accept both `5` and `5.0` (zero fractional). HTTP bracket-style metadata filters (`?meta[field][op]=value`) expose the engine's full operator set (`eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `in`, `not_in`, `exists`). `dateFilter` recognizes `updated_at` alongside `created_at`, unblocking incremental-rebuild workflows. Tag schema inheritance (vault#270) chains effective fields across parent-child hierarchies; `_default` is an implicit universal parent; conflict resolution is first-in-walk-wins with advisory `schema_conflict` warnings.
+### Theme: Transcription Integration
 
-- **Integer coercion (0.4.4-rc.12, vault#310)**: `SchemaField.type` union extended to `"integer"`. `valueMatchesType` accepts `5` and `5.0` (zero fractional); rejects `5.5`, `"5"` (string), non-zero fractional. Gitcoin JSON diffs pass validation cleanly.
-- **HTTP metadata filter (0.4.3-rc.2, vault#289)**: Bracket-style `?meta[field][op]=value` with `eq/ne/gt/gte/lt/lte/in/not_in/exists`. Multiple `meta[...]` params AND together. Shorthand `?meta[field]=value` is JSON-scan fallback (no index required). Bridge for `created_at`/`updated_at` columns (real columns, not metadata; only `gte` and `lt` operators allowed).
-- **Deprecation path (0.4.3-rc.2, vault#288)**: Flat date params (`?date_field=`, `?date_from=`, `?date_to=`) remain functional through 0.5.x; planned removal 0.6.0. Bracket-style is canonical.
-- **Tag inheritance (0.4.2-rc.2, vault#270)**: Child tag's effective fields = its own ∪ all ancestors' (recursive, cycle-safe). Multi-inheritance via `parent_names`; first-in-walk wins with advisory `schema_conflict` warning. `_default` tag is implicit universal parent.
-- **`updated_at` in dateFilter (0.4.3-rc.1, vault#286)**: `dateFilter.field` recognizes `updated_at` as a real column. Unblocks incremental-rebuild pattern: `{ field: "updated_at", from: lastBuildISO }`.
+Vault becomes the canonical scribe context provider; the worker pattern replaces the per-trigger webhook for transcription enrichment.
 
-### Theme: Multi-Writer Auth & Hub Integration (Vault#212, Vault#281)
+- **Server-side transcription on attachment upload (0.3.6-rc.1).** `POST /api/notes/{id}/attachments {transcribe: true}` stamps the attachment `transcribe_status: "pending"` and the note `transcribe_stub: true`. A background worker (enabled by `SCRIBE_URL` env) drains the queue FIFO, POSTs audio to `${SCRIBE_URL}/v1/audio/transcriptions`, and on success replaces the `_Transcript pending._` placeholder with the transcript. If the user cleared the stub marker before the transcript arrived, the note is left alone but the transcript is still recorded on the attachment. Exponential backoff up to 3 attempts before flipping to `failed`. The queue is the `attachments` table — restart resumes pending work.
+- **Audio retention API (0.3.6-rc.1).** `GET`/`PATCH /api/vault` expose `config.audio_retention`: `"keep"` (default), `"until_transcribed"` (unlinks file after success, keeps attachment row addressable), `"never"` (unlinks on any terminal state including failure). File kept during mid-queue retries.
+- **Vault is the scribe context provider (0.3.6-rc.1).** Two surfaces, one shape. Webhook triggers gain `include_context: [{tag, exclude_tag?, include_metadata?}]` whose predicates pre-fetch matching notes at fire time. The dedicated transcription worker gains the same surface via `transcription.context` in `vault.yaml`. Only whitelisted `include_metadata` keys are surfaced (secrets never leak). Fetch failures isolated per-predicate. Scribe drops its own vault client in a follow-up — vault is the single reader.
+- **`SCRIBE_AUTH_TOKEN` env (0.3.6-rc.1).** Canonical scribe-bearer name. `SCRIBE_TOKEN` is deprecated alias for one release. Boot-warning when a webhook trigger and the dedicated worker target the same host — worker is preferred path.
 
-Hub-issued JWTs replace vault-minted tokens as the canonical auth path. Hub revocation enforcement (vault#212 Phase 4) checks every JWT against the hub's revocation list on every request with 60-second local caching and fail-open semantics during hub outage. Client-facing revocation-related 401s are sanitized; full diagnostics go to the server-side audit log. The `pvt_*` opaque-token path remains for self-hosted-without-hub setups but is deprecated. `--install-scope user|local|project` gives operators fine-grained control over which `.claude.json` or `.mcp.json` entry the vault server lands in. Tag-scoped tokens compute effective tag set via descendant expansion, with `_default` as universal parent.
+### Theme: Portable Export & Lossless Round-Trip (vault#308)
 
-- **Hub revocation (0.4.1-rc.6, vault#212 Phase 4 + vault#281)**: JWTs checked against hub's revocation list on every request. 60s local cache TTL, fail-open with last-good during outage, fail-closed on first-fetch failure. Sanitized client 401s; full diagnostics in server-side audit log via `console.warn`.
-- **Install scope expansion (0.4.4-rc.3, vault#293)**: Three MCP scopes now first-class: `user` (global `~/.claude.json`), `local` (directory-private `projects[<cwd>].mcpServers` in `~/.claude.json`), `project` (repo-checked `.mcp.json`). Default changed from `user` to `local`; interactive walkthrough always prompts, defaulting based on project markers.
-- **Interactive mcp-install (0.4.4-rc.2, vault#292)**: Bare `parachute-vault mcp-install` (TTY, no flags) walks through vault choice, install location, auth mode (mint vs token vs legacy), scope narrowing, and preview before any network call. Smart defaults informed by vault count, hub reachability, project markers, existing entries.
-- **Hub-mint as default (0.4.4-rc.1, vault#212 Phase A)**: `--mint` (read `~/.parachute/operator.token`, POST to hub mint endpoint) is the new default. `--token <bearer>` pastes an existing bearer. `--legacy-pat` mints vault-DB `pvt_*` with deprecation notice. `--scope vault:read|vault:write|vault:admin` narrows minted token's scope.
+Users gain the ability to version-control their vault as git-tracked markdown — notes, schemas, relationships, attachment binaries all survive export/import without loss of IDs, metadata, or content.
 
-### Theme: Import Reliability & Empty-Note Handling (Vault#323)
+- **PR 1 — portable-markdown export (0.4.4-rc.9, vault#308).** `core/src/portable-md.ts` canonical home for the format. Fixed top-level frontmatter key order (`id` → `path` → `tags` → `metadata` → `links` → `attachments` → `created_at` → `updated_at`) with alpha-sorted nested objects. Re-exporting an unchanged vault produces byte-identical files. `exportVaultToDir` writes `.parachute/vault.yaml`, `.parachute/schemas/<tag>.yaml`, and `<note.path>.md` per note. Typed links (non-wikilink) serialized in the `links:` frontmatter block; wikilinks stay in content. Note IDs preserved in frontmatter (durable across renames). Hand-rolled YAML emitter with strict string quoting for type-ambiguous values (`'true'`, `'42'`, `'null'`). Legacy `core/src/obsidian.ts` becomes back-compat shim.
+- **PR 1 review fold (0.4.4-rc.10, vault#317).** Three critical bugs caught before merge: (F1, silent corruption) Multi-line `metadata` strings truncated by single-quoted YAML — `needsQuote` now detects `\n\r\t\v\f` and control chars, switches to double-quoted with escape sequences. (F2, tautology test) rc.9's "byte-identical re-emit" test called `toPortableMarkdown` twice on the same in-memory object — proves nothing about disk round-trip. Fixed: parse emitted markdown back via `parseFrontmatter`, reconstruct, re-emit, compare. (F3, path traversal) `exportVaultToDir` did `join(outDir, relPath)` without verifying resolved path under `outDir`. Now refuses with `console.warn` rather than aborting.
+- **PR 2 — attachments + import + round-trip (0.4.4-rc.11, vault#308 + vault#318).** `importPortableVault` upserts by frontmatter `id`. `--blow-away` wipes target first then replays (confirm defaults NO after reviewer fold; `--yes` skips, `--dry-run` simulates). Tag schemas restored from `.parachute/schemas/<tag>.yaml` before notes. Typed links replayed after all notes exist (forward-ref safe). Attachment binaries: `.parachute/attachments/<id>/<basename>` on both sides; path-traversal guards. `Store.restoreNoteTimestamps(id, createdAt, updatedAt)` — import-only setter writes both timestamps explicitly. `Store.syncAllWikilinks` lifted to the `Store` interface. Round-trip byte-equivalent integration test pins the load-bearing invariant.
+- **Known limitation: attachment IDs re-minted on import.** `addAttachment` generates a fresh id; `Store` doesn't yet expose `restoreAttachment(id, ...)`. Frontmatter refs resolve by `(note_id, path)` tuple — note-level round-trip unbroken — but full round-trip with attachments produces byte-different `attachments[].id`. Future enhancement.
 
-The round-trip import smoke test on a real 2290-note, 12-schema, 298-attachment vault revealed two blockers: empty-content notes were rejected; daemon-on-write-lock scenarios left vaults partially replayed. Empty notes (skeletons, drafts, capture-then-fill) are now a valid state—the `EMPTY_NOTE` guard is dropped entirely. Daemon detection on import probes health before touching the database and exits with a clear error if a server is running.
+### Theme: Non-Markdown Content as First-Class (vault#328)
 
-- **Empty notes valid (0.4.4-rc.14, vault#323)**: Dropped `EmptyNoteError` class and all pre-validators in MCP/REST that rejected `content + path both absent`. Empty-content creates + clears now succeed end-to-end.
-- **Daemon detection on import (0.4.4-rc.14, vault#323)**: `cmdImport` probes `checkHealth(port)` after vault verification. If healthy/unhealthy (port bound, any HTTP response), exits 1 with actionable error pointing at `parachute stop vault` workaround. WAL/concurrent-writer story is a separate follow-up.
+Vaults can now contain CSV, YAML, JSON, MDX, .txt, and custom-extension notes alongside markdown. Markdown stays the default; every existing row keeps its meaning.
 
-### Theme: Response Shape Flexibility & Lean Representations (Vault#286, Vault#287)
+- **Schema v17 → v18 (0.4.5-rc.1).** `ALTER TABLE notes ADD COLUMN extension TEXT NOT NULL DEFAULT 'md'`; uniqueness index widens from `(path)` to `(path, extension)`. Backward-compat by construction. Threaded `extension` through `Note`/`NoteSummary`/`NoteIndex`, the `Store` interface, `BulkNoteInput`, and `QueryOpts.extension` (case-insensitive `LOWER(n.extension) IN (...)` SQL).
+- **API surface (0.4.5-rc.1).** MCP and REST `create-note`/`update-note`/`query-notes`/`POST /notes`/`PATCH /notes/:id`/`GET /notes` gain symmetric `extension` field. Validation: `/^[a-z0-9]{1,16}$/` + reserved `parachute` prefix guard. Single source of truth at `core/src/notes.ts:validateExtension`. 400 `invalid_extension` on bad input.
+- **Export/import (0.4.5-rc.1).** `supportsInlineFrontmatter(ext)` splits extensions into two buckets: **frontmatter-compatible** (`md`, `mdx`) — metadata inline; **sidecar-required** (everything else) — metadata in `.parachute/notes-meta/<note-id>.yaml`. Path-traversal guard symmetric with attachments. Import builds a `(path, extension) → sidecar` index, walks every content file (new `walkContentFiles` helper). Orphaned content files skipped with warning. Frontmatter `extension` OMITTED for `md` (default) so pre-vault#328 markdown-only exports produce byte-identical bytes before and after the upgrade.
+- **Wikilink ambiguity policy (0.4.5-rc.1).** Two notes sharing a path differing only by extension: `[[Foo]]` is refused (returns null, recorded as unresolved); `[[Foo.md]]` / `[[Foo.csv]]` resolve unambiguously via the explicit-extension form. The wikilink parser's extension-recognition mirrors `EXTENSION_PATTERN` in `core/src/notes.ts`.
 
-Agents and SSG builders working with large notes need smaller response footprints. `include_content: false` on `update-note` (MCP + REST) swaps the full `Note` for lean `NoteIndex` (drops `content`, keeps `byteSize`, `preview`, `validation_status`), cutting response cost by an order of magnitude. HTTP create/update now attach `validation_status` symmetrically with MCP, so schema warnings surface at write time without a re-read. The response-shape contract is unified across both transports.
+### Theme: Case-Insensitive Filesystem Disambiguation (vault#327)
 
-- **Lean response (0.4.3-rc.1, vault#286)**: `update-note include_content: false` returns `NoteIndex` instead of full `Note`.
-- **Validation status on HTTP (0.4.4-rc.8, vault#287)**: HTTP `POST /api/notes` and `PATCH /api/notes/:id` now attach `validation_status` to responses (single + batch). Mirrors MCP contract exactly; exported from `core/src/mcp.ts` so both transports share one source of truth.
+On macOS APFS and Windows NTFS, notes whose paths differ only by case silently collide on export. Aaron's real default vault hit this.
 
-### Theme: Tag Lifecycle & Schema Cascading (Vault#240, Vault#247)
+- **Export detection (0.4.5-rc.2, vault#327).** `probeCaseSensitive` writes a hidden tempfile with lowercase name, tests uppercase reachability, cleans up. Defaults conservative `true` on probe failure. On case-insensitive FS, builds a lowercased `(path, ext)` index during export walk; collisions auto-disambiguate to `<path>__<id-prefix>.<ext>` — deterministic across runs (note IDs are stable, timestamp-prefixed). Note's stored `path` stays canonical; only on-disk filename is munged. `ExportStats.case_insensitive_fs` + `disambiguated_paths` audit trail.
+- **API (0.4.5-rc.2, vault#330 S1).** New `AmbiguousPathError` (distinct from `PathConflictError`) carries `code=AMBIGUOUS_PATH` + `candidates: [{id, extension}, ...]`. `getNoteByPath(path, extension?)` signature; >1 row with no hint throws. MCP + REST `resolveNote` parse trailing `.<ext>` as `(path, extension)`. REST 409 with `error_type=ambiguous_path`. Three surfaces (`handleNotes`, `handleFindPath`, `handleViewNote`) share `ambiguousPathResponse` helper.
+- **Import (0.4.5-rc.2, vault#330 S2).** Orphaned sidecars (sidecar present, content file missing) land in `ImportStats.skipped_sidecars`. `sidecarByKey` is multi-value `Map<key, sidecar[]>` so case-collided sidecars coexist. Three-tier fallback: exact-case canonical match → first remaining bucket entry → id-prefix fallback for disambiguated filenames.
 
-Tag rename now cascades across every surface in a single transaction: tags, sub-tags, `note_tags`, `parent_names` JSON arrays, `tokens.scoped_tags`, `indexed_fields.declarer_tags`, note body references (`#oldname` / `[[_tags/oldname]]`), and `_tags/<old>` config-note paths. Tokens that scoped to the renamed tag are updated in place—the prior `tag_in_use_by_tokens` 409 is dropped; callers now receive `200` with per-surface cascade counts. Breaking change for callers expecting the 409, but enables multi-vault management where tag renames are common.
+### Theme: Upsert Semantics & Sync Ergonomics (vault#309, vault#321)
 
-- **Tag rename cascade (0.4.2-rc.4, vault#240 + vault#247)**: `renameTag(old, new)` rewrites all surfaces in `BEGIN IMMEDIATE` transaction. Returns `200` with cascade stats; replaces the prior `tag_in_use_by_tokens` 409. Breaks callers expecting 409, but enables transparent token rewrite.
-- **Schema v17 migration (0.4.2-rc.1, vault#267)**: `note_schemas` + `schema_mappings` tables drop (zero rows in real vaults). Six MCP tools retire: `list-note-schemas`, `update-note-schema`, `delete-note-schema`, `list-schema-mappings`, `set-schema-mapping`, `delete-schema-mapping`. `/api/note-schemas` endpoints removed. `tags.fields` is sole schema surface.
+External systems (Gitcoin, drift detectors, syncs) can now express "create if missing" in a single call.
 
-### Theme: Vault Info & Agent Self-Orientation (Vault#271, Vault#274)
+- **Upsert (0.4.4-rc.12, vault#309).** `update-note if_missing: "fail" | "create"` (default `"fail"` preserves current behavior). On `"create"`: if `resolveNote` returns null, treat the update payload as create (content/path/tags/metadata become create fields; `if_updated_at` skipped). Response carries `created: true|false`. Idempotent. Tag-schema defaults + `validation_status` fire identically to `create-note`. ID-vs-path heuristic: if `id` looks path-shaped (contains `/` or doesn't match `^[A-Za-z0-9_-]+$`) and `path` isn't explicitly set, use `id` as path — matches Gitcoin's canonical-key shape.
+- **Link consistency (0.4.4-rc.13, vault#321 F2).** REST PATCH `if_missing=create` now applies `links.add` (was missing — Gitcoin would have tripped migrating MCP → REST). Mirrors MCP exactly. Missing target notes skip silently; target resolved via `resolveNote(store, link.target)`.
+- **Schema conflict + create-branch link tests (0.4.4-rc.13, vault#321 F3/F4).** Tests pin `schema_conflict` warning on both MCP and REST when two tags declare the same field with conflicting types on the `if_missing=create` branch. F4 pins MCP `links.add` on create branch (code was there pre-fold but untested).
 
-`vault-info` now projects a comprehensive schema description—schema-bearing tags with effective inheritance paths, indexed-fields catalog, query-hints array—that an agent uses to self-orient on first connect. The MCP `initialize` response carries a structured markdown rendering. Stats distinguish note-usage tag count from schema-bearing count (`100 tags total, 5 with schemas`), resolving the ambiguity agents hit when many ad-hoc tags lived alongside few schema-bearing ones. Output is token-budgeted for ~5K bytes at 50 schema-bearing tags. Tag-scoped tokens filter the projection to their effective tag set via descendant expansion.
+### Theme: Response Shape Flexibility (vault#286, vault#287)
 
-- **vault-info projection (0.4.2-rc.3, vault#271)**: Returns comprehensive schema description with effective inheritance, indexed-fields catalog, query-hints. MCP `initialize` carries markdown projection. Token-scoped filtering via tag descendant expansion.
-- **Stats line distinction (0.4.2-rc.5 + 0.4.1-rc.5, vault#274)**: `vault-info` and connect-time stats distinguish `100 tags total, 5 with schemas` instead of conflating tag-count. Closes agent ambiguity.
+- **Lean response (0.4.3-rc.1, vault#286).** `update-note include_content: false` returns `NoteIndex` instead of full `Note` (drops `content`, keeps `byteSize`, `preview`, `validation_status`). Order-of-magnitude smaller responses on big notes. Motivated by frequent `append`/`content_edit` edits to large notes.
+- **Validation status on HTTP (0.4.4-rc.8, vault#287).** HTTP `POST /api/notes` and `PATCH /api/notes/:id` attach `validation_status` to responses (single + batch). Mirrors MCP contract. `attachValidationStatus` exported from `core/src/mcp.ts` so both transports share one source of truth. PATCH preserves `validation_status` on `include_content: false`.
+
+### Theme: Vault Info & Agent Self-Orientation (vault#271, vault#274)
+
+- **`vault-info` projection (0.4.1-rc.3, vault#271).** Returns a comprehensive description: `tags` (schema-bearing tag records with own `fields`/`parents` plus resolved `effective_fields`/`effective_parents` from the vault#270 inheritance walk), `indexed_fields` catalog (listing every declarer tag), `query_hints` array. MCP `initialize` response carries a markdown projection rendered from the same state. Agents see the schema landscape at session start, plus pointers to `vault-info` or `list-tags { include_schema: true }` for mid-session refresh. Token budget verified: under ~5K tokens at 50 schema-bearing tags. Tag-scoped tokens filter via descendant expansion so JSON tool + connect-time brief stay in lockstep.
+- **Stats line distinction (0.4.1-rc.5, vault#274).** Was `100 tags`; now `100 tags total, 5 with schemas`. Schema-bearing count dropped when zero. Closes the ambiguity an agent or operator hit when many ad-hoc tags lived alongside few schema-bearing ones.
+
+### Theme: Import Reliability & Empty-Note Handling (vault#323)
+
+The round-trip import smoke test on a real 2290-note vault revealed two blockers.
+
+- **Empty notes valid (0.4.4-rc.14, vault#323).** Empty notes (skeletons, drafts, capture-then-fill flows) are a valid state. `EMPTY_NOTE` guard dropped entirely (`EmptyNoteError` class + Store-level throw + MCP/REST pre-walks). Batch atomicity (vault#236) and MAX_BATCH_SIZE untouched.
+- **Daemon detection on import (0.4.4-rc.14, vault#323).** `parachute-vault import` opens its own bun:sqlite connection. When a daemon was running, the first `createNote` hit SQLITE_BUSY and left the vault partially replayed. `cmdImport` now probes `checkHealth(port)` after vault verification; healthy/unhealthy prints a clear error pointing at `parachute stop vault` and exits 1. Proper WAL/concurrent-writer is a separate follow-up.
+
+### Theme: Admin SPA — Per-Vault Mount (vault#252 chain)
+
+A scaffolded vault-detail SPA at `/admin/*` becomes a hub-proxied per-vault mount at `/vault/<name>/admin/*`.
+
+- **Scaffold + Phases A/B/C (0.4.0).** Per-vault dashboard — vault detail, tokens, permissions.
+- **Per-vault mount (0.3.6-rc.35).** Three layers move in lockstep — server static-file dispatch, React Router runtime basename, Vite asset-base — so the same compiled bundle works at any per-vault mount without rebuild. Mount regex `/^\/vault\/([^/]+)\/admin(?=\/|$)/`. Bare `/vault/<name>/admin` redirects to `/vault/<name>/admin/` (301) — browsers resolve relative URLs against the directory of the current document.
+- **JWT fragment preservation (0.3.6-rc.37).** `module.json`'s `managementUrl` carries trailing slash — hub-issued JWT fragments (`#token=…`) survive the click-through (browsers drop `#fragment` across 301s).
+- **Mount-mode route table (0.3.6-rc.36).** Switch the route table on mount mode instead of `<Navigate>` (which under React Router v6 `basename` was resolving to doubled `/vault/<name>/admin/vault/<name>` URL).
+- **Stats wire-shape alignment (0.3.6-rc.38).** SPA's `VaultStats` interface used short field names not present in the wire payload, server `VaultStats` had no attachment count. Aligned to wire-shape; `attachmentCount: number` added server-side.
+
+### Theme: Optimistic Concurrency & Correctness
+
+- **Safe-by-default `update-note` (0.3.6-rc.1).** `update-note` now **requires** `if_updated_at` or explicit `force: true` — previous omit-allowed behavior was the footgun the field exists to prevent. MCP returns JSON-RPC `InvalidParams` with `error_type: "precondition_required"`; REST 428. Structured conflict body `{error_type: "conflict", current_updated_at, your_updated_at, path, note_id}`. `query-notes` and `create-note` now return `updatedAt`.
+- **Fresh notes `updated_at = created_at` (0.3.6-rc.1).** Clients using `updatedAt ?? createdAt` were 409'd on the very first edit. Insert writes both columns; idempotent migration backfills existing NULL rows.
+- **Batch atomicity (0.4.0-rc.1, vault#236).** Three public batch entry points (`POST /api/notes`, MCP `create-note`, `update-note`) wrap loops in `BEGIN`/`COMMIT`/`ROLLBACK`. Mid-batch failure no longer leaves prefix items written. Single-item paths skip the wrap.
+- **`.changes` → `RETURNING` (0.4.0-rc.2, vault#261).** Inside multi-statement transactions with intervening writes, `Statement.run().changes` could carry stale values, silently bypassing `if_updated_at`. Six sites migrated to detect row presence via SQLite's `RETURNING`.
+
+### Theme: Services.json & Module Protocol
+
+- **`parachute-vault init` registers in `~/.parachute/services.json` (0.3.6-rc.1).** Writes `{name, port, paths: ["/vault/<default_vault>"], health, version}` into the shared manifest the hub dispatcher consumes for discovery, health probes, routing. Upsert-by-name preserves other services' entries. Malformed-manifest errors logged; init proceeds.
+- **`parachute-vault create` re-registers (0.4.0).** Multi-vault setups stay in sync.
+- **`init --no-autostart` (0.4.0, vault#207/#211).** Skips daemon registration. For CI, dev sandboxes, Docker, alt supervisors.
 
 ## § 3. Breaking Changes for 0.2.4 Operators
 
+The breaking changes a 0.2.4 user must reckon with on upgrade to 0.4.5, in order of likely impact.
+
 | Issue | Version | Change | Action Required |
 |-------|---------|--------|-----------------|
-| vault#267 | 0.4.2 | `note_schemas` / `schema_mappings` tables removed; six MCP tools (`list-note-schemas`, etc.) retired; `/api/note-schemas` REST endpoints gone. `tags.fields` is sole schema surface. | Migrate any callers using the retired MCP tools to use `list-tags`/`update-tag` with the `fields` surface (automatic schema v17 migration handles DB). |
-| vault#240, vault#247 | 0.4.2 | Tag rename no longer returns 409 `tag_in_use_by_tokens`; instead returns 200 with cascade stats and transparently rewrites token scopes. | Callers expecting 409 on token conflict must adapt to 200 + inspect cascade result. Token rewrite happens automatically; no operator action. |
-| vault#328 | 0.4.5 | Path uniqueness changed from `(path)` to `(path, extension)`. Wikilink ambiguity policy: explicit extension required when paths differ only by case/extension (e.g. `[[Foo.md]]` vs `[[Foo.csv]]`). | Existing vaults auto-migrate (schema v18 adds extension column, defaults all rows to `md`). If you manually create CSV/YAML/JSON notes, supply `extension` field. Wikilinks to ambiguous paths (`[[Foo]]` when `Foo.md` and `Foo.csv` exist) are refused and recorded as unresolved. |
-| vault#308 | 0.4.4-rc.9 | Portable-markdown export changed format from flat obsidian shape to nested `metadata:` block with fixed key order (id → path → tags → metadata → links → attachments → created_at → updated_at). Old `toObsidianMarkdown` still available for callers that want it. | No operator action—export is projection, regeneratable. If you store legacy export output, re-run `parachute-vault export` to get new format. Programmatic callers using `toObsidianMarkdown` directly can continue or switch to `toPortableMarkdown`. |
-| vault#309 | 0.4.4-rc.12 | `update-note if_missing` parameter added; default `"fail"` (current behavior). No breaking change for callers that omit it. | None required—defaults preserve existing semantics. Callers wanting upsert must opt-in with `if_missing: "create"`. |
-| vault#293 | 0.4.4-rc.3 | Non-interactive `parachute-vault mcp-install` default changed from `user` scope (`~/.claude.json` global) to `local` scope (`projects[<cwd>].mcpServers` in `~/.claude.json`). Interactive walkthrough always prompts. | Scripted installs: add `--install-scope user` explicitly to retain global behavior. Interactive installs: prompts appear; operator selects scope. One-line consequence callout printed on `local` default for visibility. |
-| vault#212 Phase A | 0.4.4-rc.1 | Hub-mint (`--mint`, default) replaces vault-minted `pvt_*` as canonical auth path. `--legacy-pat` falls back to `pvt_*` with deprecation notice. | `parachute-vault mcp-install` (fresh or re-run) defaults to `--mint`; requires operator token + configured hub origin. For self-hosted-without-hub, pass `--legacy-pat` explicitly (deprecation warning expected). |
+| URL migration | 0.3.6-rc.1 | Every vault-touching route moved from `/vaults/<name>/...` (plural) and unscoped `/api`, `/mcp`, `/oauth/*`, `/view/*` to `/vault/<name>/...` (singular). Old URLs return 404. Unified cross-vault MCP endpoint + `list-vaults` MCP tool retired. | **Claude Code**: run `parachute-vault mcp-install` to rewrite `~/.claude.json`. **OAuth clients (Claude Desktop, Parachute Daily, etc.)**: remove integration, add back pointing at new URL — OAuth re-handshakes. **curl/scripts**: rewrite hardcoded URLs. **Permalinks**: `/view/<id>` and `/vaults/<name>/view/<id>` → `/vault/<name>/view/<id>`. Tokens keep working. |
+| CLI rename | 0.3.6-rc.1 | `parachute` binary → `parachute-vault`. | Update shell aliases, shebangs, CI scripts, README references. Dispatcher accepts `parachute vault <cmd>` as a forward; CLI's own arg-parser accepts `parachute-vault vault <cmd>` — wrappers continue working. |
+| Filesystem restructure | 0.3.6-rc.1 | `~/.parachute/` reshaped: vault state → `~/.parachute/vault/`; per-vault data `vault/vaults/<name>/` → `vault/data/<name>/`; logs → `vault/logs/`. | **Auto-migrating** on first post-upgrade run (idempotent, target-wins, each move logged). If backup scripts point at old paths, update them. |
+| vault#212 Phase 2 | 0.3.6-rc.1 | Scope enforcement at HTTP and MCP boundary. `tokens create --read` is now enforcement-real (403 on writes, previously advisory). MCP `tools/list` returns only read tools for read-scoped tokens. | Audit callers using `--read` tokens to write — they receive 403 `{error_type: "insufficient_scope"}`. Pre-v12 NULL-scope rows fall back to `legacyPermissionToScopes(permission)` for one release with deprecation warning. |
+| vault#212 Phase 3 | 0.4.0 | JWT audience switches from hardcoded `"hub"` to per-vault `aud: vault.<name>`. Cross-vault replay rejected. | Old `aud: "hub"` claims validate during rolling-update window. Scripted JWT minting updates the audience field. |
+| vault#257 | 0.3.6-rc.39 | `pvt_*` tokens bind to the minting vault. Cross-vault use rejected (403, names both vaults). | Pre-v16 NULL-bound tokens authenticate server-wide (legacy compat). New mints default vault-bound; `tokens create --all` opts back into server-wide (with warning). |
+| Optimistic concurrency | 0.3.6-rc.1 | `update-note` **requires** `if_updated_at` or explicit `force: true`. | Callers omitting both now receive MCP `InvalidParams` / REST 428 `error_type: "precondition_required"`. Either supply the conditional (now returned by `query-notes` and `create-note`) or pass `force: true` for known-safe bulk writes. |
+| vault#267 | 0.4.2 | `note_schemas` + `schema_mappings` tables + six MCP tools (`list-note-schemas`, etc.) + `/api/note-schemas` REST endpoints removed. `tags.fields` is sole schema surface. | Migrate retired MCP tool callers to `list-tags`/`update-tag` with `fields`. Path-prefix-mapped schemas (if any) — open an issue against vault#267. Schema v17 migration is automatic. |
+| vault#268 | 0.4.2 | `synthesize-notes` MCP tool retired. | Replicate with `query-notes(near={ note_id, depth: 2 })` + `find-path` + agent aggregation. |
+| vault#240, vault#247 | 0.4.2 | Tag rename returns 200 with cascade stats (was 409 `tag_in_use_by_tokens`). Cascade rewrites tags, sub-tags, `note_tags`, `parent_names`, `tokens.scoped_tags`, `indexed_fields.declarer_tags`, body refs, `_tags/<name>` paths. | Callers expecting 409 must adapt to 200 + inspect cascade result. Token rewrite is automatic. `result.renamed` semantics unchanged. |
+| vault#212 Phase A | 0.4.4-rc.1 | Hub-mint default replaces vault-minted `pvt_*` on `mcp-install`. `--legacy-pat` falls back with deprecation notice. | Fresh installs default `--mint`; require operator token + hub origin. Self-hosted-without-hub: pass `--legacy-pat` explicitly. |
+| vault#293 | 0.4.4-rc.3 | Non-interactive `mcp-install` default scope `user` → `local` (`projects[<cwd>].mcpServers`). Interactive walkthrough always prompts. | Scripted installs: add `--install-scope user` explicitly to retain global behavior. `local` default prints a consequence callout. |
+| vault#308 | 0.4.4-rc.9 | Portable-markdown export format changed from flat Obsidian shape to nested `metadata:` block with fixed key order. `toObsidianMarkdown` still available. | No operator action — export is projection. Re-run `parachute-vault export` if you store output. |
+| vault#309 | 0.4.4-rc.12 | `update-note if_missing` parameter; default `"fail"` (current behavior). | None required — defaults preserve semantics. Upsert opt-in with `if_missing: "create"`. |
+| vault#328 | 0.4.5 | Path uniqueness `(path)` → `(path, extension)`. Wikilink ambiguity requires explicit extension when `Foo.md` and `Foo.csv` both exist. | Auto-migrate (schema v18; all rows default `md`). Manual CSV/YAML/JSON: supply `extension`. Wikilinks to ambiguous bare paths return unresolved. |
 
 ## § 4. New CLI Commands & Surface Area
 
+Everything new since 0.2.4, including the CLI binary rename itself.
+
+### CLI
+
 | Command/Parameter | Version | Description |
 |---|---|---|
-| `parachute-vault export <dir>` | 0.4.4-rc.9 | Export vault to portable-markdown format (`.parachute/vault.yaml` + schemas + notes + attachment binaries). See also `--since <iso>` for incremental exports. |
-| `parachute-vault export <dir> --since <iso>` | 0.4.4-rc.9 | Incremental export: only notes with `updated_at >= iso`. For git-projection cadences and SSG rebuilds. |
-| `parachute-vault import <dir> --blow-away` | 0.4.4-rc.11 | Disaster-recovery import: wipe vault, replay from portable-markdown export. `--yes` skips confirm; `--dry-run` simulates. |
-| `parachute-vault import <dir>` (format detection) | 0.4.4-rc.11 | Auto-detects portable-md vs legacy Obsidian via `.parachute/vault.yaml`. Lossless path if present; legacy parser otherwise. |
-| `--install-scope user\|local\|project` | 0.4.4-rc.3 | MCP install scope: `user` (global `~/.claude.json`), `local` (directory-private `projects[<cwd>].mcpServers`), `project` (repo-checked `./.mcp.json`). |
-| `parachute-vault mcp-install` (interactive) | 0.4.4-rc.2 | TTY-only walkthrough: vault choice, install location, auth mode (mint/token/legacy), scope, confirm. Non-TTY falls back to flags. |
-| `update-note if_missing: "create"\|"fail"` | 0.4.4-rc.12 | MCP + REST: upsert semantics. Create payload from update on missing note. Response includes `created: true\|false`. |
-| `create-note extension: "<ext>"` | 0.4.5-rc.1 | MCP + REST: optional file extension for non-markdown content (csv, yaml, json, mdx, txt, etc.). Validation: `/^[a-z0-9]{1,16}$/`, reserved `parachute` prefix guard. |
-| `update-note extension: "<ext>"` | 0.4.5-rc.1 | MCP + REST: change note's extension. Wikilink resolution respects explicit-extension form on ambiguity. |
-| `query-notes extension: "<ext>"\|["<ext>", ...]` | 0.4.5-rc.1 | Filter by extension (single string or array). Case-insensitive matching. |
-| REST `GET /notes?meta[field][op]=value` | 0.4.3-rc.2 | Bracket-style metadata filter with operators: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `in`, `not_in`, `exists`. Also `meta[created_at][gte]=…` for real columns. |
-| REST `GET /notes?extension=csv&extension=yaml` | 0.4.5-rc.1 | Filter by extension (single or array, comma-separated or repeated param). |
-| REST `PATCH /notes/:id include_content: false` | 0.4.3-rc.1 | Return lean `NoteIndex` instead of full `Note` (drops `content`, keeps `byteSize`, `preview`, `validation_status`). |
-| MCP `update-note` response `created: true\|false` | 0.4.4-rc.12 | Indicates whether the note was created (if_missing path) or updated. Lets sync loops avoid a follow-up query. |
-| REST `PATCH /notes/:id if_missing: "create"\|"fail"` | 0.4.4-rc.12 | Upsert semantics in REST. Creates on missing if `if_missing: "create"`. Response includes `created` field. |
-| HTTP `validation_status` in create/update responses | 0.4.4-rc.8 | REST `POST /notes` and `PATCH /notes/:id` now include `validation_status` block (schema warnings, conflicts, type mismatches). Mirrors MCP contract. |
-| `--skip-daemon` on `parachute-vault uninstall` | 0.4.4-rc.5 | Test-only flag: bypasses launchd/systemd/backup-agent uninstall. Full path (wrapper, MCP cleanup) still runs. Prevents tests from touching operator state. Undocumented. |
+| `parachute-vault <cmd>` | 0.3.6-rc.1 | **CLI binary renamed** from `parachute` to `parachute-vault`. All subcommands carry over. `parachute-vault vault <cmd>` (own arg-parser) and `parachute vault <cmd>` (via dispatcher) both still work. |
+| `parachute-vault export <dir> [--since <iso>]` | 0.4.4-rc.9 | Export to portable-markdown (`.parachute/vault.yaml` + per-tag schemas + per-note `.md` files + attachment binaries). Byte-identical re-export of unchanged vault. `--since` for incremental exports (notes with `updated_at >= iso`). |
+| `parachute-vault import <dir> [--blow-away] [--yes] [--dry-run]` | 0.4.4-rc.11 | Auto-detects portable-md vs legacy Obsidian via `.parachute/vault.yaml`. `--blow-away` wipes target before replay (disaster recovery; confirm defaults NO). |
+| `parachute-vault mcp-install` (interactive) | 0.4.4-rc.2 | TTY walkthrough: vault choice, install location, auth mode, scope, preview-before-write. Non-TTY falls back to flags. |
+| `parachute-vault mcp-install --mint` (default) | 0.4.4-rc.1 | Reads `~/.parachute/operator.token`, POSTs to `<hub>/api/auth/mint-token`, writes returned scope-narrow JWT. |
+| `parachute-vault mcp-install --token <bearer>` | 0.4.4-rc.1 | Paste an existing bearer (any shape). |
+| `parachute-vault mcp-install --legacy-pat` | 0.4.4-rc.1 | Mint vault-DB `pvt_*`. Preserved for self-hosted-without-hub. Deprecation notice on stderr. |
+| `parachute-vault mcp-install --scope vault:read\|write\|admin` | 0.4.4-rc.1 | Narrow scope. Default `vault:read`. For `--mint`, expands to `vault:<vault-name>:<verb>` (per-vault audience binding). |
+| `parachute-vault mcp-install --install-scope user\|local\|project` | 0.4.4-rc.3 | `user` (global `~/.claude.json`), `local` (`projects[<cwd>].mcpServers`, directory-private), `project` (`./.mcp.json`, repo-checked). Default `local` (changed from `user`). |
+| `parachute-vault mcp-install --vault <name>`, `--client claude-code` | 0.4.4-rc.1 | Target specific vault (entry keyed `parachute-vault-<name>`); only `claude-code` client wired (others rejected "Phase C"). |
+| `parachute-vault tokens create --vault <name>\|--all` | 0.3.6-rc.39 | Per-vault binding (default); `--all` opts in to server-wide mint (warning printed). |
+| `parachute-vault tokens list --vault <name>` | 0.3.6-rc.39 | Per-vault list. Legacy NULL-bound rows annotated `[server-wide]`. |
+| `parachute-vault uninstall --skip-daemon` | 0.4.4-rc.5 | Test-only flag (undocumented). Bypasses launchd/systemd/backup-agent uninstall; runs the rest. |
+| `parachute-vault init --no-autostart` | 0.4.0 | Skip daemon registration. Writes `autostart: false`. For CI, dev sandboxes, Docker, alt supervisors. |
+
+### MCP & REST surface
+
+| Surface | Version | Description |
+|---|---|---|
+| `update-tag fields.<name>.indexed: true` | 0.3.6-rc.1 | Adds VIRTUAL generated column `meta_<field>` + B-tree index on `notes`. Universal across notes, not partitioned by tag. |
+| `update-tag fields.<name>.type: "integer"` | 0.4.4-rc.12 | Accepts `5` and `5.0`; rejects `5.5`, `"5"`, non-zero fractional, `NaN`, `Infinity`. |
+| `update-tag parent_names: [...]`, `relationships: {…}` | 0.3.6-rc.31 | Hierarchy declaration (drives schema inheritance) + typed-link declaration (Phase 1 informational). |
+| `query-notes metadata: {field: {op: value}}` | 0.3.6-rc.1 | Operator objects: `eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `in`, `not_in`, `exists`. Requires field `indexed: true`. |
+| `query-notes order_by`, `has_tags`, `has_links` | 0.3.6-rc.1 | Sort + presence filters. `order_by` requires `indexed: true`. |
+| `update-note if_missing: "create"\|"fail"`, `force: true`, `include_content: false` | 0.4.4-rc.12 / 0.3.6-rc.1 / 0.4.3-rc.1 | Upsert (response includes `created`); bypass mandatory `if_updated_at`; lean `NoteIndex` response. |
+| `create-note`/`update-note`/`query-notes` `extension: "<ext>"` | 0.4.5-rc.1 | Optional file extension. Validation `/^[a-z0-9]{1,16}$/`, reserved `parachute` prefix guard. Query accepts single or array, case-insensitive. |
+| MCP tool count: 9 → 16 → 9 | 0.3.6-rc.32 / 0.4.1-rc.1 | Six tools added in 0.3.6-rc.32 (`list-note-schemas`, etc., schema v15); all six retired in 0.4.1-rc.1 (schema v17). `synthesize-notes` retired same release. **End state: 9 tools** — `query-notes`, `create-note`, `update-note`, `delete-note`, `list-tags`, `update-tag`, `delete-tag`, `find-path`, `vault-info`. |
+| REST `POST /api/tags/{name}/rename`, `/tags/merge` | 0.3.6-rc.1 | Atomic tag rename + merge. Rename returns 200 with cascade stats (was 409 — vault#240 made it cascade). |
+| REST `POST /api/notes/{id}/attachments {transcribe: true}` | 0.3.6-rc.1 | Server-side transcription queue. Worker POSTs audio to `${SCRIBE_URL}/v1/audio/transcriptions`. Exponential backoff up to 3 attempts. |
+| REST `GET /api/notes?meta[field][op]=value` | 0.4.3-rc.2 | Bracket-style metadata filter, full operator set. Bridge for `created_at`/`updated_at` (only `gte` and `lt`). |
+| REST `GET /api/notes?extension=csv&extension=yaml` | 0.4.5-rc.1 | Extension filter (single, array, comma-separated, repeated). |
+| REST `PATCH /notes/:id` (`include_content: false`, `if_missing`, `validation_status`) | 0.4.3-rc.1 / 0.4.4-rc.12 / 0.4.4-rc.8 | Lean response shape; upsert with `created` field; validation status mirrored from MCP. |
+| REST `POST /vault/<name>/tokens {tags: [...]}` | 0.3.6-rc.30 | Mint with tag-scope allowlist. Root tags only, must be subset of caller's. |
+| REST `PATCH /api/vault {audio_retention}` | 0.3.6-rc.1 | Mutable audio retention: `"keep"`, `"until_transcribed"`, `"never"`. |
+| REST `GET /.parachute/{info,icon.svg,config,config/schema,services}` | 0.3.6-rc.1 | Module protocol surface. `info` is a locked card shape with `kind: "api"`. `config` returns effective values with `writeOnly` stripped; `PUT` returns 405 (Phase 3). Services catalog rides on OAuth token response. |
+| Env `PARACHUTE_HUB_ORIGIN`, `SCRIBE_AUTH_TOKEN`, `SCRIBE_URL` | 0.3.6-rc.1 | Hub OAuth advertisement + JWT issuer validation; scribe bearer + transcription worker enablement. Old `SCRIBE_TOKEN` deprecated alias for one release. |
 
 ## § 5. Work Still In Flight / Coming Soon
 
-### Attachment ID Restoration (vault#308, PR 2 limitation)
-
-Round-trip import currently re-mints attachment IDs on import. `addAttachment` generates a fresh id; the `Store` interface doesn't yet expose `restoreAttachment(id, ...)`. Frontmatter refs resolve by `(note_id, path)` tuple, so the note-level round-trip is unbroken, but a full round-trip with attachments produces byte-different `attachments[].id` values. A follow-up matching the surface to `restoreNoteTimestamps` is queued but not yet shipped.
-
-### Concurrent-Writer & WAL Story (vault#323)
-
-`parachute-vault import` detects daemon-on-write-lock and exits with a clear error, but the underlying problem (single-writer SQLite under contention) is deferred. WAL mode + proper concurrent-writer support is a separate follow-up, tracked separately from import reliability.
-
-### Cross-Client MCP Support (vault#292, Phase C)
-
-`mcp-install --client claude-code` is the only wired target. Cross-client support (Cursor, Claude Desktop, Codex, Zed, Goose, Cline) + client auto-detection are Phase C, still deferred. The flag surface is future-proof but only Claude Code is implemented.
-
-### Tunable Preview Length
-
-`NoteIndex` returns a 120-character preview; a tunable knob is deferred until a real consumer hits a wall. The default has held through the current release cycle.
-
-### URL-Safe Slug Generation (vault#285 friction point 1.6)
-
-Design pending on stability under rename (derive from id vs path, how to prevent collisions). Deferred until a renderer concretely needs it.
-
-### Flat Date-Param Deprecation (vault#288)
-
-`?date_field=`, `?date_from=`, `?date_to=` remain functional through 0.5.x. Bracket-style metadata filters (`?meta[field][op]=value`) are canonical. Planned removal in 0.6.0 (tracked at vault#288). No operator action needed yet; new code should use bracket-style.
-
-### OR Composition in Metadata Filters
-
-The engine's `metadata` JSON shape doesn't expose OR; all metadata filters AND together. Engine-level work required to support OR; deferred as a future design decision.
-
-### Hub Multi-User UX & Dashboard SDK
-
-Hub-side multi-user capabilities (team collaboration, shared vaults, invite flows) are in-flight on the hub team but not yet reflected in vault's surface. Vault's token/scope machinery is designed for future compatibility; the SDK / admin dashboard are follow-ups on the hub's timeline.
+- **Phase 3 module configuration write path.** `PUT /vault/<name>/.parachute/config` returns 405 today; Phase 3 gates by `vault:admin` scope to complete the round-trip so hub can write settings (e.g. flip `audio_retention`) without operator shell access.
+- **Attachment ID restoration (vault#308 PR 2 limitation).** `addAttachment` mints fresh ids on import; the `Store` interface doesn't yet expose `restoreAttachment(id, ...)`. Frontmatter refs resolve by `(note_id, path)` so note-level round-trip is unbroken, but full round-trip with attachments produces byte-different `attachments[].id`. Follow-up queued.
+- **Concurrent-writer & WAL (vault#323 follow-up).** Import detects daemon-on-write-lock and exits cleanly; the underlying single-writer SQLite contention is deferred. WAL + proper concurrent-writer is a separate follow-up.
+- **Cross-client MCP support (vault#292, Phase C).** Only `claude-code` is wired. Cursor, Claude Desktop, Codex, Zed, Goose, Cline + client auto-detection deferred. Flag surface is future-proof.
+- **Tunable preview length.** `NoteIndex` returns 120-char preview; knob deferred until a real consumer hits a wall.
+- **URL-safe slug generation (vault#285 friction point 1.6).** Design pending (stability under rename, derive from id vs path). Deferred until a renderer concretely needs it.
+- **Flat date-param deprecation (vault#288).** Functional through 0.5.x; bracket-style canonical; planned removal 0.6.0.
+- **OR composition in metadata filters.** Engine's `metadata` JSON shape doesn't expose OR. Engine-level work required.
+- **`pvt_*` deprecation (vault#212 Phase 6).** Opaque-token path remains for self-hosted-without-hub. Phase 6 deprecates `pvt_*` separately.
+- **Hub multi-user UX & dashboard SDK.** Multi-user (team collaboration, shared vaults, invite flows) is in-flight on the hub team. Vault's token/scope machinery is forward-compatible; the SDK + admin dashboard are hub-timeline follow-ups.
+- **`updated_at` indexing.** No B-tree index today; sequential scan fine for current sizes. File an issue if a real workload shows a problem.
 
 ## § 6. Most User-Noticeable Changes
 
-Ranked by user-visible impact:
+Ranked by user-visible impact for a 0.2.4 operator upgrading to 0.4.5.
 
-### 1. Portable, Lossless Export/Import (vault#308)
-
-The single biggest shift: vault is no longer opaque on disk. `parachute-vault export <dir>` produces git-tractable markdown + YAML that can be committed, diffed, and re-imported without losing a single ID, relationship, or timestamp. This unblocks version control, collaboration, and disaster recovery at the system level. Real-world smoke test on a 2296-note vault proved zero silent loss.
-
-### 2. File-Extension Support for Non-Markdown Content (vault#328)
-
-Notes can now be CSV, YAML, JSON, MDX, plaintext—whatever format fits the content. Metadata lives inline (markdown, MDX) or in sidecars (everything else). Path uniqueness is now `(path, extension)` so `Recipes/pasta.md` and `Recipes/pasta.csv` coexist without collision. The wikilink resolution is explicit when ambiguous: `[[Foo.md]]` vs `[[Foo.csv]]`. This is substrate-level: the vault doesn't impose markdown; it handles what you give it.
-
-### 3. Upsert on Update (vault#309)
-
-External systems (Gitcoin, drift detectors, syncs) can now say "create if missing" in a single call, eliminating the query-then-create dance on every nightly sync. `update-note if_missing: "create"` is idempotent: first call creates (with `created: true`), subsequent calls update (with `created: false`). Sync loops know which path fired without a follow-up query.
-
-### 4. Hub-Minted Auth & Revocation Enforcement (vault#212 Phase 4)
-
-JWTs from the hub are now the canonical auth path (vault-minted `pvt_*` tokens deprecated). Hub revocation list is checked on every request with local caching and fail-open semantics. Operators can now revoke compromised tokens at the hub level; vault enforces the revocation within 60 seconds. Self-hosted-without-hub can opt into `--legacy-pat` but get a deprecation notice.
-
-### 5. Interactive MCP Install with Smart Defaults (vault#292)
-
-`parachute-vault mcp-install` from a TTY now walks you through a short, contextual conversation instead of silent defaults. Project markers inform the default install location; hub reachability informs auth-mode defaults; existing entries prompt for update vs fresh. The preview shows exactly what JSON will be written before any network call. Vastly improves the onboarding UX.
-
-### 6. Schema Inheritance & Tag Relationships (vault#270)
-
-Tags can now declare parent-child relationships. A child tag's effective schema fields = its own ∪ all ancestors'. `_default` is the implicit universal parent of every note. Conflict resolution on field overlap is first-in-walk-wins with an advisory `schema_conflict` warning. This enables tag hierarchies that scale from ad-hoc tags to managed schemas.
-
-### 7. Case-Insensitive Filesystem Disambiguation (vault#327)
-
-On macOS and Windows, notes with paths that differ only by case no longer silently collide into one file. Export probes filesystem case-sensitivity; on case-insensitive disks, colliding notes get on-disk filename suffixes while canonical paths in frontmatter stay unchanged. Import recovers truth from frontmatter. Round-trip survives case collisions losslessly.
+1. **URL migration `/vaults/<name>/...` → `/vault/<name>/...` (0.3.6-rc.1).** The biggest "I have to actively change things" moment. Every hardcoded URL, OAuth integration, published-note link, and script breaks. `parachute-vault mcp-install` rewrites `~/.claude.json` for Claude Code; other OAuth clients re-handshake; curl/scripts get manually edited. The unscoped `/api`, `/mcp`, `/oauth/*` paths (single-vault auto-default) and `list-vaults` MCP tool also retire.
+2. **CLI rename `parachute` → `parachute-vault` (0.3.6-rc.1).** Shell aliases, shebangs, CI scripts, README references update. The dispatcher (when installed) and the CLI's own arg-parser both accept `parachute vault <cmd>` as a forward, so wrappers keep working — but the canonical command an operator types becomes `parachute-vault`.
+3. **Portable, lossless export/import (vault#308 — 0.4.4-rc.9 + rc.11).** Vault is no longer opaque on disk. `parachute-vault export <dir>` produces git-tractable markdown + YAML that round-trips byte-identically; `parachute-vault import --blow-away` is the disaster-recovery replay path. Real-world smoke test on a 2296-note vault proved zero silent loss.
+4. **File-extension support for non-markdown content (vault#328 — 0.4.5-rc.1).** Notes can be CSV, YAML, JSON, MDX, plaintext. Metadata lives inline (md/mdx) or in sidecars. Path uniqueness is now `(path, extension)`; wikilinks require explicit extension on ambiguity. The vault doesn't impose markdown — it handles what you give it.
+5. **Hub-mint, scope enforcement, and revocation (vault#212 Phases 0–4 + Phase A — 0.3.6-rc.1 through 0.4.4-rc.1).** Hub-issued JWTs are the canonical auth path; `pvt_*` is deprecated. Scope enforcement is real (`vault:read`/`write`/`admin`) at the HTTP and MCP boundary. Hub revocation list checked on every request with 60s caching, fail-open during outage, fail-closed only on cold start. Auth is now a hub-mediated concern, not vault-private.
+6. **Filesystem restructure to `~/.parachute/vault/data/...` (0.3.6-rc.1).** Auto-migrating, idempotent, target-wins. Per-vault state moves from `~/.parachute/vaults/<name>/` to `~/.parachute/vault/data/<name>/`; logs into `~/.parachute/vault/logs/`. Backup scripts pointing at old paths need updates. Vault is no longer the sole tenant of `~/.parachute/` — notes, scribe, agent, hub all sibling alongside.
+7. **Indexed metadata + operator-object queries (0.3.6-rc.1).** `update-tag fields.<name>.indexed: true` adds a B-tree index; `query-notes metadata: {priority: {gte: 3, lt: 10}, status: {in: ["open"]}}` becomes O(log n). The full operator set ships at once (`eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `in`, `not_in`, `exists`). HTTP catches up in 0.4.3-rc.2 with `?meta[field][op]=value` bracket-style. Combined with `has_tags`/`has_links`/`order_by`, query expressiveness is roughly 5x what 0.2.4 offered.
+8. **Server-side transcription wired to scribe (0.3.6-rc.1).** `POST /api/notes/{id}/attachments {transcribe: true}` queues an audio attachment for transcription via the dedicated worker. Vault becomes the canonical context provider via per-trigger `include_context` and per-worker `transcription.context`. Audio retention configurable per-vault (`"keep"`, `"until_transcribed"`, `"never"`).
+9. **Upsert on update (vault#309 — 0.4.4-rc.12).** `update-note if_missing: "create"` eliminates the query-then-create dance on every nightly sync. Idempotent; response includes `created: true|false` so sync loops know which path fired without a follow-up query.
+10. **Tag schema inheritance + `_default` universal parent (vault#270 — 0.4.1-rc.2).** A child tag's effective fields = its own ∪ all ancestors'. `_default` is the implicit universal parent of every note. First-in-walk-wins conflict resolution with advisory `schema_conflict` warnings.
+11. **Interactive MCP install with smart defaults (vault#292 — 0.4.4-rc.2 + rc.3).** TTY walkthrough replaces silent defaults. Project markers inform install location; hub reachability informs auth-mode; existing entries prompt for update vs fresh. Three scopes (`user`, `local`, `project`); `local` is the new default.
+12. **Case-insensitive filesystem disambiguation (vault#327 — 0.4.5-rc.2).** macOS APFS / Windows NTFS notes differing only by case no longer collide on export. Probe-driven; on-disk filename munged with deterministic `__<id-prefix>` suffix; canonical path in frontmatter stays unchanged. `AmbiguousPathError` with `candidates` array on REST 409.
+13. **Admin SPA mounted per-vault (vault#252 chain — 0.4.0).** Per-vault dashboard at `/vault/<name>/admin/` reachable through hub's proxy. Vault detail, tokens, permissions. Same compiled bundle at any per-vault mount without rebuild.
 
 ## Appendix: Schema Migrations
 
-| Version | From | To | Action | Backward-Compat |
-|---------|------|-----|--------|-----------------|
-| v18 | v17 | v17 → v18 | `ALTER TABLE notes ADD COLUMN extension TEXT NOT NULL DEFAULT 'md'`; widen uniqueness index to `(path, extension)`. | Automatic. All existing rows default to `md`; new composite-index uniqueness collapses to prior behavior on existing data. |
-| v17 | v16 | v16 → v17 | Drop `note_schemas` and `schema_mappings` tables (zero rows in real vaults). Retire six related MCP tools and REST endpoints. `tags.fields` becomes sole schema surface. | Automatic. Existing `tags.fields` data is preserved. Callers using dropped MCP tools must migrate to `list-tags`/`update-tag` with the `fields` surface. |
+The full migration ladder a 0.2.4 vault traverses to reach 0.4.5. Each is idempotent, wrapped in `BEGIN IMMEDIATE`/`COMMIT`/`ROLLBACK` (the v14 wrap was the subject of vault#248 hardening; v15/v16/v17/v18 follow the same shape).
+
+| Version | Release | Change | Backward-Compat |
+|---------|---------|--------|-----------------|
+| v12 | 0.3.6-rc.1 | `tokens.scopes TEXT` added. Tokens now carry OAuth-standard whitespace-separated scope string. Pre-v12 NULL rows fall back to `legacyPermissionToScopes(permission)` for one release with deprecation warning. | Automatic. Idempotent. |
+| v13 | 0.3.6-rc.30 | `tokens.scoped_tags TEXT NULL` added. Tag-scoped tokens — root-tag allowlist. JSON array. | Automatic. Existing rows untouched (= unscoped). |
+| v14 | 0.3.6-rc.31 | Six new columns on `tags` (description, fields, relationships, parent_names, created_at, updated_at). Drop `tag_schemas` sidecar table; rows fold into `tags`. Hierarchy resolver swaps from `_tags/<name>` notes to `tags.parent_names`. Legacy `_tags/*` notes left in place as inert audit trail. | Automatic. Idempotent. v14 transaction wrap added in 0.3.6-rc.34 (vault#248). |
+| v15 | 0.3.6-rc.32 | Two new tables: `note_schemas` + `schema_mappings`. Replace `_schemas/*` and `_schema_defaults` notes-as-config. Legacy notes left in place inert. | Automatic. Short-circuit fix in 0.3.6-rc.33 (was `hasSchemas && hasMappings`, should be `||`). |
+| v16 | 0.3.6-rc.39 | `tokens.vault_name TEXT` + `idx_tokens_vault_name`. Per-vault token storage. | Automatic. Existing rows get NULL (= legacy server-wide); new mints default to vault-bound. |
+| v17 | 0.4.1-rc.1 | Drop `note_schemas` + `schema_mappings` tables. Six MCP tools retire. `/api/note-schemas` REST endpoints removed. `tags.fields` is sole schema surface. | Automatic. Logs warning naming any dropped schemas/mappings (zero in real vaults). |
+| v18 | 0.4.5-rc.1 | `ALTER TABLE notes ADD COLUMN extension TEXT NOT NULL DEFAULT 'md'`. Widen uniqueness index from `(path)` to `(path, extension)`. | Automatic. All existing rows default to `md`; new composite-index uniqueness collapses to prior behavior on existing data. |
 
 ---
 
-*Document compiled 2026-05-15 from CHANGELOG entries 0.2.4 (2026-04-18) through 0.4.5 (2026-05-15). Version span covers: 0.2.4, 0.2.3, 0.2.2, 0.2.1, 0.2.0 (launch), then 0.4.0-rc.2 through 0.4.5-rc.2 and stable 0.4.5. Operators upgrading from 0.2.4 should reference § 3 for breaking changes and § 4 for new surfaces. This synthesis is suitable for both blog-post narrative (§ 1, § 6) and operator migration guide (§ 2, § 3, § 4).*
+**Compiled 2026-05-16 from CHANGELOG entries 0.2.4 (2026-04-18) through 0.4.5 (2026-05-15). Version span: 0.2.4 + 0.3.6-rc.1 (the foundational ecosystem-fit release) + 0.3.6-rc.30 through rc.39 + 0.4.0-rc.1/2/stable + 0.4.1-rc.1 through rc.6 (shipped as 0.4.2 stable per RC-versioning) + 0.4.3-rc.1/2 + 0.4.4-rc.1 through rc.14 + 0.4.5-rc.1/2/stable. Operators upgrading from 0.2.4 reference §3 for breaking changes, §4 for new surfaces, §6 for user-visible ranking. **0.3.6-rc.1 is the load-bearing release** — most foundational changes (URL migration, CLI rename, filesystem restructure, hub JWT validation, scope enforcement, indexed fields, operator queries, server-side transcription, services.json registration, atomic tag rename/merge, optimistic concurrency safe-by-default) land in that single release-candidate. Suitable for both blog-post narrative (§1, §6) and operator migration guide (§2, §3, §4).**
 
-    </div>
+</div>
+
 </main>
