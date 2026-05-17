@@ -1,7 +1,7 @@
 ---
 layout: base.njk
 title: "Parachute Vault 0.4.5 — What changed"
-description: "Parachute Vault 0.4.5 closes a substrate cycle that started at launch. Lossless round-trip to disk, non-markdown notes, hub-mediated auth, surgical update-note edits, and a real upgrade path from 0.2.4. Includes a detailed reference for integrators with commit SHAs and PR refs at every claim."
+description: "Parachute Vault 0.4.5 is here. Your vault now round-trips to a directory of markdown files losslessly. Non-markdown notes (CSV, YAML, JSON, MDX) are first-class. Auth is hub-mediated with real revocation. A clean automated path from 0.2.4 handles everything except a few small things you actively touch. Includes a detailed reference for integrators with commit SHAs and PR refs at every claim."
 permalink: /preview/vault-0.4.5-arc/
 eleventyExcludeFromCollections: true
 ---
@@ -223,7 +223,7 @@ details.arc-reference[open] > summary {
 <header class="arc-hero fade-up fade-up-1">
     <p class="arc-eyebrow">Parachute Vault</p>
     <h1>0.4.5 — What changed</h1>
-    <p class="arc-lead">Parachute Vault 0.4.5 closes the substrate cycle that started at launch. Your vault now round-trips to a directory of markdown files losslessly. Non-markdown notes are first-class. Auth is hub-mediated with real revocation. <code>update-note</code> grew a surgical edit surface. And there's a clear path from 0.2.4 to here that auto-migrates everything except a few small things you actively touch.</p>
+    <p class="arc-lead">Parachute Vault 0.4.5 is here. Your vault now round-trips to a directory of markdown files losslessly. Non-markdown notes (CSV, YAML, JSON, MDX) are first-class. Auth is hub-mediated with real revocation. And there's a clean automated path from 0.2.4 that handles everything except a few small things you actively touch.</p>
 </header>
 
 <div class="post-content fade-up fade-up-2" markdown="1">
@@ -233,7 +233,7 @@ details.arc-reference[open] > summary {
 - **Your vault rounds-trips to disk losslessly.** `parachute-vault export <dir>` writes the whole vault as git-tractable markdown with frontmatter; `parachute-vault import <dir> --blow-away` replays it back to byte-identical state. IDs, typed links, tag schemas, and attachment binaries all survive. Disaster recovery is real; Obsidian round-trip works; partner teams can build dashboards off the directory shape.
 - **Non-markdown notes work.** CSV, YAML, JSON, MDX, plaintext — first-class citizens, with metadata inline for markdown-shaped formats and a small sidecar at `.parachute/notes-meta/<id>.yaml` for the rest. `Recipes/pasta.md` and `Recipes/pasta.csv` coexist; the vault doesn't impose markdown anymore.
 - **Auth lives at the hub.** Hub-issued JWTs are the canonical path; scopes (`vault:read` / `write` / `admin`) are enforced for real at both HTTP and MCP. Revoking a compromised token at the hub propagates everywhere within ~60 seconds, fail-open during outage. The vault-DB `pvt_*` path stays available for self-hosted-without-hub.
-- **`update-note` is a real edit surface now.** SQL-atomic `append` / `prepend` (concurrent appends never overwrite each other), surgical `content_edit { old_text, new_text }` with multi-match guard, frontmatter-aware prepend that skips the YAML block. No more "read the whole doc, edit in memory, write the whole doc back."
+- **`update-note` is a real edit surface now.** `append` / `prepend` (concurrent appends never overwrite each other), surgical `content_edit { old_text, new_text }` with multi-match guard, frontmatter-aware prepend that skips the YAML block. No more "read the whole doc, edit in memory, write the whole doc back."
 - **Sync is faster.** Pass `if_missing: "create"` on `update-note` and external systems can express "create if missing" in a single call. The response carries `created: true|false`, so sync loops know which path fired without a follow-up query. Saves a round-trip per missing note on nightly drift detectors.
 - **Indexed queries.** Declare a tag field `indexed: true` and `query-notes` gets the full operator set (`eq`, `ne`, `gt`, `gte`, `lt`, `lte`, `in`, `not_in`, `exists`), `order_by` on indexed fields, plus `has_tags` / `has_links` presence filters. Roughly 5× the query expressiveness 0.2.4 offered.
 - **Tag schemas inherit.** Declare `parent_names` on a tag and its effective fields = its own ∪ all ancestors'. `_default` is the implicit universal parent of every note. Set up a hierarchy once; descendants pick up the rules with advisory `schema_conflict` warnings on field overlap.
@@ -242,10 +242,10 @@ details.arc-reference[open] > summary {
 
 Schema migrations and filesystem migrations both run automatically on first post-upgrade boot — they're idempotent, target-wins on conflict, and walk the full `v9 → v18` jump in one init. Your data lands intact. The active work below is short.
 
-1. **Stop the daemon, install, restart.** Schema + filesystem migrations run automatically on first post-upgrade boot. Verify with `parachute-vault status` afterward.
+1. **Stop the daemon, install, restart.** Verify with `parachute-vault status` afterward.
 2. **Rename CLI references.** `parachute` → `parachute-vault`. Update shell aliases, shebangs, CI scripts, README files. The new `parachute` (dispatcher) and the renamed CLI's own arg-parser both accept `parachute vault <cmd>` as a forward, so existing launchd / systemd wrappers keep working.
 3. **Re-install MCP integration.** Run `parachute-vault mcp-install`. This rewrites `~/.claude.json` to point at the new URL surface (`/vault/<name>/...`) and picks up the new hub-mint auth default. OAuth clients (Claude Desktop, custom integrations) need to remove + re-add their integration so OAuth can re-handshake; curl scripts need hardcoded URLs rewritten.
-4. **Audit `config.yaml` for the priv-esc fix.** Open `~/.parachute/vault/config.yaml` and look for `api_keys[].scope: read` entries. Pre-upgrade those silently escalated to full access (vault#233); upgrading is the fix, the audit confirms whether you were affected. Aaron's own deployment found zero affected keys, but the bug existed because the bug existed.
+4. **Audit `config.yaml` for the priv-esc fix.** Open `~/.parachute/vault/config.yaml` and look for `api_keys[].scope: read` entries. Pre-upgrade those silently escalated to full access; upgrading is the fix, and the audit confirms whether you were affected. Aaron's own deployment found zero affected keys.
 5. **Update scripted JWT minting (if you have it).** JWT audience is now per-vault `aud: vault.<name>`, and hub-issued JWTs reject broad `vault:<verb>` scopes — narrow to `vault:<name>:<verb>`. `pvt_*` tokens are unaffected.
 
 If you bump into something unexpected, [open an issue](https://github.com/ParachuteComputer/parachute-vault/issues).
