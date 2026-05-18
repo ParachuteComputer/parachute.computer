@@ -73,7 +73,7 @@ The trade-off is explicit and acknowledged: **simpler operation now, headroom la
 Two reasons:
 
 1. **Modular install is a feature, not a chore.** v0.6's value proposition includes "install the modules you want." A friend who doesn't need transcription shouldn't get scribe running just because we baked it in. The admin SPA gives them a real choice.
-2. **Image churn vs disk durability.** Modules update on different cadences than hub. Baking them in means re-deploying the entire container every time vault publishes a patch. Persisting modules on disk lets users `upgrade-on-unsupervised` (or wait for hub's `parachute upgrade <module>` SPA path) without a redeploy cycle.
+2. **Image churn vs disk durability.** Modules update on different cadences than hub. Baking them in means re-deploying the entire container every time vault publishes a patch. Persisting modules on disk lets users upgrade individual modules via the admin SPA (or, equivalently, `parachute upgrade <module>` from a shell) without a container redeploy.
 
 ## v0.6 release bar
 
@@ -92,17 +92,20 @@ Two reasons:
 
 ## Issues + phasing
 
-Phase 1 (critical-path to v0.6 ship):
+All Phase 1 work is tracked under the meta-issue **hub#257**.
 
-- **hub#258** — Dockerfile + render.yaml + env-driven boot for Render self-host. [✓ landed as 0.5.10-rc.1]
-- **hub#262** — admin module mgmt API + supervisor + container-mode runtime install. [in flight, rc.4]
+Phase 1 (critical-path to v0.6 ship), as of 2026-05-18:
+
+- **hub#258** — Dockerfile + render.yaml + env-driven boot for Render self-host. [landed as 0.5.10-rc.1]
+- **hub#262** — admin module mgmt API + supervisor + container-mode runtime install. [open PR at 0.5.10-rc.4]
 - **hub#259** — first-boot web wizard at `/admin/setup`. Vault install in step 3 calls the hub#260 module-install API.
 - **hub#260** — admin SPA module management surface (install / upgrade / configure via UI). **Promoted Phase 2 → Phase 1** because without it, deployed hub is stuck empty — friend can't install anything.
 - **parachute.computer#42** — `/deploy` page with one Deploy-to-Render button, hub-only target. Modules installed post-deploy via admin SPA.
 
 Phase 2 (post-v0.6 polish, not gating ship):
 
-- **hub#263 / #264 / #265** — supervisor await-on-exited, SIGKILL fallback, upgrade-on-unsupervised test gap (from #262 reviewer follow-ups).
+- **hub#263 / #264 / #265** — supervisor lifecycle hardening: await child-proc on stop, SIGKILL fallback after SIGTERM timeout, plus a test gap (filed by the hub#262 reviewer).
+- **vault#341** — deprecate the standalone vault `render.yaml` as a self-host deploy target (vault Dockerfile is retained for CI + future hub-spawns-image flows).
 - Per-module log multiplexing in the admin SPA (live tail).
 - VPS / Docker Compose path for friends wanting non-Render self-host.
 
@@ -112,7 +115,7 @@ Phase 3 (later):
 
 ## What this changes about earlier docs
 
-- **`2026-04-20-cloud-offering-sketch.md`** describes a multi-tenant Parachute-operated cloud (tenant-per-subdomain, Postgres-backed, CDN-hosted Notes). That north star is unchanged for the long horizon. v0.6 is the **self-host** path — a friend running Parachute on their own Render account. Cloud-self-host and Parachute-operated-cloud are two orientations of the same ecosystem (see memory: `project_parachute_ecosystem_shape.md`); this doc covers only the first.
+- **`2026-04-20-cloud-offering-sketch.md`** describes a multi-tenant Parachute-operated cloud (tenant-per-subdomain, Postgres-backed, CDN-hosted Notes). That north star is unchanged for the long horizon. v0.6 is the **self-host** path — a friend running Parachute on their own Render account. Self-host and Parachute-operated-cloud are two orientations of the same ecosystem; this doc covers only the first.
 - **Multi-service `render.yaml` exploration (vault#339, mid-May)** is set aside as the primary path. The vault Dockerfile remains useful (CI builds, future hub-spawns-vault-as-image flows). The standalone vault `render.yaml` is deprecated as a v0.6 deploy target — tracked at vault#341.
 
 ## Why the architecture is right
