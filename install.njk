@@ -14,13 +14,24 @@ permalink: /install/
     <section class="section">
         <h2>1. Install the Vault</h2>
 
+        <p><strong>Why this step.</strong> Vault is the SQLite-backed knowledge graph &mdash; the persistent memory layer. Without it, your AI client has nothing to read or write.</p>
+
+        <aside class="upgrade-callout">
+            <strong>Already installed during the beta via the old <code>@openparachute/cli</code> package?</strong>
+            <p>Don't run the lead command below &mdash; it conflicts with the legacy install. Run this instead:</p>
+            <div class="code-inline">
+                <code>bun remove -g @openparachute/cli &amp;&amp; bun add -g @openparachute/hub &amp;&amp; parachute upgrade vault</code>
+            </div>
+            <p>The package was renamed in April 2026; vault's schema and filesystem migrations run automatically on first post-upgrade boot. If you're coming from Vault 0.2.4 (the launch version) and want the full picture, read the <a href="/preview/vault-0.4.5-arc/">0.2.4 &rarr; 0.4.5 upgrade arc</a>.</p>
+        </aside>
+
         <p>Requires <a href="https://bun.sh" target="_blank">Bun</a> 1.3.0 or later. Check with <code>bun --version</code>; upgrade with <code>bun upgrade</code>. Then run this anywhere:</p>
 
         <div class="code-inline">
             <code>bun add -g @openparachute/hub &amp;&amp; parachute install vault</code>
         </div>
 
-        <p>This installs the Parachute Hub, creates a Vault, and starts it as a background daemon on <code>127.0.0.1:1940</code>. You'll be asked two yes/no questions (both default yes):</p>
+        <p>This installs the Parachute Hub (the <code>parachute</code> dispatcher on port <code>1939</code>), installs Vault, creates your first vault, and starts it as a background daemon on <code>127.0.0.1:1940</code>. You'll be asked two yes/no questions (both default yes):</p>
 
         <ol>
             <li><strong>Install Vault as an MCP server in Claude Code?</strong> &mdash; writes the MCP config into <code>~/.claude.json</code> so Claude Code picks it up next session.</li>
@@ -29,16 +40,21 @@ permalink: /install/
 
         <p>Non-interactive? Pass <code>--mcp</code>/<code>--no-mcp</code> and <code>--token</code>/<code>--no-token</code>. Piped installs default to yes on both.</p>
 
-        <p>Verify:</p>
+        <p><strong>What you should see.</strong> A success banner with the running URL (<code>http://127.0.0.1:1940/vault/default</code>) and, if you said yes to the token, a <code>pvt_...</code> string. Verify with:</p>
         <div class="code-inline">
             <code>parachute status</code>
         </div>
+        <p>You should see <code>parachute-hub</code> on port <code>1939</code> and <code>parachute-vault</code> on port <code>1940</code>, both <code>running</code>.</p>
+
+        <p><strong>Want everything at once?</strong> <code>parachute setup</code> is the interactive multi-service walk-through &mdash; it surveys what's installed, lets you pick from vault, notes, and scribe, and threads the prompts up front so the installs run unattended. Use <code>parachute install &lt;svc&gt;</code> per-service if you'd rather opt in one at a time.</p>
     </section>
 
     <section class="section">
         <h2>2. Use it with your local MCP client</h2>
 
-        <p><strong>Claude Code</strong> is the zero-config path — the install adds your Vault as an MCP server to <code>~/.claude.json</code>, and Claude Code picks it up on the next session. Open a project and try:</p>
+        <p><strong>Why this step.</strong> The Vault is running but nothing's talking to it yet. MCP is the standard protocol AI clients use to read and write structured memory.</p>
+
+        <p><strong>Claude Code</strong> is the zero-config path &mdash; the install already added your Vault as an MCP server to <code>~/.claude.json</code>, and Claude Code picks it up on the next session. Open a project and try:</p>
 
         <ul>
             <li><em>"Save a note about today's decision — tag it #product, link to #vault."</em></li>
@@ -48,25 +64,39 @@ permalink: /install/
 
         <p>All nine MCP tools are available: <code>create-note</code>, <code>query-notes</code>, <code>update-note</code>, <code>delete-note</code>, <code>list-tags</code>, <code>update-tag</code>, <code>delete-tag</code>, <code>find-path</code>, <code>vault-info</code>. Memory carries across every session forever; context accretes instead of starting over.</p>
 
-        <p><strong>Other local MCP clients</strong> — <a href="https://github.com/openai/codex" target="_blank">Codex</a>, <a href="https://github.com/block/goose" target="_blank">Goose</a>, <a href="https://opencode.ai" target="_blank">OpenCode</a>, <a href="https://cursor.com" target="_blank">Cursor</a>, <a href="https://zed.dev" target="_blank">Zed</a>, <a href="https://github.com/cline/cline" target="_blank">Cline</a>, your own agent — connect to the same endpoint:</p>
+        <p><strong>What you should see.</strong> Run <code>/mcp</code> inside Claude Code &mdash; <code>parachute-vault</code> should appear in the list with the nine tools resolved. If it's missing, re-run the integration:</p>
+
+        <div class="code-inline">
+            <code>parachute-vault mcp-install</code>
+        </div>
+
+        <p>The bare command walks you through it interactively. Advanced flags for power users:</p>
+        <ul>
+            <li><code>--install-scope local|user|project</code> &mdash; <code>local</code> (default) writes under <code>projects[&lt;cwd&gt;].mcpServers</code> in <code>~/.claude.json</code>, scoping the Vault to one directory. <code>user</code> writes the top-level <code>mcpServers</code>, making the Vault available everywhere. <code>project</code> writes <code>./.mcp.json</code> for checking into a repo.</li>
+            <li><code>--scope vault:read|vault:write|vault:admin</code> &mdash; mints a token narrowed to that scope. Useful for read-only clients (search agents, observability tools) that shouldn't have write authority. Default is <code>vault:write</code> (read + write, but not admin).</li>
+        </ul>
+
+        <p><strong>Other local MCP clients</strong> &mdash; <a href="https://github.com/openai/codex" target="_blank">Codex</a>, <a href="https://github.com/block/goose" target="_blank">Goose</a>, <a href="https://opencode.ai" target="_blank">OpenCode</a>, <a href="https://cursor.com" target="_blank">Cursor</a>, <a href="https://zed.dev" target="_blank">Zed</a>, <a href="https://github.com/cline/cline" target="_blank">Cline</a>, your own agent &mdash; connect to the same endpoint:</p>
         <div class="code-inline">
             <code>http://127.0.0.1:1940/vault/default/mcp</code>
         </div>
-        <p>Each client has its own way to register an MCP server — usually a settings entry pointing at that URL. Parachute is client-agnostic; Claude Code just gets the one-line auto-wire.</p>
+        <p>Each client has its own way to register an MCP server &mdash; usually a settings entry pointing at that URL plus the <code>pvt_...</code> token from your install. Parachute is client-agnostic; Claude Code just gets the one-line auto-wire.</p>
     </section>
 
     <section class="section">
         <h2>3. Want a UI for your notes? (optional)</h2>
 
-        <p><a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank">Parachute Notes</a> is a reference web UI that speaks directly to your Vault. Install it and browse in your browser:</p>
+        <p><strong>Why this step.</strong> The Vault is a SQLite file behind an API. If you want to <em>see</em> your notes &mdash; browse, search, edit, watch the graph form &mdash; you need a UI. Notes is the reference one.</p>
+
+        <p><a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank">Parachute Notes</a> is a PWA that speaks directly to your Vault. Install it:</p>
 
         <div class="code-inline">
             <code>parachute install notes</code>
         </div>
 
-        <p>Open <a href="http://localhost:1942/notes" target="_blank"><code>http://localhost:1942/notes</code></a>, connect it to <code>http://127.0.0.1:1940</code>, paste the API token from your vault install. You get note browsing, search, tag views, a graph visualization, voice capture with auto-transcription, and a markdown editor with live preview.</p>
+        <p><strong>What you should see.</strong> Notes starts as a background daemon on <code>127.0.0.1:1942</code>. Open <a href="http://localhost:1942/notes" target="_blank"><code>http://localhost:1942/notes</code></a> in your browser, click the vault popover in the header, and hit <strong>Connect</strong> next to your vault under "Available from your hub" &mdash; this kicks an OAuth flow through the hub, no token-pasting required. You get note browsing, search, tag views, a graph visualization, voice capture with auto-transcription, and a markdown editor with live preview.</p>
 
-        <p>Notes ships <strong>multi-vault</strong>: one install, every vault on your hub. The header carries a vault popover &mdash; "Connected" lists vaults you've OAuthed into; "Available from your hub" lists vaults published at your hub's well-known doc that you haven't connected yet, each with an inline Connect button. Captures land under hierarchical <code>capture/text</code> / <code>capture/voice</code> tags; Settings &rarr; Larger / Largest scales the whole app for reading; Cmd-=, Cmd--, Cmd-0 work the way you'd expect.</p>
+        <p>Notes ships <strong>multi-vault</strong>: one install, every vault on your hub. The popover splits "Connected" (vaults you've OAuthed into) from "Available from your hub" (vaults published at your hub's well-known doc you haven't connected yet). Captures land under hierarchical <code>capture/text</code> / <code>capture/voice</code> tags; Settings &rarr; Larger / Largest scales the whole app for reading; <code>Cmd-=</code>, <code>Cmd--</code>, <code>Cmd-0</code> work the way you'd expect.</p>
 
         <p>It's also a starting point: the source is <a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank">AGPL</a>, Vite + React + TypeScript, talks to the vault over the documented HTTP API. Fork it and build the UI that matches how <em>your</em> brain works.</p>
     </section>
@@ -74,13 +104,13 @@ permalink: /install/
     <section class="section">
         <h2>4. Export your vault as portable markdown (optional)</h2>
 
-        <p>Your Vault is a SQLite file, but the whole graph round-trips losslessly through markdown + YAML:</p>
+        <p><strong>Why this step.</strong> Your Vault is a SQLite file &mdash; great for queries, harder to inspect with grep, diff, or your favorite editor. The portable-markdown export gives you a git-trackable projection of the same graph without leaving SQLite as the source of truth.</p>
 
         <div class="code-inline">
             <code>parachute-vault export ~/my-vault-projection</code>
         </div>
 
-        <p>One file per note, with frontmatter carrying ID, path, tags, metadata, typed links, and attachments. Tag schemas land in <code>.parachute/schemas/&lt;tag&gt;.yaml</code>, attachment binaries in <code>.parachute/attachments/</code>. Re-export an unchanged vault and the bytes are identical &mdash; clean git diffs.</p>
+        <p><strong>What you should see.</strong> One file per note (named by its path), with frontmatter carrying ID, path, tags, metadata, typed links, and attachments. Tag schemas land in <code>.parachute/schemas/&lt;tag&gt;.yaml</code>, attachment binaries in <code>.parachute/attachments/</code>. Re-export an unchanged vault and the bytes are identical &mdash; clean git diffs.</p>
 
         <p>Going the other way works too:</p>
 
@@ -100,6 +130,21 @@ permalink: /install/
     </section>
 
     <section class="section">
+        <h2>Staying current</h2>
+
+        <p>Once installed, the dispatcher can upgrade itself and every service:</p>
+        <ul>
+            <li><code>parachute upgrade</code> &mdash; sweeps hub plus every installed service to the latest npm release.</li>
+            <li><code>parachute upgrade hub</code> &mdash; upgrades just the dispatcher.</li>
+            <li><code>parachute upgrade vault</code> (or <code>notes</code>, <code>scribe</code>) &mdash; upgrades a single service.</li>
+            <li><code>parachute upgrade vault --tag rc</code> &mdash; pin to the <code>rc</code> dist-tag instead of <code>latest</code>.</li>
+        </ul>
+        <p>Vault's schema and filesystem migrations run automatically on first post-upgrade boot &mdash; idempotent, target-wins on conflict, no manual steps required. If you're jumping from the launch 0.2.4 to today, the <a href="/preview/vault-0.4.5-arc/">0.2.4 &rarr; 0.4.5 upgrade arc</a> is the deep dive.</p>
+
+        <p><em><code>parachute upgrade hub</code> requires hub 0.5.9 or later. If you're on an older version, run <code>bun add -g @openparachute/hub@latest</code> once to upgrade the dispatcher manually, then <code>parachute upgrade &lt;svc&gt;</code> handles everything else.</em></p>
+    </section>
+
+    <section class="section">
         <h2>Running it somewhere other than your laptop</h2>
 
         <p>Your laptop sleeps. If you want your Vault always on, you have options:</p>
@@ -116,7 +161,7 @@ permalink: /install/
             <li><strong>Port 1940 already in use.</strong> <code>lsof -i :1940</code> to see what's there. Change ports in <code>~/.parachute/vault/.env</code>.</li>
             <li><strong>Claude Code doesn't see the MCP.</strong> Start a new Claude Code session (config is loaded at session start). Run <code>/mcp</code> in Claude Code to confirm. If it's missing, <code>parachute-vault mcp-install</code> adds it.</li>
             <li><strong>Want the Vault reachable from another device?</strong> The cleanest path is <code>parachute expose</code> (Tailscale or Cloudflare; polished for broad use in a few weeks, runnable early today via <code>parachute expose --help</code>). If you'd rather expose it yourself &mdash; nginx, Caddy, your own reverse proxy &mdash; set <code>VAULT_BIND=0.0.0.0</code> in <code>~/.parachute/vault/.env</code> and restart so the Vault listens on every interface.</li>
-            <li><strong>Stuck on bun 1.2.x?</strong> You may see <code>InvalidPackageResolution: failed to parse lockfile</code> or <code>FileNotFound: failed opening node_modules/package dir</code> — cosmetic, the package installed anyway. CLI 0.2.1+ detects this and continues. Upgrading to bun 1.3.x makes the warnings go away entirely.</li>
+            <li><strong>Stuck on bun 1.2.x?</strong> You may see <code>InvalidPackageResolution: failed to parse lockfile</code> or <code>FileNotFound: failed opening node_modules/package dir</code> &mdash; cosmetic, the package installed anyway. Upgrading to bun 1.3.x makes the warnings go away entirely.</li>
         </ul>
 
         <p>Found something we missed? <a href="https://github.com/ParachuteComputer/parachute-vault/issues" target="_blank">Open an issue</a>.</p>

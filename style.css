@@ -363,6 +363,28 @@ main {
     line-height: 1.7;
 }
 
+.section aside.upgrade-callout {
+    border-left: 3px solid var(--accent-light);
+    background: rgba(0, 0, 0, 0.02);
+    padding: 0.9rem 1.25rem;
+    margin: 1.25rem 0 1.5rem;
+    max-width: var(--content-width);
+    font-size: 0.97rem;
+}
+
+.section aside.upgrade-callout p {
+    margin: 0;
+}
+
+.section aside.upgrade-callout p + p {
+    margin-top: 0.6rem;
+}
+
+.section aside.upgrade-callout strong {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
 .roadmap-header .prev-link + .prev-link {
     margin-left: 0.5rem;
 }
