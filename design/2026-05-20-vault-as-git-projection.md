@@ -5,7 +5,7 @@ description: "Design for making vault tightly integrated with its git mirror —
 # Vault as git projection — v0.7+ architecture
 
 **Date:** 2026-05-20
-**Status:** Design proposal — the v0.7+ arc that follows the small `--watch` / `--git-commit` step shipping in **vault#TBD** (parallel PR). Informs the implementation chain that comes after.
+**Status:** Design proposal — the v0.7+ arc that follows the small `--watch` / `--git-commit` step shipping in **vault#346** (parallel PR). Informs the implementation chain that comes after.
 
 **Companions:**
 - [`2026-05-18-v06-deploy-architecture.md`](./2026-05-18-v06-deploy-architecture.md) — single-container deploy shape (the substrate this lives inside)
@@ -22,7 +22,7 @@ The arc has three stations: **(A) sidecar projection** (vault → mirror, one-wa
 
 ## The shape Aaron is asking for
 
-Two threads converge here. **Gitcoin Brain** (vault-as-job-substrate per [`for_parachute_round_4.md`](https://github.com/ParachuteComputer/parachute-vault/blob/main/CLAUDE.md)) treats jobs as notes, runs as notes, and wants git history of the team brain for free — audit, time-travel, code-review-able diffs over decisions, commitments, run outputs. The existing portable-markdown export already gets them most of the way (see the [vault-portable-export cookbook](https://github.com/ParachuteComputer/parachute-patterns/blob/main/cookbook/vault-portable-export.md)); they wire it via cron + shell loop today. **Owner-operator export/import workflows** (the broader pattern the cookbook codifies) want the same shape: vault as live store, git as the artifact you back up, diff, share, and read offline in Obsidian / IDE.
+Two threads converge here. **Gitcoin Brain** (vault-as-job-substrate per the "Gitcoin Brain (2026-05)" pattern — internal design notes) treats jobs as notes, runs as notes, and wants git history of the team brain for free — audit, time-travel, code-review-able diffs over decisions, commitments, run outputs. The existing portable-markdown export already gets them most of the way (see the [vault-portable-export cookbook](https://github.com/ParachuteComputer/parachute-patterns/blob/main/cookbook/vault-portable-export.md)); they wire it via cron + shell loop today. **Owner-operator export/import workflows** (the broader pattern the cookbook codifies) want the same shape: vault as live store, git as the artifact you back up, diff, share, and read offline in Obsidian / IDE.
 
 The friction the current setup leaves on the floor:
 
@@ -46,15 +46,16 @@ The portable-markdown export is mature and lossless. The [`vault-portable-export
 
 This is the primitive everything below builds on. Re-architecting around git as canonical (option C) would discard this; building on top of it (options A + B) treats it as the load-bearing substrate.
 
-### Ships in the parallel PR (vault#TBD)
+### Ships in the parallel PR (vault#346)
 
 A small step from "shell loop + cron" toward "vault knows about its mirror":
 
-- `parachute-vault export <dir> --watch` — long-running mode that re-exports on every vault write (debounced).
+- `parachute-vault export <dir> --watch` — long-running mode that re-exports incrementally on a polling interval (default 5s). Polling rather than filesystem watchers because vault DB writes are HTTP-mediated and opaque to fsevents — there's no filesystem signal to subscribe to.
 - `parachute-vault export <dir> --git-commit` — runs `git add -A && git commit -m <message>` after each export pass when the diff is non-empty.
-- Composable: `parachute-vault export ~/mirror --watch --git-commit` is the "fire-and-forget shell loop, but the process owns it" version of the cookbook recipe.
+- `parachute-vault export <dir> --git-push` — optional, runs `git push` after commit; failures non-fatal (logged, loop continues).
+- Composable: `parachute-vault export ~/mirror --watch --git-commit --git-push` is the "fire-and-forget shell loop, but the process owns it" version of the cookbook recipe.
 
-This stays inside the CLI surface. No schema changes, no hub-side config, no UI surface. It validates the **timing model** (debounced re-export on every write) before committing to architectural awareness.
+This stays inside the CLI surface. No schema changes, no hub-side config, no UI surface. It validates the **timing model** (polling re-export on a fixed interval) before committing to architectural awareness — and surfaces the cost (a 5s upper bound on projection latency, every interval whether anything changed or not) that Architecture A's event-driven post-write hooks improve on.
 
 ### What THIS design doc covers (v0.7+)
 
