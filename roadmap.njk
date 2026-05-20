@@ -7,7 +7,7 @@ permalink: /roadmap/
 <main>
     <div class="roadmap-header fade-up fade-up-1">
         <h1>Roadmap</h1>
-        <p class="dates">Updated 2026-05-15 &middot; Refreshed every couple of weeks &middot; <a href="/since-launch/">What shipped since launch &rarr;</a></p>
+        <p class="dates">Updated 2026-05-20 &middot; Refreshed every couple of weeks &middot; <a href="/since-launch/">What shipped since launch &rarr;</a></p>
     </div>
 
     <section class="section">
@@ -20,6 +20,7 @@ permalink: /roadmap/
             <li><strong>Parachute Hub</strong> &mdash; the coordinator. <code>install</code>, <code>start</code>, <code>stop</code>, <code>expose</code>, lifecycle for every service. OAuth issuer with per-vault scopes and cross-origin approve flow that works across loopback, tailnet, and public layers. <a href="https://github.com/ParachuteComputer/parachute-hub" target="_blank">Source &rarr;</a></li>
             <li><strong>Parachute Agent</strong> &mdash; a Parachute-flavored Claude Code distribution. Single binary, prewired to the hub, scoped tokens. <a href="https://github.com/ParachuteComputer/parachute-agent" target="_blank">Source &rarr;</a></li>
             <li><strong>Parachute Channel</strong> &mdash; messaging gateway that lets Claude Code agents reach you through Telegram, Discord, and other channels. Exploration; may retire if not pulled by real use. <a href="https://github.com/ParachuteComputer/parachute-channel" target="_blank">Source &rarr;</a></li>
+            <li><strong>v0.6 Render self-host</strong> <em>(just shipped)</em> &mdash; one-click <a href="/deploy/render/">Deploy to Render</a>. Single container, hub-as-supervisor, persistent disk; modules install at runtime via the admin UI. ~$7/month flat for an always-on hub on your own subdomain. <a href="/design/2026-05-18-v06-deploy-architecture/">Architecture note &rarr;</a></li>
         </ul>
     </section>
 
