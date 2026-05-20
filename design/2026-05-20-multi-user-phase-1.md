@@ -121,6 +121,8 @@ The page itself is admin-gated. Server-side, every `/api/users/*` endpoint requi
 
 The wizard's first admin is **not deletable from the SPA**. The list view shows them with a "first admin" badge and disables the delete button — the safety rail keeps the hub from being self-locked. This is enforced in the API (DELETE returns 409 with `error: "first_admin_undeletable"`) so a malicious / buggy client can't bypass the UI guard.
 
+PR 2 identifies the first admin via `SELECT id FROM users ORDER BY created_at ASC LIMIT 1`. No new column needed — `created_at` is already in the users table and the wizard's first-boot admin (or env-seeded admin) is guaranteed to be the earliest row by construction.
+
 ### Sign-in flow change: force-change-password
 
 Adds one server-side check at the end of `POST /login`:
@@ -142,9 +144,11 @@ New server-rendered surfaces (sibling to `/login`):
 
 The redirect is **session-level**, not token-level. Once `password_changed` flips to `true`, the OAuth issuer can mint tokens for this user freely. We don't carry "must change password" forward as a scope restriction; that would force every resource server (vault, notes, scribe) to learn about the flag, and there's no reason to: the only path where this matters is interactive sign-in to the hub.
 
+**Direct navigation:** `/account/change-password` is a regular signed-in surface — a user with `password_changed=true` can still navigate to it whenever they want to change their password again. The force-redirect at `/login` is the only behavior gated on `password_changed===false`; the page itself doesn't refuse access just because the user has already changed their password once. Same on the POST: it works for any signed-in user against their own account.
+
 ### OAuth claim shape: `sub` + `vault_scope`
 
-Today the hub mints tokens with `sub: <userId>` and a `scope` string of space-separated scopes. The Phase 1 addition is a new claim that names which vault this user owns:
+Today the hub mints tokens with `sub: <userId>` (a UUID — the stable `users.id` column, not the human-readable username) and a `scope` string of space-separated scopes. The username surfaces in the admin UI, logs, and the consent screen; tokens reference the user by their stable UUID so a future username-rename feature wouldn't invalidate outstanding tokens. The Phase 1 addition is a new claim that names which vault this user owns:
 
 ```jsonc
 {
@@ -168,6 +172,8 @@ How tokens get the right scopes:
 - Admin minting their own token: today's flow (broad `vault:read` etc., narrows on consent picker per `narrowVaultScopes`). Unchanged.
 - Non-admin user minting their own token: the issuer reads the user's `assigned_vault`. The consent picker is pre-populated and locked to that vault. The user picks "Approve" or "Deny" — they can't pick a different vault because they don't have access. The minted token carries `vault:<assigned_vault>:<verb>` for every requested verb the client asked for; `vault_scope: [<assigned_vault>]` rides along.
 
+**Decision pin — consent picker for non-admin users: lock-the-picker.** Pre-fill the consent screen with `assigned_vault` and render the vault selector read-only (visible label, no dropdown). Rationale: the user sees *which* vault they're approving access to (informational clarity beats hiding it), but can't pick a different one. Server-side, the authorize handler refuses to mint a token whose picked vault disagrees with `assigned_vault` (defense in depth — a malicious client can't bypass the UI by hand-crafting the POST). Alternative considered: hide the picker entirely. Rejected because users benefit from seeing the vault name on the consent screen, especially as Phase 2 widens to multi-vault membership. Aaron can revisit at PR 2 / PR 4 time.
+
 ### Wizard interaction
 
 The setup wizard already creates the first admin. Two tiny adjustments:
@@ -176,6 +182,8 @@ The setup wizard already creates the first admin. Two tiny adjustments:
 2. The wizard makes no `assigned_vault` decision for the admin. Admin's mental model is "I have access to every vault"; `assigned_vault: null` is the "no pin" sentinel that the OAuth issuer treats as "this user can request any vault on the hub" (i.e. today's behavior).
 
 The env-var seed path (`PARACHUTE_INITIAL_ADMIN_USERNAME` + `PARACHUTE_INITIAL_ADMIN_PASSWORD`) keeps the same treatment: env-seeded admins are `password_changed: true`, `assigned_vault: null`.
+
+**Note:** this is the post-PR-1 behavior. PR 1 must wire `passwordChanged: true` into the seed path (in addition to the migration v8 backfill that flips existing rows). Today's `seedInitialAdminIfNeeded` in `parachute-hub/src/commands/serve.ts` calls `createUser(db, username, password)` with no `passwordChanged` argument; with the migration's `DEFAULT 0`, a freshly env-seeded admin would land as `password_changed: 0` and get forced through the change-password flow on first sign-in. PR 1 extends the seed call to pass `passwordChanged: true` so env-seeded admins skip the redirect, matching the wizard-admin treatment.
 
 ### Test plan
 
@@ -321,7 +329,7 @@ We don't auto-clear the pointer because the admin may be temporarily reconfiguri
 
 ## Sequencing — the implementation PR plan
 
-The work splits into five PRs against `parachute-hub`. Each is independently shippable; PR N+1 depends on PR N being on `main`.
+The work splits into five PRs against `parachute-hub`. Each is independently shippable. Dependency shape: PR 1 lands first (everyone depends on the schema + helpers). **PRs 2 and 3 both depend on PR 1 but can run in parallel** — PR 2 is the admin-creates-user surface, PR 3 is the force-change-password redirect; they touch independent code paths and don't conflict. PR 4 depends on PR 1 (for `assigned_vault`) but is independent of PRs 2 and 3 (the OAuth issuer change is read-only against the user row). PR 5 (verification) waits on PRs 1-4.
 
 ### PR 1 (small) — schema + helpers
 
