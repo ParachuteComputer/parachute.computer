@@ -58,7 +58,7 @@ Phase 1 ships exactly those four. Nothing more; nothing less.
 - Email collection or magic-link recovery.
 - Audit log UI.
 - Bulk CSV import.
-- 2FA / SSO.
+- 2FA enforcement (Phase 2). 2FA *enrollment* is the optional Phase 1.5 PR 6 surface — see the 2FA orientation section + sequencing below. SSO (OIDC / SAML) is Phase 3.
 
 ### Phase 2 — multi-vault + self-service polish
 
@@ -170,9 +170,13 @@ Two design notes:
 How tokens get the right scopes:
 
 - Admin minting their own token: today's flow (broad `vault:read` etc., narrows on consent picker per `narrowVaultScopes`). Unchanged.
-- Non-admin user minting their own token: the issuer reads the user's `assigned_vault`. The consent picker is pre-populated and locked to that vault. The user picks "Approve" or "Deny" — they can't pick a different vault because they don't have access. The minted token carries `vault:<assigned_vault>:<verb>` for every requested verb the client asked for; `vault_scope: [<assigned_vault>]` rides along.
+- Non-admin user minting their own token: the issuer reads the user's `assigned_vault`. The consent picker is pre-populated and locked to that vault. The user picks "Approve" or "Deny" — they can't pick a different vault because they don't have access. The minted token carries `vault:<assigned_vault>:<verb>` for every requested verb the client asked for, including `admin` when requested by the client; `vault_scope: [<assigned_vault>]` rides along.
 
-**Decision pin — consent picker for non-admin users: lock-the-picker.** Pre-fill the consent screen with `assigned_vault` and render the vault selector read-only (visible label, no dropdown). Rationale: the user sees *which* vault they're approving access to (informational clarity beats hiding it), but can't pick a different one. Server-side, the authorize handler refuses to mint a token whose picked vault disagrees with `assigned_vault` (defense in depth — a malicious client can't bypass the UI by hand-crafting the POST). Alternative considered: hide the picker entirely. Rejected because users benefit from seeing the vault name on the consent screen, especially as Phase 2 widens to multi-vault membership. Aaron can revisit at PR 2 / PR 4 time.
+**Note on `admin` vs `write` for an assigned user.** Per [`parachute-patterns/patterns/oauth-scopes.md`](https://github.com/openparachute/parachute-patterns/blob/main/patterns/oauth-scopes.md), `vault:<name>:write` covers all note + tag mutations; `vault:<name>:admin` inherits write and adds `/.parachute/config*` access — vault-server-level configuration (provider settings, retention, schema management). The reason Phase 1 grants an assigned user `admin` by default is that an assigned user *owns* the vault as their workspace — they should be able to manage their vault's settings (retention, providers, schema), not just its content. If they're going to live in this vault, they need the lever to configure it. Admin scope on an *unassigned* vault would be a privilege escalation, which is exactly the invariant the server-side `assigned_vault` check protects.
+
+**Decision pin — consent picker for non-admin users: Phase 1 locks the picker; Phase 2 hides other vaults entirely.** Phase 1 (this design): pre-fill the consent screen with `assigned_vault` and render the vault selector read-only (visible label, no dropdown). Pragmatic. The user sees *which* vault they're approving access to (informational clarity beats hiding it), but can't pick a different one. Phase 2 (the ideal shape Aaron flagged): non-admin users locked to a single vault don't see any other vaults at all — no dropdown rendered, no other vault names disclosed. A non-admin shouldn't be aware of vaults they don't have scope for. Phase 1 ships lock-the-picker because it's the smallest diff; Phase 2 hardens to don't-show-other-vaults once the multi-vault membership shape lands and the picker has to reconcile multiple sources of truth anyway.
+
+Server-side defense is independent of the UI evolution: the authorize handler refuses to mint a token whose picked vault disagrees with `assigned_vault` regardless of how the picker is rendered. A malicious client hand-crafting the POST hits the same invariant on either phase.
 
 ### Wizard interaction
 
@@ -209,63 +213,65 @@ Unit + integration tests cover:
 - Admin API: list / create / patch / delete users; first-admin-undeletable; `assigned_vault` validates against services.json vaults.
 - OAuth issuer: non-admin with `assigned_vault=foo` minting `vault:read` produces a token with `vault:foo:read` scope and `vault_scope: ["foo"]`.
 
-## Trade-offs and decisions to flag for Aaron's review
+## Decisions
+
+The trade-offs below were the live questions before code started. Aaron has weighed in on all of them; the answers and rationale are captured here so the implementation chain has a single referent.
 
 ### 1. Single-vault per user (Phase 1) vs multi-vault from day one
 
-**Pick:** Single-vault. `assigned_vault: string | null` in the schema.
+**Decision:** Single-vault. `assigned_vault: string | null` in the schema. Phase 2 widens to `assigned_vaults: string[]` (the migration is additive); the schema column gets renamed at that point or kept as "primary" with a separate join table.
 
-The simplification matters because most onboarding flows want a "this is your vault" notion — picking from a dropdown of three is confusing for a first-time user. Phase 2 widens to `assigned_vaults: string[]` (the migration is additive). The schema column gets renamed at that point or kept as "primary" with a separate join table.
-
-If Aaron's "twenty vaults for twenty people" use case never sprouts multi-vault membership, we never widen.
+**Rationale:** Most onboarding flows want a "this is your vault" notion — picking from a dropdown of three is confusing for a first-time user. If Aaron's "twenty vaults for twenty people" use case never sprouts multi-vault membership, we never widen.
 
 **Alternative considered:** Land the join table now (`user_vaults (user_id, vault_name, role)`). Rejected: solves a Phase 2 problem with Phase 1 complexity. The single-column shape covers Aaron's stated use case completely.
 
-### 2. Default-password vs invite-link
+### 2. Default-password vs invite-link timing
 
-**Pick:** Default-password.
+**Decision (confirmed):** Default-password lands in Phase 1; invite-link lands in Phase 2.
 
-The admin types a password in the create-user form; the user signs in with it; the user force-changes on first login. Three reasons:
+**Rationale:** It's what Aaron explicitly asked for, it works without email (Parachute Phase 1 has no email), and the force-change-on-first-login flow handles the obvious worry (admin sees the password, user wants privacy). Invite-link is the more polished shape — `/account/setup/<one-shot-token>` lands the user on a "pick your password" form, no admin-typed-password ever exists — but it's strictly more moving parts and not blocking on Aaron's stated use case. Phase 2.
 
-- It's what Aaron explicitly asked for.
-- It works without email (Parachute Phase 1 has no email).
-- The force-change-on-first-login flow handles the obvious worry (admin sees the password, user wants privacy).
+### 3. Per-vault role default for the assigned user
 
-Invite-link is Phase 2 (`/account/setup/<one-shot-token>` lands the user on a "pick your password" form, no admin-typed-password ever exists). Equivalent privacy, no email needed, but more moving parts.
+**Decision:** `vault:<assigned_vault>:admin`. Phase 1 grants the assigned user the full `read + write + admin` ladder for their assigned vault.
 
-### 3. Per-vault permissions (read / write / admin)
+**Aaron:** "if I'm just giving somebody a user for a vault, then they are generally gonna have admin privileges on that vault."
 
-**Pick:** Punt to Phase 2.
+**Rationale:** An assigned user *owns* their vault as their workspace. The whole shape of Phase 1 is "one hub, twenty people, twenty vaults" — each user is the de-facto admin of their own vault. They should be able to manage retention, providers, and schema settings, not just contents. Admin scope on an *unassigned* vault would be a privilege escalation; admin scope on the user's own assigned vault is the natural default. The server-side `assigned_vault` invariant protects against the escalation case.
 
-Phase 1 grants the assigned user every `vault:<name>:<verb>` the client requests. That's effectively `read+write` for a typical Notes client. No per-user read-only / admin distinction.
-
-The shape is forward-compatible: when Phase 2 adds a role column, the migration sets every existing row to `role='write'` (today's effective behavior) and the issuer learns to narrow scopes by role.
-
-**To weigh in on:** is "the assigned user has full vault access" the right default, or do we want read-only-by-default and the admin opts each user into write?
+Phase 2 will add explicit role granularity (`read` / `write` / `admin`) recorded per `(user, vault)` pair for the multi-vault case — at which point the default for a user added to *someone else's* vault is probably `read` or `write`, not `admin`. Phase 1's single-vault shape doesn't need that distinction.
 
 ### 4. Username constraints
 
-**Pick proposal:** length 2-32 chars, charset `[a-z0-9_-]` (lowercase letters, digits, underscore, hyphen). Reserved words: `admin`, `root`, `system`, `setup`, `parachute`, `hub`.
+**Decision (confirmed):** length 2-32 chars, charset `[a-z0-9_-]` (lowercase letters, digits, underscore, hyphen). Reserved words: `admin`, `root`, `system`, `setup`, `parachute`, `hub`.
 
-Reserved-word list keeps URL-shaped surfaces safe (we don't yet have `/users/<username>` URLs, but Phase 2 might). Lowercase-only avoids the "user `Bob` vs `bob`" confusion that needs case-folding helpers everywhere.
+**Aaron:** "those username constraints are good. Um, I'm not necessarily sure if we need to reserve those words, but it doesn't feel too harmful to do it."
 
-**To weigh in on:** the reserved list, and whether lowercase-only is too strict.
+**Rationale:** Reserved-word list keeps URL-shaped surfaces safe (Phase 2 may grow `/users/<username>` paths). Lowercase-only avoids the "user `Bob` vs `bob`" confusion that needs case-folding helpers everywhere. The reserved list is cheap insurance; if it ever bites a legitimate user the operator can edit the row in SQL.
 
 ### 5. Password rules
 
-**Pick proposal:** min length 8. No complexity rules. No max length.
+**Decision:** min length **12 chars**. No complexity rules (no required uppercase / digit / symbol). No max length.
 
-Phase 1 is "the friend's hub" — not a public service. Password hygiene matters less here than the basic ability to set one. We can layer complexity rules in a Phase 2 hardening pass.
+**Aaron:** "We should have some minimum password rules" — bumped from the proposed 8-char floor to 12.
 
-**To weigh in on:** does Aaron want a higher floor (12? 16? a passphrase nudge?), or is 8 fine.
+**Rationale:** A 12-char floor lets users use a memorable passphrase (`correct horse battery staple`) without forcing weird character-class mixes. Complexity rules drive people toward predictable patterns like `Password1!` that are easier to guess than a random 12-char string. Length-only is the modern consensus (NIST 800-63B aligns).
 
-### 6. What happens when admin deletes a user with active sessions / minted tokens
+### 6. Delete-user semantics
 
-**Pick proposal:** Hard delete in the `users` row, cascade-delete the user's sessions (already FK-referencing `users.id`), and **revoke every token** the user owns by writing `revoked_at` rows in the `tokens` table (the existing revocation-list machinery picks them up within the 60-second poll window).
+**Decision:** Hard-delete + token revocation. The `users` row is removed; sessions cascade-delete via the existing FK on `users.id`; minted tokens get `revoked_at` rows (the existing revocation-list machinery picks them up within the 60-second poll window).
 
-The cascading delete on `tokens` would be cleaner but loses audit trail — keeping the rows and flipping `revoked_at` preserves "this user existed and held these tokens" for incident response.
+**Aaron:** hard-delete with token revocation is fine for delete-user semantics.
 
-**To weigh in on:** is hard-delete the right shape, or do we want soft-delete (a `deleted_at` column on users) so the admin can undo for a window?
+**Rationale:** Hard-delete is the simplest mental model — "this user is gone" means gone. Token rows stay (with `revoked_at` set) so the audit trail of "this user existed and held these tokens" survives for incident response. Soft-delete with an undo window was the alternative; rejected because the operator's path to "I deleted them by mistake" is "create a new user with the same username" — the new account doesn't recover the old vault assignment automatically (admin re-assigns), which is the right shape: the admin is back in control of the access decision either way.
+
+### 7. First-admin-undeletable
+
+**Decision (confirmed):** Yes. The wizard-created (or env-seeded) first admin cannot be deleted from the admin SPA or API. DELETE returns 409 with `error: "first_admin_undeletable"`.
+
+**Aaron:** "making sure that we have a undeletable admin account is probably a good shape."
+
+**Rationale:** The safety rail keeps the hub from being self-locked. If the operator deletes the only admin, there's no path back into the hub short of editing SQL directly. Phase 2 may relax this to "allow deletion as long as another admin exists" once the role model lands; Phase 1 keeps it absolute because Phase 1 has no role model — every non-first-admin user is non-admin, so the first admin is *the* admin by construction.
 
 ## What changes in the existing hub_settings + DB shape
 
@@ -327,9 +333,39 @@ When the admin sets `assigned_vault: "foo"`, the API verifies `foo` exists in th
 
 We don't auto-clear the pointer because the admin may be temporarily reconfiguring; an explicit "the vault is gone, please reassign" is more correct than silent drop.
 
+## 2FA orientation
+
+Aaron's direction for Phase 1: start orienting more deliberately toward 2FA as a strongly recommended thing — especially because some hubs in the Phase 1 use case (the rented Render box, the friend's hosted hub) will be reachable on the public internet, and password-only is a thin wall when `/login` is one IP-shaped form away from anyone on the planet.
+
+**Phase 1 doesn't redesign 2FA primitives.** The hub already has TOTP support: `parachute auth 2fa enroll | disable | backup-codes` exists today (see [`parachute-hub/src/commands/auth.ts`](https://github.com/openparachute/parachute-hub/blob/main/src/commands/auth.ts) — the `VAULT_FORWARDED_SUBCOMMANDS` set forwards `2fa` to `parachute-vault`, which is the current TOTP storage). The post-exposure nudge already exists too: [`parachute-hub/src/commands/expose-2fa-warning.ts`](https://github.com/openparachute/parachute-hub/blob/main/src/commands/expose-2fa-warning.ts) prints a contextual warning after `parachute expose public` if vault's `config.yaml` doesn't carry a `totp_secret`. The primitive Phase 1 needs is per-user TOTP storage in `hub.db` (today's TOTP lives in vault's config and is implicitly the operator's, not per-user); the lift from there is incremental.
+
+**For multi-user Phase 1:**
+
+- 2FA is **optional but strongly recommended.** Not required.
+- When the user is in the force-change-password flow on first sign-in, offer an inline 2FA enrollment step. Skippable, but with a clear "we recommend this — takes 30 seconds" framing in the page chrome. Re-uses the existing TOTP enroll surface (QR code + backup codes).
+- After the user is signed in, the existing `/account/change-password` page broadens to `/account/security` (or a sidebar within the change-password page) that exposes "enable 2FA" / "regenerate backup codes" / "disable 2FA" as user-self-service actions. Same as the CLI surface, just web-shaped.
+
+**Public-expose nudge (stronger when the hub is reachable from outside).** The hub already stores `setup_expose_mode` in `hub_settings` (`localhost` / `tailnet` / `public`). When the user lands on the inline 2FA step:
+
+- `setup_expose_mode === "localhost"`: standard "recommended" framing. Skippable.
+- `setup_expose_mode ∈ {"tailnet", "public"}`: stronger nudge. "This hub is reachable from outside your machine — anyone who guesses your password can sign in. We strongly recommend enabling 2FA." Still skippable in Phase 1 (forcing it would block the user from getting to their vault on first sign-in, which is the wrong tradeoff for a phase whose goal is "make onboarding work"), but the framing is prominent and the rationale is explicit.
+
+The existing `printPublic2FAWarning` already takes the CLI-operator side of this: after `parachute expose public`, the *operator* sees a warning if 2FA isn't enrolled. The new Phase 1 surface takes the *user* side: every new user gets the same nudge on first sign-in, scaled to the hub's exposure posture.
+
+**TOTP storage migration.** Today's `totp_secret` in vault's `config.yaml` is the operator's, by construction (vault is single-user). Multi-user Phase 1 means TOTP becomes per-user, which means it migrates into hub.db. The simplest shape: a new `users.totp_secret` column (nullable) + `users.totp_backup_codes` (nullable JSON array of hash-of-code strings) on migration v9 (or folded into v8 if PR 1 is still open). The existing operator TOTP gets migrated into the first-admin's row on the same migration; `parachute auth 2fa <op>` keeps working but now reads/writes the hub-db column instead of forwarding to vault. The vault-side TOTP code path retires once Phase 1 ships.
+
+**Scope: do this in Phase 1 if it's small (one extra PR — call it PR 6 below); defer to a Phase 1.5 if the TOTP migration turns out to be more than ~200 LOC.** The principle is "don't ship multi-user without making 2FA the obvious next step on the path" — even if the actual code lands a release later, the design space here is committed.
+
+**Phase 2 (future) — harder enforcement:**
+
+- Admin setting: "require 2FA for all users on this hub." Default off in Phase 2; on by default in Phase 3 for `public`-mode hubs.
+- Admin setting: "require 2FA for non-localhost expose modes." Once the hub flips to tailnet or public exposure, every user without 2FA enrolled gets force-redirected to enrollment on their next sign-in. Aaron flagged this as a candidate Phase 2 hardening; not Phase 1 because force-enrollment is a behavior change that needs the user-self-service profile page (Phase 2 work) to coexist cleanly.
+
+The endgame is: the public-internet hub posture defaults to "2FA required for all users, password reset requires a backup code," and the operator opts *out* if they have a specific reason. Phase 1 plants the nudge; Phase 2 grows the enforcement lever; Phase 3 flips defaults.
+
 ## Sequencing — the implementation PR plan
 
-The work splits into five PRs against `parachute-hub`. Each is independently shippable. Dependency shape: PR 1 lands first (everyone depends on the schema + helpers). **PRs 2 and 3 both depend on PR 1 but can run in parallel** — PR 2 is the admin-creates-user surface, PR 3 is the force-change-password redirect; they touch independent code paths and don't conflict. PR 4 depends on PR 1 (for `assigned_vault`) but is independent of PRs 2 and 3 (the OAuth issuer change is read-only against the user row). PR 5 (verification) waits on PRs 1-4.
+The work splits into six PRs against `parachute-hub` (five for the multi-user foundation, plus an optional PR 6 for the 2FA enrollment surface — see scope note in the 2FA orientation section). Each is independently shippable. Dependency shape: PR 1 lands first (everyone depends on the schema + helpers). **PRs 2 and 3 both depend on PR 1 but can run in parallel** — PR 2 is the admin-creates-user surface, PR 3 is the force-change-password redirect; they touch independent code paths and don't conflict. PR 4 depends on PR 1 (for `assigned_vault`) but is independent of PRs 2 and 3 (the OAuth issuer change is read-only against the user row). PR 5 (verification) waits on PRs 1-4. PR 6 (if it lands in Phase 1) depends on PR 3 — the inline 2FA enrollment hangs off the change-password flow.
 
 ### PR 1 (small) — schema + helpers
 
@@ -339,7 +375,9 @@ The work splits into five PRs against `parachute-hub`. Each is independently shi
 - `User` interface + `rowToUser` carry the new fields.
 - `createUser` accepts optional `assignedVault`.
 - New `markPasswordChanged`, `setAssignedVault` helpers.
-- Tests cover migration against a v7 fixture, helper happy paths, error paths.
+- Password validator helper enforcing the 12-char minimum (no complexity rules; no max length). Shared between `createUser`, the admin reset-password path, and the user-self-service change-password path so a single source of truth defines the rule.
+- Username validator: enforces the 2-32 char + `[a-z0-9_-]` rule, refuses reserved words.
+- Tests cover migration against a v7 fixture, helper happy paths, error paths, validator boundaries (11 chars rejected / 12 accepted; uppercase username rejected; reserved word rejected).
 
 No UI surface, no API endpoint. **Lands by itself** so the rest of the chain has a known-good substrate.
 
@@ -358,7 +396,8 @@ No UI surface, no API endpoint. **Lands by itself** so the rest of the chain has
 
 - `/login` POST: detect `password_changed=false`, set session cookie, 302 to `/account/change-password?next=<original>`.
 - `GET /account/change-password` — server-rendered form (same chrome family as `/login`).
-- `POST /account/change-password` — verify current, set new, flip the flag, redirect.
+- `POST /account/change-password` — verify current, run new password through the PR-1 validator (12-char minimum), set new, flip the flag, redirect.
+- Server-rendered page wires the 12-char minimum into the inline form-error rendering so the UX matches what the validator enforces.
 
 ### PR 4 (small) — OAuth issuer integration
 
@@ -377,15 +416,14 @@ End-to-end test: spin up a hub fixture, run wizard, create a non-admin user with
 
 Cited bundles + counts go in each PR's commit message per the hub `CLAUDE.md` test-gate convention.
 
-## What I want Aaron to weigh in on before code starts
+### PR 6 (optional, small/medium) — inline 2FA enrollment on first sign-in
 
-These are the live trade-offs from the section above, summarized:
+**Touches:** `src/account-change-password-ui.ts` (the surface PR 3 introduces), `src/users.ts` (new TOTP columns + helpers if not already in PR 1), `src/hub-db.ts` (migration v9 for per-user `totp_secret` + `totp_backup_codes`), `src/commands/auth.ts` (retire `VAULT_FORWARDED_SUBCOMMANDS.has("2fa")` — rewrite `parachute auth 2fa <enroll|disable|backup-codes>` to read/write hub.db instead of forwarding to `parachute-vault`), `src/commands/expose-2fa-warning.ts` (point `is2FAEnrolled` at the hub.db column for the first-admin row instead of probing vault's `config.yaml`; the `readVaultAuthStatus` helper retires once the migration completes), `src/__tests__/account-change-password.test.ts`, `src/__tests__/expose-2fa-warning.test.ts` (update fixtures from vault-config-yaml probing to hub.db reads).
 
-1. **Per-vault role default.** Does the assigned user get full `read+write+admin`, or just `read+write` (no `vault:<name>:admin`), or read-only by default with admin opt-in for write?
-2. **Username constraints.** Reserved-word list + lowercase-only — too strict, fine, looser?
-3. **Password minimum.** 8 chars, no complexity. Higher floor wanted?
-4. **Delete-user semantics.** Hard-delete + token-revocation, or soft-delete with undo window?
-5. **Default-password vs invite-link timing.** Phase 1 ships default-password only. Phase 2 adds invite-link. Reasonable, or does the invite-link variant need to land sooner?
-6. **First-admin-undeletable.** Confirming this is the right safety rail. Alternative: allow deletion as long as another admin exists.
+- After the user submits a new password on `/account/change-password`, present an inline "set up 2FA — recommended" step (QR + backup codes) before redirecting to `next`.
+- "Skip for now" link present and prominent.
+- Strengthened framing when `setup_expose_mode ∈ {tailnet, public}` (see 2FA orientation section above for the exact copy beats).
+- Re-uses the existing TOTP enroll logic; the migration moves operator-TOTP from vault's `config.yaml` into the first-admin's row on `users`.
+- Out-of-band: the existing `parachute auth 2fa enroll | disable | backup-codes` CLI surface keeps working against hub.db once the migration completes (instead of vault's config.yaml).
 
-Everything else in the doc is committed-shape unless Aaron flags it. The PR chain starts the day these six are settled.
+**Scope gate:** if the TOTP migration alone exceeds ~200 LOC, split into a Phase 1.5 follow-up — the multi-user PR chain doesn't block on it. The point of including this option in the plan is to keep the door open for shipping the 2FA orientation in the same release wave, not to make it a hard prerequisite.
