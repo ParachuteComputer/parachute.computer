@@ -16,8 +16,15 @@ permalink: /docs/
 
     <section class="section">
         <h2>Architecture design notes</h2>
-        <p>Written 2026-04-20 in the week before public launch, capturing the shape Parachute is evolving toward.</p>
+        <p>Capturing the shape Parachute is evolving toward.</p>
         <ul class="blog-list">
+            <li>
+                <a href="/design/2026-05-18-v06-deploy-architecture/" class="blog-post-card">
+                    <h3>v0.6 deploy architecture &mdash; single Render container, hub-as-supervisor</h3>
+                    <div class="date">2026-05-18</div>
+                    <p class="excerpt">The self-host deploy shape locked in for v0.6: one container running hub-as-supervisor, vault / notes / scribe as child processes sharing a single persistent disk, modules installed at runtime via the admin SPA. The deploy mirror of the local model. Surfaced one-click at <a href="/deploy/render/">/deploy/render/</a>.</p>
+                </a>
+            </li>
             <li>
                 <a href="https://github.com/ParachuteComputer/parachute.computer/blob/main/design/2026-04-20-module-architecture.md" class="blog-post-card" target="_blank">
                     <h3>Module architecture</h3>
@@ -36,7 +43,7 @@ permalink: /docs/
                 <a href="https://github.com/ParachuteComputer/parachute.computer/blob/main/design/2026-04-20-cloud-offering-sketch.md" class="blog-post-card" target="_blank">
                     <h3>Parachute Cloud &mdash; architecture sketch</h3>
                     <div class="date">2026-04-20</div>
-                    <p class="excerpt">Cloud deployment shape: tenant-per-subdomain, Postgres-backed, CDN-hosted Notes, pooled Scribe. A plausible north star we refine when a first cloud user materializes.</p>
+                    <p class="excerpt">Cloud deployment shape: tenant-per-subdomain, Postgres-backed, CDN-hosted Notes, pooled Scribe. A plausible north star we refine when a first cloud user materializes. Note: this is the long-horizon hosted offering; v0.6 self-host (above) is the path shipping today.</p>
                 </a>
             </li>
         </ul>

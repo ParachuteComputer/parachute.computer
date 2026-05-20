@@ -1,0 +1,178 @@
+---
+layout: base.njk
+title: "Deploy to Render"
+description: "One-click deploy Parachute to Render. Your own hub, your own data, in a browser tab. About five minutes from click to a running URL."
+permalink: /deploy/render/
+---
+<main>
+
+    <section class="hero">
+        <h1 class="fade-up fade-up-2">Deploy to Render</h1>
+        <p class="tagline fade-up fade-up-3">Your own Parachute, your own data, in a browser tab. About five minutes from click to a running URL.</p>
+    </section>
+
+    <section class="section">
+        <h2>One click to start</h2>
+
+        <p><strong>Why this path.</strong> Parachute is happiest on your own machine, but a laptop sleeps. Render is the simplest "always-on URL" we've found that still lets you own everything &mdash; a single container running your hub, with a persistent disk for your vault, all in your Render account. No tenancy, no shared database, no Parachute-operated cloud sitting between you and your data.</p>
+
+        <p style="text-align: center; margin: 2rem 0;">
+            <a href="https://render.com/deploy?repo=https://github.com/ParachuteComputer/parachute-hub" target="_blank" rel="noopener">
+                <img src="https://render.com/images/deploy-to-render-button.svg" alt="Deploy to Render" style="height: 44px;">
+            </a>
+        </p>
+
+        <p>Render will ask for a GitHub connection, read <a href="https://github.com/ParachuteComputer/parachute-hub/blob/main/render.yaml" target="_blank"><code>render.yaml</code></a> from <code>parachute-hub</code>, and provision a single web service with a persistent disk attached. The first build takes about two to three minutes.</p>
+    </section>
+
+    <section class="section">
+        <h2>What you get</h2>
+
+        <p>One <a href="https://render.com/docs/free#free-web-services" target="_blank">Render web service</a> (Starter plan, $7/month) running <strong>hub-as-supervisor</strong> &mdash; the same architecture you'd run locally, just inside a Render container. One persistent disk mounted at <code>/parachute</code> for module installs and vault data. HTTPS and a <code>*.onrender.com</code> subdomain included; a custom domain attaches in a couple of clicks afterward.</p>
+
+        <p><strong>Modules are not pre-installed.</strong> The container ships with only the hub. After first boot, the admin UI lets you install <a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank">Vault</a>, <a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank">Notes</a>, and <a href="https://github.com/ParachuteComputer/parachute-scribe" target="_blank">Scribe</a> with one click each &mdash; they install onto the persistent disk under <code>/parachute/modules</code>, so they survive redeploys.</p>
+
+        <p>This is the deploy mirror of the local model: locally, the hub supervises vault, notes, and scribe as child processes sharing <code>~/.parachute/</code>. On Render, the hub supervises the same children in the same container, sharing the mounted disk. See the <a href="/design/2026-05-18-v06-deploy-architecture/">v0.6 deploy architecture note</a> for the full shape.</p>
+    </section>
+
+    <section class="section">
+        <h2>1. Click "Deploy to Render"</h2>
+
+        <p><strong>Why this step.</strong> Render reads the repo's <code>render.yaml</code>, which declares the service shape (web service, Docker, disk at <code>/parachute</code>, env vars) and pre-fills everything on the Render dashboard. You're just confirming.</p>
+
+        <p>Sign in or sign up. Accept the GitHub connection if you don't already have one. Render shows the "Apply Blueprint" page with one service (<code>parachute-hub</code>) and one disk. Click <strong>Apply</strong>.</p>
+
+        <p><strong>What you should see.</strong> Render kicks off a build. The dashboard lands on the service page with a live deploy log streaming.</p>
+    </section>
+
+    <section class="section">
+        <h2>2. Wait ~2&ndash;3 minutes</h2>
+
+        <p><strong>Why this step.</strong> First build pulls the Docker image, sets up the persistent disk, and boots the hub. Subsequent redeploys (after you push to the repo, or click "Manual Deploy") are faster &mdash; about 30 seconds &mdash; because the disk and image layers are cached.</p>
+
+        <p>The deploy log shows the build, then the hub start. Look for a line like <code>parachute-hub listening on :1939</code>. When the dashboard banner switches from "Deploying" to <strong>Live</strong>, you're up.</p>
+
+        <p><strong>What you should see.</strong> Status: <strong>Live</strong>. A URL on the service page like <code>https://parachute-hub-abc123.onrender.com</code>.</p>
+    </section>
+
+    <section class="section">
+        <h2>3. Open the Render URL</h2>
+
+        <p><strong>Why this step.</strong> Hub boots without an admin account on a fresh disk. The first request to any non-public route redirects to the first-boot wizard, which sets your admin credentials and names your first vault.</p>
+
+        <p>Click the URL on the Render dashboard. Hub redirects you to <code>/admin/setup</code>.</p>
+
+        <p><strong>What you should see.</strong> The setup wizard's welcome screen, with five steps in the side rail: <em>Welcome</em>, <em>Account</em>, <em>Vault</em>, <em>Expose</em>, <em>Done</em>.</p>
+    </section>
+
+    <section class="section">
+        <h2>4. Walk the first-boot wizard</h2>
+
+        <p><strong>Why this step.</strong> The wizard sets up the things that have to be set up once and can't be defaulted: who you are, what to call your first vault, and how this hub is reachable on the internet.</p>
+
+        <ol>
+            <li><strong>Welcome.</strong> One screen of orientation. Continue.</li>
+            <li><strong>Account.</strong> Pick a username and password. Stored in the hub's database with <a href="https://github.com/P-H-C/phc-winner-argon2" target="_blank">argon2</a> hashing. There's no email-based recovery on the self-hosted path &mdash; the hub belongs to you, so write the password down.</li>
+            <li><strong>Vault.</strong> Names your first vault (defaults to <code>default</code>). You can add more vaults later from the admin UI.</li>
+            <li><strong>Expose.</strong> Pick how this hub is reached. For Render: choose <strong>Public URL</strong> &mdash; Render handles TLS termination on the <code>*.onrender.com</code> subdomain (or your custom domain). The other options (Tailscale, Cloudflare Tunnel) are for the local-install path; on Render they're not the right fit.</li>
+            <li><strong>Done.</strong> Two tiles: <strong>Open the admin UI</strong> (lands on <code>/admin/vaults</code>; from there you can navigate to <code>/admin/modules</code> to install Notes, Scribe, and any other modules) and <strong>Connect Claude Code (MCP)</strong> (the install command for the MCP wiring &mdash; see step 6).</li>
+        </ol>
+
+        <p><strong>What you should see.</strong> The done screen renders the <code>claude mcp add</code> command pre-filled with your hub's URL and vault name. Note: the wizard's command does <em>not</em> include an auth header &mdash; you mint a token separately from <code>/admin/tokens</code> and add the header yourself. Step 6 walks the full pattern.</p>
+    </section>
+
+    <section class="section">
+        <h2>5. Install modules from the admin UI</h2>
+
+        <p><strong>Why this step.</strong> The hub on its own is just the supervisor &mdash; useful for OAuth and module lifecycle, but not yet the thing you want to talk to. Modules are where the actual reading, writing, and capturing happens.</p>
+
+        <p>From the done screen's <strong>Open the admin UI</strong> tile (lands on <code>/admin/vaults</code>), navigate to <strong>Modules</strong> &mdash; that's <code>/admin/modules</code>. You'll see Vault, Notes, and Scribe listed as available. Click <strong>Install</strong> next to each one you want. Install takes about a minute per module &mdash; the hub runs <code>bun install</code> against the package and persists it under <code>/parachute/modules/node_modules/</code>, then spawns it as a child process and mounts its routes under <code>/vault</code>, <code>/notes</code>, <code>/scribe</code>.</p>
+
+        <p><strong>What you should see.</strong> Each installed module switches to a <strong>Running</strong> badge with its mounted path. Notes is reachable at <code>&lt;your-hub&gt;/notes</code>, vault's REST API at <code>&lt;your-hub&gt;/vault/default</code>, scribe at <code>&lt;your-hub&gt;/scribe</code>.</p>
+    </section>
+
+    <section class="section">
+        <h2>6. Connect Claude Code</h2>
+
+        <p><strong>Why this step.</strong> The vault is running and reachable, but no client is wired to it yet. Claude Code talks MCP over HTTP &mdash; one command registers the server in <code>~/.claude.json</code>, then it picks it up on the next session.</p>
+
+        <p>Connecting is a two-step pattern. First, copy the <code>claude mcp add</code> command from the wizard's done screen into your terminal &mdash; it looks like:</p>
+
+        <div class="code-inline">
+            <code>claude mcp add --transport http parachute-default https://your-hub.onrender.com/vault/default/mcp</code>
+        </div>
+
+        <p>Then mint an API token: go to <code>/admin/tokens</code> in the admin UI, create a new token (default scope <code>vault:write</code> is what you want), and copy the <code>pvt_...</code> string. Re-run <code>claude mcp add</code> with the header flag &mdash; or edit the entry in <code>~/.claude.json</code> directly &mdash; so the final form is:</p>
+
+        <div class="code-inline">
+            <code>claude mcp add --transport http parachute-default https://your-hub.onrender.com/vault/default/mcp --header "Authorization: Bearer pvt_..."</code>
+        </div>
+
+        <p>Start a new Claude Code session in any project. Run <code>/mcp</code> &mdash; <code>parachute-default</code> should appear with its nine tools resolved. Memory now persists across every session, backed by your Render-hosted hub.</p>
+
+        <p><strong>What you should see.</strong> <code>parachute-default</code> in <code>/mcp</code>'s list with status <em>connected</em>. Asking Claude to write a note succeeds and the note appears in the Notes UI on <code>&lt;your-hub&gt;/notes</code> immediately.</p>
+    </section>
+
+    <section class="section">
+        <h2>Custom domain (optional)</h2>
+
+        <p><strong>Why this step.</strong> The <code>*.onrender.com</code> subdomain works forever, but most people want their own domain &mdash; both for memorability and because the OAuth tokens the hub mints are bound to a canonical origin you'd rather control.</p>
+
+        <ol>
+            <li>In Render: <strong>Service &rarr; Settings &rarr; Custom Domains</strong>. Add your domain. Render gives you a CNAME target.</li>
+            <li>In your DNS: point a CNAME from your subdomain to that target. Wait for propagation (usually under a minute, sometimes longer).</li>
+            <li>Render automatically provisions a TLS certificate from Let's Encrypt.</li>
+            <li>Back in Render: <strong>Service &rarr; Environment</strong>. Set <code>PARACHUTE_HUB_ORIGIN=https://your-domain.example.com</code>. The variable's already declared in <code>render.yaml</code> with <code>sync: false</code>, so Render's UI is where you fill it in. Save &mdash; Render redeploys automatically.</li>
+        </ol>
+
+        <aside class="upgrade-callout">
+            <strong>Set the origin once and don't churn.</strong>
+            <p>The hub mints OAuth tokens against the canonical <code>PARACHUTE_HUB_ORIGIN</code>. If you change the origin later, previously issued tokens become invalid and connected clients (Claude Code, Notes PWA, anything else holding a token) will need to reconnect through the OAuth flow. Pick the domain you want before you wire up a bunch of clients.</p>
+        </aside>
+    </section>
+
+    <section class="section">
+        <h2>Cost</h2>
+
+        <ul>
+            <li><strong>Render Starter:</strong> $7/month, flat. The web service tier. The free tier doesn't support persistent disks, and the hub needs a disk for module installs and vault data &mdash; so Starter is the minimum.</li>
+            <li><strong>Persistent disk:</strong> Render charges separately for disk space beyond the included 1GB &mdash; see <a href="https://render.com/pricing" target="_blank">Render's pricing</a> for current rates. Vault databases are tiny; typical single-operator usage stays well under 1GB through the first year, so most people pay nothing extra.</li>
+            <li><strong>Custom domain:</strong> free, assuming you already own the domain. TLS via Let's Encrypt is included.</li>
+        </ul>
+
+        <p><strong>Expected total:</strong> ~$7/month plus disk-overage for hub + vault + notes + scribe running together &mdash; most single-operator setups stay at the $7 floor.</p>
+
+        <p><em>Compare locally:</em> the same stack on your own Mac or Linux box is free, but you give up the always-on URL and the "works from my phone, anywhere" property. The Render path is the trade.</p>
+    </section>
+
+    <section class="section">
+        <h2>Limitations</h2>
+
+        <ul>
+            <li><strong>One container shares 512MB of RAM.</strong> Render Starter is enough for hub + vault + notes + scribe at typical sub-1000-note usage. If you hit the ceiling &mdash; large vaults, heavy transcription workloads &mdash; the path is either upgrade the Render plan (Standard is 2GB) or split a module out to its own service later. We'll document that when someone needs it.</li>
+            <li><strong>No free tier.</strong> Free Render web services don't support persistent disks, and a stateful hub needs a disk. Starter ($7) is the floor.</li>
+            <li><strong>Module installs take a minute.</strong> Each "Install" click runs a real <code>bun install</code> on the container against the npm registry. First-time installs of vault or notes take roughly a minute; redeploys re-use the cached disk.</li>
+            <li><strong>Redeploys are not zero-downtime.</strong> When you push to the repo (or Render redeploys for any reason), the container restarts. Expect ~30 seconds where the hub is unreachable. For a single-operator hub this is a non-issue; for teams it's worth knowing.</li>
+        </ul>
+    </section>
+
+    <section class="section">
+        <h2>What comes next</h2>
+
+        <ul>
+            <li><a href="/install/">Local install</a> &mdash; the same stack on your own machine. Free, but sleeps when your laptop sleeps.</li>
+            <li><a href="/design/2026-05-18-v06-deploy-architecture/">v0.6 deploy architecture</a> &mdash; the design note explaining <em>why</em> it's one container with hub-as-supervisor.</li>
+            <li><a href="https://github.com/ParachuteComputer/parachute-hub/issues" target="_blank">parachute-hub issues</a> &mdash; deploy questions, bugs, friction. We read all of them.</li>
+        </ul>
+    </section>
+
+    <section class="cta">
+        <p style="margin-bottom: 1.5rem;">
+            <a href="https://render.com/deploy?repo=https://github.com/ParachuteComputer/parachute-hub" target="_blank" rel="noopener">
+                <img src="https://render.com/images/deploy-to-render-button.svg" alt="Deploy to Render" style="height: 44px;">
+            </a>
+        </p>
+        <p class="cta-secondary">Or <a href="/install/">install locally</a>.</p>
+    </section>
+
+</main>
