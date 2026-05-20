@@ -58,7 +58,7 @@ Every read needs the SQLite cache. The cache has to be built from the git checko
 - **Tiny vaults (~100 notes):** sub-second cache rebuild on any modern SSD. Performance is a non-issue.
 - **Medium vaults (~1k notes):** seconds to rebuild. Fine for occasional cold starts (machine boot, vault upgrade), painful for restart-heavy operational patterns (every `parachute restart vault` becomes a multi-second wait before the first query lands).
 - **Large vaults (~10k+ notes):** minutes for cache rebuild. Vault becomes effectively unusable for restart-driven workflows. Cold-start latency dominates.
-- **The MCP angle:** vault MCP queries today complete in <50ms for typical lookups. If SQLite has to be regenerated from a stale cache before the query can run, MCP latency becomes whatever cache-rebuild-or-incremental-update costs. That's the difference between MCP feeling instant and MCP feeling like a batch job.
+- **The MCP angle:** vault MCP queries today complete in sub-100ms for typical lookups. If SQLite has to be regenerated from a stale cache before the query can run, MCP latency becomes whatever cache-rebuild-or-incremental-update costs. That's the difference between MCP feeling instant and MCP feeling like a batch job.
 
 The mitigation is incremental cache updates — only re-parse the files whose mtime changed since the last cache build. That works well *most* of the time but breaks on `git checkout <branch>` (many files change atomically, often without mtime granularity matching reality) and on `git pull` after a remote update (same problem at higher scale). The honest answer is "cache rebuild is fast for the common case, slow for the worst case, and the worst case happens whenever the operator does anything git-shaped."
 
@@ -97,7 +97,7 @@ The honest answer: under C, attachments are the wart that doesn't go away. Pick 
 
 ### Schema migrations — git history is forever
 
-Vault's SQLite schema can evolve. We've shipped eight migrations to date — adding columns, renaming fields, restructuring tag-schema storage. Each migration is a one-time vault-side operation; current notes get re-interpreted under the new schema, old code paths get retired.
+Vault's SQLite schema can evolve. Vault's schema is on its 18th version — adding columns, renaming fields, restructuring tag-schema storage. Each migration is a one-time vault-side operation; current notes get re-interpreted under the new schema, old code paths get retired.
 
 Under C, git history is forever. A commit from 18 months ago has `.md` files with the schema of the vault at that point in time. When vault reads that commit (via `git checkout <sha>`, or `git log` browsing), what does it do?
 

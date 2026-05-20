@@ -8,6 +8,7 @@ description: "Design for making vault tightly integrated with its git mirror —
 **Status:** Design proposal — the v0.7+ arc that follows the small `--watch` / `--git-commit` step shipping in **vault#346** (parallel PR). Informs the implementation chain that comes after.
 
 **Companions:**
+- [`2026-05-20-vault-as-git-canonical-thought-experiment.md`](./2026-05-20-vault-as-git-canonical-thought-experiment.md) — focused exploration of Architecture C as a thought experiment (not a commitment)
 - [`2026-05-18-v06-deploy-architecture.md`](./2026-05-18-v06-deploy-architecture.md) — single-container deploy shape (the substrate this lives inside)
 - [`2026-05-20-multi-user-phase-1.md`](./2026-05-20-multi-user-phase-1.md) — multi-user foundation (each user pinned to a vault; mirror config is per-vault)
 - [`2026-04-20-module-architecture.md`](./2026-04-20-module-architecture.md) — module + scope shape
