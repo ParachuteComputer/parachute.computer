@@ -58,7 +58,7 @@ Phase 1 ships exactly those four. Nothing more; nothing less.
 - Email collection or magic-link recovery.
 - Audit log UI.
 - Bulk CSV import.
-- 2FA / SSO.
+- 2FA enforcement (Phase 2). 2FA *enrollment* is the optional Phase 1.5 PR 6 surface — see the 2FA orientation section + sequencing below. SSO (OIDC / SAML) is Phase 3.
 
 ### Phase 2 — multi-vault + self-service polish
 
@@ -172,7 +172,7 @@ How tokens get the right scopes:
 - Admin minting their own token: today's flow (broad `vault:read` etc., narrows on consent picker per `narrowVaultScopes`). Unchanged.
 - Non-admin user minting their own token: the issuer reads the user's `assigned_vault`. The consent picker is pre-populated and locked to that vault. The user picks "Approve" or "Deny" — they can't pick a different vault because they don't have access. The minted token carries `vault:<assigned_vault>:<verb>` for every requested verb the client asked for, including `admin` when requested by the client; `vault_scope: [<assigned_vault>]` rides along.
 
-**Note on `admin` vs `write` for an assigned user.** Per [`parachute-patterns/patterns/oauth-scopes.md`](https://github.com/openparachute/parachute-patterns/blob/main/patterns/oauth-scopes.md), `vault:<name>:write` covers read + write of notes *and tag management* (create, edit description, link/unlink). `vault:<name>:admin` inherits write and adds `/.parachute/config*` access — vault-server-level configuration (provider settings, retention, schema management). Tag management does NOT require `admin`; it's a `write`-scope verb. The reason Phase 1 grants an assigned user `admin` by default is that an assigned user *owns* the vault as their workspace — they should be able to manage their vault's settings (retention, providers, schema), not just its content. If they're going to live in this vault, they need the lever to configure it. Admin scope on an *unassigned* vault would be a privilege escalation, which is exactly the invariant the server-side `assigned_vault` check protects.
+**Note on `admin` vs `write` for an assigned user.** Per [`parachute-patterns/patterns/oauth-scopes.md`](https://github.com/openparachute/parachute-patterns/blob/main/patterns/oauth-scopes.md), `vault:<name>:write` covers all note + tag mutations; `vault:<name>:admin` inherits write and adds `/.parachute/config*` access — vault-server-level configuration (provider settings, retention, schema management). The reason Phase 1 grants an assigned user `admin` by default is that an assigned user *owns* the vault as their workspace — they should be able to manage their vault's settings (retention, providers, schema), not just its content. If they're going to live in this vault, they need the lever to configure it. Admin scope on an *unassigned* vault would be a privilege escalation, which is exactly the invariant the server-side `assigned_vault` check protects.
 
 **Decision pin — consent picker for non-admin users: Phase 1 locks the picker; Phase 2 hides other vaults entirely.** Phase 1 (this design): pre-fill the consent screen with `assigned_vault` and render the vault selector read-only (visible label, no dropdown). Pragmatic. The user sees *which* vault they're approving access to (informational clarity beats hiding it), but can't pick a different one. Phase 2 (the ideal shape Aaron flagged): non-admin users locked to a single vault don't see any other vaults at all — no dropdown rendered, no other vault names disclosed. A non-admin shouldn't be aware of vaults they don't have scope for. Phase 1 ships lock-the-picker because it's the smallest diff; Phase 2 hardens to don't-show-other-vaults once the multi-vault membership shape lands and the picker has to reconcile multiple sources of truth anyway.
 
@@ -261,7 +261,7 @@ Phase 2 will add explicit role granularity (`read` / `write` / `admin`) recorded
 
 **Decision:** Hard-delete + token revocation. The `users` row is removed; sessions cascade-delete via the existing FK on `users.id`; minted tokens get `revoked_at` rows (the existing revocation-list machinery picks them up within the 60-second poll window).
 
-**Aaron:** "hard to leave with token wreck... revocation is fine for delete user semantics."
+**Aaron:** hard-delete with token revocation is fine for delete-user semantics.
 
 **Rationale:** Hard-delete is the simplest mental model — "this user is gone" means gone. Token rows stay (with `revoked_at` set) so the audit trail of "this user existed and held these tokens" survives for incident response. Soft-delete with an undo window was the alternative; rejected because the operator's path to "I deleted them by mistake" is "create a new user with the same username" — the new account doesn't recover the old vault assignment automatically (admin re-assigns), which is the right shape: the admin is back in control of the access decision either way.
 
@@ -418,7 +418,7 @@ Cited bundles + counts go in each PR's commit message per the hub `CLAUDE.md` te
 
 ### PR 6 (optional, small/medium) — inline 2FA enrollment on first sign-in
 
-**Touches:** `src/account-change-password-ui.ts` (the surface PR 3 introduces), `src/users.ts` (new TOTP columns + helpers if not already in PR 1), `src/hub-db.ts` (migration v9 for per-user `totp_secret` + `totp_backup_codes`), `src/__tests__/account-change-password.test.ts`.
+**Touches:** `src/account-change-password-ui.ts` (the surface PR 3 introduces), `src/users.ts` (new TOTP columns + helpers if not already in PR 1), `src/hub-db.ts` (migration v9 for per-user `totp_secret` + `totp_backup_codes`), `src/commands/auth.ts` (retire `VAULT_FORWARDED_SUBCOMMANDS.has("2fa")` — rewrite `parachute auth 2fa <enroll|disable|backup-codes>` to read/write hub.db instead of forwarding to `parachute-vault`), `src/commands/expose-2fa-warning.ts` (point `is2FAEnrolled` at the hub.db column for the first-admin row instead of probing vault's `config.yaml`; the `readVaultAuthStatus` helper retires once the migration completes), `src/__tests__/account-change-password.test.ts`, `src/__tests__/expose-2fa-warning.test.ts` (update fixtures from vault-config-yaml probing to hub.db reads).
 
 - After the user submits a new password on `/account/change-password`, present an inline "set up 2FA — recommended" step (QR + backup codes) before redirecting to `next`.
 - "Skip for now" link present and prominent.
