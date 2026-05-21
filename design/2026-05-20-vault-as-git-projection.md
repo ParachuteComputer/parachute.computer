@@ -167,6 +167,8 @@ One new `hub_settings` key per vault, namespaced by vault name. The shape carrie
 }
 ```
 
+(`commit_template` above is the **default**; the admin SPA help text lists `{{change_summary}}` and other variables operators can include for richer commit messages — see the vault-side variable list further down.)
+
 Field semantics:
 
 - **`enabled`** — explicit on/off. Mirror config rows with `enabled: false` are kept for restore but ignored at runtime. Disabling is non-destructive (the mirror dir stays where it is).
@@ -188,6 +190,7 @@ The wiring decision (vault config vs hub_settings) is open question 5 below. The
 ### Vault-side
 
 - On vault start: read mirror config for each vault. If `enabled: true && watch: true`, register post-write hooks. If `enabled: true && watch: false`, do nothing on writes — the operator drives via CLI.
+- Architecture A's `watch: true` replaces vault#346's `setInterval` polling with event-driven post-write hooks + a 2s debounce window. The CLI primitive informed the shape; A's vault-internal version is a new implementation that wakes only on writes (lower CPU at idle, lower latency on the burst-after-quiet case, no fixed-interval upper bound).
 - For internal mirrors on first enable: vault creates `~/.parachute/vault/data/<name>/mirror/`, runs `git init`, performs the initial full export, and commits an initial revision. The operator sees a one-time "initial sync in progress" status; subsequent passes are incremental.
 - For external mirrors on first enable: validate that the path exists and is inside a git repo; surface a clear error otherwise. Perform an initial full export so the mirror starts at byte-equivalent state.
 - After every successful write (note created / updated / deleted, tag schema changed, attachment added) when `watch: true`: schedule a debounced re-export. Debounce window starts at **2 seconds** — long enough that a burst of 50 writes from a paste-import collapses to one export, short enough that the operator's "I just saved a note" expectation lands within human-perceptible time. The window is tunable per vault if real usage demands.
@@ -283,13 +286,15 @@ These need an explicit call before any code starts:
 3. **UI history in v0.7 or split to v0.7.5.** History surface is gated on A landing; we can ship them together or land A first + UI second. Splitting is safer; shipping together is more cohesive.
 4. **Bidirectional sync as a roadmap item (vs maybe-someday).** Should B be on the public roadmap (signaling intent to ship) or in the "if demand materializes" bucket (the door is open but no promise)? The framing affects whether early-adopter operators design their workflows around it.
 5. **Mirror config — vault config or hub_settings.** Vault config keeps the mirror knowledge co-located with the vault (move the config.yaml to a new box, the mirror follows). Hub_settings keeps it administratively centralized (one place to see all mirrors, easier for the multi-user case where the admin manages per-user vault mirrors). The decision is a coupling choice: is the mirror an operational concern (hub_settings) or a vault-level configuration (vault config)? The schema is identical either way; the question is which surface owns it. **Current lean: hub_settings** — the admin SPA is where the operator is already managing user-vault assignments, and centralizing mirror config there matches the multi-user phase-1 shape.
-6. **Preset mode change — one-click flip or full re-entry?** Switching an existing mirror from one preset to another (e.g. "Manual Export" → "Live Mirror") could be a single confirmed click that flips `watch: false` → `watch: true` and keeps the same path, or it could force the operator to re-enter all settings as if configuring a new mirror. One-click is more convenient and lower-risk for axes-only changes; full re-entry is more deliberate but adds friction. Minor UX call; the cost of getting it wrong either direction is small.
+6. **Preset mode change — one-click flip or full re-entry?** Switching an existing mirror from one preset to another (e.g. "Manual Export" → "Live Mirror") could be a single confirmed click that flips `watch: false` → `watch: true` and keeps the same path, or it could force the operator to re-enter all settings as if configuring a new mirror. **Lean: one-click flip with confirmation** — the presets are independent axes, so the path doesn't change when only `watch` flips, and full re-entry would add friction for no safety gain. Full re-entry only if the operator wants to also change `external_path` (or location) simultaneously; that's a different flow ("change where this mirror lives") and deserves the more deliberate UX.
 
 ## What this changes about earlier docs
 
 Nothing in [`2026-05-18-v06-deploy-architecture.md`](./2026-05-18-v06-deploy-architecture.md) changes — the mirror lives on the same persistent disk hub already manages (`/parachute/mirrors/<vault>/`). Nothing in [`2026-04-20-module-architecture.md`](./2026-04-20-module-architecture.md) changes — the mirror is internal to vault, not a new module. The [`vault-portable-export` cookbook](https://github.com/ParachuteComputer/parachute-patterns/blob/main/cookbook/vault-portable-export.md) grows a new recipe ("hub-managed mirror") once A ships, and the existing "nightly git projection" recipe becomes the bootstrap path for operators on pre-v0.7 hubs.
 
 The multi-user phase-1 design ([`2026-05-20-multi-user-phase-1.md`](./2026-05-20-multi-user-phase-1.md)) gets a small future ripple: the admin SPA's `/admin/vault-mirrors` page sits next to `/admin/users`, and the "assign vault to user" flow can grow a "with mirror configured" badge so the operator sees at a glance which user-vaults are git-backed. Optional and not v0.7-gating.
+
+Note: `git_branch` is dropped from the v0.7 ship. Earlier prototypes of the config shape carried a `git_branch: "main"` field; the refined shape removes it. Branch handling for `git push` defaults to the repo's current branch (`git push` with no refspec), which matches the cookbook's existing mental model. Explicit branch targeting can return as a Phase 2 polish if real usage shows operators want to push to a non-current branch.
 
 ## Why the architecture is right
 
