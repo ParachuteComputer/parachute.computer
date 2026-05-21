@@ -40,7 +40,21 @@ permalink: /deploy/render/
 
         <p><strong>Why this step.</strong> Render reads the repo's <code>render.yaml</code>, which declares the service shape (web service, Docker, disk at <code>/parachute</code>, env vars) and pre-fills everything on the Render dashboard. You're just confirming.</p>
 
-        <p>Sign in or sign up. Accept the GitHub connection if you don't already have one. Render shows the "Apply Blueprint" page with one service (<code>parachute-hub</code>) and one disk. Click <strong>Apply</strong>.</p>
+        <p>Sign in or sign up. Accept the GitHub connection if you don't already have one. Render shows the "Apply Blueprint" page with one service (<code>parachute-hub</code>) and one disk, plus an env-var section with a few blanks to fill in.</p>
+
+        <p><strong>Fill in (recommended):</strong></p>
+        <ul>
+            <li><code>PARACHUTE_INITIAL_ADMIN_USERNAME</code> &mdash; the admin username you want.</li>
+            <li><code>PARACHUTE_INITIAL_ADMIN_PASSWORD</code> &mdash; a strong password you've written down somewhere.</li>
+        </ul>
+        <p>Setting both means hub creates your admin account on first boot &mdash; you can sign in as soon as the URL loads, no wizard required. <em>If you leave them blank</em>, the first-boot wizard guides you through admin setup on first browser visit. The wizard requires a one-time bootstrap token printed in hub's startup logs &mdash; you'd copy it from Render's <strong>Logs</strong> view when you open the URL. Either path works; the env-var path is one fewer step.</p>
+
+        <p><strong>Leave blank (optional):</strong></p>
+        <ul>
+            <li><code>PARACHUTE_HUB_ORIGIN</code> &mdash; only set this if you're attaching a custom domain at deploy time. See the <a href="#custom-domain">Custom domain</a> section below for what this does and why. Leaving it blank is the right answer for the Render-assigned <code>*.onrender.com</code> URL &mdash; hub will use whatever URL the request came in on as the OAuth issuer, which just works.</li>
+        </ul>
+
+        <p>Click <strong>Apply</strong>.</p>
 
         <p><strong>What you should see.</strong> Render kicks off a build. The dashboard lands on the service page with a live deploy log streaming.</p>
     </section>
@@ -58,11 +72,11 @@ permalink: /deploy/render/
     <section class="section">
         <h2>3. Open the Render URL</h2>
 
-        <p><strong>Why this step.</strong> Hub boots without an admin account on a fresh disk. The first request to any non-public route redirects to the first-boot wizard, which sets your admin credentials and names your first vault.</p>
+        <p><strong>Why this step.</strong> Hub boots without an admin account on a fresh disk (unless you seeded one via env vars). The first request to any non-public route redirects to the first-boot wizard, which sets your admin credentials (or skips that step if you seeded them) and names your first vault.</p>
 
-        <p>Click the URL on the Render dashboard. Hub redirects you to <code>/admin/setup</code>.</p>
+        <p>Click the URL on the Render dashboard. Hub redirects you to <code>/admin/setup</code>. If you <em>didn't</em> set <code>PARACHUTE_INITIAL_ADMIN_*</code> in step 1, the wizard will ask for a one-time bootstrap token &mdash; grab it from Render's <strong>Logs</strong> view (a line like <code>bootstrap token: pbt_...</code>).</p>
 
-        <p><strong>What you should see.</strong> The setup wizard's welcome screen, with five steps in the side rail: <em>Welcome</em>, <em>Account</em>, <em>Vault</em>, <em>Expose</em>, <em>Done</em>.</p>
+        <p><strong>What you should see.</strong> The setup wizard's welcome screen, with five steps in the side rail: <em>Welcome</em>, <em>Account</em>, <em>Vault</em>, <em>Expose</em>, <em>Done</em>. (If you seeded admin via env vars, you can sign in directly at <code>/admin/login</code> with the credentials you set &mdash; the wizard is optional from there.)</p>
     </section>
 
     <section class="section">
@@ -113,7 +127,7 @@ permalink: /deploy/render/
         <p><strong>What you should see.</strong> <code>parachute-default</code> in <code>/mcp</code>'s list with status <em>connected</em>. Asking Claude to write a note succeeds and the note appears in the Notes UI on <code>&lt;your-hub&gt;/notes</code> immediately.</p>
     </section>
 
-    <section class="section">
+    <section class="section" id="custom-domain">
         <h2>Custom domain (optional)</h2>
 
         <p><strong>Why this step.</strong> The <code>*.onrender.com</code> subdomain works forever, but most people want their own domain &mdash; both for memorability and because the OAuth tokens the hub mints are bound to a canonical origin you'd rather control.</p>
@@ -126,8 +140,8 @@ permalink: /deploy/render/
         </ol>
 
         <aside class="upgrade-callout">
-            <strong>Set the origin once and don't churn.</strong>
-            <p>The hub mints OAuth tokens against the canonical <code>PARACHUTE_HUB_ORIGIN</code>. If you change the origin later, previously issued tokens become invalid and connected clients (Claude Code, Notes PWA, anything else holding a token) will need to reconnect through the OAuth flow. Pick the domain you want before you wire up a bunch of clients.</p>
+            <strong>Why <code>PARACHUTE_HUB_ORIGIN</code> matters (and why you can ignore it without one).</strong>
+            <p>Hub stamps an "issuer" URL into every OAuth token it mints. By default (variable unset), the issuer is whatever URL the request came in on &mdash; so on a vanilla Render deploy, tokens are minted against your <code>https://parachute-hub-abc123.onrender.com</code> URL and everything works. <em>The variable only exists for the custom-domain case.</em> Pinning it to your canonical domain at deploy time means tokens are bound to that domain from day one; if you later flip the issuer (e.g. you set up custom domain after the fact and change it), previously issued tokens become invalid and every connected client (Claude Code, Notes PWA, anything else holding a token) has to reconnect through the OAuth flow. Pick the domain you want before you wire up clients, then set the var once and don't churn.</p>
         </aside>
     </section>
 
