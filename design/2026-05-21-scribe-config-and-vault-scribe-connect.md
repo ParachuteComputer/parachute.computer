@@ -36,7 +36,7 @@ From `parachute-scribe/src/config-schema.ts` (live shape served at `/.parachute/
 | Field | Type | Notes |
 |---|---|---|
 | `transcribeProvider` | enum (live registry) | parakeet-mlx, onnx-asr, whisper, groq, openai |
-| `cleanupProvider` | enum (live registry) | claude, claude-code, ollama, openai, gemini, groq, custom, none |
+| `cleanupProvider` | enum (live registry) | anthropic, claude-code, ollama, openai, gemini, groq, custom, none |
 | `cleanupDefault` | boolean | Run cleanup by default when caller omits the flag |
 | `cleanupSystemPrompt` | string \| null | Override built-in cleanup system prompt |
 | `cleanupContextTemplate` | string \| null | Template for the proper-nouns block |
@@ -47,7 +47,7 @@ The wire shape is validated server-side by `config-write.ts`; the file written a
 **What's missing** for the hub admin SPA to be a complete config surface:
 
 1. **Per-provider API keys.** `GROQ_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`. Today these come from environment variables only — there's no path to set them from the SPA.
-2. **The `claude setup-token` flow.** Subscription-funded Claude (`claude-code` cleanup provider) uses an OAuth-issued token stored at `~/.claude.json`, not an API key. The SPA can't trigger an interactive CLI command from the browser. This is the gnarly bit.
+2. **The `claude setup-token` flow.** The `claude-code` cleanup provider (subscription-funded Claude via Claude Code CLI) uses an OAuth-issued token stored at `~/.claude.json`, not an API key. The SPA can't trigger an interactive CLI command from the browser. This is the gnarly bit.
 3. **Per-provider model selection.** `OLLAMA_MODEL`, `CUSTOM_CLEANUP_MODEL`, plus model knobs per cloud provider.
 4. **Provider-specific extras.** `OLLAMA_URL`, `CUSTOM_CLEANUP_URL` for self-hosted endpoints.
 
@@ -89,15 +89,15 @@ The added structure groups credentials and per-provider knobs under their owning
         }
       }
     },
-    "cleanupProvider": { "type": "string", "enum": ["claude", "claude-code", "ollama", "openai", "gemini", "groq", "custom", "none"] },
+    "cleanupProvider": { "type": "string", "enum": ["anthropic", "claude-code", "ollama", "openai", "gemini", "groq", "custom", "none"] },
     "cleanupDefault": { "type": "boolean", "default": true },
     "cleanupProviders": {
       "type": "object",
       "title": "Per-provider cleanup settings",
       "properties": {
-        "claude": {
+        "anthropic": {
           "type": "object",
-          "title": "Claude (Anthropic API)",
+          "title": "Anthropic API",
           "properties": {
             "apiKey": { "type": "string", "writeOnly": true, "title": "Anthropic API key" },
             "model":  { "type": "string", "title": "Model", "default": "claude-3-5-haiku-20241022" }
@@ -234,7 +234,7 @@ Per-provider field shapes — by provider:
 | `parakeet-mlx`, `onnx-asr`, `whisper` (local transcribers) | none required — no API keys, defaults work |
 | `groq` (transcribe + cleanup) | `apiKey` (writeOnly), `model` |
 | `openai` (transcribe + cleanup) | `apiKey` (writeOnly), `model` |
-| `claude` (cleanup) | `apiKey` (writeOnly), `model` |
+| `anthropic` (cleanup) | `apiKey` (writeOnly), `model` |
 | `claude-code` (cleanup) | `setupTokenStatus` (readOnly) — no key field |
 | `ollama` (cleanup) | `url`, `model` |
 | `gemini` (cleanup) | `apiKey` (writeOnly), `model` |
@@ -276,7 +276,7 @@ The wire response from `GET /.parachute/config` after this lands (illustrative, 
   "cleanupProvider": "claude-code",
   "cleanupDefault": true,
   "cleanupProviders": {
-    "claude":      { "model": "claude-3-5-haiku-20241022" },
+    "anthropic":   { "model": "claude-3-5-haiku-20241022" },
     "claude-code": { "setupTokenStatus": "configured" },
     "ollama":      { "url": "http://localhost:11434", "model": "gemma4:e4b" },
     "openai":      { "model": "gpt-4o-mini" },
@@ -406,7 +406,7 @@ The "(configured)" pill is green when `autoTranscribe.scribeUrl` resolves to a r
 Failure modes vault has to handle:
 
 - **Scribe unreachable.** Network error, process not running, port closed. Vault writes a failed transcript note with `transcript_error: "connection refused"`.
-- **Scribe returns 4xx.** Bad bearer, malformed multipart, no transcription provider configured (scribe's getProvider call returns "no provider" error). Vault captures the error body and writes it to `transcript_error`.
+- **Scribe returns 4xx.** Bad bearer, malformed multipart, no transcription provider configured (scribe's getProvider call returns "no provider" error). Vault captures the error body and writes it to `transcript_error`. **This is the first-boot path on a fresh deploy** — see resolved open question 2: audio uploads succeed, scribe accepts the POST, the missing-provider response surfaces as a `transcript_status: failed` note with `transcript_error: "no transcription provider configured"`. Operator configures a provider via the admin SPA, clicks "Retry transcription" on the failed note, transcription proceeds normally. Same failure substrate, just a different cause string.
 - **Scribe returns 5xx or 200 with empty text.** Provider failure mid-call (Groq down, claude-cli panic, etc.). Same `transcript_status: failed`, `transcript_error: <body>`.
 - **Timeout.** Scribe takes longer than the configured timeout (default 5min for v0.6 — most transcriptions finish in under 30s; 5min is generous for long captures). `transcript_status: failed`, `transcript_error: "scribe timeout"`.
 
@@ -460,9 +460,9 @@ If a single operator wants two vaults on one host, they run two parachute instal
 
 These are flagged for the build, not blockers to start:
 
-1. **claude-code provider rename / merge with `claude`.** Scribe today has both `claude` (Anthropic API) and `claude-code` (subscription-funded via `claude setup-token`). The naming is confusing — `claude-code` reads like "the Claude Code IDE / CLI" which it kind of is. Is there a cleaner pair like `anthropic-api` + `claude-subscription`? Touches the wire shape (provider enum names), so worth deciding before this lands.
+1. ~~**claude-code provider rename / merge with `claude`.**~~ **Resolved 2026-05-21.** Decision: rename to `claude-code` + `anthropic`. The cleanup provider that uses `claude setup-token` (subscription-funded, OAuth-issued token via the Claude Code CLI) is named `claude-code` — matches the CLI name, no ambiguity. The cleanup provider that uses an Anthropic API key is named `anthropic` — names the credential type, not the model family. The old `claude` enum value is gone; existing configs migrate on next load (any `cleanupProvider: "claude"` rewrites to `"anthropic"`). Schema and inline JSON examples above already reflect the resolved names.
 
-2. **What scribe does on first boot with no providers configured.** If neither a default API key nor `claude setup-token` is set up and the friend hasn't touched the SPA yet, what's the default `transcribeProvider`? Today it falls back to `parakeet-mlx` which only works on Macs. For the Render deploy target, the friend hits a 500 the first time they upload audio. Options: (a) ship `parakeet-mlx` as default and let the SPA's "Test connection" flag the mismatch loudly, (b) detect platform at scribe boot and default to a cloud provider on Linux containers if any API key is in env, (c) hard-require provider selection in the first-boot wizard before allowing audio upload. Recommend (c) — surface the requirement up-front, refuse to silently ship a broken transcribe path.
+2. ~~**What scribe does on first boot with no providers configured.**~~ **Resolved 2026-05-21.** Decision: **graceful degradation** — store audio, fail transcription quietly. On a fresh deploy with no provider configured, audio uploads succeed (vault stores the bytes); transcription is attempted but fails gracefully — the transcript note is created with frontmatter `transcript_status: failed` and `transcript_error: "no transcription provider configured"`, the original audio attachment is preserved, and the "Retry transcription" action on the failed-transcript note (see Part 2 design question 5) re-triggers once the operator configures a provider. **This is the same failure-handling path as any other transcription failure** — first-boot-no-provider is one specific cause within the general `transcript_status: failed` flow, not a separate code path. No first-boot wizard step for scribe: scribe just works (badly) until configured. The `transcript_error` string distinguishes causes ("no transcription provider configured" vs. "groq returned 401" vs. "scribe timeout"); the status flag is uniform.
 
 3. **vault's `scribe_bearer` rotation.** Today's design: hub generates it once at install, never rotates. If the bearer leaks or the operator wants to invalidate it, they have to manually regenerate and re-paste in two places (vault config + scribe `SCRIBE_AUTH_TOKEN` env). A "rotate scribe bearer" button in the hub admin SPA is Phase 2 polish but a friend might hit the need in v0.6 if they accidentally share their config. Filed as a known gap; not blocking.
 
