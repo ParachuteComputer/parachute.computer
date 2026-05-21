@@ -55,7 +55,7 @@ These are exactly the env vars in the README's "Environment variables" section. 
 
 ### Target schema shape (v0.6)
 
-The added structure groups credentials and per-provider knobs under their owning block, using Draft-07 `oneOf` + `if/then` so the SPA shows only the fields that apply to the currently selected provider. Wire is camelCase + flat at the top level (matching today's shape); per-provider extras live under `transcribe.providers.<name>` and `cleanup.providers.<name>` sub-objects so the schema can grow per-provider without flat-namespace collisions.
+The added structure groups credentials and per-provider knobs under their owning block (`transcribeProviders.<name>`, `cleanupProviders.<name>`). Multiple providers can be pre-populated simultaneously; the SPA collapses or hides inactive ones at render time — a UI concern, not a schema concern. Wire stays camelCase + flat at the top level (matching today's shape); the per-provider sub-objects let the schema grow without flat-namespace collisions. See "Design question 1 — discriminated-union shape" below for why we explicitly chose this over Draft-07 `oneOf` / `if`-`then`-`else` discriminators.
 
 ```json
 {
@@ -144,8 +144,8 @@ The added structure groups credentials and per-provider knobs under their owning
     "apiKeyAndModel": {
       "type": "object",
       "properties": {
-        "apiKey": { "type": "string", "writeOnly": true },
-        "model":  { "type": "string" }
+        "apiKey": { "type": "string", "writeOnly": true, "title": "API key" },
+        "model":  { "type": "string", "title": "Model" }
       }
     }
   },
@@ -258,7 +258,7 @@ This means:
 - **Render deploy operators** never touch env vars. They configure everything through the SPA. config.json on the persistent disk is the only source of truth.
 - **CLI operators** can still edit config.json directly. The SPA is one of several writers, not the canonical one.
 
-**Restart semantics** stay as today (`config-write.ts:RESTART_REQUIRED_FIELDS` = `transcribeProvider`, `cleanupProvider`, `port`). API key changes do **not** require a restart — they're read at request time by the per-provider transcribe/cleanup functions (see `parachute-scribe/src/transcribe/groq.ts` etc., which read `process.env.GROQ_API_KEY` per call today; after this change they'll read from the resolved config per call). This matters for the friend-experience-loop: paste API key, click Save, the next transcription works without a restart prompt.
+**Restart semantics** stay as today (`config-write.ts:RESTART_REQUIRED_FIELDS` = `transcribeProvider`, `cleanupProvider`, `port`). API key changes do **not** require a restart — they're read at request time by the per-provider transcribe/cleanup functions (see `parachute-scribe/src/transcribe/groq.ts` etc., which read `process.env.GROQ_API_KEY` per call today; after this change they'll read from the resolved config per call) — subject to confirmation that no provider module caches the key in module-scope state once the refactor lands (see open question 5). This matters for the friend-experience-loop: paste API key, click Save, the next transcription works without a restart prompt.
 
 > **Implementation flag for the build (not design):** per-request API-key reads will need a small refactor in the transcribe/cleanup provider modules — they currently read `process.env.GROQ_API_KEY` (etc.) at call time. Moving them to read from a shared resolved-config getter that prefers PUT-written values over env is the load-bearing code change. Not blocking the design doc, but worth surfacing: this isn't pure schema work; it's schema + a small provider-module refactor in the same PR.
 
@@ -290,7 +290,11 @@ The wire response from `GET /.parachute/config` after this lands (illustrative, 
 }
 ```
 
-Note that `apiKey` is absent from every provider sub-object. The operator sees "key stored — leave blank to keep" in the SPA placeholder; sending a non-empty string in a PUT replaces it; sending `null` or omitting it leaves it alone. Same null-as-clear semantics scribe already implements for `cleanupSystemPrompt` / `cleanupContextTemplate` (see `config-write.ts:mergeIntoFileShape`).
+Note that `apiKey` is absent from every provider sub-object. The operator sees "key stored — leave blank to keep" in the SPA placeholder.
+
+**Omit-to-keep semantics for `writeOnly` credential fields.** If a writeOnly field is omitted from the PUT body, scribe preserves the existing stored value. Sending a non-empty string replaces the stored value. Sending an empty string (`""`) also preserves — the SPA treats "no value typed" identically to "field omitted." To actually clear a stored credential, the operator uses a separate "clear this credential" admin action (a small `POST /admin/clear-credential/{transcribe|cleanup}/<name>` endpoint, Phase 2 polish), not a null-write through the PUT shape.
+
+This is **deliberately different** from scribe's existing null-as-clear semantics for non-secret string fields like `cleanupSystemPrompt` / `cleanupContextTemplate` (see `config-write.ts:mergeIntoFileShape`), where `null` does clear. Credentials are special because the loss-of-value mode is catastrophic — an operator hitting backspace and firing PUT shouldn't wipe a production API key. Plain strings can be re-typed without side effects; credentials can't. Two semantics, justified by the asymmetry in cost-of-mistake.
 
 ---
 
