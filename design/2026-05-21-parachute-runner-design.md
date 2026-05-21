@@ -46,7 +46,7 @@ The runner polls the vault for `tag:job` notes on a cadence (default 60s), parse
 3. Construct the inline MCP config via `parachute-vault mcp-config <name>` (or its library equivalent).
 4. Spawn `claude -p --strict-mcp-config --mcp-config '<json>' --allowedTools '<list>' --permission-mode bypassPermissions` with the rendered prompt on stdin.
 5. Capture stdout, write a new note at the rendered `output_path` with the declared `output_tags` plus standard run metadata.
-6. On non-zero exit or empty stdout: still write the output note, tagged `job-run + job-run-failed`, with stderr captured in frontmatter for triage.
+6. On non-zero exit or empty stdout (threshold: trimmed-empty — whitespace-only output counts as empty, since claude occasionally emits a stray trailing newline on otherwise-empty results): still write the output note, tagged `job-run + job-run-failed`, with stderr captured in frontmatter for triage.
 
 There is no per-job container, no per-job sandbox, no per-job network policy. The trust gradient is flat: the operator wrote the prompts, the operator owns the vault, the operator owns the host. The protection mechanism is OAuth scope on the bearer the runner holds; the discovery surface is the same vault the work lives in.
 
@@ -204,7 +204,7 @@ This is load-bearing for two reasons:
 }
 ```
 
-(Port 1945 is the next slot in the reserved 1939–1949 Parachute range; vault is 1940, notes 1941, scribe 1942, hub 1939, agent was 1944, channel 1943.)
+(Per the [canonical-ports pattern](../../parachute-patterns/patterns/canonical-ports.md), runner will claim the next unassigned slot in the reserved 1939–1949 Parachute range at ship time — currently 1945 is unassigned. The formal reservation lands in a PR to `parachute-hub/src/service-spec.ts` (and the canonical-ports table) alongside the runner module ship, not in this design doc. For reference, the current table: hub 1939, vault 1940, channel 1941, notes 1942, scribe 1943, agent 1944, with 1945–1949 unassigned.)
 
 **HTTP surface (small, debug-oriented):**
 
@@ -256,6 +256,7 @@ The bearer the runner holds (`vault_token` in its config) has `vault:<name>:writ
 - **Bearer storage.** Stored encrypted on disk at `$PARACHUTE_HOME/runner/secrets.db`, AES-GCM with master key at `$PARACHUTE_HOME/runner/master.key` (chmod 0600), same pattern parachute-agent uses for credentials. The encrypted form never appears in logs, never traverses the HTTP admin surface, never lands in any error message. (Runner's `.parachute/config` GET redacts it.)
 - **Path-traversal guards on output writes.** A malicious `output_path: "../../../../etc/passwd"` is bounded by the vault REST API's own path normalization; runner doesn't write files outside the vault directly. If the vault accepts the path, the vault accepts the consequences. Runner doesn't try to be a second line of defense — it relies on the vault's existing path discipline. (vault#308 portable-md path-traversal guards are the load-bearing layer here.)
 - **No claude-spawned scope escalation.** Runner passes `--allowedTools` to claude verbatim from the job's frontmatter, never widens it. The bearer scope is the upper bound; `--allowedTools` is a further restriction the operator imposes per-job.
+- **Subprocess environment scrubbing.** Per [`trust-gradient-isolation.md`](../../parachute-patterns/patterns/trust-gradient-isolation.md) decision 3, runner spawns `claude -p` with a scrubbed env — only the vars claude needs to run (PATH restricted to its expected location, HOME, plus any claude-cli-specific vars), not the runner's full process env. The runner's own bearer + master key never enter the child's env. (If claude-cli grows its own env-scrubbing surface upstream, runner delegates to that; until then, scrubbing happens at the `Bun.spawn` boundary.)
 
 **What runner explicitly does NOT do:**
 
