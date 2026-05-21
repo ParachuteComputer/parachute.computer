@@ -47,7 +47,7 @@ permalink: /deploy/render/
             <li><code>PARACHUTE_INITIAL_ADMIN_USERNAME</code> &mdash; the admin username you want.</li>
             <li><code>PARACHUTE_INITIAL_ADMIN_PASSWORD</code> &mdash; a strong password you've written down somewhere.</li>
         </ul>
-        <p>Setting both means hub creates your admin account on first boot &mdash; you can sign in as soon as the URL loads, no wizard required. <em>If you leave them blank</em>, the first-boot wizard guides you through admin setup on first browser visit. The wizard requires a one-time bootstrap token printed in hub's startup logs &mdash; you'd copy it from Render's <strong>Logs</strong> view when you open the URL. Either path works; the env-var path is one fewer step.</p>
+        <p>Setting both means hub creates your admin account on first boot &mdash; you can sign in as soon as the URL loads, no wizard required. <em>If you leave them blank</em>, the first-boot wizard guides you through admin setup on first browser visit. The wizard requires a one-time bootstrap token printed in hub's startup logs &mdash; you'd copy it from Render's <strong>Logs</strong> view when you open the URL (search for <code>parachute-bootstrap-</code>; see step 3 for the exact log shape). Either path works; the env-var path is one fewer step.</p>
 
         <p><strong>Leave blank (optional):</strong></p>
         <ul>
@@ -74,7 +74,11 @@ permalink: /deploy/render/
 
         <p><strong>Why this step.</strong> Hub boots without an admin account on a fresh disk (unless you seeded one via env vars). The first request to any non-public route redirects to the first-boot wizard, which sets your admin credentials (or skips that step if you seeded them) and names your first vault.</p>
 
-        <p>Click the URL on the Render dashboard. Hub redirects you to <code>/admin/setup</code>. If you <em>didn't</em> set <code>PARACHUTE_INITIAL_ADMIN_*</code> in step 1, the wizard will ask for a one-time bootstrap token &mdash; grab it from Render's <strong>Logs</strong> view (a line like <code>bootstrap token: pbt_...</code>).</p>
+        <p>Click the URL on the Render dashboard. Hub may redirect you to <code>/admin/setup</code> if setup isn't complete &mdash; this covers both the no-admin case and the env-seeded-admin-but-no-vault case (wizard picks up at the vault step). If you <em>didn't</em> set <code>PARACHUTE_INITIAL_ADMIN_*</code> in step 1, the wizard will ask for a one-time bootstrap token &mdash; grab it from Render's <strong>Logs</strong> view. Search the log panel for <code>parachute-bootstrap-</code>; the full line lives inside the <code>[wizard]</code> startup banner and looks like:</p>
+        <div class="code-inline">
+            <code>[wizard]   parachute-bootstrap-&lt;your-token&gt;</code>
+        </div>
+        <p>Copy the whole <code>parachute-bootstrap-...</code> string (prefix + 43-char body) into the wizard.</p>
 
         <p><strong>What you should see.</strong> The setup wizard's welcome screen, with five steps in the side rail: <em>Welcome</em>, <em>Account</em>, <em>Vault</em>, <em>Expose</em>, <em>Done</em>. (If you seeded admin via env vars, you can sign in directly at <code>/admin/login</code> with the credentials you set &mdash; the wizard is optional from there.)</p>
     </section>
@@ -141,7 +145,7 @@ permalink: /deploy/render/
 
         <aside class="upgrade-callout">
             <strong>Why <code>PARACHUTE_HUB_ORIGIN</code> matters (and why you can ignore it without one).</strong>
-            <p>Hub stamps an "issuer" URL into every OAuth token it mints. By default (variable unset), the issuer is whatever URL the request came in on &mdash; so on a vanilla Render deploy, tokens are minted against your <code>https://parachute-hub-abc123.onrender.com</code> URL and everything works. <em>The variable only exists for the custom-domain case.</em> Pinning it to your canonical domain at deploy time means tokens are bound to that domain from day one; if you later flip the issuer (e.g. you set up custom domain after the fact and change it), previously issued tokens become invalid and every connected client (Claude Code, Notes PWA, anything else holding a token) has to reconnect through the OAuth flow. Pick the domain you want before you wire up clients, then set the var once and don't churn.</p>
+            <p>Hub stamps an "issuer" URL into every OAuth token it mints. By default (variable unset), the issuer is whatever URL the request came in on &mdash; so on a vanilla Render deploy, tokens are minted against your <code>https://parachute-hub-abc123.onrender.com</code> URL and everything works. <em>The variable only exists for the custom-domain case.</em> Pinning it to your canonical domain at deploy time means tokens are bound to that domain from day one; if you flip the issuer later (e.g. you set a custom domain post-deploy &mdash; <em>adding</em> or <em>changing</em> <code>PARACHUTE_HUB_ORIGIN</code> both switch the issuer from the request URL to your pinned value), every token minted before the switch becomes invalid and every connected client (Claude Code, Notes PWA, anything else holding a token) has to reconnect through the OAuth flow. Pick the domain you want before you wire up clients, then set the var once and don't churn.</p>
         </aside>
     </section>
 
