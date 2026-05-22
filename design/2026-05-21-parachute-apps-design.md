@@ -92,7 +92,7 @@ Stress-testing against Aaron's actual two use cases (Gitcoin Brain + Unforced Br
 
 B wins decisively. The escape-hatch matters: if a future UI grows server-side dependencies (not just vault reads), it graduates to its own module (A). App doesn't try to be a backend host. The continuum is clean: B for client-only-against-vault UIs (most things); A for UIs with real backend services.
 
-This also resolves a question the issue left open: **does Notes move into app?** Yes — **app replaces notes**. Notes-as-module retires; Notes lives forward as the canonical first app installed under parachute-app, distributed as the `@openparachute/notes-ui` bundle. The migration arc is captured in detail in section 13 (Notes migration to app). The short of it: app's existence collapses the per-module-ceremony tax that justified Notes-as-module today, and Notes' PWA-specific needs (offline-first, service worker) are absorbed by app's opt-in PWA mode (section 18). Notes' release cadence + team commitment carry forward — they're commitments to the bundle's quality, not to the module shape. The committed-core line ends up as **vault + app + scribe + hub** post-migration; Notes-as-app lives within app as the first canonical app installed.
+This also resolves a question the issue left open: **does Notes move into app?** Yes — **app replaces notes**. Notes-as-module retires; Notes lives forward as the canonical first app installed under parachute-app, distributed as the `@openparachute/notes-ui` bundle. The migration arc is captured in detail in section 16 (Notes migration to app). The short of it: app's existence collapses the per-module-ceremony tax that justified Notes-as-module today, and Notes' PWA-specific needs (offline-first, service worker) are absorbed by app's opt-in PWA mode (section 18). Notes' release cadence + team commitment carry forward — they're commitments to the bundle's quality, not to the module shape. The committed-core line ends up as **vault + app + scribe + hub** post-migration; Notes-as-app lives within app as the first canonical app installed.
 
 ### 3. Repository shape for UIs themselves — each UI is its own project
 
@@ -106,21 +106,25 @@ Alternatives: a single monorepo of UIs (one repo with `app/gitcoin-brain/`, `app
 
 Trade-off accepted: discoverability — there's no canonical place to find "all UIs hostable by app." An optional convention "publish your UI as a git repo named `<scope>/parachute-app-<name>`" is fine as a docs note; not enforced.
 
-### 4. Distribution mechanism — CLI `add` for primary path; manual `cp` supported
+### 4. Distribution mechanism — CLI `add` for primary path; npm-fetch shorthand + manual `cp` supported
 
-**Decision:** the primary surface is `parachute-app add <path-to-dist> --name <name> --path <mount-path>`. Manual `cp -r dist/ ~/.parachute/app/uis/<name>/` works equivalently as a fallback for the operator who wants to script around it. Git-clone-and-build is deferred to Phase 2; npm-publish is explicitly out of scope.
+**Decision:** the primary surface is `parachute-app add <source> --name <name> --path <mount-path>` where `<source>` is either (a) a local path to a built `dist/` directory or (b) an npm package specifier (e.g. `@openparachute/notes-ui`). Manual `cp -r dist/ ~/.parachute/app/uis/<name>/` works equivalently as a fallback for the operator who wants to script around it. Git-clone-and-build is deferred to Phase 2; npm-publish-as-module is explicitly out of scope (that's option A).
 
 The `add` flow:
 
-1. Validate `<path-to-dist>` has at least an `index.html` (otherwise reject + warn).
+1. Resolve `<source>`:
+   - If it's a local path, validate it has at least an `index.html` (otherwise reject + warn).
+   - If it's an npm package specifier (matches `^(@[a-z0-9-]+/)?[a-z0-9-]+(@.+)?$` and not a local path), run `bun install <specifier>` into a temp directory, then treat the package's `dist/` directory (or the package root if no `dist/`) as the source.
 2. Copy the directory contents to `~/.parachute/app/uis/<name>/dist/`. Reject if `<name>` collides with an existing UI unless `--force` is passed.
-3. If a `<path-to-dist>/../parachute-app.json` (or `<path-to-dist>/meta.json`) is present, copy it as `~/.parachute/app/uis/<name>/meta.json`. Otherwise scaffold a minimal `meta.json` with the `--name` and `--path` flags + sensible defaults, and warn the operator to fill in the rest.
+3. If a `<source>/../parachute-app.json` (or `<source>/meta.json`, or the npm package's `meta.json`) is present, copy it as `~/.parachute/app/uis/<name>/meta.json`. Otherwise scaffold a minimal `meta.json` with the `--name` and `--path` flags + sensible defaults, and warn the operator to fill in the rest.
 4. Run the OAuth DCR registration against hub for this UI. Persist the resulting `client_id`.
 5. Touch the app daemon's reload signal (or POST `/app/<name>/reload`) so the running daemon picks up the new mount without a restart.
 
 The manual `cp` path skips step 1 + 2 + 3 (operator does it themselves) and triggers steps 4 + 5 on the next `parachute-app reload <name>` call.
 
-**Why not git-clone-and-build at MVP:** app would need a build sandbox per UI, language detection, node/bun version handling, build-tool detection, network access for `npm install`. That's a whole second product. Operators who want git-clone-and-build can shell-script it (`git clone && cd <repo> && bun run build && parachute-app add ./dist --name <n> --path <p>`). Phase 2 can fold the convenience in.
+**Why npm-fetch is MVP, not Phase 2:** it's a thin wrapper — `bun install <pkg>` into a temp dir, then the existing copy-dist code path. No build sandbox, no language detection. The operator-natural way to install a UI an author published is `parachute-app add @openparachute/notes-ui`, not `npm pack && tar -xzf && parachute-app add ./package/dist`. Folding it into MVP keeps the primary path one-command for the common case.
+
+**Why not git-clone-and-build at MVP:** app would need a build sandbox per UI, language detection, node/bun version handling, build-tool detection, network access for `npm install` of the UI's dev deps. That's a whole second product. Operators who want git-clone-and-build can shell-script it (`git clone && cd <repo> && bun run build && parachute-app add ./dist --name <n> --path <p>`). Phase 2 can fold the convenience in.
 
 **Why not npm-publish:** the whole point of app is to avoid per-UI npm ceremony. If a UI is npm-published with a `module.json`, it's option A, not option B — install it as its own module instead.
 
@@ -191,7 +195,7 @@ This generalizes the Notes pattern. Today Notes' VaultPopover lets users pick wh
 
 **Why `name` is constrained to `^[a-z][a-z0-9-]*$`:** it becomes the directory name, the OAuth client identifier, and the URL-safe lookup key in `parachute-app list`. Same constraint as `module.json`'s `name` field for symmetry.
 
-**Why `path` is constrained to `^/app/[a-z0-9-]+$`:** all hosted UIs live under the `/app/` mount that parachute-app owns. Single-segment after `/app/` keeps routing simple at MVP; multi-segment can be a Phase 2 relaxation if real UIs need it. Mount-path conflicts (two UIs at `/app/brain`) need a deterministic rejection rule (see section 7).
+**Why `path` is constrained to `^/app/[a-z0-9-]+$`:** all hosted UIs live under the `/app/` mount that parachute-app owns. Single-segment after `/app/` keeps routing simple at MVP; multi-segment can be a Phase 2 relaxation if real UIs need it. Mount-path conflicts (two UIs at `/app/brain`) need a deterministic rejection rule (see section 8).
 
 ### 6. Auth model — same-hub auto-trust + multi-vault install-once
 
@@ -207,6 +211,8 @@ When a user visits a hosted UI and the UI initiates an OAuth flow against hub:
 - For scopes shaped `vault:<name>:admin` (high-power — destructive ops, schema changes, token mints): **consent screen still required** as a last sanity gate. Admin power gets the extra friction.
 
 This generalizes [hub#270](https://github.com/ParachuteComputer/parachute-hub/issues/270)'s "auto-approve the first OAuth client after wizard" to "auto-approve same-hub apps for non-admin scopes." The trust gradient is: install-time gating (operator chose this app) replaces grant-time gating (user clicks "Allow"). Admin-scope is the one exception that keeps consent in the loop.
+
+**Implementation note — how hub distinguishes same-hub DCR clients from external ones.** Auto-trust must not apply to arbitrary callers of hub's public `/oauth/register` endpoint, or the trust gate collapses. parachute-app authenticates to hub's `/oauth/register` using its operator bearer (per same-hub trust — app holds an operator-scoped token because the operator installed it). Hub marks the resulting client with `same_hub: true` in the client registry. Auto-trust rules (silent consent for `vault:*:read|write` scopes) apply only to `same_hub: true` clients. External DCR clients — anything registered without the operator bearer — get `same_hub: false` and require explicit user consent on every scope regardless of shape. This keeps the public DCR endpoint open (RFC 7591 conformance) while the auto-trust shortcut stays gated by operator-install.
 
 Per-UI client_id and DCR auto-registration are still load-bearing — they're how revocation, per-UI audit, and scope-grant tracking continue to work. The user-visible change is the consent screen disappears for the common case.
 
@@ -526,7 +532,7 @@ Notes is the first app. Its migration from own-module to app-hosted is the proof
 - parachute-app ships per section 17 (phasing). Hub admin SPA shows the new "Add app" surface.
 - parachute-notes repo continues to build + publish `@openparachute/notes` as a module (port 1942, services.json row, etc.) on its current cadence.
 - A parallel build target lands: `@openparachute/notes-ui` — same source code, output is the `dist/` bundle + meta.json, no module surface. Published to npm as a regular package.
-- Operators who want notes-as-app can run `parachute-app add @openparachute/notes-ui --name notes --path /notes`. The CLI grows an npm-fetch shorthand (Phase 2 of app's distribution mechanism — see section 4) so this is one command, not a manual clone + build.
+- Operators who want notes-as-app run `parachute-app add @openparachute/notes-ui --name notes --path /app/notes`. The npm-fetch shorthand is MVP (see section 4), so this is one command, not a manual clone + build.
 - Notes-as-app and Notes-as-module are both available; operators choose. Cloud (parachute-cloud, TBD) defaults Notes-as-app.
 
 **Phase 2 — parachute-notes v0.4: Notes-as-module deprecated.**
@@ -631,7 +637,7 @@ For UIs that genuinely need offline-first behavior (Notes is the canonical examp
 {
   "name": "notes",
   "displayName": "Notes",
-  "path": "/notes",
+  "path": "/app/notes",
   "pwa": true,
   "pwa_service_worker": "sw.js"
 }
@@ -651,7 +657,7 @@ Default-off is the load-bearing choice: every other app — Gitcoin Brain, Unfor
 For iterative development, a built-in dev mode that explicitly disables caching for the named UI and broadcasts a refresh signal when the bundle changes.
 
 - `parachute-app dev <name>` puts the named UI into dev mode. The daemon overrides production cache headers for that UI with `Cache-Control: no-cache, no-store, must-revalidate` on **every** response (including hashed assets — dev mode trumps the immutable default).
-- App opens a Server-Sent Events stream at `/app/<name>/_dev/reload`. The UI's index.html, when dev mode is active, gets a small injected `<script>` that listens to this stream and reloads the tab on a `reload` event.
+- App opens a Server-Sent Events stream at `/app/<name>/_dev/reload`. The UI's index.html, when dev mode is active, gets a small injected `<script>` that listens to this stream and reloads the tab on a `reload` event. **Implementation note:** the script is injected via HTML parsing (e.g. cheerio or rehype), not string replacement, so unusual document structures (no `<head>`, non-standard doctype, comments in unusual places) are handled robustly. The injection is idempotent — re-applying does not duplicate the script tag (tagged with a known `id="parachute-app-dev-reload"`).
 - App watches the UI's source directory (configurable via meta.json `dev_watch_dir`, defaults to the dist's parent). On any file change, app waits 200ms (debounce), then emits a `reload` event on the SSE stream. (Phase 2: auto-rerun the UI's `dev_build_cmd` before the reload event.)
 - `parachute-app dev --off <name>` exits dev mode and restores production cache headers.
 
