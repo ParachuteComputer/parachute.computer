@@ -5,7 +5,7 @@ description: "A new module that supervises a directory of small custom SPAs (Git
 # parachute-app — UI host module for custom UIs, MVP shape
 
 **Date:** 2026-05-21
-**Status:** Proposed. Targets v0.7. The Gitcoin Brain UI (shipped May 2026) and Aaron's about-to-start Unforced Brain UI collectively name the audience this module serves; this doc settles its shape.
+**Status:** Proposed. Targets v0.7. The Gitcoin Brain UI (shipped May 2026), Aaron's about-to-start Unforced Brain UI, and **Notes itself** (which migrates from own-module to app-hosted over 4 phases — see section 16) collectively name the audience this module serves. App is positioned as committed-core; Notes is the canonical first app installed under it.
 
 **Naming note:** the module is **parachute-app** (singular), mirroring the vault precedent — `parachute-vault` (singular module) hosts many vault instances; `parachute-app` (singular module) hosts many app instances. The filename of this design doc keeps "apps" for historical continuity with PR #54; the artifact name is `parachute-app` throughout.
 
@@ -19,7 +19,9 @@ description: "A new module that supervises a directory of small custom SPAs (Git
 - [`../../parachute-patterns/patterns/mount-path-convention.md`](../../parachute-patterns/patterns/mount-path-convention.md) — Vite-base / BrowserRouter discipline each hosted UI must respect
 - [parachute-patterns#74](https://github.com/ParachuteComputer/parachute-patterns/issues/74) — the issue this design resolves
 - [parachute-hub#301](https://github.com/ParachuteComputer/parachute-hub/issues/301) — drop `kind` from module.json; app ships without it
-- [parachute-hub#311](https://github.com/ParachuteComputer/parachute-hub/issues/311) — hub dynamic services.json reload; **prerequisite for app's mid-runtime UI adds**
+- [parachute-hub#292](https://github.com/ParachuteComputer/parachute-hub/pull/292) (merged 2026-05-21) — install path now stamps `installDir` on services.json rows; verified hub already reads services.json per-request (no caching)
+- [parachute-notes/DEPRECATED.md](../../parachute-notes/DEPRECATED.md) (planned, Phase 3) — Notes module retirement, mirrors `parachute-agent/DEPRECATED.md`
+- [parachute-notes#151](https://github.com/ParachuteComputer/parachute-notes/issues/151) — dev-rebuild ergonomics (SW caches stale code); solved at the platform level by section 18
 
 ## The decision
 
@@ -64,7 +66,7 @@ There is no per-UI sandbox, no per-UI origin, no iframe. All UIs share the hub o
 
 **Framework freedom for hosted UIs.** parachute-app requires only a `dist/` directory with an `index.html`. Your UI can be Vite + React (recommended for the JS bootstrap convenience), Vue, Svelte, vanilla JS, anything — app doesn't care. The Vite + React stack is what app's *own* admin SPA uses (see section 7), not what app *requires* of hosted UIs.
 
-## The 15 design landings
+## The 19 design landings
 
 ### 1. Naming — `parachute-app` (singular)
 
@@ -90,7 +92,7 @@ Stress-testing against Aaron's actual two use cases (Gitcoin Brain + Unforced Br
 
 B wins decisively. The escape-hatch matters: if a future UI grows server-side dependencies (not just vault reads), it graduates to its own module (A). App doesn't try to be a backend host. The continuum is clean: B for client-only-against-vault UIs (most things); A for UIs with real backend services.
 
-This also resolves a question the issue left open: **does Notes move into app?** No. Notes stays as its own module because (a) it's committed-core with its own release cadence and team commitment, (b) it has deep cross-cutting integration (per-vault TagRoles settings, OAuth flow specific to Notes, PWA install + service worker scope), and (c) the canonical first-party UI deserves a first-party module. App internally **adopts the same pattern** as hub's `notes-serve.ts` shim (per-UI mount handler, port-and-mount derived from services.json) — that's an implementation kinship, not a merge.
+This also resolves a question the issue left open: **does Notes move into app?** Yes — **app replaces notes**. Notes-as-module retires; Notes lives forward as the canonical first app installed under parachute-app, distributed as the `@openparachute/notes-ui` bundle. The migration arc is captured in detail in section 13 (Notes migration to app). The short of it: app's existence collapses the per-module-ceremony tax that justified Notes-as-module today, and Notes' PWA-specific needs (offline-first, service worker) are absorbed by app's opt-in PWA mode (section 18). Notes' release cadence + team commitment carry forward — they're commitments to the bundle's quality, not to the module shape. The committed-core line ends up as **vault + app + scribe + hub** post-migration; Notes-as-app lives within app as the first canonical app installed.
 
 ### 3. Repository shape for UIs themselves — each UI is its own project
 
@@ -263,6 +265,8 @@ Capability surface of the admin SPA:
 
 The `parachute-app/admin/` path is reserved at the app daemon level: meta.json files attempting to claim `path: "/app/admin"` are rejected at add time.
 
+**The admin SPA inherits the caching defaults from section 18:** no service worker, smart cache headers on `index.html` (no-cache) vs. hashed Vite output (immutable). Hot-reload during admin development uses the same `parachute-app dev admin` plumbing as user-added UIs, with one wrinkle — the admin path is reserved, so the dev-mode CLI accepts `admin` as a special case that targets the bundled admin SPA's source directory inside the npm package's source tree (only meaningful in dev installs).
+
 ### 8. Discovery + supervision
 
 **Decision:** app scans `uis/` at daemon startup and on explicit `reload`. No file watcher in MVP — operators run `parachute-app reload <name>` or restart the daemon to pick up changes. Phase 2 can add a watcher if friction is real.
@@ -410,7 +414,9 @@ A few notes on other shape choices:
 2. Discovery rendering: hub's `/` HTML + `/.well-known/parachute.json` surface the `uis` sub-units as their own tiles, linking to `entry.uis[k].path`.
 3. Per-UI access logging hooks (the entry carries `oauthClientId`; hub-side request logging can attribute by it).
 
-This is parallel work to [hub#311](https://github.com/ParachuteComputer/parachute-hub/issues/311) (dynamic services.json reload). Both are app-blocking: hub#311 makes mid-runtime adds visible to hub without restart; the schema extension makes the discovery surface render correctly. Track the schema extension as a sibling issue; mention it on hub#311 so they ship as a coordinated pair.
+**Dynamic-reload is already a property of hub.** Hub reads services.json per-request (verified by reading `parachute-hub/src/services-manifest.ts` post-#292); there is no in-memory cache to bust. App's runtime writes to services.json — on every UI add/remove/reload — will be visible to hub on the next request without a restart. The "hub must learn to reload services.json" framing (formerly tracked at hub#311) is moot; hub#311 was closed as resolved-by-#292 on 2026-05-21. PR #292 (merged 2026-05-21) is the last piece of the puzzle — it stamps `installDir` on services.json rows in the API install path, which is what fixed the install-doesn't-show-in-discovery symptom.
+
+**The schema extension is the remaining hub-side work.** The hierarchical `uis` field is a real schema-extension question separate from the dynamic-reload concern. Hub's current `ServiceEntry` interface accepts the flat shape; the `uis` map needs an interface addition + validation. Track this as its own hub issue; it's not blocked by anything else.
 
 **Migration plan for vault.** Once app's hierarchical shape lands, vault can adopt the same shape in a follow-up (`paths: ["/vault"]` + `uis: { default: ..., gitcoin: ..., ... }`). This isn't blocking for app; vault's flat shape continues to work via hub's existing path-prefix routing. The point of the hierarchical shape is **forward-consistent ecosystem discovery**.
 
@@ -439,7 +445,9 @@ Plus the standard `.parachute/info`, `.parachute/icon.svg`, `.parachute/config`,
 
 End-to-end concrete steps. From "I have a UI at `~/Gitcoin/gitcoin-brain-ui/`" to "I see it at `https://parachute.tailnet.example.com/app/gitcoin-brain/`."
 
-1. **Install app.** `parachute install app` (calls the standard install path; ships canonical module.json + port 1946 + self-registers services.json row).
+**Gitcoin Brain is the second app installed.** Notes (via `@openparachute/notes-ui`, see section 16) is the first — either bundled with parachute-app's installer as the canonical first app or one `parachute-app add @openparachute/notes-ui` away. This walkthrough assumes Notes is already installed; the steps below are general and apply to any custom UI Aaron adds after Notes.
+
+1. **Install app.** `parachute install app` (calls the standard install path; ships canonical module.json + port 1946 + self-registers services.json row). At first install, Notes is the canonical first app to bootstrap.
 2. **Configure app.** Hub's admin SPA shows the app module-config form (from its `/.parachute/config/schema`). Set `hub_url` to the local hub URL (typically `http://127.0.0.1:1939` for loopback, or the operator's tailnet URL). Defaults for `auto_dcr_register: true` and `default_scopes: ["vault:*:read"]` are fine.
 3. **Start app.** `parachute start app` — hub-supervised. Verify `parachute status` shows it healthy on 1946.
 4. **Author `meta.json` for Gitcoin Brain.** In `~/Gitcoin/gitcoin-brain-ui/`, create (or update) `meta.json`:
@@ -473,33 +481,95 @@ End-to-end concrete steps. From "I have a UI at `~/Gitcoin/gitcoin-brain-ui/`" t
 
 Migration time estimate: ~15 min for a UI that already has working OAuth-against-hub JS; ~30 min for a UI that needs the token-paste-to-OAuth swap. Cheap enough that Aaron will do it for both UIs without it feeling like a chore.
 
-### 15. Comparison table — Notes vs app-hosted-UI
+**Dev iteration.** For iterative work on Gitcoin Brain after it's installed:
 
-| Aspect | Notes (own module) | App-hosted UI |
+```
+1. parachute-app dev gitcoin-brain    # disables caching, opens SSE live-reload
+2. Edit ~/Gitcoin/gitcoin-brain-ui/ source
+3. bun run build                       # (skip if no build step — for the vanilla three-file bundle, edit dist/ directly)
+4. The browser tab auto-reloads via SSE; new code is visible
+5. parachute-app dev --off gitcoin-brain   # restore production caching when done
+```
+
+Per section 18, dev mode disables all caching for the named UI and pushes a reload signal to connected browser tabs every time the bundle directory changes. Phase 2 will fold step 3 into the dev mode itself via `dev_build_cmd` in meta.json — for MVP, the operator runs the build manually after editing source.
+
+### 15. Comparison table — Module-A vs App-hosted-B
+
+| Aspect | Own module (A) | App-hosted UI (B) |
 |---|---|---|
-| Ship as | Published npm package (`@openparachute/notes`) | Built static bundle, dropped in `uis/<name>/dist/` |
+| Ship as | Published npm package (`@openparachute/<name>`) | Built static bundle, dropped in `uis/<name>/dist/` |
 | Versioning | RC chain, semver, npm publish gates | Whatever the operator wants — bundle version is opaque to app |
-| Install | `parachute install notes` | `parachute-app add <path>` |
-| Port | Own port (1942) | Shares app's port (1946) |
-| Services.json entry | Own row (`parachute-notes`) | Sub-entry under app's `uis` map |
-| OAuth client | One client_id per Notes install, DCR-registered by hub on install | One client_id per UI, DCR-registered by app on add |
+| Install | `parachute install <name>` | `parachute-app add <path>` |
+| Port | Own port | Shares app's port (1946) |
+| Services.json entry | Own row | Sub-entry under app's `uis` map |
+| OAuth client | One client_id per install, DCR-registered by hub | One client_id per UI, DCR-registered by app on add |
 | Module-protocol surface | Own `.parachute/info`, `/config`, `/config/schema`, `/healthz` | Inherits app's surface for module-level; per-UI info at `/app/<name>/info` |
-| Hub admin SPA config form | Yes (Notes-specific) | App's config form covers global settings; per-UI config is meta.json + app's add/remove flow |
-| Cross-vault customization | Per-vault TagRoles + settings note | Per-UI; UI handles its own settings + vault picker |
-| Update cadence | Released by Parachute team | Released by UI's operator/author |
-| Restart on update | `parachute restart notes` | `parachute-app reload <name>` (no daemon restart) |
+| Hub admin SPA config form | Yes (module-specific) | App's config form covers global settings; per-UI config is meta.json + app's add/remove flow |
+| Update cadence | Released by Parachute team or third-party | Released by UI's operator/author |
+| Restart on update | `parachute restart <name>` | `parachute-app reload <name>` (no daemon restart) |
 | Reviewer + release gate | Parachute governance (RC chain, reviewer dispatch, Aaron clicks merge) | Operator's own (app doesn't gate adds) |
 
 **When (A) wins over (B):**
 
 - UI needs server-side compute beyond what vault provides (background workers, server-side OAuth callbacks for third-party APIs, native binary dependencies).
-- UI is a publishable npm package wanted by many operators with first-party support (Notes is the canonical example).
 - UI needs its own port / its own services.json row for reasons specific to its protocol (e.g., it's also an MCP server).
-- UI is committed-core — i.e., the Parachute team commits to maintaining + releasing it.
+- UI is structurally a backend (scribe-shaped: transcription worker with HTTP control plane).
 
-For owner-curated SPAs against vault (Gitcoin Brain, Unforced Brain, future ones), **B is right**. Notes specifically stays as A because of its committed-core + first-party-canonical status, not because of any technical block.
+**Notes-specifically.** At the time of this design's first revision, Notes was placed in the A column as the canonical first-party UI. That framing reversed during this revision: Notes' shape (vanilla SPA + service worker + OAuth-against-hub + per-vault picker) is exactly the shape app was built for, and app's existence removes the per-module-ceremony tax that justified Notes-as-module. **Notes migrates to B** — see section 16 for the full migration arc. Post-migration, the A column's exemplars are scribe and vault (backend-shaped modules); the B column's exemplars are Notes (multi-vault), Gitcoin Brain (single-vault), Unforced Brain, and the long tail of future custom UIs.
 
-### 16. Phasing
+### 16. Notes migration to app
+
+Notes is the first app. Its migration from own-module to app-hosted is the proof-of-pattern for the whole architecture — if Notes can be an app, the bar for graduating any other UI to its own module gets higher.
+
+**Phase 1 — parachute-app v0.7 MVP ships (this design).**
+
+- parachute-app ships per section 17 (phasing). Hub admin SPA shows the new "Add app" surface.
+- parachute-notes repo continues to build + publish `@openparachute/notes` as a module (port 1942, services.json row, etc.) on its current cadence.
+- A parallel build target lands: `@openparachute/notes-ui` — same source code, output is the `dist/` bundle + meta.json, no module surface. Published to npm as a regular package.
+- Operators who want notes-as-app can run `parachute-app add @openparachute/notes-ui --name notes --path /notes`. The CLI grows an npm-fetch shorthand (Phase 2 of app's distribution mechanism — see section 4) so this is one command, not a manual clone + build.
+- Notes-as-app and Notes-as-module are both available; operators choose. Cloud (parachute-cloud, TBD) defaults Notes-as-app.
+
+**Phase 2 — parachute-notes v0.4: Notes-as-module deprecated.**
+
+- parachute-notes repo's `module.json` is removed; the build target shifts entirely from "module with daemon" to "UI bundle published as `@openparachute/notes-ui`."
+- `@openparachute/notes` (module package) ships its final RC chain. `parachute install notes` is removed from hub's install path.
+- A `parachute-notes/DEPRECATED.md` lands, mirroring `parachute-agent/DEPRECATED.md` shape: "module retired, migrate to `parachute-app add @openparachute/notes-ui`."
+- Hub admin SPA's "Notes module" tile becomes a "Notes app" tile. Settings that were the module's `.parachute/config/schema` move into Notes's meta.json + app's per-UI config.
+- The hub's per-route reverse-proxy entry for `/notes/*` continues to work, but now routes to `/app/notes/*` internally via a redirect for backwards-compat URLs.
+
+**Phase 3 — parachute-notes v0.5: full retirement.**
+
+- parachute-notes module is fully retired. Port 1942 is reclaimed and reassigned to whichever next module needs a slot (likely `parachute-jobs` or a successor — see workspace CLAUDE.md note on parachute-agent's retirement and parachute-jobs's plausible reclaim).
+- Hub's `/notes/*` → `/app/notes/*` redirect runs for one release window as backwards-compat, then retires.
+- Documentation, blog posts, and design docs update: the four committed-core modules are vault, app, scribe, hub. Notes is the canonical first app.
+
+**Phase 4 — cleanup (post-1.0).**
+
+- parachute-notes redirect retired.
+- Operators on legacy installs (still running `parachute-notes` as a module) get a one-time migration notice on hub upgrade.
+- The parachute-notes repo is either archived (if it has no remaining role) or refactored to be the UI-bundle-only repo (`@openparachute/notes-ui` becomes its sole npm publish).
+
+**Cross-references:**
+
+- `parachute-agent/DEPRECATED.md` is the precedent for module-retirement docs (committed-core 2026-05-05 → retired 2026-05-20). parachute-notes's eventual DEPRECATED.md follows the same shape.
+- The committed-core list, currently **vault + notes + scribe + hub**, becomes **vault + app + scribe + hub** after Phase 3. Notes-as-app lives within app as the canonical first app installed.
+
+**What carries forward unchanged:**
+
+- Notes' source code (the actual React + offline-first PWA logic).
+- Notes' UX, brand, identity. Users don't see "Notes is an app now"; they see Notes.
+- Per-vault TagRoles + settings flow (now a Notes-UI concern, not a module concern).
+- VaultPopover + multi-vault token caching (already the pattern app generalizes).
+- PWA install + service worker — preserved via app's opt-in `"pwa": true` meta.json field (section 18).
+
+**What changes:**
+
+- No port 1942. No `parachute restart notes` (becomes `parachute-app reload notes`).
+- No own services.json row. Notes is a sub-entry under app's `uis` map.
+- No per-Notes RC chain — Notes ships when notes-ui's npm publish ships.
+- Module-config form folds into Notes's per-UI meta.json + Notes-side UI for the rest.
+
+### 17. Phasing
 
 **MVP (v0.7 target):**
 
@@ -517,25 +587,106 @@ For owner-curated SPAs against vault (Gitcoin Brain, Unforced Brain, future ones
 - Hub-supervised on local + Render. Same install path as runner/vault/notes/scribe.
 - Hub admin SPA config form support via the generic schema-driven form.
 - Phase 1 of Gitcoin Brain migration: drop the token-paste flow, use `oauth-client` endpoint + auto-trust.
+- Phase 1 of Notes migration (section 16): `@openparachute/notes-ui` published as a parallel build target; `parachute-app add @openparachute/notes-ui` works alongside the existing `parachute install notes`.
+- Caching strategy (section 18): no-SW default, opt-in PWA via meta.json `"pwa": true`, smart cache headers on index.html vs hashed assets.
+- Dev mode (section 18): `parachute-app dev <name>` disables caching for the named UI + SSE live-reload to connected browser tabs.
 
 **Phase 2 (v0.8+):**
 
 - File watcher in `uis/` so adding/removing a UI doesn't require an explicit `reload`.
 - Git-clone-and-build flow: `parachute-app add --from-git <url> [--branch <b>]` clones, runs declared build command, copies dist. (Build sandbox boundaries TBD.)
+- npm-fetch shorthand: `parachute-app add @openparachute/notes-ui` fetches the published package and installs the bundle.
 - Richer admin SPA: per-UI status grid, recent OAuth grants, per-UI mount toggle, per-UI access logs.
 - Helper library: `@openparachute/app-bootstrap` npm package with the canonical OAuth dance JS, so a new UI doesn't have to copy 150 lines of vanilla OAuth code.
+- Phase 2 of Notes migration: parachute-notes v0.4 deprecates the module form; `parachute-notes/DEPRECATED.md` lands; hub's `/notes/*` → `/app/notes/*` redirect runs for backwards-compat.
+- Dev mode auto-rebuild: `dev` mode runs the UI's declared `dev_build_cmd` on `dev_watch_dir` changes, eliminating the manual `bun run build` step.
 
 **Phase 3 (deferred indefinitely):**
 
 - Per-UI sandboxing (subdomain, iframe, or CSP-based). Becomes relevant only when multi-tenant cloud lands — that's parachute-cloud's lane.
 - Third-party publishing model (an "app store" of installable UIs). Out of scope for v0.7's owner-operated audience.
 - Hot-reload of in-flight sessions when a UI is reloaded. Today's reload requires the user to refresh the browser tab.
+- Phase 3 of Notes migration (parachute-notes v0.5): parachute-notes module fully retires; port 1942 reclaimed.
+- Phase 4 of Notes migration (post-1.0): legacy redirect retired; parachute-notes repo archived or refactored to UI-only.
 
-### 17. Open questions (resolution status)
+### 18. Caching + reload strategy
+
+A recurring frustration tracked at [parachute-notes#151](https://github.com/ParachuteComputer/parachute-notes/issues/151): edit notes source, run `bun run build`, the browser shows old code. The culprit is the service worker caching the previous bundle. Solving this at the platform level — so future apps inherit a clean default — is the design intent here. App's HTTP serving makes the right choice the default, and PWA is opt-in for the apps that genuinely need offline-first behavior.
+
+**Default (MVP): no service worker.**
+
+App serves UI bundles with smart cache headers that match the bundle's content-hashed asset convention:
+
+- `index.html` (the SPA entrypoint): `Cache-Control: no-cache, no-store, must-revalidate`. The browser always fetches a fresh index.html on every page load.
+- Bundled assets with content-hash filenames (`app.a3b9f2.js`, `style.7e1c.css`, etc.): `Cache-Control: public, max-age=31536000, immutable`. Cache forever — the filename changes on rebuild, so a new index.html will reference new filenames.
+- Non-hashed assets (e.g. `icon.svg`, static images that aren't part of the build output): `Cache-Control: public, max-age=3600`. Cache for an hour as a sensible default; operators can override per-UI in meta.json if needed (Phase 2 — `meta.cache_headers` extension).
+
+This pattern (Vite, Webpack, Parcel, esbuild, Rollup, Rspack — all major build tools default to content-hashed asset filenames) means: rebuild produces new hashed assets; next page load fetches the fresh index.html; index.html references the new hashed assets; the old hashes evict from cache eventually but never get served fresh. **No service worker = no service worker caching problem.** Operators don't have to think about it.
+
+**Opt-in per UI: PWA mode via meta.json.**
+
+For UIs that genuinely need offline-first behavior (Notes is the canonical example — the whole point of Notes is "edit your vault offline on your phone"), meta.json grows an opt-in PWA mode:
+
+```json
+{
+  "name": "notes",
+  "displayName": "Notes",
+  "path": "/notes",
+  "pwa": true,
+  "pwa_service_worker": "sw.js"
+}
+```
+
+When `pwa: true`:
+
+- App mounts the service worker at the UI's mount path (e.g. `/notes/sw.js`).
+- App serves the SW file with `Cache-Control: no-cache` so SW updates propagate immediately on rebuild.
+- The UI is responsible for its own SW logic — registration, `skipWaiting`, `controllerchange`, the user-facing "new version available, refresh" prompt. Notes' existing pattern (the [notes#148](https://github.com/ParachuteComputer/parachute-notes/issues/148) work) is the reference implementation; future PWA-mode apps copy it.
+- Operators see "PWA: yes" in `parachute-app list` for PWA-mode UIs, so they know a SW is in play if they hit cache weirdness.
+
+Default-off is the load-bearing choice: every other app — Gitcoin Brain, Unforced Brain, any future custom UI that doesn't need offline — inherits the no-SW path. The caching-frustration default-on disappears.
+
+**Dev mode: `parachute-app dev <name>`.**
+
+For iterative development, a built-in dev mode that explicitly disables caching for the named UI and broadcasts a refresh signal when the bundle changes.
+
+- `parachute-app dev <name>` puts the named UI into dev mode. The daemon overrides production cache headers for that UI with `Cache-Control: no-cache, no-store, must-revalidate` on **every** response (including hashed assets — dev mode trumps the immutable default).
+- App opens a Server-Sent Events stream at `/app/<name>/_dev/reload`. The UI's index.html, when dev mode is active, gets a small injected `<script>` that listens to this stream and reloads the tab on a `reload` event.
+- App watches the UI's source directory (configurable via meta.json `dev_watch_dir`, defaults to the dist's parent). On any file change, app waits 200ms (debounce), then emits a `reload` event on the SSE stream. (Phase 2: auto-rerun the UI's `dev_build_cmd` before the reload event.)
+- `parachute-app dev --off <name>` exits dev mode and restores production cache headers.
+
+The MVP operator flow:
+
+```
+1. parachute-app dev notes        # puts /app/notes into dev mode
+2. Open browser; hard-reload once to clear the prior bundle
+3. Edit notes source
+4. cd ~/parachute-notes && bun run build
+5. The browser tab auto-reloads via SSE; new code is visible
+```
+
+In Phase 2, step 4 disappears — `dev_build_cmd` in meta.json runs the build automatically on file change.
+
+**Why SSE + manual build at MVP, not a full HMR setup.** Hot module replacement is per-build-tool (Vite's HMR ≠ Webpack's ≠ Parcel's), needs deep integration with each, and most usefully runs inside the UI's own dev server (Vite's `bun run dev`). App's job is to host the production bundle; matching that with a full HMR shim is out of scope. The SSE + manual build pattern is the lowest-common-denominator solution that works for every build tool, vanilla JS included.
+
+**meta.json extensions for dev mode:**
+
+```json
+{
+  "dev_watch_dir": "../src",          // path relative to dist/, watched for changes in dev mode
+  "dev_build_cmd": ["bun", "run", "build"]  // Phase 2: ran in the UI's source dir on file change
+}
+```
+
+Both optional. If not declared, dev mode falls back to watching the dist directory itself (still useful — operator builds manually, browser still reloads).
+
+**Cross-reference:** [parachute-notes#151](https://github.com/ParachuteComputer/parachute-notes/issues/151) is the dev-rebuild ergonomics issue this section closes at the platform level. Once Notes migrates to app (section 16), notes-ui inherits this dev mode and the original frustration is gone.
+
+### 19. Open questions (resolution status)
 
 Captured from the original design pass; updated with what's been resolved during the review.
 
-1. **App's services.json `paths` array growing dynamically — does hub's longest-prefix routing handle this cleanly?** **✓ Resolved via [hub#311](https://github.com/ParachuteComputer/parachute-hub/issues/311).** Hub#311 introduces mtime-based services.json reload, which makes mid-runtime adds visible without a hub restart. App's UI-add flow re-stamps the services.json entry; hub re-reads on the next request. Schema extension for the hierarchical `uis` shape ships alongside hub#311 as a sibling change.
+1. **App's services.json `paths` array growing dynamically — does hub's longest-prefix routing handle this cleanly?** **✓ Resolved — hub already reads services.json per-request.** Verified by reading `parachute-hub/src/services-manifest.ts` (post-PR #292, merged 2026-05-21): there is no in-memory cache, no mtime watcher needed; every hub request that touches the manifest re-reads it from disk. App's runtime writes to services.json on UI add/remove/reload will be visible on the next hub request without a restart. (Hub#311, formerly tracked as a prerequisite, was closed as resolved-by-#292 — #292 stamped `installDir` on services.json rows in the API install path, which fixed the install-doesn't-show-in-discovery symptom that motivated #311.) The hierarchical `uis` schema extension (section 12) is the remaining hub-side work, tracked separately.
 
 2. **Per-UI `uiUrl` propagation into hub's discovery page.** **✓ Resolved via hierarchical services.json (section 12).** Each hosted UI surfaces as a sub-unit under app's row, carrying its own `displayName`, `tagline`, `iconUrl`, and `path`. Hub renders sub-units as their own discovery tiles. This mirrors what vault should grow into; for now, vault keeps its flat shape and app pioneers the hierarchical surface.
 
@@ -548,6 +699,10 @@ Captured from the original design pass; updated with what's been resolved during
 6. **Per-UI access logging.** **Open.** Each UI is a static bundle with no server-side; logging happens in the browser. App logs request-level (which UI was hit, which path, response code) to its own stdout at MVP. Per-user attribution requires reading the hub-issued bearer's `sub` claim, which app doesn't do today. **Phase 2 addition** if operators want it — naturally fits with the richer admin SPA work in Phase 2.
 
 7. **App's own admin SPA — is it shipped with app, or is it a hosted-UI of itself?** **✓ Resolved: NOT dogfood.** Per section 7, app's admin SPA is a Vite + React bundle shipped inside `@openparachute/app`, mounted at `/app/admin/` as a known fixed path. Aaron explicitly rejected the dogfood approach as "too messy" — recursive special-casing for marginal elegance. The admin SPA is distinct from user-added apps under `/app/<name>/`.
+
+8. **Notes-as-app vs notes-module — does Notes stay as its own module or migrate to app?** **✓ Resolved: Notes migrates to app over 4 phases.** Section 16 captures the full arc. Phase 1 ships `@openparachute/notes-ui` alongside the existing `@openparachute/notes` module; Phase 2 deprecates the module form; Phase 3 retires it; Phase 4 cleans up. The committed-core line becomes vault + app + scribe + hub; Notes is the canonical first app installed under parachute-app. Aaron's framing: "app is replacing notes."
+
+9. **Dev-rebuild ergonomics — how does the platform absorb the SW-caches-stale-code frustration that's recurred during Notes dev?** **✓ Resolved at the platform level (section 18).** Three pieces: (a) no-SW default — apps ship without a service worker, smart cache headers on `index.html` (no-cache) vs hashed assets (immutable); (b) opt-in PWA via meta.json `"pwa": true` — only apps that genuinely need offline-first carry the SW caching burden, and they own their SW lifecycle (skipWaiting, controllerchange); (c) `parachute-app dev <name>` dev mode — disables caching for the named UI, SSE live-reload signals connected browser tabs on file change. Phase 2 folds auto-rebuild via `dev_build_cmd`. Closes [parachute-notes#151](https://github.com/ParachuteComputer/parachute-notes/issues/151) at the platform level.
 
 ## What's new vs the Gitcoin Brain UI today
 
@@ -575,4 +730,6 @@ Three equivalences make this small primitive load-bearing:
 
 **The trust-gradient equivalence.** App is explicitly flat-gradient. The operator chose every UI in `uis/`; the operator owns the vault; there's nothing to sandbox from. Same-hub auto-trust generalizes this — installed apps are trusted apps. The consent screen disappears for the common case because the install IS the consent. When multi-tenant cloud arrives, app in cloud-mode is one of the things that needs to change shape (per-tenant origin, per-UI sandboxing, consent screens back) — and that's a parachute-cloud problem, not an app problem.
 
-App is small on purpose. The supervisor + meta.json + DCR-on-add machinery is maybe ~500 lines of TypeScript plus the standard module-protocol scaffolding. The complexity it absorbs (per-UI hosting ceremony, OAuth boilerplate, discovery integration) is real; the complexity it adds is small. Keeping it small is the design.
+**The Notes-as-first-app proof.** Notes migrating to app (section 16) is the proof-of-pattern for the whole architecture. If the canonical first-party UI — the one with the deepest cross-cutting integration, the longest history as own-module, the highest bar to clear — can be an app, the bar for graduating any other UI to its own module gets meaningfully higher. The committed-core line shifts from vault + notes + scribe + hub to vault + app + scribe + hub. App absorbs Notes; everything downstream inherits the absorption.
+
+App is small on purpose. The supervisor + meta.json + DCR-on-add machinery is maybe ~500 lines of TypeScript plus the standard module-protocol scaffolding. The complexity it absorbs (per-UI hosting ceremony, OAuth boilerplate, discovery integration, dev-rebuild ergonomics, PWA-mode opt-in) is real; the complexity it adds is small. Keeping it small is the design.
