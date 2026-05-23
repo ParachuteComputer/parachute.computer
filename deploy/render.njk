@@ -40,16 +40,11 @@ permalink: /deploy/render/
 
         <p><strong>Why this step.</strong> Render reads the repo's <code>render.yaml</code>, which declares the service shape (web service, Docker, disk at <code>/parachute</code>, env vars) and pre-fills everything on the Render dashboard. You're just confirming.</p>
 
-        <p>Sign in or sign up. Accept the GitHub connection if you don't already have one. Render shows the "Apply Blueprint" page with one service (<code>parachute-hub</code>) and one disk, plus an env-var section with a few blanks to fill in.</p>
+        <p>Sign in or sign up. Accept the GitHub connection if you don't already have one. Render shows the "Apply Blueprint" page with one service (<code>parachute-hub</code>) and one disk, plus an env-var section.</p>
 
-        <p><strong>Fill in (recommended):</strong></p>
-        <ul>
-            <li><code>PARACHUTE_INITIAL_ADMIN_USERNAME</code> &mdash; the admin username you want.</li>
-            <li><code>PARACHUTE_INITIAL_ADMIN_PASSWORD</code> &mdash; a strong password you've written down somewhere.</li>
-        </ul>
-        <p>Setting both means hub creates your admin account on first boot &mdash; you can sign in as soon as the URL loads, no wizard required. <em>If you leave them blank</em>, the first-boot wizard guides you through admin setup on first browser visit. The wizard requires a one-time bootstrap token printed in hub's startup logs &mdash; you'd copy it from Render's <strong>Logs</strong> view when you open the URL (search for <code>parachute-bootstrap-</code>; see step 3 for the exact log shape). Either path works; the env-var path is one fewer step.</p>
+        <p><strong>Apply with defaults.</strong> The blueprint's defaults are sensible &mdash; you don't need to fill anything in. Just click <strong>Apply</strong>. Hub will print a one-time bootstrap token in its startup logs on first boot; you'll grab that and create your admin account through the setup wizard in step 3.</p>
 
-        <p><strong>Leave blank (optional):</strong></p>
+        <p><strong>Optional env vars you might want to set:</strong></p>
         <ul>
             <li><code>PARACHUTE_HUB_ORIGIN</code> &mdash; only set this if you're attaching a custom domain at deploy time. See the <a href="#custom-domain">Custom domain</a> section below for what this does and why. Leaving it blank is the right answer for the Render-assigned <code>*.onrender.com</code> URL &mdash; hub will use whatever URL the request came in on as the OAuth issuer, which just works.</li>
             <li><code>PARACHUTE_INSTALL_CHANNEL</code> &mdash; pre-set to <code>latest</code> by the blueprint. Modules you install via the admin SPA (vault, app, scribe, runner) pull stable releases. Flip to <code>rc</code> if you want pre-release modules (dev/testing against the rc release line). Per-install <code>--channel</code> / <code>--tag</code> always override.</li>
@@ -71,17 +66,34 @@ permalink: /deploy/render/
     </section>
 
     <section class="section">
-        <h2>3. Open the Render URL</h2>
+        <h2>3. Grab the bootstrap token and open setup</h2>
 
-        <p><strong>Why this step.</strong> Hub boots without an admin account on a fresh disk (unless you seeded one via env vars). The first request to any non-public route redirects to the first-boot wizard, which sets your admin credentials (or skips that step if you seeded them) and names your first vault.</p>
+        <p><strong>Why this step.</strong> Hub generates a one-time bootstrap token on first boot and prints it in the startup logs. You'll copy it from Render's logs panel and paste it into the setup wizard to claim admin.</p>
 
-        <p>Click the URL on the Render dashboard. Hub may redirect you to <code>/admin/setup</code> if setup isn't complete &mdash; this covers both the no-admin case and the env-seeded-admin-but-no-vault case (wizard picks up at the vault step). If you <em>didn't</em> set <code>PARACHUTE_INITIAL_ADMIN_*</code> in step 1, the wizard will ask for a one-time bootstrap token &mdash; grab it from Render's <strong>Logs</strong> view. Search the log panel for <code>parachute-bootstrap-</code>; the full line lives inside the <code>[wizard]</code> startup banner and looks like:</p>
+        <p><strong>Open Render Logs.</strong> Your Render service dashboard &rarr; <strong>Logs</strong> tab. Watch for hub's startup banner. It looks like:</p>
+
         <div class="code-inline">
-            <code>[wizard]   parachute-bootstrap-&lt;your-token&gt;</code>
+<pre><code>[wizard] ════════════════════════════════════════════════════════════════
+[wizard]   PARACHUTE BOOTSTRAP TOKEN
+[wizard] ════════════════════════════════════════════════════════════════
+[wizard]
+[wizard]   parachute-bootstrap-XXXXXXXXXXXXX
+[wizard]
+[wizard]   &rarr; Visit https://YOUR-URL/admin/setup ...</code></pre>
         </div>
-        <p>Copy the whole <code>parachute-bootstrap-...</code> string (prefix + 43-char body) into the wizard.</p>
 
-        <p><strong>What you should see.</strong> The setup wizard's welcome screen, with five steps in the side rail: <em>Welcome</em>, <em>Account</em>, <em>Vault</em>, <em>Expose</em>, <em>Done</em>. (If you seeded admin via env vars, you can sign in directly at <code>/admin/login</code> with the credentials you set &mdash; the wizard is optional from there.)</p>
+        <p>Copy the <code>parachute-bootstrap-XXXXXXXX</code> line (prefix + 43-char body). <strong>That's your token.</strong></p>
+
+        <p><strong>Visit your hub's URL</strong> (from the Render service page). You'll land at <code>/admin/setup</code>. Paste the token, choose your admin username + password, click <strong>Create Admin</strong>. You're in.</p>
+
+        <p><strong>The token expires</strong> when admin is created OR when hub restarts &mdash; so don't navigate away mid-setup. If you do lose it, trigger a redeploy from Render and grab the fresh token from the new boot's logs.</p>
+
+        <p><strong>What you should see.</strong> The setup wizard, now past the <em>Account</em> step (your admin's been created) and ready to walk you through the rest: <em>Vault</em>, <em>Expose</em>, <em>Done</em>. Step 4 covers the remaining wizard screens.</p>
+
+        <aside class="upgrade-callout">
+            <strong>For automated deploys.</strong>
+            <p>If you're scripting Render deploys (CI, blueprint forks, etc.) you can still seed the admin via env vars instead: in your Render dashboard, manually add <code>PARACHUTE_INITIAL_ADMIN_USERNAME</code> + <code>PARACHUTE_INITIAL_ADMIN_PASSWORD</code>. Hub honors them on first boot &mdash; no wizard step needed, you sign in directly at <code>/admin/login</code>. Trade-off: passwords live in Render's env-var dashboard (visible to anyone with Render access), and rotation means editing env vars + redeploying. The bootstrap-token flow above is the recommended path for hand-deploys.</p>
+        </aside>
     </section>
 
     <section class="section">
