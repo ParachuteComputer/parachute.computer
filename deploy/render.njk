@@ -52,6 +52,7 @@ permalink: /deploy/render/
         <p><strong>Leave blank (optional):</strong></p>
         <ul>
             <li><code>PARACHUTE_HUB_ORIGIN</code> &mdash; only set this if you're attaching a custom domain at deploy time. See the <a href="#custom-domain">Custom domain</a> section below for what this does and why. Leaving it blank is the right answer for the Render-assigned <code>*.onrender.com</code> URL &mdash; hub will use whatever URL the request came in on as the OAuth issuer, which just works.</li>
+            <li><code>PARACHUTE_INSTALL_CHANNEL</code> &mdash; pre-set to <code>latest</code> by the blueprint. Modules you install via the admin SPA (vault, app, scribe, runner) pull stable releases. Flip to <code>rc</code> if you want pre-release modules (dev/testing against the rc release line). Per-install <code>--channel</code> / <code>--tag</code> always override.</li>
         </ul>
 
         <p>Click <strong>Apply</strong>.</p>
