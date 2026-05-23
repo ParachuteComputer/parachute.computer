@@ -302,6 +302,30 @@ The `parachute-app/admin/` path is reserved at the app daemon level: meta.json f
 
 The gate is implemented hub-side (in the reverse-proxy layer), not app-side. App doesn't need to know who the user is to serve static assets; the gate just protects the bundle from anonymous reads when the operator wants gating.
 
+> **Note (2026-05-23):** The Vite `base: meta.path + "/"` build-time-mount
+> guidance above is superseded by the **runtime-tenancy-contract** pattern
+> for mount-agnostic apps. Current canonical guidance:
+>
+> - Vite builds with `base: ""` (relative asset URLs)
+> - The host injects `<base href="/app/<name>/">` + meta tags
+>   (`parachute-mount`, `parachute-hub`) into served `index.html` so the
+>   browser resolves relative URLs against the actual mount
+> - Apps read mount + hub origin via `@openparachute/app-client`'s
+>   `getMountBase()` / `getHubOrigin()` helpers
+>
+> The build-time-baked-mount pattern still works for daemon installs
+> (notes-daemon path) and for PWA installs that need a fixed scope, but
+> it can't support `parachute-app add --name <custom>` arbitrary mounts.
+>
+> Canonical references:
+> - [`parachute-patterns/patterns/runtime-tenancy-contract.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/runtime-tenancy-contract.md)
+> - [`parachute-patterns/patterns/app-bundle-shape.md#mount-agnosticism`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/app-bundle-shape.md#mount-agnosticism)
+> - [parachute-app#25](https://github.com/ParachuteComputer/parachute-app/pull/25) — implements the host-side injection
+> - [parachute-app#27](https://github.com/ParachuteComputer/parachute-app/pull/27) — implements the consumer-side library
+>
+> The design doc body remains unchanged as a historical record of the
+> 2026-05-21 design call. The pattern docs are the living spec.
+
 ### 10. Trust + sandboxing — none in MVP, documented explicitly
 
 **Decision:** MVP ships **no per-UI sandboxing**. All UIs share the hub origin and trust each other through the operator's trust.
