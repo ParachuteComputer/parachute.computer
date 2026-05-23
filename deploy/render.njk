@@ -82,7 +82,7 @@ permalink: /deploy/render/
 [wizard]   &rarr; Visit https://YOUR-URL/admin/setup ...</code></pre>
         </div>
 
-        <p>Copy the <code>parachute-bootstrap-XXXXXXXX</code> line (prefix + 43-char body). <strong>That's your token.</strong></p>
+        <p>Copy the <code>parachute-bootstrap-XXXXXXXXXXXXX</code> line (prefix + 43-char body). <strong>That's your token.</strong></p>
 
         <p><strong>Visit your hub's URL</strong> (from the Render service page). You'll land at <code>/admin/setup</code>. Paste the token, choose your admin username + password, click <strong>Create Admin</strong>. You're in.</p>
 
@@ -99,11 +99,9 @@ permalink: /deploy/render/
     <section class="section">
         <h2>4. Walk the first-boot wizard</h2>
 
-        <p><strong>Why this step.</strong> The wizard sets up the things that have to be set up once and can't be defaulted: who you are, what to call your first vault, and how this hub is reachable on the internet.</p>
+        <p><strong>Why this step.</strong> Your admin account was created in step 3 via the bootstrap-token form. The wizard picks up from there, walking through what still needs to be set up once and can't be defaulted: your first vault and how this hub is reachable on the internet.</p>
 
         <ol>
-            <li><strong>Welcome.</strong> One screen of orientation. Continue.</li>
-            <li><strong>Account.</strong> Pick a username and password. Stored in the hub's database with <a href="https://github.com/P-H-C/phc-winner-argon2" target="_blank">argon2</a> hashing. There's no email-based recovery on the self-hosted path &mdash; the hub belongs to you, so write the password down.</li>
             <li><strong>Vault.</strong> Names your first vault (defaults to <code>default</code>). You can add more vaults later from the admin UI.</li>
             <li><strong>Expose.</strong> Pick how this hub is reached. For Render: choose <strong>Public URL</strong> &mdash; Render handles TLS termination on the <code>*.onrender.com</code> subdomain (or your custom domain). The other options (Tailscale, Cloudflare Tunnel) are for the local-install path; on Render they're not the right fit.</li>
             <li><strong>Done.</strong> Two tiles: <strong>Open the admin UI</strong> (lands on <code>/admin/vaults</code>; from there you can navigate to <code>/admin/modules</code> to install Notes, Scribe, and any other modules) and <strong>Connect Claude Code (MCP)</strong> (the install command for the MCP wiring &mdash; see step 6).</li>
