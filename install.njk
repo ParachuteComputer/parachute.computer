@@ -88,7 +88,7 @@ permalink: /install/
 
         <p><strong>Why this step.</strong> The Vault is a SQLite file behind an API. If you want to <em>see</em> your notes &mdash; browse, search, edit, watch the graph form &mdash; you need a UI. <strong>Parachute App</strong> is the UI host module; Notes ships as its first canonical app.</p>
 
-        <p>Install App &mdash; it auto-bootstraps <a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank">Notes</a> as the first hosted app:</p>
+        <p>Install App &mdash; it auto-bootstraps <a href="https://github.com/ParachuteComputer/parachute-app/tree/main/packages/notes-ui" target="_blank">Notes</a> as the first hosted app:</p>
 
         <div class="code-inline">
             <code>parachute install app</code>
@@ -100,7 +100,7 @@ permalink: /install/
 
         <p><strong>More apps under the same host.</strong> Once App is installed, drop additional custom SPAs in via <code>parachute-app add &lt;path-to-dist&gt; --name &lt;name&gt; --path &lt;mount-path&gt;</code> (or from the admin SPA). Each lands at <code>&lt;hub&gt;/app/&lt;name&gt;/</code>, registers as its own OAuth client of the hub, and reads your vault under the scopes it declared. Gitcoin Brain, Unforced Brain, and anything you write next live under the same supervisor.</p>
 
-        <p>Notes is also a starting point: the source is <a href="https://github.com/ParachuteComputer/parachute-notes" target="_blank">AGPL</a>, Vite + React + TypeScript, talks to the vault over the documented HTTP API. Fork it and build the UI that matches how <em>your</em> brain works &mdash; then host it under App alongside Notes.</p>
+        <p>Notes is also a starting point: the source is <a href="https://github.com/ParachuteComputer/parachute-app/tree/main/packages/notes-ui" target="_blank">AGPL</a>, Vite + React + TypeScript, talks to the vault over the documented HTTP API. Fork it and build the UI that matches how <em>your</em> brain works &mdash; then host it under App alongside Notes.</p>
     </section>
 
     <section class="section">
