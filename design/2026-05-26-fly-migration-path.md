@@ -26,7 +26,7 @@ Three drivers, ordered by importance:
 
 1. **Lock-in symmetry.** Render's deploy is a one-way trip for self-hosters: their disk lives in Render's blob store with no portable snapshot. If we onboard 50 operators to Render-hosted-by-us and later decide to move, we're either eating 50 manual migrations or telling people "deploy yourself elsewhere." Fly volumes have `fly volumes snapshot create` and restore-into-other-org as a first-class operation. The escape hatch exists day one for self-hosters and for us.
 2. **Same substrate top-to-bottom.** Operator-self-host and parachute.cloud-hosted run the same `fly.toml` and the same image. One CI pipeline. One bug-fix path. One ops mental model. Render forces a fork: the Render Blueprint is operator-side; a hosted offering on Render would mean a separate code path (multi-service, multi-disk, completely different shape). Fly collapses that.
-3. **Cost shape.** Fly shared-cpu-1x 512MB in `iad` is $3.47/mo all-in (compute + 1GB volume) vs Render Starter at $7/mo. The delta funds the paid offering's margin: charge $10/mo, pay $3.50, the rest covers ops + support. Render's $7 floor crushes the margin on a low-end tier.
+3. **Cost shape.** Fly shared-cpu-1x 512MB in `iad` is $3.34/mo all-in (compute $3.19 + 1GB volume $0.15) vs Render Starter at $7/mo. The delta funds the paid offering's margin: charge $10/mo, pay ~$3.50 cost basis (region varies), the rest covers ops + support. Render's $7 floor crushes the margin on a low-end tier.
 
 The non-driver: **reliability is a wash.** Fly's edge has had bad weeks (`fly-proxy` regressions, IAD outages). Render's edge has its own bad weeks ([hub#399](https://github.com/ParachuteComputer/parachute-hub/issues/399) — Oregon `portdetectorv2` flap, currently affecting the Aaron deploy intermittently). Neither has Vercel's SLA. **Don't migrate for reliability** — migrate for lock-in symmetry and substrate alignment.
 
@@ -75,13 +75,14 @@ Operator-side cost on Fly @ shared-cpu-1x 512MB + 1GB volume, always-on:
 
 | Region | Compute/mo | Volume/mo | Total |
 |---|---|---|---|
-| `iad` (Virginia) | $3.32 | $0.15 | **$3.47** |
-| `sjc` (San Jose) | $4.05 | $0.15 | **$4.20** |
-| `lhr` (London) | similar to sjc | $0.15 | ~$4.20 |
+| `iad` (Virginia) | $3.19 | $0.15 | **$3.34** |
+| `sjc` (San Jose) | $3.89 | $0.15 | **$4.04** |
+| `lax` (Los Angeles) | $4.05 | $0.15 | **$4.20** |
+| `lhr` (London) | ~$4.05 | $0.15 | ~$4.20 |
 
-Render Starter equivalent: **$7.00/mo flat** regardless of region. Operator saves $3-3.50/mo on Fly. Not a huge absolute number, but the percentage gap (~50%) is meaningful as a marketing point and the snapshot-portability story is the real win.
+Render Starter equivalent: **$7.00/mo flat** regardless of region. Operator saves $3-4/mo on Fly. Not a huge absolute number, but the percentage gap (~50%) is meaningful as a marketing point and the snapshot-portability story is the real win.
 
-256MB shared-cpu-1x ($2.17 iad / $2.62 sjc) would work for hub-alone deployments but is tight once vault + scribe + notes are all supervised. Recommend 512MB as the default; advanced operators can downsize.
+256MB shared-cpu-1x (~$2/mo iad) would work for hub-alone deployments but is tight once vault + scribe + notes are all supervised. Recommend 512MB as the default; advanced operators can downsize.
 
 ### What we lose
 
@@ -148,10 +149,10 @@ But Phase 2 is fine with manual orchestration.
 ### Pricing math (hosted)
 
 Per operator on Fly:
-- Compute: $3.32/mo (iad shared-cpu-1x 512MB)
+- Compute: $3.19/mo (iad shared-cpu-1x 512MB)
 - Volume: $0.15/mo (1GB)
 - Snapshot: 5-day retention free under 10GB allowance
-- **Cost basis: ~$3.50/mo per operator**
+- **Cost basis: $3.34/mo per operator (iad); round to ~$3.50 with margin for snapshot churn**
 
 Plus shared infra:
 - Cloudflare DNS: free tier handles 10K req/mo per zone
@@ -176,21 +177,21 @@ Solo tier covers a friend-and-family launch. Plus/Pro are speculative until we h
 
 The cloud-offering sketch's RLS-in-Postgres design solves this through schema-level isolation; the Fly-app-per-operator design solves it through infrastructure-level isolation. Both work; the Fly shape is much simpler to reason about and much harder to get wrong.
 
-Trade-off: per-operator overhead is ~10x more compute than a shared backend would be. For ~1000 operators that's ~$3500/mo cost basis vs maybe $300 on a shared Postgres setup. The breakeven for "switch to shared" is somewhere around 5000-10000 operators. We're nowhere near that. Defer the shared-backend rewrite until the bill demands it.
+Trade-off: per-operator overhead is ~10x more compute than a shared backend would be. For ~1000 operators that's ~$3,340/mo cost basis vs maybe $300 on a shared Postgres setup. At 5000 operators it's ~$16,700/mo vs ~$1,500 — a $15K/mo delta. That's the threshold where shared-backend engineering effort would actually pencil. We're nowhere near that. Defer the shared-backend rewrite until the bill demands it.
 
 ### Backup/restore for hosted
 
 Fly's native daily snapshots cover the "we have a backup if disk fails" case. For "operator wants their data" or "operator wants to migrate to self-host":
 
-1. **One-click export from admin UI** — calls our backup service, which:
-   - SSH-execs `sqlite3 /parachute/hub.db ".backup /tmp/backup.db"` (transactionally consistent vs raw volume snapshot)
+1. **One-click export from admin UI** *(design deferred to Phase 3 — sketched here for north-star clarity)* — calls our backup service, which:
+   - SSH-execs `sqlite3 /parachute/hub.db ".backup /tmp/backup.db"` (transactionally consistent vs raw volume snapshot). Backup service holds an org-level Fly token authorized to exec into apps in `parachute-cloud`.
    - Tars `/parachute/` into `/tmp/backup.tar.gz`
    - Uploads to S3/R2 with a 7-day signed download URL
    - Emails the operator the link
 2. **Migration to self-host** — operator runs `fly volumes restore --from-url=<signed-url>` against their own Fly org. Same image, same data, same URL shape (their `acme.fly.dev` instead of `acme.parachute.cloud`).
 3. **Migration to other infra** — they get the `.tar.gz`; we don't lock them in.
 
-This is the lock-in symmetry payoff. **The export-to-self-host primitive exists on day one of the paid offering**, not as a future migration project.
+This is the lock-in symmetry payoff. **The export-to-self-host primitive is the day-one differentiator of the paid offering**, even though the one-click UI lands in Phase 3 — pre-Phase 3 we can still satisfy export requests manually via the same primitive.
 
 ## Phased timeline
 
@@ -221,7 +222,7 @@ This is the lock-in symmetry payoff. **The export-to-self-host primitive exists 
 - [ ] First real operator: a friend who's been waiting for hosted
 - [ ] Admin dashboard (separate Fly app, internal-only): list operators, their app health, their billing status
 
-**Exit criteria**: a Stripe payment kicks off provisioning that ends with the operator getting an email containing a working `https://<slug>.parachute.cloud/admin/setup` URL, end-to-end automated.
+**Exit criteria**: a Stripe payment kicks off provisioning that ends with the operator getting an email containing a working `https://<slug>.parachute.cloud/admin/setup` URL, end-to-end automated. Provisioner validates Stripe webhook signatures before any `flyctl apps create` call (those calls are destructive + billable; the endpoint must not be triggerable by a spoofed webhook).
 
 ### Phase 3 — public launch (~4 weeks after Phase 2)
 
@@ -255,7 +256,7 @@ If by this point Fly has been meaningfully better operationally and no major Ren
 ### Open questions for Aaron
 
 1. **Custom domains in the cloud tier** — Solo tier gets `<slug>.parachute.cloud`. Do operators on Plus get their own `notes.<their-domain>`? (Fly supports it; adds DNS + TLS provisioning steps per operator. Recommend: defer to Pro tier or charge extra.)
-2. **Region selection at signup** — auto-pick based on IP, or let operator choose? (Recommend: auto-pick with override. Most operators don't care; some have data-residency requirements.)
+2. **Region selection at signup** — auto-pick based on IP, or let operator choose? (Recommend: auto-pick with override. Most operators don't care; some have data-residency requirements. **GDPR specifically**: EU operators on a $10/mo tier should be able to pick an EU region (`lhr`, `fra`, `ams`) at signup; default-routing them to `iad` then explaining their data is in Virginia is a customer-support landmine.)
 3. **What happens when a hosted operator stops paying?** — Grace period? Read-only? Data export window before deletion? (Recommend: 14-day grace, then read-only for 30 days, then volume snapshot kept for 90 days for restore-on-request, then deleted. Communicate clearly at signup.)
 4. **The reliability story for hosted** — if Fly `iad` has an outage, every operator hosted there is down. Acceptable for a $10/mo tier; not acceptable for a $50/mo tier with SLA. (Recommend: SLA only on Pro tier with multi-region replication, which is a Phase 4+ feature.)
 5. **Aaron-as-team-of-one bandwidth** — Phase 2 + 3 is real engineering work (provisioning service, billing, admin dashboard, onboarding flow). Order of magnitude: 4-6 weeks of focused effort vs. continuing to polish hub. Is that the right priority vs other things on the docket?
