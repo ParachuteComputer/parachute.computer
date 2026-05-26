@@ -22,7 +22,7 @@ permalink: /deploy/render/
             </a>
         </p>
 
-        <p>Render will ask for a GitHub connection, read <a href="https://github.com/ParachuteComputer/parachute-hub/blob/main/render.yaml" target="_blank"><code>render.yaml</code></a> from <code>parachute-hub</code>, and provision a single web service with a persistent disk attached. The first build takes about two to three minutes.</p>
+        <p>Render will ask for a GitHub connection, read <a href="https://github.com/ParachuteComputer/parachute-hub/blob/main/render.yaml" target="_blank"><code>render.yaml</code></a> from <code>parachute-hub</code>, and provision a single web service with a persistent disk attached. The first build takes about one to two minutes.</p>
     </section>
 
     <section class="section">
@@ -60,9 +60,14 @@ permalink: /deploy/render/
 
         <p><strong>Why this step.</strong> First build pulls the Docker image, sets up the persistent disk, and boots the hub. Subsequent redeploys (after you push to the repo, or click "Manual Deploy") are faster &mdash; about 30 seconds &mdash; because the disk and image layers are cached.</p>
 
-        <p>The deploy log shows the build, then the hub start. Look for a line like <code>parachute-hub listening on :1939</code>. When the dashboard banner switches from "Deploying" to <strong>Live</strong>, you're up.</p>
+        <p>The deploy log shows the build, then the hub start. Look for a line like <code>parachute serve: listening on http://localhost:1939</code>. When the dashboard banner switches from "Deploying" to <strong>Live</strong>, you're up.</p>
 
         <p><strong>What you should see.</strong> Status: <strong>Live</strong>. A URL on the service page like <code>https://parachute-hub-abc123.onrender.com</code>.</p>
+
+        <aside class="upgrade-callout">
+            <strong>First ~30 seconds may flap.</strong>
+            <p>Right after Render flips to <strong>Live</strong>, the edge router takes another 10&ndash;30 seconds to finish settling routes to your container. Probes during that window can return 502 Bad Gateway or land slow. This is normal. If you visit your URL immediately and see a 502, wait a few seconds and reload &mdash; it'll come up. Once warm, the hub is stable.</p>
+        </aside>
     </section>
 
     <section class="section">
@@ -102,7 +107,7 @@ permalink: /deploy/render/
         <p><strong>Why this step.</strong> Your admin account was created in step 3 via the bootstrap-token form. The wizard picks up from there, walking through what still needs to be set up once and can't be defaulted: your first vault and how this hub is reachable on the internet.</p>
 
         <ol>
-            <li><strong>Vault.</strong> Names your first vault (defaults to <code>default</code>). You can add more vaults later from the admin UI.</li>
+            <li><strong>Vault.</strong> Names your first vault (defaults to <code>default</code>). Any short lowercase name works (<code>notes</code>, <code>journal</code>, <code>work</code>, &hellip;). You can add more vaults later from the admin UI; the name shows up in the URL for that vault's API + MCP endpoints (e.g. <code>/vault/notes/mcp</code>).</li>
             <li><strong>Expose.</strong> Pick how this hub is reached. For Render: choose <strong>Public URL</strong> &mdash; Render handles TLS termination on the <code>*.onrender.com</code> subdomain (or your custom domain). The other options (Tailscale, Cloudflare Tunnel) are for the local-install path; on Render they're not the right fit.</li>
             <li><strong>Done.</strong> Two tiles: <strong>Open the admin UI</strong> (lands on <code>/admin/vaults</code>; from there you can navigate to <code>/admin/modules</code> to install Notes, Scribe, and any other modules) and <strong>Connect Claude Code (MCP)</strong> (the install command for the MCP wiring &mdash; see step 6).</li>
         </ol>
@@ -182,6 +187,7 @@ permalink: /deploy/render/
             <li><strong>No free tier.</strong> Free Render web services don't support persistent disks, and a stateful hub needs a disk. Starter ($7) is the floor.</li>
             <li><strong>Module installs take a minute.</strong> Each "Install" click runs a real <code>bun install</code> on the container against the npm registry. First-time installs of vault or app take roughly a minute; redeploys re-use the cached disk.</li>
             <li><strong>Redeploys are not zero-downtime.</strong> When you push to the repo (or Render redeploys for any reason), the container restarts. Expect ~30 seconds where the hub is unreachable. For a single-operator hub this is a non-issue; for teams it's worth knowing.</li>
+            <li><strong>Edge cold-start can briefly 502.</strong> Right after a deploy goes Live, Render's edge router takes another ~10&ndash;30 seconds to settle routes to the new container. Probes during that window may return 502. Once warm, the hub is stable (this is platform-level behavior, not a hub bug).</li>
         </ul>
     </section>
 
