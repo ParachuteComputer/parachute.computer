@@ -1,14 +1,14 @@
 ---
 layout: post.njk
 title: "Starter prompt — set up your vault"
-description: "Paste this into Claude Code or Codex with your vault's MCP wired up. It will interview you about how you think about your notes and propose a structure that fits."
+description: "Paste this into any AI client with your vault's MCP server connected — Claude.ai, Claude Code, Codex, Goose, Cursor. The AI will look at what's already in your vault, interview you, and propose a structure."
 permalink: /onboarding/vault-setup/
 date: 2026-05-26T12:00:00
 ---
 
-This is one of two starter prompts ([the other is for building a custom UI](/onboarding/surface-build/)). Paste the block below into an AI client that has your vault's MCP tools wired up — Claude Code or Codex are the easiest paths — and the AI will interview you, then propose a vault structure that matches how you actually think.
+This is one of two starter prompts ([the other is for building a custom UI](/onboarding/surface-build/)). Paste the block below into any AI client with your vault's MCP server connected — **Claude.ai** (with MCP enabled), Claude Code, Codex, Goose, Cursor, OpenCode, or any other MCP-aware client.
 
-**Before you paste**: make sure your AI client has the vault's MCP server connected. The wizard at `/admin/setup` walks you through the `claude mcp add` command (or equivalent for your client).
+The prompt assumes your MCP is already wired up. The first thing the AI does is try a few MCP tools — if those fail, it'll ask you to set up MCP first and point you at the right command for your client.
 
 ---
 
@@ -34,7 +34,7 @@ You have these MCP tools available against my vault:
 Don't make assumptions about my structure. Look at what's already
 here first, then interview me.
 
-## Round 0: orient (read the current vault)
+## Round 0: orient (read the current vault — or detect missing MCP)
 
 Before asking me anything, call:
 - `vault-info` — see if there's an existing vault description and
@@ -44,7 +44,22 @@ Before asking me anything, call:
 - `query-notes` with an empty filter (limit 10) — see if there are
   any notes at all, and what they look like.
 
-Report what you find back to me in a short paragraph. Two cases:
+**If those tools aren't available** (you can't see them in your tool
+list, or the calls fail with "tool not found"), the vault's MCP isn't
+connected to this client yet. Stop here and tell me:
+
+> "I don't see Parachute Vault's MCP tools. Add the vault as an MCP
+> server in your client first. For Claude Code:
+> `parachute-vault mcp-install` on the machine running the hub.
+> For Claude.ai (web): go to Settings → Connectors → add the URL
+> shown at /admin → /admin/users → click your username → 'MCP
+> connection.' For Codex / Goose / OpenCode: paste the vault's
+> MCP endpoint into your client's MCP config. The vault URL is
+> shown on your hub's /admin page. Re-paste this prompt once
+> they're wired up."
+
+**If the tools work**, report what you find back to me in a short
+paragraph. Two cases:
 
 - **Empty vault** (no notes, no tags, default vault description):
   "You have a blank vault. Let's design it together."
@@ -198,17 +213,44 @@ Use Path 3 only when:
 
 If we go this route:
 1. Mint a narrow `vault:<name>:write` token via your MCP client's
-   token-creation flow with a short TTL (1 hour). You won't see the
+   token-creation flow (or, for now, ask me to mint one in the hub
+   admin UI at `/admin/tokens` since the MCP `manage-token` tool
+   isn't shipped yet) with a short TTL (1 hour). You won't see the
    raw token — it lives in an env var the script reads.
-2. Generate a small Bun (or Python, my preference) script that:
-   - reads `PARACHUTE_TOKEN` from env
-   - reads the source data
-   - POSTs to the vault's REST endpoint with the tag + path mapping
-   - dry-runs first, prompts for confirmation
+
+2. Generate a small Bun script that uses
+   `@openparachute/surface-client`'s `VaultClient` (the canonical
+   JS/TS scripting library for talking to a vault). Shape:
+
+   ```ts
+   import { VaultClient } from "@openparachute/surface-client";
+
+   const vault = new VaultClient({
+     hubOrigin: "https://...",     // my hub URL
+     vaultName: "default",          // or the name I gave
+     token: process.env.PARACHUTE_TOKEN!,
+   });
+
+   // ...read source data, transform into the vault note shape...
+
+   const result = await vault.createNotes(notes);
+   console.log(`Created ${result.created.length}, skipped ${result.skipped.length}`);
+   ```
+
+   Dry-run first, prompt for confirmation, then commit. The lib
+   handles auth headers + error mapping; no raw fetch needed.
+
 3. Hand me the script + the command:
    `PARACHUTE_TOKEN=<token> bun script.ts`
-4. Tell me to revoke the token after (`parachute auth revoke <jti>`
-   or via the hub's Tokens admin page in the browser).
+
+4. Tell me to revoke the token after via the hub admin UI's
+   `/admin/tokens` page (or `parachute auth revoke <jti>` if I'm
+   on the hub host).
+
+**For Python** or other languages: there's no official client lib
+yet — fall back to raw `requests` (Python) / `axios` (Node) against
+the vault's REST surface. The endpoints are stable; you can model
+them on the VaultClient surface above.
 
 End with a one-paragraph summary of what we built so I can paste it
 into another tool if I want.
