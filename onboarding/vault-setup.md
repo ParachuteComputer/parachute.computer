@@ -145,30 +145,70 @@ Once I approve the structure:
 
 ## Round 5: import (only if I have data to bring in)
 
-For each source we agreed to import in Round 1:
+For each source we agreed to import in Round 1. **Default to whichever
+path requires the least terminal use from me.**
 
-- **Obsidian:** run `parachute-vault import <path>` (or remind me to
-  run it). Verify with `vault-info` afterward — count should jump.
+### Path 1: Direct via MCP (default for small + medium imports)
 
-- **Anything else (Apple Notes, Notion, loose markdown, etc.):**
-  before generating a script, MINT A NARROW TOKEN: call your MCP
-  client's token-creation flow (the user's MCP setup determines the
-  exact UX, but most agentic clients have an "issue token" surface
-  against the vault) for scope `vault:<name>:write` with a short TTL
-  (1 hour). Tell me the token short ID or hash but NEVER paste the
-  raw token into the chat or the script source. Then generate a
-  small Bun script (or Python, my preference) that:
-  - reads `PARACHUTE_TOKEN` from env
-  - reads the source data (file glob, JSON export, AppleScript
-    output, whatever)
-  - POSTs to `/<vault-path>/notes` (the vault REST endpoint, hub-
-    proxied) with appropriate tag + path mapping
-  - prints a dry-run summary first, prompts for confirmation, then
-    runs the actual import
-  Hand me the script + the command to run:
-  `PARACHUTE_TOKEN=<token> bun script.ts`. Tell me to revoke the
-  token after the run (`parachute auth revoke <jti>` or the SPA's
-  Tokens page).
+This is the cleanest path — no shell, no script, no token handoff.
+You have `create-note` (batch variant supports many at once) and
+`update-tag` via MCP. For most imports under ~1000 notes:
+
+1. Ask me to paste the source content directly into chat, OR ask me
+   to point you at a file/folder if your MCP client has a filesystem
+   tool wired up.
+2. Parse the content per source (Obsidian markdown frontmatter,
+   Notion CSV/JSON, Apple Notes plist, etc.).
+3. Map each source-record → a Parachute note with `content`, `tags`,
+   `path`, `metadata`. Use the tag schemas + path convention we
+   agreed in Round 3.
+4. Dry-run summary first: "I'm going to create N notes across M tags.
+   First 3 examples: [...]." Confirm before committing.
+5. Batch `create-note` calls (50-100 per batch). Report progress.
+6. `vault-info` after — note count should match.
+
+This works for: pasted text dumps, exported JSON/CSV in chat,
+small-to-medium markdown collections accessible via filesystem MCP.
+
+### Path 2: Built-in Obsidian importer (CLI required on the hub host)
+
+If I'm importing an existing Obsidian vault and I (or someone with
+shell access on the hub) can run a command:
+
+  `parachute-vault import <path-to-vault>`
+
+This is lossless: IDs preserved, schemas restored, frontmatter
+intact. Faster than the MCP path for large Obsidian vaults.
+
+If I can't access the hub's shell (most non-developer friends), fall
+back to Path 1 — read the Obsidian vault's markdown files via MCP
+filesystem tool and batch-create them.
+
+### Path 3: Scripted import (large data or live API sources — power-user only)
+
+**Caveat: this path needs me to run a script in a terminal. Most
+friends won't be doing this.** Skip if I'm not comfortable with
+"open Terminal, set an env var, run `bun script.ts`."
+
+Use Path 3 only when:
+- The import is too large for chat-pasted MCP batching (10k+ notes)
+- The source is a live API (RSS, IMAP, etc.) that needs to fetch on
+  every run
+- I explicitly ask for a script
+
+If we go this route:
+1. Mint a narrow `vault:<name>:write` token via your MCP client's
+   token-creation flow with a short TTL (1 hour). You won't see the
+   raw token — it lives in an env var the script reads.
+2. Generate a small Bun (or Python, my preference) script that:
+   - reads `PARACHUTE_TOKEN` from env
+   - reads the source data
+   - POSTs to the vault's REST endpoint with the tag + path mapping
+   - dry-runs first, prompts for confirmation
+3. Hand me the script + the command:
+   `PARACHUTE_TOKEN=<token> bun script.ts`
+4. Tell me to revoke the token after (`parachute auth revoke <jti>`
+   or via the hub's Tokens admin page in the browser).
 
 End with a one-paragraph summary of what we built so I can paste it
 into another tool if I want.
