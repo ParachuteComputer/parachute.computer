@@ -40,8 +40,11 @@ typical client structures itself:
 
 - **Vault HTTP API reference** — the README in
   https://github.com/ParachuteComputer/parachute-vault — lists
-  endpoints for notes (`/api/notes`), tags (`/api/tags`), search
-  (`/api/search`), wikilinks, attachments.
+  endpoints for notes (`/api/notes` — full-text search via the
+  `?search=` query param), tags (`/api/tags`), graph
+  (`/api/find-path`), attachments, and the per-vault MCP at
+  `/mcp`. Wikilinks are inline `[[...]]` syntax in note content,
+  not a separate endpoint.
 
 Read whichever you need. I don't expect you to use Notes UI as a
 starting point unless I tell you to — the framing here is "build me
