@@ -86,21 +86,21 @@ permalink: /install/
     <section class="section">
         <h2>3. Want a UI for your notes? (optional)</h2>
 
-        <p><strong>Why this step.</strong> The Vault is a SQLite file behind an API. If you want to <em>see</em> your notes &mdash; browse, search, edit, watch the graph form &mdash; you need a UI. <strong>Parachute App</strong> is the UI host module; Notes ships as its first canonical app.</p>
+        <p><strong>Why this step.</strong> The Vault is a SQLite file behind an API. If you want to <em>see</em> your notes &mdash; browse, search, edit, watch the graph form &mdash; you need a UI. <strong>Parachute Surface</strong> is the UI host module; Notes ships as its first canonical surface.</p>
 
-        <p>Install App &mdash; it auto-bootstraps <a href="https://github.com/ParachuteComputer/parachute-app/tree/main/packages/notes-ui" target="_blank">Notes</a> as the first hosted app:</p>
+        <p>Install Surface &mdash; it auto-bootstraps <a href="https://github.com/ParachuteComputer/parachute-surface/tree/main/packages/notes-ui" target="_blank">Notes</a> as the first hosted surface:</p>
 
         <div class="code-inline">
-            <code>parachute install app</code>
+            <code>parachute install surface</code>
         </div>
 
-        <p><strong>What you should see.</strong> App runs as a background daemon under hub's reverse proxy. Open <a href="http://localhost:1939/app/notes/" target="_blank"><code>http://localhost:1939/app/notes/</code></a> in your browser (the legacy <code>http://localhost:1939/notes/</code> URL still works via hub's redirect, for back-compat). Click the vault popover in the header and hit <strong>Connect</strong> next to your vault under "Available from your hub" &mdash; this kicks an OAuth flow through the hub, no token-pasting required. You get note browsing, search, tag views, a graph visualization, voice capture with auto-transcription, and a markdown editor with live preview.</p>
+        <p><strong>What you should see.</strong> App runs as a background daemon under hub's reverse proxy. Open <a href="http://localhost:1939/surface/notes/" target="_blank"><code>http://localhost:1939/surface/notes/</code></a> in your browser (the legacy <code>http://localhost:1939/notes/</code> URL still works via hub's redirect, for back-compat). Click the vault popover in the header and hit <strong>Connect</strong> next to your vault under "Available from your hub" &mdash; this kicks an OAuth flow through the hub, no token-pasting required. You get note browsing, search, tag views, a graph visualization, voice capture with auto-transcription, and a markdown editor with live preview.</p>
 
         <p>Notes ships <strong>multi-vault</strong>: one install, every vault on your hub. The popover splits "Connected" (vaults you've OAuthed into) from "Available from your hub" (vaults published at your hub's well-known doc you haven't connected yet). Captures land under hierarchical <code>capture/text</code> / <code>capture/voice</code> tags; Settings &rarr; Larger / Largest scales the whole app for reading; <code>Cmd-=</code>, <code>Cmd--</code>, <code>Cmd-0</code> work the way you'd expect.</p>
 
-        <p><strong>More apps under the same host.</strong> Once App is installed, drop additional custom SPAs in via <code>parachute-app add &lt;path-to-dist&gt; --name &lt;name&gt; --path &lt;mount-path&gt;</code> (or from the admin SPA). Each lands at <code>&lt;hub&gt;/app/&lt;name&gt;/</code>, registers as its own OAuth client of the hub, and reads your vault under the scopes it declared. Gitcoin Brain, Unforced Brain, and anything you write next live under the same supervisor.</p>
+        <p><strong>More apps under the same host.</strong> Once App is installed, drop additional custom SPAs in via <code>parachute-surface add &lt;path-to-dist&gt; --name &lt;name&gt; --path &lt;mount-path&gt;</code> (or from the admin SPA). Each lands at <code>&lt;hub&gt;/surface/&lt;name&gt;/</code>, registers as its own OAuth client of the hub, and reads your vault under the scopes it declared. Gitcoin Brain, Unforced Brain, and anything you write next live under the same supervisor.</p>
 
-        <p>Notes is also a starting point: the source is <a href="https://github.com/ParachuteComputer/parachute-app/tree/main/packages/notes-ui" target="_blank">AGPL</a>, Vite + React + TypeScript, talks to the vault over the documented HTTP API. Fork it and build the UI that matches how <em>your</em> brain works &mdash; then host it under App alongside Notes.</p>
+        <p>Notes is also a starting point: the source is <a href="https://github.com/ParachuteComputer/parachute-surface/tree/main/packages/notes-ui" target="_blank">AGPL</a>, Vite + React + TypeScript, talks to the vault over the documented HTTP API. Fork it and build the UI that matches how <em>your</em> brain works &mdash; then host it under App alongside Notes.</p>
     </section>
 
     <section class="section">

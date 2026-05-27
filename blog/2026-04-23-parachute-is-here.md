@@ -12,7 +12,7 @@ og_type: "article"
 
 ![A parachute descending over open plains at dawn, its canopy woven with a luminous knowledge graph.](/assets/blog/parachute-is-here.jpg)
 
-> **Update (2026-05-22):** Notes has migrated to live as the first canonical app inside **parachute-app**. The architecture has consolidated to four committed-core modules: vault, app, scribe, hub. See the [parachute-app design doc](/design/2026-05-21-parachute-apps-design/) for the migration arc. Operators on legacy notes-daemon installs continue to work; hub redirects `/notes/*` → `/app/notes/*` for backwards compat. The install commands below are kept verbatim as historical record; the [install guide](/install/) has the up-to-date snippets.
+> **Update (2026-05-26):** Notes has migrated to live as the first canonical surface inside **parachute-surface** (renamed from parachute-app). The architecture has consolidated to four committed-core modules: vault, surface, scribe, hub. See the [parachute-surface design doc](/design/2026-05-21-parachute-surface-design/) for the migration arc. Operators on legacy notes-daemon installs continue to work; hub redirects `/notes/*` → `/surface/notes/*` for backwards compat. The install commands below are kept verbatim as historical record; the [install guide](/install/) has the up-to-date snippets.
 
 > The mind is like a parachute. It doesn't work if it's not open.
 >
