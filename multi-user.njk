@@ -14,9 +14,9 @@ permalink: /multi-user/
     <section class="section">
         <h2>What multi-user gives you</h2>
 
-        <p>You run a single Parachute hub on Render, Fly, or your own machine. You create an account per person. Each account is pinned to their own vault. They sign in, change the password you handed them, open Notes, and they're using their own private knowledge graph &mdash; without anyone else able to read or write it.</p>
+        <p>You run a single Parachute hub on Render, Fly, or your own machine. You create an account per person and assign them one or more vaults. They sign in, change the password you handed them, open Notes against any of their assigned vaults, and they're using their own private knowledge graphs &mdash; without anyone else able to read or write them.</p>
 
-        <p>Phase 1 is intentionally narrow: <strong>one admin (you), N users, each on one vault.</strong> No self-service signup, no invite links, no multi-vault membership per user, no role granularity below admin/user. Those land later as people ask for them. The point of Phase 1 is to get you hosting your handful of people without standing up infrastructure per person.</p>
+        <p>The current shape: <strong>one admin (you), N users, each with one or more vaults.</strong> Phase 2 (shipped 2026-05-27) adds multi-vault membership and admin-initiated password reset. No self-service signup, no invite links, no role granularity below admin/user yet. Those land later as people ask for them. The point is to get you hosting your handful of people without standing up infrastructure per person.</p>
     </section>
 
     <section class="section">
@@ -38,7 +38,7 @@ permalink: /multi-user/
     <section class="section">
         <h2>2. Provision a vault per friend</h2>
 
-        <p>Every friend gets their own vault. Vaults are private to their assigned user &mdash; the hub mints per-vault scopes, and the OAuth issuer pins each user's tokens to their one vault. There's no path for one user to read another's vault.</p>
+        <p>Vaults are private per user. The hub mints per-vault scopes, and the OAuth issuer pins each user's tokens to their assigned vaults. There's no path for one user to read another's vault. Friends can have multiple vaults &mdash; one personal + one family-shared is a common shape &mdash; or just one. Either way, vaults are isolated from each other; only the admin (you) can read all of them.</p>
 
         <p>Provision via <code>/admin/vaults</code> &rarr; <strong>Add vault</strong>. Give it a name your friend will recognize when they sign in &mdash; their first name or initials work. <code>maya</code>, <code>jp</code>, <code>dad</code>. Lowercase, alphanumeric, dashes and underscores only.</p>
 
@@ -53,10 +53,10 @@ permalink: /multi-user/
         <ul>
             <li><strong>Username</strong> &mdash; lowercase, 2&ndash;32 characters, alphanumeric + dash + underscore. Your friend will type this every time they sign in; keep it short.</li>
             <li><strong>Default password</strong> &mdash; at least 12 characters. You pick this. Your friend will be force-redirected to change it the moment they sign in.</li>
-            <li><strong>Assigned vault</strong> &mdash; pick the vault you just provisioned for them. The dropdown lists every vault on the hub. <em>Pick one.</em> The "No restriction (admin-level access)" option is for promoting someone to co-admin &mdash; not what you want for a friend.</li>
+            <li><strong>Assigned vaults</strong> &mdash; pick one or more vaults for them. The multi-select lists every vault on the hub. Most friends want just one vault; pick two or more if the friend will be working across separate contexts (e.g. personal + family-shared). Leaving it empty means "no vaults yet" &mdash; they can sign in but can't authorize any vault until you assign one via the Edit Vaults action later.</li>
         </ul>
 
-        <p>Submit. The user appears in the table with <strong>Password set: No</strong> &mdash; the bit that tells the hub to force-redirect them through change-password on first sign-in.</p>
+        <p>Submit. The user appears in the table with their assigned vaults shown and <strong>Password set: No</strong> &mdash; the bit that tells the hub to force-redirect them through change-password on first sign-in.</p>
 
         <p><strong>Securely hand off the default password.</strong> Signal, an in-person screen-share, a sealed envelope &mdash; not plain email, not a chat log that lives forever. The password is one-time use; the moment your friend signs in they'll be told to pick their own. But it still gates access to their vault until they do, so treat it like the first key to a house.</p>
     </section>
@@ -78,7 +78,7 @@ permalink: /multi-user/
             <code>I set you up with a Parachute vault. Sign in at &lt;hub-url&gt;/login with username &lt;u&gt; and the password I sent separately. You'll be asked to change it on first sign-in. From there, click Open Notes.</code>
         </div>
 
-        <p>When they sign in, they land at <code>/account/change-password</code>, pick a new password, and then are dropped at <code>/account/</code> &mdash; their personal home page. It shows their assigned vault, an <strong>Open Notes</strong> button, and a link to change their password later if they want.</p>
+        <p>When they sign in, they land at <code>/account/change-password</code>, pick a new password, and then are dropped at <code>/account/</code> &mdash; their personal home page. It shows their assigned vault(s) as cards, each with its own <strong>Open Notes</strong> button, and a link to change their password later if they want.</p>
     </section>
 
     <section class="section">
@@ -86,7 +86,7 @@ permalink: /multi-user/
 
         <p><strong>Can:</strong></p>
         <ul>
-            <li>Open Notes against their assigned vault &mdash; web app at <a href="https://notes.parachute.computer">notes.parachute.computer</a>, runs on any device. Adds itself as a PWA on iOS and Android.</li>
+            <li>Open Notes against any of their assigned vaults &mdash; web app at <a href="https://notes.parachute.computer">notes.parachute.computer</a>, runs on any device. Adds itself as a PWA on iOS and Android. The connect flow lets them switch between vaults they have access to.</li>
             <li>Connect a custom client to their vault &mdash; a custom Surface running on their laptop, an MCP-aware AI client, or any tool that speaks OAuth + MCP. The hub issues per-vault tokens through the standard OAuth flow; their token is pinned to their vault, can't reach anything else.</li>
             <li>Change their own password from <code>/account/change-password</code> any time.</li>
             <li>Sign out from <code>/account/</code>.</li>
@@ -94,7 +94,7 @@ permalink: /multi-user/
 
         <p><strong>Can't:</strong></p>
         <ul>
-            <li>See or read anyone else's vault. The OAuth issuer pins their tokens to their assigned vault name; vault servers enforce scope server-side.</li>
+            <li>See or read any vault outside their assigned list. The OAuth issuer pins their tokens to their assigned vaults; vault servers enforce scope server-side. Friends with two assigned vaults can authorize into either, but never into a third the admin hasn't granted them.</li>
             <li>Reach <code>/admin/</code>. The admin SPA is gated to the first admin (you); anyone else who navigates there gets redirected to <code>/account/</code>.</li>
             <li>Create users, manage vaults, or mint operator-scope tokens. The token-mint endpoints check that the caller is the first admin before issuing.</li>
             <li>Promote themselves or anyone else.</li>
@@ -110,37 +110,36 @@ permalink: /multi-user/
 
         <ul>
             <li>Your hub's URL (the same one they use to sign in).</li>
-            <li>Their vault name (shown on their <code>/account/</code> page).</li>
+            <li>The vault name(s) shown on their <code>/account/</code> page.</li>
         </ul>
 
-        <p>The OAuth flow is standard: their app registers as a client via dynamic client registration (DCR), redirects them to your hub for consent, gets a code, exchanges it for a vault-scoped token. <strong>You don't need to pre-register their client.</strong> External clients hit a consent screen on first authorize, where your friend approves &mdash; once they approve, future authorizes are seamless.</p>
+        <p>The OAuth flow is standard: their app registers as a client via dynamic client registration (DCR), redirects them to your hub for consent, gets a code, exchanges it for a vault-scoped token. <strong>You don't need to pre-register their client.</strong> External clients hit a consent screen on first authorize, where your friend approves &mdash; once they approve, future authorizes are seamless. If they have multiple assigned vaults, the consent screen shows a picker so they choose which vault to authorize for; the token is pinned to that single choice.</p>
 
-        <p>Tokens are pinned to their vault. Their custom Surface can never talk to anyone else's vault, even if they wire it wrong.</p>
+        <p>Tokens are pinned to the vault the friend picked. Their custom Surface can never talk to a vault outside their assigned list, even if they wire it wrong.</p>
     </section>
 
     <section class="section">
         <h2>If something goes wrong</h2>
 
-        <p><strong>Friend forgot their password.</strong> Phase 1 doesn't have self-service reset. The admin recovery shape is "delete the user and re-create them with a fresh default password." Their notes stay in their vault &mdash; vaults are independent from accounts. Delete via <code>/admin/users</code>, re-create with the same username, hand them the new default password.</p>
+        <p><strong>Friend forgot their password.</strong> Reset it from <code>/admin/users</code>: click <strong>Reset password</strong> on their row, pick a new temp password, hand it to them out-of-band. They'll be force-redirected through change-password on next sign-in, exactly like the original default-password flow. All their existing tokens are revoked automatically as part of the reset.</p>
 
-        <p><strong>Friend's tokens leaked.</strong> Go to <code>/admin/permissions</code> for the per-vault grants view, or <code>/admin/tokens</code> for the per-token registry. Revoke individual tokens or every token for a user. Their OAuth clients will get 401 on next call and re-prompt for consent.</p>
+        <p><strong>Friend's tokens leaked.</strong> Go to <code>/admin/permissions</code> for the per-vault grants view, or <code>/admin/tokens</code> for the per-token registry. Revoke individual tokens or every token for a user. Their OAuth clients will get 401 on next call and re-prompt for consent. The admin password reset above also revokes tokens as a side effect &mdash; useful if you want a clean slate.</p>
 
-        <p><strong>Wrong vault assigned.</strong> Phase 1 doesn't allow reassigning a user's vault without deleting and re-creating &mdash; that's Phase 2 work. If you need to move a friend to a different vault, delete + re-create. Their notes stay put.</p>
+        <p><strong>Wrong vault assigned.</strong> Open <code>/admin/users</code>, click <strong>Edit Vaults</strong> on the friend's row, adjust the multi-select, save. Their notes in any removed vault stay put (vaults and assignments are independent), but they lose access via OAuth on the next token mint. Existing access tokens stay valid until they expire (~15 min); refresh tokens stop minting against the removed vault.</p>
 
-        <p><strong>Removing a friend entirely.</strong> Delete the user via <code>/admin/users</code>. Their vault is <em>not</em> deleted by that action &mdash; vaults and users are independent. If you want the vault gone too, delete it via <code>/admin/vaults</code> after.</p>
+        <p><strong>Removing a friend entirely.</strong> Delete the user via <code>/admin/users</code>. Their vaults are <em>not</em> deleted by that action &mdash; vaults and accounts are independent. If you want the vault gone too, delete it via <code>/admin/vaults</code> after.</p>
     </section>
 
     <section class="section">
         <h2>What multi-user is not (yet)</h2>
 
-        <p>Phase 1 is the foundation. Honest about its limits:</p>
+        <p>Honest about the current limits:</p>
 
         <ul>
-            <li><strong>No self-service signup.</strong> You create every account. There's no invite link, no "sign up with email," no SSO.</li>
-            <li><strong>No multi-vault membership.</strong> One user, one vault. If your friend wants two vaults (personal + work), they need two accounts.</li>
-            <li><strong>No role granularity.</strong> Either you're the admin (first user) or you're a regular user. No "viewer" or "editor" mid-tier.</li>
-            <li><strong>No 2FA.</strong> Password-only sign-in. Multi-factor lands later; until then, pick a real password.</li>
-            <li><strong>No password reset by user.</strong> Self-service reset is Phase 2; for now, admin deletes + re-creates.</li>
+            <li><strong>No self-service signup.</strong> You create every account. There's no invite link, no "sign up with email," no SSO. Phase 2 follow-up: invite-link onboarding (alternative to default password).</li>
+            <li><strong>No role granularity.</strong> Either you're the admin (first user) or you're a regular user with read/write access to your assigned vaults. No "viewer" / "editor" mid-tier. The schema is forward-compatible with per-vault roles (a `role` column is already in place); Phase 3 wires it into scope-narrowing.</li>
+            <li><strong>No 2FA.</strong> Password-only sign-in. Multi-factor lands later; until then, pick a real password and limit your hub's public exposure if you can.</li>
+            <li><strong>No self-service password reset by the user.</strong> Friends can change their password any time at <code>/account/change-password</code>, but if they forget it, you (the admin) have to reset it via <code>/admin/users</code>. Self-service email-based reset is Phase 3 work.</li>
         </ul>
 
         <p>The design document for the full plan is at <a href="/design/2026-05-20-multi-user-phase-1/">/design/2026-05-20-multi-user-phase-1/</a> &mdash; including what Phase 2 and 3 add. If any of the Phase 1 limits block your use case, open an issue at <a href="https://github.com/ParachuteComputer/parachute-hub/issues">the hub tracker</a> and we'll prioritize.</p>
