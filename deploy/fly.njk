@@ -85,7 +85,7 @@ permalink: /deploy/fly/
         <p><strong>Why this step.</strong> Hub generates a one-time bootstrap token on first boot and prints it in the startup logs. You'll grab it from <code>fly logs</code> and paste it into the setup wizard to claim admin.</p>
 
         <div class="code-inline">
-            <code>fly logs --app your-app-name | grep parachute-bootstrap-</code>
+            <code>fly logs --app your-app-name --no-tail | grep parachute-bootstrap-</code>
         </div>
 
         <p>Look for a banner like:</p>
@@ -199,7 +199,7 @@ permalink: /deploy/fly/
         <h2>Limitations</h2>
 
         <ul>
-            <li><strong>One machine shares 512MB of RAM.</strong> Fly <code>shared-cpu-1x</code> 512MB is enough for hub + vault + app + scribe at typical sub-1000-note usage. If you hit the ceiling &mdash; large vaults, heavy transcription workloads &mdash; scale up with <code>fly scale memory 1024 --app your-app-name</code> (online, no redeploy needed). Or split a module out to its own Fly app later.</li>
+            <li><strong>One machine shares 512MB of RAM.</strong> Fly <code>shared-cpu-1x</code> 512MB is enough for hub + vault + app + scribe at typical sub-1000-note usage. If you hit the ceiling &mdash; large vaults, heavy transcription workloads &mdash; scale up with <code>fly scale memory 1024 --app your-app-name</code> (triggers a machine restart, ~30s downtime). Or split a module out to its own Fly app later.</li>
             <li><strong>Single-region by default.</strong> The default <code>fly.toml</code> pins one region. Multi-region Parachute would need volume replication, which Fly doesn't do natively for single-writer SQLite workloads. If <code>iad</code> has a bad day, your hub is down until they fix it. Same constraint as Render's regional disks; not a Fly-specific limit.</li>
             <li><strong>CLI install required.</strong> Unlike Render's one-button deploy, you need <code>flyctl</code> on your machine. The deploy script installs it for you if missing, but the dependency is real.</li>
             <li><strong>Module installs take a minute.</strong> Each "Install" click runs a real <code>bun install</code> on the machine against the npm registry. First-time installs of vault or app take roughly a minute; redeploys re-use the cached volume.</li>
