@@ -30,7 +30,7 @@ permalink: /deploy/render/
 
         <p>One <a href="https://render.com/docs/free#free-web-services" target="_blank">Render web service</a> (Starter plan, $7/month) running <strong>hub-as-supervisor</strong> &mdash; the same architecture you'd run locally, just inside a Render container. One persistent disk mounted at <code>/parachute</code> for module installs and vault data. HTTPS and a <code>*.onrender.com</code> subdomain included; a custom domain attaches in a couple of clicks afterward.</p>
 
-        <p><strong>Modules are not pre-installed.</strong> The container ships with only the hub. After first boot, the admin UI lets you install <a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank">Vault</a>, <strong>App</strong> (the UI host module, with <a href="https://github.com/ParachuteComputer/parachute-app/tree/main/packages/notes-ui" target="_blank">Notes</a> auto-bootstrapped as the first hosted app), and <a href="https://github.com/ParachuteComputer/parachute-scribe" target="_blank">Scribe</a> with one click each &mdash; they install onto the persistent disk under <code>/parachute/modules</code>, so they survive redeploys.</p>
+        <p><strong>Modules are not pre-installed.</strong> The container ships with only the hub. After first boot, the admin UI lets you install <a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank">Vault</a>, <strong>Surface</strong> (the UI host module, with <a href="https://github.com/ParachuteComputer/parachute-surface/tree/main/packages/notes-ui" target="_blank">Notes</a> auto-bootstrapped as the first hosted app), and <a href="https://github.com/ParachuteComputer/parachute-scribe" target="_blank">Scribe</a> with one click each &mdash; they install onto the persistent disk under <code>/parachute/modules</code>, so they survive redeploys.</p>
 
         <p>This is the deploy mirror of the local model: locally, the hub supervises vault, app, and scribe as child processes sharing <code>~/.parachute/</code>. On Render, the hub supervises the same children in the same container, sharing the mounted disk. See the <a href="/design/2026-05-18-v06-deploy-architecture/">v0.6 deploy architecture note</a> for the full shape.</p>
     </section>
@@ -120,9 +120,9 @@ permalink: /deploy/render/
 
         <p><strong>Why this step.</strong> The hub on its own is just the supervisor &mdash; useful for OAuth and module lifecycle, but not yet the thing you want to talk to. Modules are where the actual reading, writing, and capturing happens.</p>
 
-        <p>From the done screen's <strong>Open the admin UI</strong> tile (lands on <code>/admin/vaults</code>), navigate to <strong>Modules</strong> &mdash; that's <code>/admin/modules</code>. You'll see Vault, App, and Scribe listed as available (three modules, not four &mdash; Notes ships bundled inside App). Click <strong>Install</strong> next to each one you want. Install takes about a minute per module &mdash; the hub runs <code>bun install</code> against the package and persists it under <code>/parachute/modules/node_modules/</code>, then spawns it as a child process and mounts its routes under <code>/vault</code>, <code>/app</code>, <code>/scribe</code>. Installing App auto-bootstraps the Notes UI as its first hosted app.</p>
+        <p>From the done screen's <strong>Open the admin UI</strong> tile (lands on <code>/admin/vaults</code>), navigate to <strong>Modules</strong> &mdash; that's <code>/admin/modules</code>. You'll see Vault, App, and Scribe listed as available (three modules, not four &mdash; Notes ships bundled inside App). Click <strong>Install</strong> next to each one you want. Install takes about a minute per module &mdash; the hub runs <code>bun install</code> against the package and persists it under <code>/parachute/modules/node_modules/</code>, then spawns it as a child process and mounts its routes under <code>/vault</code>, <code>/surface</code>, <code>/scribe</code>. Installing App auto-bootstraps the Notes UI as its first hosted app.</p>
 
-        <p><strong>What you should see.</strong> Each installed module switches to a <strong>Running</strong> badge with its mounted path. Notes is reachable at <code>&lt;your-hub&gt;/app/notes/</code> (the legacy <code>&lt;your-hub&gt;/notes/</code> URL still resolves via hub's redirect), vault's REST API at <code>&lt;your-hub&gt;/vault/default</code>, scribe at <code>&lt;your-hub&gt;/scribe</code>.</p>
+        <p><strong>What you should see.</strong> Each installed module switches to a <strong>Running</strong> badge with its mounted path. Notes is reachable at <code>&lt;your-hub&gt;/surface/notes/</code> (the legacy <code>&lt;your-hub&gt;/notes/</code> URL still resolves via hub's redirect), vault's REST API at <code>&lt;your-hub&gt;/vault/default</code>, scribe at <code>&lt;your-hub&gt;/scribe</code>.</p>
     </section>
 
     <section class="section">
@@ -144,7 +144,7 @@ permalink: /deploy/render/
 
         <p>Start a new Claude Code session in any project. Run <code>/mcp</code> &mdash; <code>parachute-default</code> should appear with its nine tools resolved. Memory now persists across every session, backed by your Render-hosted hub.</p>
 
-        <p><strong>What you should see.</strong> <code>parachute-default</code> in <code>/mcp</code>'s list with status <em>connected</em>. Asking Claude to write a note succeeds and the note appears in the Notes UI on <code>&lt;your-hub&gt;/app/notes/</code> immediately.</p>
+        <p><strong>What you should see.</strong> <code>parachute-default</code> in <code>/mcp</code>'s list with status <em>connected</em>. Asking Claude to write a note succeeds and the note appears in the Notes UI on <code>&lt;your-hub&gt;/surface/notes/</code> immediately.</p>
     </section>
 
     <section class="section" id="custom-domain">

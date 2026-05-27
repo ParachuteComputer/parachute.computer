@@ -34,7 +34,7 @@ You can read these to see how the vault's HTTP API is shaped + how a
 typical client structures itself:
 
 - **Notes UI** — the canonical PWA, source at
-  https://github.com/ParachuteComputer/parachute-app/tree/main/packages/notes-ui
+  https://github.com/ParachuteComputer/parachute-surface/tree/main/packages/notes-ui
   — full CRUD, OAuth, PWA caching, multi-vault. Probably more than I
   need; useful as a reference.
 

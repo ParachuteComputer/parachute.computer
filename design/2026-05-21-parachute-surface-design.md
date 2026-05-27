@@ -1,13 +1,13 @@
 ---
-title: "parachute-app — UI host module for custom UIs, MVP shape"
+title: "parachute-surface — UI host module for custom UIs, MVP shape"
 description: "A new module that supervises a directory of small custom SPAs (Gitcoin Brain, Unforced Brain, …) without each becoming a full npm-published module. The mount-many-UIs-under-one-supervisor primitive."
 ---
-# parachute-app — UI host module for custom UIs, MVP shape
+# parachute-surface — UI host module for custom UIs, MVP shape
 
 **Date:** 2026-05-21
 **Status:** Proposed. Targets v0.7. The Gitcoin Brain UI (shipped May 2026), Aaron's about-to-start Unforced Brain UI, and **Notes itself** (which migrates from own-module to app-hosted over 4 phases — see section 16) collectively name the audience this module serves. App is positioned as committed-core; Notes is the canonical first app installed under it.
 
-**Naming note:** the module is **parachute-app** (singular), mirroring the vault precedent — `parachute-vault` (singular module) hosts many vault instances; `parachute-app` (singular module) hosts many app instances. The filename of this design doc keeps "apps" for historical continuity with PR #54; the artifact name is `parachute-app` throughout.
+**Naming note:** the module is **parachute-surface** (singular), mirroring the vault precedent — `parachute-vault` (singular module) hosts many vault instances; `parachute-surface` (singular module) hosts many app instances. The filename of this design doc keeps "apps" for historical continuity with PR #54; the artifact name is `parachute-surface` throughout.
 
 **Companions:**
 - [`2026-05-21-parachute-runner-design.md`](./2026-05-21-parachute-runner-design.md) — closest precedent (one supervisor, many discovered units); app mirrors its shape on the UI axis
@@ -25,15 +25,15 @@ description: "A new module that supervises a directory of small custom SPAs (Git
 
 ## The decision
 
-parachute-app is a new module: a small Bun HTTP service that supervises a directory of pre-built static UI bundles. Each bundle is a self-contained SPA living under `~/.parachute/app/uis/<name>/`, with a `dist/` (the bundle) and a `meta.json` (mount path, OAuth scopes, display props). app mounts each declared UI at its declared subpath, serves the bundle with SPA-routing fallback, and auto-registers each as an OAuth client of the hub on add.
+parachute-surface is a new module: a small Bun HTTP service that supervises a directory of pre-built static UI bundles. Each bundle is a self-contained SPA living under `~/.parachute/surface/uis/<name>/`, with a `dist/` (the bundle) and a `meta.json` (mount path, OAuth scopes, display props). app mounts each declared UI at its declared subpath, serves the bundle with SPA-routing fallback, and auto-registers each as an OAuth client of the hub on add.
 
-The module name is **parachute-app**; the binary is **`parachute-app`**; the npm package is **`@openparachute/app`**. CLI verbs:
+The module name is **parachute-surface**; the binary is **`parachute-surface`**; the npm package is **`@openparachute/surface`**. CLI verbs:
 
-- `parachute-app serve` — long-running Bun process, hub-supervised, watches the `uis/` directory
-- `parachute-app add <path-to-dist> --name <name> --path <mount-path>` — copy a built bundle into `uis/<name>/`, register it
-- `parachute-app list` — what's installed, status, mount path, auto-registered OAuth client_id
-- `parachute-app remove <name>` — uninstall
-- `parachute-app reload <name>` — re-read meta.json + bundle without restarting the daemon
+- `parachute-surface serve` — long-running Bun process, hub-supervised, watches the `uis/` directory
+- `parachute-surface add <path-to-dist> --name <name> --path <mount-path>` — copy a built bundle into `uis/<name>/`, register it
+- `parachute-surface list` — what's installed, status, mount path, auto-registered OAuth client_id
+- `parachute-surface remove <name>` — uninstall
+- `parachute-surface reload <name>` — re-read meta.json + bundle without restarting the daemon
 
 The unit is the UI bundle (a directory of static files + meta.json). The module is the host. They are explicitly separate, and they stay separate.
 
@@ -45,34 +45,34 @@ Three observations pinned the shape:
 
 **2. Each-UI-as-its-own-module is too much ceremony for this audience.** A first-class module today means: own git repo, `.parachute/module.json`, port reservation, npm package + RC versioning chain, services.json self-registration, hub install path. That ~all-of-it for *every* small SPA puts a tax on the next custom UI Aaron writes. He'll do this twice in a month then resist building a third. The trust-gradient pattern is explicit about not paying complexity tax that doesn't earn its keep.
 
-**3. The runner-design pattern absorbs this cleanly.** parachute-runner is the supervisor for "many job notes in vault" — the unit (job) is lightweight, the supervisor is the module. parachute-app mirrors that exactly on the UI axis: many UI bundles in a directory, one supervisor module. Same audience (owner-operated, flat trust gradient), same shape (supervisor + discovered units), same module-protocol surface. The cost of a second supervisor is small; the reuse of the mental model is high.
+**3. The runner-design pattern absorbs this cleanly.** parachute-runner is the supervisor for "many job notes in vault" — the unit (job) is lightweight, the supervisor is the module. parachute-surface mirrors that exactly on the UI axis: many UI bundles in a directory, one supervisor module. Same audience (owner-operated, flat trust gradient), same shape (supervisor + discovered units), same module-protocol surface. The cost of a second supervisor is small; the reuse of the mental model is high.
 
 ## What "app" means precisely
 
-A UI is a directory under `~/.parachute/app/uis/<name>/` containing:
+A UI is a directory under `~/.parachute/surface/uis/<name>/` containing:
 
 - `dist/` — the built static bundle (HTML, JS, CSS, assets)
 - `meta.json` — declarative metadata: mount path, display name, OAuth scopes required, optional icon URL, version
 
 The app daemon polls `uis/` on startup and on `reload`. For each declared UI:
 
-1. Parse `meta.json`, validate against schema. Malformed → log, skip, surface as `status: invalid` in `parachute-app list`.
+1. Parse `meta.json`, validate against schema. Malformed → log, skip, surface as `status: invalid` in `parachute-surface list`.
 2. Mount the bundle at `meta.path` under the hub origin (via hub's reverse proxy, same as notes today).
 3. Serve `index.html` for any unmatched path under the mount (SPA fallback).
 4. On first add, register the UI as an OAuth client of the hub via DCR (RFC 7591) using `meta.scopes_required` and `meta.path` as the redirect-URI base. Persist the resulting `client_id` (no secret — public client, PKCE) in app's own state.
-5. Expose the OAuth `client_id` and discovery doc per-UI at `/app/<name>/oauth-client` so the UI's JS can read it at boot.
+5. Expose the OAuth `client_id` and discovery doc per-UI at `/surface/<name>/oauth-client` so the UI's JS can read it at boot.
 
 There is no per-UI sandbox, no per-UI origin, no iframe. All UIs share the hub origin. The trust gradient is flat: the operator put the bundles in `uis/`, the operator owns the vault those UIs read, the operator runs the host. Isolation is a parachute-cloud (TBD) concern.
 
-**Framework freedom for hosted UIs.** parachute-app requires only a `dist/` directory with an `index.html`. Your UI can be Vite + React (recommended for the JS bootstrap convenience), Vue, Svelte, vanilla JS, anything — app doesn't care. The Vite + React stack is what app's *own* admin SPA uses (see section 7), not what app *requires* of hosted UIs.
+**Framework freedom for hosted UIs.** parachute-surface requires only a `dist/` directory with an `index.html`. Your UI can be Vite + React (recommended for the JS bootstrap convenience), Vue, Svelte, vanilla JS, anything — app doesn't care. The Vite + React stack is what app's *own* admin SPA uses (see section 7), not what app *requires* of hosted UIs.
 
 ## The 19 design landings
 
-### 1. Naming — `parachute-app` (singular)
+### 1. Naming — `parachute-surface` (singular)
 
-**Decision:** the module is `parachute-app` (singular), npm `@openparachute/app`, binary `parachute-app`. Each unit hosted by the module is "an app."
+**Decision:** the module is `parachute-surface` (singular), npm `@openparachute/surface`, binary `parachute-surface`. Each unit hosted by the module is "an app."
 
-This mirrors **vault precedent**: `parachute-vault` (singular module) hosts many vault instances; `parachute-app` (singular module) hosts many app instances. The relationship between module-name and hosted-units is the same shape across the ecosystem.
+This mirrors **vault precedent**: `parachute-vault` (singular module) hosts many vault instances; `parachute-surface` (singular module) hosts many app instances. The relationship between module-name and hosted-units is the same shape across the ecosystem.
 
 The patterns#74 issue preferred `parachute-pages`. Pushing back: the things hosted are **apps**, not pages. The Gitcoin Brain UI has hash-based routing, an OAuth dance, state in localStorage, a search input wired to vault full-text — it's not a page. "Pages" undersells what these are. The other rejected candidates (`parachute-display`, `parachute-host`, `parachute-mount`, `parachute-surfaces`, `parachute-canvas`, `parachute-deck`) were either too generic, overlapping with existing vocabulary, or undersold compared to "app."
 
@@ -86,17 +86,17 @@ Stress-testing against Aaron's actual two use cases (Gitcoin Brain + Unforced Br
 
 **Option A (each UI is its own module).** Each becomes a `.parachute/module.json`-bearing npm package with its own port reservation, services.json row, install command, RC chain, hub install path. For two ~500-line vanilla-JS SPAs that talk to vault REST, this is the ceremony of three committed-core modules to ship two reading rooms. Aaron would do this twice and then resist building the third UI — the friction discourages the use case.
 
-**Option B (host module supervises many UIs).** One module ships once. Adding a UI is `parachute-app add <path-to-dist> --name <name> --path <mount-path>`. Each UI is a directory + meta.json — no npm, no port, no module.json, no RC chain. The ceremony is paid once (app itself); marginal cost per UI is the directory copy.
+**Option B (host module supervises many UIs).** One module ships once. Adding a UI is `parachute-surface add <path-to-dist> --name <name> --path <mount-path>`. Each UI is a directory + meta.json — no npm, no port, no module.json, no RC chain. The ceremony is paid once (app itself); marginal cost per UI is the directory copy.
 
 **Option C (vault stores UIs as content as `tag:ui` notes).** Clever but breaks: how does vault serve an SPA bundle? Either vault grows a static-server mode (a new vault responsibility that crosses the data-vs-presentation boundary) or each UI lives as a single HTML note (no multi-file bundle, no real SPA shell, no build tooling). The Gitcoin Brain UI is three files served from a directory — that doesn't fit as a single note. C is right for "tiny widgets stored as content" but wrong for "real SPA bundles."
 
 B wins decisively. The escape-hatch matters: if a future UI grows server-side dependencies (not just vault reads), it graduates to its own module (A). App doesn't try to be a backend host. The continuum is clean: B for client-only-against-vault UIs (most things); A for UIs with real backend services.
 
-This also resolves a question the issue left open: **does Notes move into app?** Yes — **app replaces notes**. Notes-as-module retires; Notes lives forward as the canonical first app installed under parachute-app, distributed as the `@openparachute/notes-ui` bundle. The migration arc is captured in detail in section 16 (Notes migration to app). The short of it: app's existence collapses the per-module-ceremony tax that justified Notes-as-module today, and Notes' PWA-specific needs (offline-first, service worker) are absorbed by app's opt-in PWA mode (section 18). Notes' release cadence + team commitment carry forward — they're commitments to the bundle's quality, not to the module shape. The committed-core line ends up as **vault + app + scribe + hub** post-migration; Notes-as-app lives within app as the first canonical app installed.
+This also resolves a question the issue left open: **does Notes move into app?** Yes — **app replaces notes**. Notes-as-module retires; Notes lives forward as the canonical first app installed under parachute-surface, distributed as the `@openparachute/notes-ui` bundle. The migration arc is captured in detail in section 16 (Notes migration to app). The short of it: app's existence collapses the per-module-ceremony tax that justified Notes-as-module today, and Notes' PWA-specific needs (offline-first, service worker) are absorbed by app's opt-in PWA mode (section 18). Notes' release cadence + team commitment carry forward — they're commitments to the bundle's quality, not to the module shape. The committed-core line ends up as **vault + app + scribe + hub** post-migration; Notes-as-app lives within app as the first canonical app installed.
 
 ### 3. Repository shape for UIs themselves — each UI is its own project
 
-**Decision:** each UI is its own project / git repo. Operators clone, build, and either run `parachute-app add <dist>` or symlink/copy the `dist/` into `uis/<name>/`.
+**Decision:** each UI is its own project / git repo. Operators clone, build, and either run `parachute-surface add <dist>` or symlink/copy the `dist/` into `uis/<name>/`.
 
 Alternatives: a single monorepo of UIs (one repo with `app/gitcoin-brain/`, `app/unforced-brain/`, etc.). Rejected because:
 
@@ -104,27 +104,27 @@ Alternatives: a single monorepo of UIs (one repo with `app/gitcoin-brain/`, `app
 - Different UIs have different build tooling (Gitcoin Brain is vanilla three-file; the next UI might be Vite + React; a third might be Svelte). Monorepo wants a unified build; that fight isn't worth it.
 - Independent versioning matters. Each UI ships when its operator wants it to ship, not on a shared cadence.
 
-Trade-off accepted: discoverability — there's no canonical place to find "all UIs hostable by app." An optional convention "publish your UI as a git repo named `<scope>/parachute-app-<name>`" is fine as a docs note; not enforced.
+Trade-off accepted: discoverability — there's no canonical place to find "all UIs hostable by app." An optional convention "publish your UI as a git repo named `<scope>/parachute-surface-<name>`" is fine as a docs note; not enforced.
 
 ### 4. Distribution mechanism — CLI `add` for primary path; npm-fetch shorthand + manual `cp` supported
 
-**Decision:** the primary surface is `parachute-app add <source> --name <name> --path <mount-path>` where `<source>` is either (a) a local path to a built `dist/` directory or (b) an npm package specifier (e.g. `@openparachute/notes-ui`). Manual `cp -r dist/ ~/.parachute/app/uis/<name>/` works equivalently as a fallback for the operator who wants to script around it. Git-clone-and-build is deferred to Phase 2; npm-publish-as-module is explicitly out of scope (that's option A).
+**Decision:** the primary surface is `parachute-surface add <source> --name <name> --path <mount-path>` where `<source>` is either (a) a local path to a built `dist/` directory or (b) an npm package specifier (e.g. `@openparachute/notes-ui`). Manual `cp -r dist/ ~/.parachute/surface/uis/<name>/` works equivalently as a fallback for the operator who wants to script around it. Git-clone-and-build is deferred to Phase 2; npm-publish-as-module is explicitly out of scope (that's option A).
 
 The `add` flow:
 
 1. Resolve `<source>`:
    - If it's a local path, validate it has at least an `index.html` (otherwise reject + warn).
    - If it's an npm package specifier (matches `^(@[a-z0-9-]+/)?[a-z0-9-]+(@.+)?$` and not a local path), run `bun install <specifier>` into a temp directory, then treat the package's `dist/` directory (or the package root if no `dist/`) as the source.
-2. Copy the directory contents to `~/.parachute/app/uis/<name>/dist/`. Reject if `<name>` collides with an existing UI unless `--force` is passed.
-3. If a `<source>/../parachute-app.json` (or `<source>/meta.json`, or the npm package's `meta.json`) is present, copy it as `~/.parachute/app/uis/<name>/meta.json`. Otherwise scaffold a minimal `meta.json` with the `--name` and `--path` flags + sensible defaults, and warn the operator to fill in the rest.
+2. Copy the directory contents to `~/.parachute/surface/uis/<name>/dist/`. Reject if `<name>` collides with an existing UI unless `--force` is passed.
+3. If a `<source>/../parachute-surface.json` (or `<source>/meta.json`, or the npm package's `meta.json`) is present, copy it as `~/.parachute/surface/uis/<name>/meta.json`. Otherwise scaffold a minimal `meta.json` with the `--name` and `--path` flags + sensible defaults, and warn the operator to fill in the rest.
 4. Run the OAuth DCR registration against hub for this UI. Persist the resulting `client_id`.
-5. Touch the app daemon's reload signal (or POST `/app/<name>/reload`) so the running daemon picks up the new mount without a restart.
+5. Touch the app daemon's reload signal (or POST `/surface/<name>/reload`) so the running daemon picks up the new mount without a restart.
 
-The manual `cp` path skips step 1 + 2 + 3 (operator does it themselves) and triggers steps 4 + 5 on the next `parachute-app reload <name>` call.
+The manual `cp` path skips step 1 + 2 + 3 (operator does it themselves) and triggers steps 4 + 5 on the next `parachute-surface reload <name>` call.
 
-**Why npm-fetch is MVP, not Phase 2:** it's a thin wrapper — `bun install <pkg>` into a temp dir, then the existing copy-dist code path. No build sandbox, no language detection. The operator-natural way to install a UI an author published is `parachute-app add @openparachute/notes-ui`, not `npm pack && tar -xzf && parachute-app add ./package/dist`. Folding it into MVP keeps the primary path one-command for the common case.
+**Why npm-fetch is MVP, not Phase 2:** it's a thin wrapper — `bun install <pkg>` into a temp dir, then the existing copy-dist code path. No build sandbox, no language detection. The operator-natural way to install a UI an author published is `parachute-surface add @openparachute/notes-ui`, not `npm pack && tar -xzf && parachute-surface add ./package/dist`. Folding it into MVP keeps the primary path one-command for the common case.
 
-**Why not git-clone-and-build at MVP:** app would need a build sandbox per UI, language detection, node/bun version handling, build-tool detection, network access for `npm install` of the UI's dev deps. That's a whole second product. Operators who want git-clone-and-build can shell-script it (`git clone && cd <repo> && bun run build && parachute-app add ./dist --name <n> --path <p>`). Phase 2 can fold the convenience in.
+**Why not git-clone-and-build at MVP:** app would need a build sandbox per UI, language detection, node/bun version handling, build-tool detection, network access for `npm install` of the UI's dev deps. That's a whole second product. Operators who want git-clone-and-build can shell-script it (`git clone && cd <repo> && bun run build && parachute-surface add ./dist --name <n> --path <p>`). Phase 2 can fold the convenience in.
 
 **Why not npm-publish:** the whole point of app is to avoid per-UI npm ceremony. If a UI is npm-published with a `module.json`, it's option A, not option B — install it as its own module instead.
 
@@ -153,8 +153,8 @@ The manual `cp` path skips step 1 + 2 + 3 (operator does it themselves) and trig
     },
     "path": {
       "type": "string",
-      "pattern": "^/app/[a-z0-9-]+$",
-      "description": "Mount path under the hub origin, always under /app/ (e.g. '/app/gitcoin-brain'). No trailing slash."
+      "pattern": "^/surface/[a-z0-9-]+$",
+      "description": "Mount path under the hub origin, always under /surface/ (e.g. '/surface/gitcoin-brain'). No trailing slash."
     },
     "version": {
       "type": "string",
@@ -173,7 +173,7 @@ The manual `cp` path skips step 1 + 2 + 3 (operator does it themselves) and trig
     "public": {
       "type": "boolean",
       "default": false,
-      "description": "If true, hub does not enforce a session gate at /app/<name>/* — the UI is reachable unauthenticated. Default false (gated)."
+      "description": "If true, hub does not enforce a session gate at /surface/<name>/* — the UI is reachable unauthenticated. Default false (gated)."
     }
   }
 }
@@ -184,22 +184,22 @@ The required-vs-optional split:
 - **Required:** `name`, `displayName`, `path`. The minimum app needs to host the UI.
 - **Optional with defaults:** `scopes_required` (defaults to `["vault:*:read"]` — least-privilege starting point, vault-agnostic), `version`, `iconUrl`, `tagline`, `public`.
 
-Validation runs at `add` time and on every daemon poll. Invalid `meta.json` → UI marked `status: invalid`, mount skipped, error surfaced in `parachute-app list`. Validation failures don't bring down the daemon or affect other UIs.
+Validation runs at `add` time and on every daemon poll. Invalid `meta.json` → UI marked `status: invalid`, mount skipped, error surfaced in `parachute-surface list`. Validation failures don't bring down the daemon or affect other UIs.
 
 **Scope shape — wildcard vs concrete.** The `scopes_required` array declares the **shape** of scopes a UI needs, not a binding to a specific vault. Two idioms:
 
 - **Vault-agnostic (multi-vault) UIs** declare wildcards: `["vault:*:read", "vault:*:write"]`. The UI handles vault selection in-app (Notes-style — see notes' `VaultPopover` component). Each vault-pick triggers an OAuth flow narrowed to the selected vault; tokens are stored per-vault client-side.
 - **Vault-specific (single-vault) UIs** declare concrete names: `["vault:gitcoin:read", "vault:gitcoin:write"]`. The UI is bound to one vault at install time; the OAuth flow grants the concrete scopes.
 
-This generalizes the Notes pattern. Today Notes' VaultPopover lets users pick which vault to work against, doing an OAuth flow per vault and caching the token per vault. Same shape applies to any multi-vault app hosted under parachute-app.
+This generalizes the Notes pattern. Today Notes' VaultPopover lets users pick which vault to work against, doing an OAuth flow per vault and caching the token per vault. Same shape applies to any multi-vault app hosted under parachute-surface.
 
-**Why `name` is constrained to `^[a-z][a-z0-9-]*$`:** it becomes the directory name, the OAuth client identifier, and the URL-safe lookup key in `parachute-app list`. Same constraint as `module.json`'s `name` field for symmetry.
+**Why `name` is constrained to `^[a-z][a-z0-9-]*$`:** it becomes the directory name, the OAuth client identifier, and the URL-safe lookup key in `parachute-surface list`. Same constraint as `module.json`'s `name` field for symmetry.
 
-**Why `path` is constrained to `^/app/[a-z0-9-]+$`:** all hosted UIs live under the `/app/` mount that parachute-app owns. Single-segment after `/app/` keeps routing simple at MVP; multi-segment can be a Phase 2 relaxation if real UIs need it. Mount-path conflicts (two UIs at `/app/brain`) need a deterministic rejection rule (see section 8).
+**Why `path` is constrained to `^/surface/[a-z0-9-]+$`:** all hosted UIs live under the `/surface/` mount that parachute-surface owns. Single-segment after `/surface/` keeps routing simple at MVP; multi-segment can be a Phase 2 relaxation if real UIs need it. Mount-path conflicts (two UIs at `/surface/brain`) need a deterministic rejection rule (see section 8).
 
 ### 6. Auth model — same-hub auto-trust + multi-vault install-once
 
-**Decision:** each UI is its own OAuth client of the hub, registered via DCR (RFC 7591) at `parachute-app add` time. The UI does its own OAuth dance against hub using the registered `client_id`. app does NOT pre-issue tokens or proxy them. But **the consent ceremony is silent for same-hub apps**.
+**Decision:** each UI is its own OAuth client of the hub, registered via DCR (RFC 7591) at `parachute-surface add` time. The UI does its own OAuth dance against hub using the registered `client_id`. app does NOT pre-issue tokens or proxy them. But **the consent ceremony is silent for same-hub apps**.
 
 #### Same-hub auto-trust (the major simplification)
 
@@ -212,7 +212,7 @@ When a user visits a hosted UI and the UI initiates an OAuth flow against hub:
 
 This generalizes [hub#270](https://github.com/ParachuteComputer/parachute-hub/issues/270)'s "auto-approve the first OAuth client after wizard" to "auto-approve same-hub apps for non-admin scopes." The trust gradient is: install-time gating (operator chose this app) replaces grant-time gating (user clicks "Allow"). Admin-scope is the one exception that keeps consent in the loop.
 
-**Implementation note — how hub distinguishes same-hub DCR clients from external ones.** Auto-trust must not apply to arbitrary callers of hub's public `/oauth/register` endpoint, or the trust gate collapses. parachute-app authenticates to hub's `/oauth/register` using its operator bearer (per same-hub trust — app holds an operator-scoped token because the operator installed it). Hub marks the resulting client with `same_hub: true` in the client registry. Auto-trust rules (silent consent for `vault:*:read|write` scopes) apply only to `same_hub: true` clients. External DCR clients — anything registered without the operator bearer — get `same_hub: false` and require explicit user consent on every scope regardless of shape. This keeps the public DCR endpoint open (RFC 7591 conformance) while the auto-trust shortcut stays gated by operator-install.
+**Implementation note — how hub distinguishes same-hub DCR clients from external ones.** Auto-trust must not apply to arbitrary callers of hub's public `/oauth/register` endpoint, or the trust gate collapses. parachute-surface authenticates to hub's `/oauth/register` using its operator bearer (per same-hub trust — app holds an operator-scoped token because the operator installed it). Hub marks the resulting client with `same_hub: true` in the client registry. Auto-trust rules (silent consent for `vault:*:read|write` scopes) apply only to `same_hub: true` clients. External DCR clients — anything registered without the operator bearer — get `same_hub: false` and require explicit user consent on every scope regardless of shape. This keeps the public DCR endpoint open (RFC 7591 conformance) while the auto-trust shortcut stays gated by operator-install.
 
 Per-UI client_id and DCR auto-registration are still load-bearing — they're how revocation, per-UI audit, and scope-grant tracking continue to work. The user-visible change is the consent screen disappears for the common case.
 
@@ -225,7 +225,7 @@ A UI's meta.json declares scope **shape**, not vault binding:
 {
   "name": "gitcoin-brain",
   "displayName": "Gitcoin Brain",
-  "path": "/app/gitcoin-brain",
+  "path": "/surface/gitcoin-brain",
   "scopes_required": ["vault:gitcoin:read", "vault:gitcoin:write"]
 }
 
@@ -233,7 +233,7 @@ A UI's meta.json declares scope **shape**, not vault binding:
 {
   "name": "notes",
   "displayName": "Notes",
-  "path": "/app/notes",
+  "path": "/surface/notes",
   "scopes_required": ["vault:*:read", "vault:*:write"]
 }
 ```
@@ -245,7 +245,7 @@ The pattern:
 - **OAuth flow per vault-pick.** When the user selects a vault, the UI initiates an OAuth flow narrowed to that vault — concrete scopes like `vault:gitcoin:read` derived from the wildcard `vault:*:read`. The hub mints a token scoped to that one vault.
 - **Token-per-vault stored client-side.** The UI maintains a token cache keyed by vault name (Notes' current pattern). Switching vaults swaps tokens; no extra round-trip if a fresh-enough token is cached.
 
-This is what Notes does today. parachute-app generalizes it — any multi-vault app inherits the same flow.
+This is what Notes does today. parachute-surface generalizes it — any multi-vault app inherits the same flow.
 
 #### Why each UI is its own OAuth client (not one shared client)
 
@@ -254,51 +254,51 @@ This is what Notes does today. parachute-app generalizes it — any multi-vault 
 - Per-UI client makes scope-grant per-UI explicit and revocable in the standard hub admin UI. The user revokes UI-X's token; that's the existing flow.
 - It matches the scope-guard pattern used elsewhere — UI is the resource consumer, hub is the issuer, vault is the resource server.
 
-The per-UI OAuth client lookup endpoint app exposes — `GET /app/<name>/oauth-client` returning `{ client_id, scopes, discovery_url }` — lets the UI read its own client_id at boot without baking it into the build (so the same dist bundle can be deployed against different hubs / different `client_id`s).
+The per-UI OAuth client lookup endpoint app exposes — `GET /surface/<name>/oauth-client` returning `{ client_id, scopes, discovery_url }` — lets the UI read its own client_id at boot without baking it into the build (so the same dist bundle can be deployed against different hubs / different `client_id`s).
 
 ### 7. App's own admin SPA — Vite + React, bundled with the package
 
-**Decision:** parachute-app ships with its own admin SPA, built with **Vite + React** (matching the notes stack), bundled inside the `@openparachute/app` npm package. Mounted at `/app/admin/` — a path the app module reserves for itself, separate from user-added apps under `/app/<name>/`.
+**Decision:** parachute-surface ships with its own admin SPA, built with **Vite + React** (matching the notes stack), bundled inside the `@openparachute/surface` npm package. Mounted at `/surface/admin/` — a path the app module reserves for itself, separate from user-added apps under `/surface/<name>/`.
 
-The admin SPA is **not** dogfooded as a hosted-UI of itself. Aaron's explicit call: *"too messy."* Mounting it as a regular UI through app's own discovery surface would mean the admin needs an OAuth client_id, would be subject to the same gating as user UIs, would appear in `parachute-app list` as a UI you can `remove`, etc. — a recursive special case for marginal elegance. The cleaner shape: app's admin SPA is a known fixed path served directly by the app daemon, distinct from the directory-driven UIs.
+The admin SPA is **not** dogfooded as a hosted-UI of itself. Aaron's explicit call: *"too messy."* Mounting it as a regular UI through app's own discovery surface would mean the admin needs an OAuth client_id, would be subject to the same gating as user UIs, would appear in `parachute-surface list` as a UI you can `remove`, etc. — a recursive special case for marginal elegance. The cleaner shape: app's admin SPA is a known fixed path served directly by the app daemon, distinct from the directory-driven UIs.
 
 Capability surface of the admin SPA:
 
 - List installed UIs + their status (active, invalid, oauth-unregistered, collision).
 - Per-UI: open the UI, view meta.json, view OAuth client_id, view recent access stats, remove the UI.
-- Add a UI from a local-path source (upload not in MVP — operator drops `dist/` on the box and uses the path picker; or runs `parachute-app add` from CLI).
+- Add a UI from a local-path source (upload not in MVP — operator drops `dist/` on the box and uses the path picker; or runs `parachute-surface add` from CLI).
 - Toggle the app daemon's global config (the `.parachute/config` form values).
 
-The `parachute-app/admin/` path is reserved at the app daemon level: meta.json files attempting to claim `path: "/app/admin"` are rejected at add time.
+The `parachute-surface/admin/` path is reserved at the app daemon level: meta.json files attempting to claim `path: "/surface/admin"` are rejected at add time.
 
-**The admin SPA inherits the caching defaults from section 18:** no service worker, smart cache headers on `index.html` (no-cache) vs. hashed Vite output (immutable). Hot-reload during admin development uses the same `parachute-app dev admin` plumbing as user-added UIs, with one wrinkle — the admin path is reserved, so the dev-mode CLI accepts `admin` as a special case that targets the bundled admin SPA's source directory inside the npm package's source tree (only meaningful in dev installs).
+**The admin SPA inherits the caching defaults from section 18:** no service worker, smart cache headers on `index.html` (no-cache) vs. hashed Vite output (immutable). Hot-reload during admin development uses the same `parachute-surface dev admin` plumbing as user-added UIs, with one wrinkle — the admin path is reserved, so the dev-mode CLI accepts `admin` as a special case that targets the bundled admin SPA's source directory inside the npm package's source tree (only meaningful in dev installs).
 
 ### 8. Discovery + supervision
 
-**Decision:** app scans `uis/` at daemon startup and on explicit `reload`. No file watcher in MVP — operators run `parachute-app reload <name>` or restart the daemon to pick up changes. Phase 2 can add a watcher if friction is real.
+**Decision:** app scans `uis/` at daemon startup and on explicit `reload`. No file watcher in MVP — operators run `parachute-surface reload <name>` or restart the daemon to pick up changes. Phase 2 can add a watcher if friction is real.
 
 **Why no watcher at MVP:** file watching is fiddly across OSes (FSEvents vs. inotify vs. ReadDirectoryChangesW), and the operator action ("I just added a UI") is exactly when they're already at the CLI. The cost-of-cron isn't worth it for MVP.
 
 **What happens to broken UIs:**
 
-- Missing `index.html` in `dist/` → UI marked `status: invalid`, log, skip mount, surface error to `parachute-app list`. Other UIs unaffected.
+- Missing `index.html` in `dist/` → UI marked `status: invalid`, log, skip mount, surface error to `parachute-surface list`. Other UIs unaffected.
 - Malformed `meta.json` → same — `status: invalid`, log, skip.
-- Mount-path collision (two UIs at `/app/brain`) → both marked `status: collision`, neither mounted, both surfaced in `list`. Resolution is operator-driven (edit one's meta.json). No alphabetical-wins or first-wins; the operator made a mistake and app surfaces it loudly.
+- Mount-path collision (two UIs at `/surface/brain`) → both marked `status: collision`, neither mounted, both surfaced in `list`. Resolution is operator-driven (edit one's meta.json). No alphabetical-wins or first-wins; the operator made a mistake and app surfaces it loudly.
 - OAuth DCR registration failure (hub unreachable, scope rejected) → UI mounted but `status: oauth-unregistered`; the UI's own OAuth dance will fail at runtime; surfaced in `list`. Retry on next `reload`.
-- Reserved-path collision (meta.json claims `/app/admin`) → rejected at add, `status: reserved-path`.
+- Reserved-path collision (meta.json claims `/surface/admin`) → rejected at add, `status: reserved-path`.
 
-**Registration via HTTP API:** app exposes `POST /app/add` for programmatic registration (the CLI calls this internally; third-party tooling can call it too). Auth: `app:admin` scope on a hub-issued bearer.
+**Registration via HTTP API:** app exposes `POST /surface/add` for programmatic registration (the CLI calls this internally; third-party tooling can call it too). Auth: `app:admin` scope on a hub-issued bearer.
 
 ### 9. Routing + mount + hub-level auth gate
 
-**Decision:** hub's reverse proxy routes `/app/*` requests to the app daemon's port (1946). The app daemon owns the entire `/app/` namespace. Within that namespace, the daemon serves each hosted UI under `/app/<name>/` and the admin SPA under `/app/admin/`.
+**Decision:** hub's reverse proxy routes `/surface/*` requests to the app daemon's port (1946). The app daemon owns the entire `/surface/` namespace. Within that namespace, the daemon serves each hosted UI under `/surface/<name>/` and the admin SPA under `/surface/admin/`.
 
-- Each UI mounts at `meta.path` (e.g., `/app/gitcoin-brain`).
-- Static assets resolve under that mount: a request for `/app/gitcoin-brain/main.js` serves `uis/gitcoin-brain/dist/main.js`.
+- Each UI mounts at `meta.path` (e.g., `/surface/gitcoin-brain`).
+- Static assets resolve under that mount: a request for `/surface/gitcoin-brain/main.js` serves `uis/gitcoin-brain/dist/main.js`.
 - Unmatched paths under the mount serve `index.html` (SPA-routing fallback). React Router / hash-routing / any client-side router works.
 - Asset paths in the bundle should be **mount-relative** (no leading `/`) so the bundle can be re-deployed at a different mount without rebuilding. This is the same discipline as the mount-path-convention pattern's "Vite `base`" rule — for Vite UIs, set `base: meta.path + "/"` at build time; for vanilla UIs (Gitcoin Brain), reference assets as `./main.js` not `/main.js`.
 
-**Hub-level auth gate at `/app/<name>/*` (default = gated).** Before forwarding any request under a hosted UI's mount to the app daemon, hub enforces session auth: unauthenticated requests are redirected to `/login` with `next=/app/<name>/...`. The gate is on by default. Per-UI opt-out via `meta.json`: `"public": true` makes the UI reachable unauthenticated (use case: a public landing page hosted under app). The admin SPA at `/app/admin/` is always gated regardless of meta.json — it's app's own surface, not a hosted UI.
+**Hub-level auth gate at `/surface/<name>/*` (default = gated).** Before forwarding any request under a hosted UI's mount to the app daemon, hub enforces session auth: unauthenticated requests are redirected to `/login` with `next=/surface/<name>/...`. The gate is on by default. Per-UI opt-out via `meta.json`: `"public": true` makes the UI reachable unauthenticated (use case: a public landing page hosted under app). The admin SPA at `/surface/admin/` is always gated regardless of meta.json — it's app's own surface, not a hosted UI.
 
 The gate is implemented hub-side (in the reverse-proxy layer), not app-side. App doesn't need to know who the user is to serve static assets; the gate just protects the bundle from anonymous reads when the operator wants gating.
 
@@ -307,21 +307,21 @@ The gate is implemented hub-side (in the reverse-proxy layer), not app-side. App
 > for mount-agnostic apps. Current canonical guidance:
 >
 > - Vite builds with `base: ""` (relative asset URLs)
-> - The host injects `<base href="/app/<name>/">` + meta tags
+> - The host injects `<base href="/surface/<name>/">` + meta tags
 >   (`parachute-mount`, `parachute-hub`) into served `index.html` so the
 >   browser resolves relative URLs against the actual mount
-> - Apps read mount + hub origin via `@openparachute/app-client`'s
+> - Apps read mount + hub origin via `@openparachute/surface-client`'s
 >   `getMountBase()` / `getHubOrigin()` helpers
 >
 > The build-time-baked-mount pattern still works for daemon installs
 > (notes-daemon path) and for PWA installs that need a fixed scope, but
-> it can't support `parachute-app add --name <custom>` arbitrary mounts.
+> it can't support `parachute-surface add --name <custom>` arbitrary mounts.
 >
 > Canonical references:
 > - [`parachute-patterns/patterns/runtime-tenancy-contract.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/runtime-tenancy-contract.md)
 > - [`parachute-patterns/patterns/app-bundle-shape.md#mount-agnosticism`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/app-bundle-shape.md#mount-agnosticism)
-> - [parachute-app#25](https://github.com/ParachuteComputer/parachute-app/pull/25) — implements the host-side injection
-> - [parachute-app#27](https://github.com/ParachuteComputer/parachute-app/pull/27) — implements the consumer-side library
+> - [parachute-surface#25](https://github.com/ParachuteComputer/parachute-surface/pull/25) — implements the host-side injection
+> - [parachute-surface#27](https://github.com/ParachuteComputer/parachute-surface/pull/27) — implements the consumer-side library
 >
 > The design doc body remains unchanged as a historical record of the
 > 2026-05-21 design call. The pattern docs are the living spec.
@@ -337,7 +337,7 @@ This is correct for the v0.6 owner-operated audience per [`trust-gradient-isolat
 - The operator owns the host app runs on.
 - All UIs read + write the same vault under operator-granted scopes; the operator's MCP setup already gives anyone with the bearer full access.
 
-Same-origin means UIs can in theory `fetch('/app/other-ui/...')` and read each other's localStorage. That's acceptable because the operator chose the UIs. If a UI is untrusted, **don't install it** — don't reach for sandboxing in a flat gradient.
+Same-origin means UIs can in theory `fetch('/surface/other-ui/...')` and read each other's localStorage. That's acceptable because the operator chose the UIs. If a UI is untrusted, **don't install it** — don't reach for sandboxing in a flat gradient.
 
 **What we explicitly do NOT do at MVP:**
 
@@ -357,16 +357,16 @@ App ships the standard module surface.
 ```json
 {
   "name": "app",
-  "manifestName": "parachute-app",
+  "manifestName": "parachute-surface",
   "displayName": "App",
   "tagline": "Host module for custom Parachute UIs — drop a built bundle in and serve it under one origin.",
   "port": 1946,
-  "paths": ["/app", "/.parachute"],
+  "paths": ["/surface", "/.parachute"],
   "stripPrefix": false,
-  "health": "/app/healthz",
-  "uiUrl": "/app/admin/",
-  "managementUrl": "/app/admin/",
-  "startCmd": ["parachute-app", "serve"],
+  "health": "/surface/healthz",
+  "uiUrl": "/surface/admin/",
+  "managementUrl": "/surface/admin/",
+  "startCmd": ["parachute-surface", "serve"],
   "scopes": {
     "defines": ["app:read", "app:admin"]
   }
@@ -375,13 +375,13 @@ App ships the standard module surface.
 
 **No `kind` field.** Per [hub#301](https://github.com/ParachuteComputer/parachute-hub/issues/301), the `kind ∈ {"api" | "frontend" | "tool"}` trichotomy is the wrong frame for app: app is *both* frontend (serves UI bundles) *and* backend (admin endpoints + supervision). Dropping `kind` entirely — letting hub infer routing behavior from `paths` + `health` + the `static: boolean` field hub#301 phase B introduces — is cleaner than picking the wrong-fit value. App ships without `kind` from day one and is one of the first modules to test the post-kind world hub#301 is migrating toward.
 
-`static: boolean` is also the wrong shape for app and is **not** included. App serves static bundles AND dynamic admin endpoints; a single boolean doesn't capture that. Hub's per-path routing (which it already does via the `paths` array) is sufficient — paths matching mounted-UI prefixes route to static-asset behavior; paths matching `/app/api/*` or `/app/admin/api/*` route as backend. The shape is per-request, derived from the path, not per-module.
+`static: boolean` is also the wrong shape for app and is **not** included. App serves static bundles AND dynamic admin endpoints; a single boolean doesn't capture that. Hub's per-path routing (which it already does via the `paths` array) is sufficient — paths matching mounted-UI prefixes route to static-asset behavior; paths matching `/surface/api/*` or `/surface/admin/api/*` route as backend. The shape is per-request, derived from the path, not per-module.
 
 A few notes on other shape choices:
 
-- `paths: ["/app", "/.parachute"]` — app owns the entire `/app` namespace. Per section 12, hosted-UI sub-paths surface in services.json as a separate `uis` map (not appended to `paths`), pending hub-side schema work.
-- `uiUrl: "/app/admin/"` — app's admin SPA is the module-level "UI." Per-UI uiUrls (the discovery surface for each hosted UI) flow via the hierarchical `uis` field in services.json (section 12).
-- `managementUrl: "/app/admin/"` — trailing slash, per the fragment-token gotcha documented in [`module-json-extensibility.md`](../../parachute-patterns/patterns/module-json-extensibility.md#managementurl-string).
+- `paths: ["/surface", "/.parachute"]` — app owns the entire `/surface` namespace. Per section 12, hosted-UI sub-paths surface in services.json as a separate `uis` map (not appended to `paths`), pending hub-side schema work.
+- `uiUrl: "/surface/admin/"` — app's admin SPA is the module-level "UI." Per-UI uiUrls (the discovery surface for each hosted UI) flow via the hierarchical `uis` field in services.json (section 12).
+- `managementUrl: "/surface/admin/"` — trailing slash, per the fragment-token gotcha documented in [`module-json-extensibility.md`](../../parachute-patterns/patterns/module-json-extensibility.md#managementurl-string).
 - `port: 1946` claims a fresh slot in the canonical 1939–1949 range. Formal reservation lands in a PR to `parachute-hub/src/service-spec.ts` + `canonical-ports.md` alongside the app ship, not in this design doc. (Current table: hub 1939, vault 1940, channel 1941, notes 1942, scribe 1943, agent 1944, runner 1945. 1946 is the next free slot.)
 
 **`.parachute/config/schema` (Draft-07):**
@@ -403,21 +403,21 @@ A few notes on other shape choices:
 
 ```json
 {
-  "parachute-app": {
+  "parachute-surface": {
     "name": "app",
-    "manifestName": "parachute-app",
+    "manifestName": "parachute-surface",
     "displayName": "App",
     "port": 1946,
-    "paths": ["/app"],
-    "health": "/app/healthz",
+    "paths": ["/surface"],
+    "health": "/surface/healthz",
     "version": "0.1.0",
-    "installDir": "/Users/parachute/ParachuteComputer/parachute-app",
+    "installDir": "/Users/parachute/ParachuteComputer/parachute-surface",
     "uis": {
       "gitcoin-brain": {
         "displayName": "Gitcoin Brain",
         "tagline": "Reading room for the Gitcoin team's vault.",
-        "path": "/app/gitcoin-brain",
-        "iconUrl": "/app/gitcoin-brain/icon.svg",
+        "path": "/surface/gitcoin-brain",
+        "iconUrl": "/surface/gitcoin-brain/icon.svg",
         "scopes_required": ["vault:gitcoin:read", "vault:gitcoin:write"],
         "oauthClientId": "client_abc123",
         "status": "active"
@@ -425,8 +425,8 @@ A few notes on other shape choices:
       "unforced-brain": {
         "displayName": "Unforced Brain",
         "tagline": "Reading room for the unforced.org vault.",
-        "path": "/app/unforced-brain",
-        "iconUrl": "/app/unforced-brain/icon.svg",
+        "path": "/surface/unforced-brain",
+        "iconUrl": "/surface/unforced-brain/icon.svg",
         "scopes_required": ["vault:unforced:read", "vault:unforced:write"],
         "oauthClientId": "client_def456",
         "status": "active"
@@ -456,14 +456,14 @@ App's HTTP surface:
 
 | Endpoint | Auth | Returns |
 |---|---|---|
-| `GET /app/list` | `app:read` | Array of `{ name, displayName, path, status, version, oauthClientId, scopes }` |
-| `GET /app/<name>/info` | `app:read` | The UI's parsed `meta.json` + hub-derived fields (oauthClientId, status, mount timestamp) |
-| `GET /app/<name>/oauth-client` | none (the UI reads this at boot) | `{ client_id, scopes, discovery_url }` — the UI's OAuth identity, public-client-shaped |
-| `POST /app/add` | `app:admin` | Register a new UI. Body: `{ name, path, source: { kind: "filesystem", path: "..." } \| { kind: "upload", base64: "..." }, meta?: object }`. Returns `{ ok, oauthClientId, status }`. |
-| `DELETE /app/<name>` | `app:admin` | Remove the UI; revoke its OAuth client at hub. |
-| `POST /app/<name>/reload` | `app:admin` | Re-read `meta.json` + dist contents without daemon restart. |
-| `GET /app/healthz` | none | `{ ok: true, ui_count: N, daemon_active: bool }` |
-| `GET /app/admin/*` | session (hub-gated) | The admin SPA (Vite + React bundle). |
+| `GET /surface/list` | `app:read` | Array of `{ name, displayName, path, status, version, oauthClientId, scopes }` |
+| `GET /surface/<name>/info` | `app:read` | The UI's parsed `meta.json` + hub-derived fields (oauthClientId, status, mount timestamp) |
+| `GET /surface/<name>/oauth-client` | none (the UI reads this at boot) | `{ client_id, scopes, discovery_url }` — the UI's OAuth identity, public-client-shaped |
+| `POST /surface/add` | `app:admin` | Register a new UI. Body: `{ name, path, source: { kind: "filesystem", path: "..." } \| { kind: "upload", base64: "..." }, meta?: object }`. Returns `{ ok, oauthClientId, status }`. |
+| `DELETE /surface/<name>` | `app:admin` | Remove the UI; revoke its OAuth client at hub. |
+| `POST /surface/<name>/reload` | `app:admin` | Re-read `meta.json` + dist contents without daemon restart. |
+| `GET /surface/healthz` | none | `{ ok: true, ui_count: N, daemon_active: bool }` |
+| `GET /surface/admin/*` | session (hub-gated) | The admin SPA (Vite + React bundle). |
 
 Plus the standard `.parachute/info`, `.parachute/icon.svg`, `.parachute/config`, `.parachute/config/schema` endpoints.
 
@@ -473,9 +473,9 @@ Plus the standard `.parachute/info`, `.parachute/icon.svg`, `.parachute/config`,
 
 ### 14. Gitcoin Brain migration walkthrough
 
-End-to-end concrete steps. From "I have a UI at `~/Gitcoin/gitcoin-brain-ui/`" to "I see it at `https://parachute.tailnet.example.com/app/gitcoin-brain/`."
+End-to-end concrete steps. From "I have a UI at `~/Gitcoin/gitcoin-brain-ui/`" to "I see it at `https://parachute.tailnet.example.com/surface/gitcoin-brain/`."
 
-**Gitcoin Brain is the second app installed.** Notes (via `@openparachute/notes-ui`, see section 16) is the first — either bundled with parachute-app's installer as the canonical first app or one `parachute-app add @openparachute/notes-ui` away. This walkthrough assumes Notes is already installed; the steps below are general and apply to any custom UI Aaron adds after Notes.
+**Gitcoin Brain is the second app installed.** Notes (via `@openparachute/notes-ui`, see section 16) is the first — either bundled with parachute-surface's installer as the canonical first app or one `parachute-surface add @openparachute/notes-ui` away. This walkthrough assumes Notes is already installed; the steps below are general and apply to any custom UI Aaron adds after Notes.
 
 1. **Install app.** `parachute install app` (calls the standard install path; ships canonical module.json + port 1946 + self-registers services.json row). At first install, Notes is the canonical first app to bootstrap.
 2. **Configure app.** Hub's admin SPA shows the app module-config form (from its `/.parachute/config/schema`). Set `hub_url` to the local hub URL (typically `http://127.0.0.1:1939` for loopback, or the operator's tailnet URL). Defaults for `auto_dcr_register: true` and `default_scopes: ["vault:*:read"]` are fine.
@@ -486,39 +486,39 @@ End-to-end concrete steps. From "I have a UI at `~/Gitcoin/gitcoin-brain-ui/`" t
      "name": "gitcoin-brain",
      "displayName": "Gitcoin Brain",
      "tagline": "Reading room for the Gitcoin team's vault.",
-     "path": "/app/gitcoin-brain",
+     "path": "/surface/gitcoin-brain",
      "scopes_required": ["vault:gitcoin:read", "vault:gitcoin:write"],
      "iconUrl": "icon.svg"
    }
    ```
-5. **Add the UI to app.** `parachute-app add ~/Gitcoin/gitcoin-brain-ui --name gitcoin-brain --path /app/gitcoin-brain`. This:
+5. **Add the UI to app.** `parachute-surface add ~/Gitcoin/gitcoin-brain-ui --name gitcoin-brain --path /surface/gitcoin-brain`. This:
    - Validates `index.html` is present (it is — the three-file bundle).
-   - Copies `~/Gitcoin/gitcoin-brain-ui/*` to `~/.parachute/app/uis/gitcoin-brain/dist/`.
-   - Copies `meta.json` to `~/.parachute/app/uis/gitcoin-brain/meta.json`.
+   - Copies `~/Gitcoin/gitcoin-brain-ui/*` to `~/.parachute/surface/uis/gitcoin-brain/dist/`.
+   - Copies `meta.json` to `~/.parachute/surface/uis/gitcoin-brain/meta.json`.
    - Runs OAuth DCR registration against hub with `scopes_required: ["vault:gitcoin:read", "vault:gitcoin:write"]`. Persists `client_id`.
    - Touches reload signal; running daemon picks up the new mount.
    - Updates services.json: app's `uis` map now includes the new entry.
 6. **Update the UI's OAuth bootstrap to read its `client_id` from app.** Replace the hardcoded vault-URL paste flow in `index.html` / `oauth.js`:
    ```js
-   const res = await fetch("/app/gitcoin-brain/oauth-client");
+   const res = await fetch("/surface/gitcoin-brain/oauth-client");
    const { client_id, scopes, discovery_url } = await res.json();
    // …use client_id + discovery_url to drive the OAuth dance against hub
    ```
    The same pattern Notes uses. Token-paste flow stays as a fallback for dev.
-7. **Re-build (if there's a build) and re-`add`.** For Gitcoin Brain's vanilla three-file bundle there's no build step — edit and re-`add`. For Vite UIs, `bun run build && parachute-app reload gitcoin-brain` (the reload path picks up changes to `dist/` without re-running OAuth registration).
-8. **Verify.** Open `https://parachute.tailnet.example.com/app/gitcoin-brain/`. Sign in via hub (if you weren't already). The OAuth flow runs silently — same-hub auto-trust skips the consent screen for `vault:gitcoin:read` + `vault:gitcoin:write`. UI loads with vault data.
-9. **Discovery.** Hub's discovery page shows "App" as a module; clicking through reveals "Gitcoin Brain" as a sub-tile linking to `/app/gitcoin-brain/`.
+7. **Re-build (if there's a build) and re-`add`.** For Gitcoin Brain's vanilla three-file bundle there's no build step — edit and re-`add`. For Vite UIs, `bun run build && parachute-surface reload gitcoin-brain` (the reload path picks up changes to `dist/` without re-running OAuth registration).
+8. **Verify.** Open `https://parachute.tailnet.example.com/surface/gitcoin-brain/`. Sign in via hub (if you weren't already). The OAuth flow runs silently — same-hub auto-trust skips the consent screen for `vault:gitcoin:read` + `vault:gitcoin:write`. UI loads with vault data.
+9. **Discovery.** Hub's discovery page shows "App" as a module; clicking through reveals "Gitcoin Brain" as a sub-tile linking to `/surface/gitcoin-brain/`.
 
 Migration time estimate: ~15 min for a UI that already has working OAuth-against-hub JS; ~30 min for a UI that needs the token-paste-to-OAuth swap. Cheap enough that Aaron will do it for both UIs without it feeling like a chore.
 
 **Dev iteration.** For iterative work on Gitcoin Brain after it's installed:
 
 ```
-1. parachute-app dev gitcoin-brain    # disables caching, opens SSE live-reload
+1. parachute-surface dev gitcoin-brain    # disables caching, opens SSE live-reload
 2. Edit ~/Gitcoin/gitcoin-brain-ui/ source
 3. bun run build                       # (skip if no build step — for the vanilla three-file bundle, edit dist/ directly)
 4. The browser tab auto-reloads via SSE; new code is visible
-5. parachute-app dev --off gitcoin-brain   # restore production caching when done
+5. parachute-surface dev --off gitcoin-brain   # restore production caching when done
 ```
 
 Per section 18, dev mode disables all caching for the named UI and pushes a reload signal to connected browser tabs every time the bundle directory changes. Phase 2 will fold step 3 into the dev mode itself via `dev_build_cmd` in meta.json — for MVP, the operator runs the build manually after editing source.
@@ -529,14 +529,14 @@ Per section 18, dev mode disables all caching for the named UI and pushes a relo
 |---|---|---|
 | Ship as | Published npm package (`@openparachute/<name>`) | Built static bundle, dropped in `uis/<name>/dist/` |
 | Versioning | RC chain, semver, npm publish gates | Whatever the operator wants — bundle version is opaque to app |
-| Install | `parachute install <name>` | `parachute-app add <path>` |
+| Install | `parachute install <name>` | `parachute-surface add <path>` |
 | Port | Own port | Shares app's port (1946) |
 | Services.json entry | Own row | Sub-entry under app's `uis` map |
 | OAuth client | One client_id per install, DCR-registered by hub | One client_id per UI, DCR-registered by app on add |
-| Module-protocol surface | Own `.parachute/info`, `/config`, `/config/schema`, `/healthz` | Inherits app's surface for module-level; per-UI info at `/app/<name>/info` |
+| Module-protocol surface | Own `.parachute/info`, `/config`, `/config/schema`, `/healthz` | Inherits app's surface for module-level; per-UI info at `/surface/<name>/info` |
 | Hub admin SPA config form | Yes (module-specific) | App's config form covers global settings; per-UI config is meta.json + app's add/remove flow |
 | Update cadence | Released by Parachute team or third-party | Released by UI's operator/author |
-| Restart on update | `parachute restart <name>` | `parachute-app reload <name>` (no daemon restart) |
+| Restart on update | `parachute restart <name>` | `parachute-surface reload <name>` (no daemon restart) |
 | Reviewer + release gate | Parachute governance (RC chain, reviewer dispatch, Aaron clicks merge) | Operator's own (app doesn't gate adds) |
 
 **When (A) wins over (B):**
@@ -551,26 +551,26 @@ Per section 18, dev mode disables all caching for the named UI and pushes a relo
 
 Notes is the first app. Its migration from own-module to app-hosted is the proof-of-pattern for the whole architecture — if Notes can be an app, the bar for graduating any other UI to its own module gets higher.
 
-**Phase 1 — parachute-app v0.7 MVP ships (this design).**
+**Phase 1 — parachute-surface v0.7 MVP ships (this design).**
 
-- parachute-app ships per section 17 (phasing). Hub admin SPA shows the new "Add app" surface.
+- parachute-surface ships per section 17 (phasing). Hub admin SPA shows the new "Add app" surface.
 - parachute-notes repo continues to build + publish `@openparachute/notes` as a module (port 1942, services.json row, etc.) on its current cadence.
 - A parallel build target lands: `@openparachute/notes-ui` — same source code, output is the `dist/` bundle + meta.json, no module surface. Published to npm as a regular package.
-- Operators who want notes-as-app run `parachute-app add @openparachute/notes-ui --name notes --path /app/notes`. The npm-fetch shorthand is MVP (see section 4), so this is one command, not a manual clone + build.
+- Operators who want notes-as-app run `parachute-surface add @openparachute/notes-ui --name notes --path /surface/notes`. The npm-fetch shorthand is MVP (see section 4), so this is one command, not a manual clone + build.
 - Notes-as-app and Notes-as-module are both available; operators choose. Cloud (parachute-cloud, TBD) defaults Notes-as-app.
 
 **Phase 2 — parachute-notes v0.4: Notes-as-module deprecated.**
 
 - parachute-notes repo's `module.json` is removed; the build target shifts entirely from "module with daemon" to "UI bundle published as `@openparachute/notes-ui`."
 - `@openparachute/notes` (module package) ships its final RC chain. `parachute install notes` is removed from hub's install path.
-- A `parachute-notes/DEPRECATED.md` lands, mirroring `parachute-agent/DEPRECATED.md` shape: "module retired, migrate to `parachute-app add @openparachute/notes-ui`."
+- A `parachute-notes/DEPRECATED.md` lands, mirroring `parachute-agent/DEPRECATED.md` shape: "module retired, migrate to `parachute-surface add @openparachute/notes-ui`."
 - Hub admin SPA's "Notes module" tile becomes a "Notes app" tile. Settings that were the module's `.parachute/config/schema` move into Notes's meta.json + app's per-UI config.
-- The hub's per-route reverse-proxy entry for `/notes/*` continues to work, but now routes to `/app/notes/*` internally via a redirect for backwards-compat URLs.
+- The hub's per-route reverse-proxy entry for `/notes/*` continues to work, but now routes to `/surface/notes/*` internally via a redirect for backwards-compat URLs.
 
 **Phase 3 — parachute-notes v0.5: full retirement.**
 
 - parachute-notes module is fully retired. Port 1942 is reclaimed and reassigned to whichever next module needs a slot (likely `parachute-jobs` or a successor — see workspace CLAUDE.md note on parachute-agent's retirement and parachute-jobs's plausible reclaim).
-- Hub's `/notes/*` → `/app/notes/*` redirect runs for one release window as backwards-compat, then retires.
+- Hub's `/notes/*` → `/surface/notes/*` redirect runs for one release window as backwards-compat, then retires.
 - Documentation, blog posts, and design docs update: the four committed-core modules are vault, app, scribe, hub. Notes is the canonical first app.
 
 **Phase 4 — cleanup (post-1.0).**
@@ -594,7 +594,7 @@ Notes is the first app. Its migration from own-module to app-hosted is the proof
 
 **What changes:**
 
-- No port 1942. No `parachute restart notes` (becomes `parachute-app reload notes`).
+- No port 1942. No `parachute restart notes` (becomes `parachute-surface reload notes`).
 - No own services.json row. Notes is a sub-entry under app's `uis` map.
 - No per-Notes RC chain — Notes ships when notes-ui's npm publish ships.
 - Module-config form folds into Notes's per-UI meta.json + Notes-side UI for the rest.
@@ -603,32 +603,32 @@ Notes is the first app. Its migration from own-module to app-hosted is the proof
 
 **MVP (v0.7 target):**
 
-- `parachute-app serve` daemon with HTTP server on 1946.
-- `parachute-app add`, `list`, `remove`, `reload` CLI verbs.
+- `parachute-surface serve` daemon with HTTP server on 1946.
+- `parachute-surface add`, `list`, `remove`, `reload` CLI verbs.
 - meta.json Draft-07 schema + validation at add and reload.
 - Mount registration: each UI served under its declared path, SPA fallback, mount-relative asset resolution.
 - OAuth DCR registration on `add`, persisting per-UI client_id.
 - Same-hub auto-trust: hub auto-approves DCR clients for non-admin scopes (extends hub#270 logic).
 - Per-UI `oauth-client` endpoint (unauthenticated, public-client discovery).
-- Hub-level session gate at `/app/<name>/*` (default on, opt-out via meta.json `public: true`).
-- Admin HTTP surface: `GET /app/list`, `GET /app/<name>/info`, `POST /app/add`, `DELETE /app/<name>`, `POST /app/<name>/reload`, `GET /app/healthz`.
-- Vite + React admin SPA at `/app/admin/` — list/add/remove/configure UIs.
+- Hub-level session gate at `/surface/<name>/*` (default on, opt-out via meta.json `public: true`).
+- Admin HTTP surface: `GET /surface/list`, `GET /surface/<name>/info`, `POST /surface/add`, `DELETE /surface/<name>`, `POST /surface/<name>/reload`, `GET /surface/healthz`.
+- Vite + React admin SPA at `/surface/admin/` — list/add/remove/configure UIs.
 - Module protocol scaffolding: `.parachute/info`, `.parachute/config/schema`, `.parachute/config`, `.well-known/parachute.json`, services.json self-registration with hierarchical `uis` map.
 - Hub-supervised on local + Render. Same install path as runner/vault/notes/scribe.
 - Hub admin SPA config form support via the generic schema-driven form.
 - Phase 1 of Gitcoin Brain migration: drop the token-paste flow, use `oauth-client` endpoint + auto-trust.
-- Phase 1 of Notes migration (section 16): `@openparachute/notes-ui` published as a parallel build target; `parachute-app add @openparachute/notes-ui` works alongside the existing `parachute install notes`.
+- Phase 1 of Notes migration (section 16): `@openparachute/notes-ui` published as a parallel build target; `parachute-surface add @openparachute/notes-ui` works alongside the existing `parachute install notes`.
 - Caching strategy (section 18): no-SW default, opt-in PWA via meta.json `"pwa": true`, smart cache headers on index.html vs hashed assets.
-- Dev mode (section 18): `parachute-app dev <name>` disables caching for the named UI + SSE live-reload to connected browser tabs.
+- Dev mode (section 18): `parachute-surface dev <name>` disables caching for the named UI + SSE live-reload to connected browser tabs.
 
 **Phase 2 (v0.8+):**
 
 - File watcher in `uis/` so adding/removing a UI doesn't require an explicit `reload`.
-- Git-clone-and-build flow: `parachute-app add --from-git <url> [--branch <b>]` clones, runs declared build command, copies dist. (Build sandbox boundaries TBD.)
-- npm-fetch shorthand: `parachute-app add @openparachute/notes-ui` fetches the published package and installs the bundle.
+- Git-clone-and-build flow: `parachute-surface add --from-git <url> [--branch <b>]` clones, runs declared build command, copies dist. (Build sandbox boundaries TBD.)
+- npm-fetch shorthand: `parachute-surface add @openparachute/notes-ui` fetches the published package and installs the bundle.
 - Richer admin SPA: per-UI status grid, recent OAuth grants, per-UI mount toggle, per-UI access logs.
 - Helper library: `@openparachute/app-bootstrap` npm package with the canonical OAuth dance JS, so a new UI doesn't have to copy 150 lines of vanilla OAuth code.
-- Phase 2 of Notes migration: parachute-notes v0.4 deprecates the module form; `parachute-notes/DEPRECATED.md` lands; hub's `/notes/*` → `/app/notes/*` redirect runs for backwards-compat.
+- Phase 2 of Notes migration: parachute-notes v0.4 deprecates the module form; `parachute-notes/DEPRECATED.md` lands; hub's `/notes/*` → `/surface/notes/*` redirect runs for backwards-compat.
 - Dev mode auto-rebuild: `dev` mode runs the UI's declared `dev_build_cmd` on `dev_watch_dir` changes, eliminating the manual `bun run build` step.
 
 **Phase 3 (deferred indefinitely):**
@@ -661,7 +661,7 @@ For UIs that genuinely need offline-first behavior (Notes is the canonical examp
 {
   "name": "notes",
   "displayName": "Notes",
-  "path": "/app/notes",
+  "path": "/surface/notes",
   "pwa": true,
   "pwa_service_worker": "sw.js"
 }
@@ -672,23 +672,23 @@ When `pwa: true`:
 - App mounts the service worker at the UI's mount path (e.g. `/notes/sw.js`).
 - App serves the SW file with `Cache-Control: no-cache` so SW updates propagate immediately on rebuild.
 - The UI is responsible for its own SW logic — registration, `skipWaiting`, `controllerchange`, the user-facing "new version available, refresh" prompt. Notes' existing pattern (the [notes#148](https://github.com/ParachuteComputer/parachute-notes/issues/148) work) is the reference implementation; future PWA-mode apps copy it.
-- Operators see "PWA: yes" in `parachute-app list` for PWA-mode UIs, so they know a SW is in play if they hit cache weirdness.
+- Operators see "PWA: yes" in `parachute-surface list` for PWA-mode UIs, so they know a SW is in play if they hit cache weirdness.
 
 Default-off is the load-bearing choice: every other app — Gitcoin Brain, Unforced Brain, any future custom UI that doesn't need offline — inherits the no-SW path. The caching-frustration default-on disappears.
 
-**Dev mode: `parachute-app dev <name>`.**
+**Dev mode: `parachute-surface dev <name>`.**
 
 For iterative development, a built-in dev mode that explicitly disables caching for the named UI and broadcasts a refresh signal when the bundle changes.
 
-- `parachute-app dev <name>` puts the named UI into dev mode. The daemon overrides production cache headers for that UI with `Cache-Control: no-cache, no-store, must-revalidate` on **every** response (including hashed assets — dev mode trumps the immutable default).
-- App opens a Server-Sent Events stream at `/app/<name>/_dev/reload`. The UI's index.html, when dev mode is active, gets a small injected `<script>` that listens to this stream and reloads the tab on a `reload` event. **Implementation note:** the script is injected via HTML parsing (e.g. cheerio or rehype), not string replacement, so unusual document structures (no `<head>`, non-standard doctype, comments in unusual places) are handled robustly. The injection is idempotent — re-applying does not duplicate the script tag (tagged with a known `id="parachute-app-dev-reload"`).
+- `parachute-surface dev <name>` puts the named UI into dev mode. The daemon overrides production cache headers for that UI with `Cache-Control: no-cache, no-store, must-revalidate` on **every** response (including hashed assets — dev mode trumps the immutable default).
+- App opens a Server-Sent Events stream at `/surface/<name>/_dev/reload`. The UI's index.html, when dev mode is active, gets a small injected `<script>` that listens to this stream and reloads the tab on a `reload` event. **Implementation note:** the script is injected via HTML parsing (e.g. cheerio or rehype), not string replacement, so unusual document structures (no `<head>`, non-standard doctype, comments in unusual places) are handled robustly. The injection is idempotent — re-applying does not duplicate the script tag (tagged with a known `id="parachute-surface-dev-reload"`).
 - App watches the UI's source directory (configurable via meta.json `dev_watch_dir`, defaults to the dist's parent). On any file change, app waits 200ms (debounce), then emits a `reload` event on the SSE stream. (Phase 2: auto-rerun the UI's `dev_build_cmd` before the reload event.)
-- `parachute-app dev --off <name>` exits dev mode and restores production cache headers.
+- `parachute-surface dev --off <name>` exits dev mode and restores production cache headers.
 
 The MVP operator flow:
 
 ```
-1. parachute-app dev notes        # puts /app/notes into dev mode
+1. parachute-surface dev notes        # puts /surface/notes into dev mode
 2. Open browser; hard-reload once to clear the prior bundle
 3. Edit notes source
 4. cd ~/parachute-notes && bun run build
@@ -728,11 +728,11 @@ Captured from the original design pass; updated with what's been resolved during
 
 6. **Per-UI access logging.** **Open.** Each UI is a static bundle with no server-side; logging happens in the browser. App logs request-level (which UI was hit, which path, response code) to its own stdout at MVP. Per-user attribution requires reading the hub-issued bearer's `sub` claim, which app doesn't do today. **Phase 2 addition** if operators want it — naturally fits with the richer admin SPA work in Phase 2.
 
-7. **App's own admin SPA — is it shipped with app, or is it a hosted-UI of itself?** **✓ Resolved: NOT dogfood.** Per section 7, app's admin SPA is a Vite + React bundle shipped inside `@openparachute/app`, mounted at `/app/admin/` as a known fixed path. Aaron explicitly rejected the dogfood approach as "too messy" — recursive special-casing for marginal elegance. The admin SPA is distinct from user-added apps under `/app/<name>/`.
+7. **App's own admin SPA — is it shipped with app, or is it a hosted-UI of itself?** **✓ Resolved: NOT dogfood.** Per section 7, app's admin SPA is a Vite + React bundle shipped inside `@openparachute/surface`, mounted at `/surface/admin/` as a known fixed path. Aaron explicitly rejected the dogfood approach as "too messy" — recursive special-casing for marginal elegance. The admin SPA is distinct from user-added apps under `/surface/<name>/`.
 
-8. **Notes-as-app vs notes-module — does Notes stay as its own module or migrate to app?** **✓ Resolved: Notes migrates to app over 4 phases.** Section 16 captures the full arc. Phase 1 ships `@openparachute/notes-ui` alongside the existing `@openparachute/notes` module; Phase 2 deprecates the module form; Phase 3 retires it; Phase 4 cleans up. The committed-core line becomes vault + app + scribe + hub; Notes is the canonical first app installed under parachute-app. Aaron's framing: "app is replacing notes."
+8. **Notes-as-app vs notes-module — does Notes stay as its own module or migrate to app?** **✓ Resolved: Notes migrates to app over 4 phases.** Section 16 captures the full arc. Phase 1 ships `@openparachute/notes-ui` alongside the existing `@openparachute/notes` module; Phase 2 deprecates the module form; Phase 3 retires it; Phase 4 cleans up. The committed-core line becomes vault + app + scribe + hub; Notes is the canonical first app installed under parachute-surface. Aaron's framing: "app is replacing notes."
 
-9. **Dev-rebuild ergonomics — how does the platform absorb the SW-caches-stale-code frustration that's recurred during Notes dev?** **✓ Resolved at the platform level (section 18).** Three pieces: (a) no-SW default — apps ship without a service worker, smart cache headers on `index.html` (no-cache) vs hashed assets (immutable); (b) opt-in PWA via meta.json `"pwa": true` — only apps that genuinely need offline-first carry the SW caching burden, and they own their SW lifecycle (skipWaiting, controllerchange); (c) `parachute-app dev <name>` dev mode — disables caching for the named UI, SSE live-reload signals connected browser tabs on file change. Phase 2 folds auto-rebuild via `dev_build_cmd`. Closes [parachute-notes#151](https://github.com/ParachuteComputer/parachute-notes/issues/151) at the platform level.
+9. **Dev-rebuild ergonomics — how does the platform absorb the SW-caches-stale-code frustration that's recurred during Notes dev?** **✓ Resolved at the platform level (section 18).** Three pieces: (a) no-SW default — apps ship without a service worker, smart cache headers on `index.html` (no-cache) vs hashed assets (immutable); (b) opt-in PWA via meta.json `"pwa": true` — only apps that genuinely need offline-first carry the SW caching burden, and they own their SW lifecycle (skipWaiting, controllerchange); (c) `parachute-surface dev <name>` dev mode — disables caching for the named UI, SSE live-reload signals connected browser tabs on file change. Phase 2 folds auto-rebuild via `dev_build_cmd`. Closes [parachute-notes#151](https://github.com/ParachuteComputer/parachute-notes/issues/151) at the platform level.
 
 ## What's new vs the Gitcoin Brain UI today
 
@@ -743,7 +743,7 @@ For readers familiar with the current Gitcoin Brain UI (deployed at `unforced-de
 | Hosting | GitHub Pages (external) | Parachute hub origin |
 | Vault discovery | Operator pastes vault URL on first visit | Service catalog from hub-issued token |
 | Auth | Operator pastes `pvt_*` token | OAuth-against-hub with PKCE + same-hub auto-trust (no consent screen for non-admin scopes) |
-| Bundle update | Push to GitHub, Pages rebuilds | `parachute-app reload gitcoin-brain` after rebuild |
+| Bundle update | Push to GitHub, Pages rebuilds | `parachute-surface reload gitcoin-brain` after rebuild |
 | Discovery | URL passed person-to-person | Hub discovery tile, alongside Notes / Vault / etc. |
 | Multiple installs | Each user runs against own vault | Each operator has their own app install with their own UIs |
 | Token storage | localStorage in browser | OAuth refresh tokens managed by hub; UI holds short-lived access tokens |
@@ -754,9 +754,9 @@ The current UI works; app makes it ecosystem-native. Same shape, same UX intent,
 
 Three equivalences make this small primitive load-bearing:
 
-**The runner equivalence.** parachute-runner is the supervisor for vault job-notes; parachute-app is the supervisor for UI bundles. Same shape (one daemon, N discovered units, lightweight per-unit registration), same audience (owner-operated, flat trust gradient), same module-protocol surface. Two supervisors on the same pattern means future supervisors (parachute-feeds for RSS sources? parachute-bots for chat agents?) inherit the conceptual model for free.
+**The runner equivalence.** parachute-runner is the supervisor for vault job-notes; parachute-surface is the supervisor for UI bundles. Same shape (one daemon, N discovered units, lightweight per-unit registration), same audience (owner-operated, flat trust gradient), same module-protocol surface. Two supervisors on the same pattern means future supervisors (parachute-feeds for RSS sources? parachute-bots for chat agents?) inherit the conceptual model for free.
 
-**The vault equivalence.** parachute-vault (singular module) hosts many vault instances; parachute-app (singular module) hosts many app instances. Same hierarchical discovery shape — module-level row in services.json, per-instance sub-units. App pioneers the hierarchical `uis` shape in services.json; vault adopts it in a follow-up. The ecosystem ends up with a consistent module-hosts-many-instances story.
+**The vault equivalence.** parachute-vault (singular module) hosts many vault instances; parachute-surface (singular module) hosts many app instances. Same hierarchical discovery shape — module-level row in services.json, per-instance sub-units. App pioneers the hierarchical `uis` shape in services.json; vault adopts it in a follow-up. The ecosystem ends up with a consistent module-hosts-many-instances story.
 
 **The trust-gradient equivalence.** App is explicitly flat-gradient. The operator chose every UI in `uis/`; the operator owns the vault; there's nothing to sandbox from. Same-hub auto-trust generalizes this — installed apps are trusted apps. The consent screen disappears for the common case because the install IS the consent. When multi-tenant cloud arrives, app in cloud-mode is one of the things that needs to change shape (per-tenant origin, per-UI sandboxing, consent screens back) — and that's a parachute-cloud problem, not an app problem.
 
