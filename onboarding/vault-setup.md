@@ -31,7 +31,31 @@ You have these MCP tools available against my vault:
 - `find-path` — BFS shortest path between two notes
 - `vault-info` — vault description + stats
 
-Don't make assumptions about my structure. Interview me first.
+Don't make assumptions about my structure. Look at what's already
+here first, then interview me.
+
+## Round 0: orient (read the current vault)
+
+Before asking me anything, call:
+- `vault-info` — see if there's an existing vault description and
+  the basic stats (note count, tag count).
+- `list-tags` (with schema detail) — see what tag conventions already
+  exist, if any.
+- `query-notes` with an empty filter (limit 10) — see if there are
+  any notes at all, and what they look like.
+
+Report what you find back to me in a short paragraph. Two cases:
+
+- **Empty vault** (no notes, no tags, default vault description):
+  "You have a blank vault. Let's design it together."
+- **Existing vault** (has notes or tags or a custom description):
+  "Here's what you already have: [N notes, M tags, brief
+  summary]. We can extend this, restructure it, or start fresh.
+  Which sounds right?"
+
+The interview that follows adapts. Don't pretend the vault is empty
+if it isn't, and don't propose new tag schemas that conflict with
+existing ones unless I ask for that.
 
 ## Round 1: where my data lives
 
@@ -46,11 +70,30 @@ Once I've listed places, ask about:
 - Which of those do I want to bring into the vault?
 - Which do I want to leave outside it (mental clarity matters here)?
 - What format are the import-worthy ones in? (Obsidian markdown,
-  Apple Notes, Notion exports, plain text, etc.)
+  Apple Notes, Notion exports, plain text, voice memo transcripts,
+  iMessage, Roam, Logseq, RSS subscriptions, anything else).
 
-If I mention Obsidian: tell me Parachute Vault has lossless Obsidian
-import (`parachute-vault import <path>`) — I can pull a whole vault
-in, IDs preserved, schemas restored.
+**For each import source, propose a concrete path:**
+
+- **Obsidian** → built-in lossless import:
+  `parachute-vault import <path-to-vault>`. Walk me through it.
+  IDs preserved, schemas restored, frontmatter intact.
+- **Apple Notes / iMessage / Notion** → no built-in importer.
+  Offer to write me a script: a short Bun / Python script that
+  reads from the source's export format and writes to the vault via
+  REST. You can mint a narrow `vault:<name>:write` token via MCP
+  for the script to use (you'll never see the raw token — it lives
+  in an env var the script reads). Tell me roughly how long the
+  script will be before generating it, so I can opt out if I want
+  to do it by hand instead.
+- **Loose markdown / text files in a folder** → write a glob-and-
+  POST script using the same pattern. ~20 lines.
+- **Voice memos** → if scribe is running on this hub, mention that
+  `parachute-scribe` can transcribe them; piping the transcripts
+  into the vault is then the same scripted-import shape.
+
+If I prefer to import nothing and start fresh, that's fine too.
+Don't push.
 
 ## Round 2: how I think
 
@@ -78,14 +121,17 @@ organizing primitives:
 
 2. **Paths** — every note has an optional `path` field (like a folder
    in the vault). Paths organize browsing; they're independent of
-   tags. `notes/2026/may/standup-2026-05-26` is fine; so is no path
-   at all.
+   tags. `notes/2026/may/standup-2026-05-26` is fine. Some people
+   prefer flat notes with tag-driven organization; both work, but
+   you'll want at least one of the two — wide-open chaos is hard to
+   navigate at 1000+ notes.
 
 Propose:
-- A starting set of tags (with field schemas where useful)
-- A starting path convention (if I want one — some people don't)
-- Whether to seed any starter notes (e.g. a "system" note describing
-  my conventions for future-me to read)
+- A starting set of tags (with field schemas where useful). Recommend
+  at least 3-4 to start so the vault has handles to grab.
+- A starting path convention if I want one (skip if I'm going pure-tag).
+- A short starter note describing the conventions we just agreed on,
+  so future-AI sessions reading the vault can orient quickly.
 
 Ask me to push back. Don't commit anything to the vault until I say so.
 
@@ -97,8 +143,32 @@ Once I approve the structure:
 - `vault-info` to set a vault description that future-AI sessions
   will read
 
-If I want to import existing data from Obsidian or Apple Notes,
-suggest the import command and walk me through it.
+## Round 5: import (only if I have data to bring in)
+
+For each source we agreed to import in Round 1:
+
+- **Obsidian:** run `parachute-vault import <path>` (or remind me to
+  run it). Verify with `vault-info` afterward — count should jump.
+
+- **Anything else (Apple Notes, Notion, loose markdown, etc.):**
+  before generating a script, MINT A NARROW TOKEN: call your MCP
+  client's token-creation flow (the user's MCP setup determines the
+  exact UX, but most agentic clients have an "issue token" surface
+  against the vault) for scope `vault:<name>:write` with a short TTL
+  (1 hour). Tell me the token short ID or hash but NEVER paste the
+  raw token into the chat or the script source. Then generate a
+  small Bun script (or Python, my preference) that:
+  - reads `PARACHUTE_TOKEN` from env
+  - reads the source data (file glob, JSON export, AppleScript
+    output, whatever)
+  - POSTs to `/<vault-path>/notes` (the vault REST endpoint, hub-
+    proxied) with appropriate tag + path mapping
+  - prints a dry-run summary first, prompts for confirmation, then
+    runs the actual import
+  Hand me the script + the command to run:
+  `PARACHUTE_TOKEN=<token> bun script.ts`. Tell me to revoke the
+  token after the run (`parachute auth revoke <jti>` or the SPA's
+  Tokens page).
 
 End with a one-paragraph summary of what we built so I can paste it
 into another tool if I want.
