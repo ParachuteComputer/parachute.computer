@@ -7,7 +7,7 @@ description: "A new module that supervises a directory of small custom SPAs (Git
 **Date:** 2026-05-21
 **Status:** Proposed. Targets v0.7. The Gitcoin Brain UI (shipped May 2026), Aaron's about-to-start Unforced Brain UI, and **Notes itself** (which migrates from own-module to app-hosted over 4 phases — see section 16) collectively name the audience this module serves. App is positioned as committed-core; Notes is the canonical first app installed under it.
 
-**Naming note:** the module is **parachute-surface** (singular), mirroring the vault precedent — `parachute-vault` (singular module) hosts many vault instances; `parachute-surface` (singular module) hosts many app instances. The filename of this design doc keeps "apps" for historical continuity with PR #54; the artifact name is `parachute-surface` throughout.
+**Naming note:** the module is **parachute-surface** (singular), mirroring the vault precedent — `parachute-vault` (singular module) hosts many vault instances; `parachute-surface` (singular module) hosts many surface instances. Originally shipped as `parachute-app`; renamed to `parachute-surface` on 2026-05-26 (filename changed from `2026-05-21-parachute-apps-design.md` in the same shift). The artifact name is `parachute-surface` throughout.
 
 **Companions:**
 - [`2026-05-21-parachute-runner-design.md`](./2026-05-21-parachute-runner-design.md) — closest precedent (one supervisor, many discovered units); app mirrors its shape on the UI axis
@@ -477,7 +477,7 @@ End-to-end concrete steps. From "I have a UI at `~/Gitcoin/gitcoin-brain-ui/`" t
 
 **Gitcoin Brain is the second app installed.** Notes (via `@openparachute/notes-ui`, see section 16) is the first — either bundled with parachute-surface's installer as the canonical first app or one `parachute-surface add @openparachute/notes-ui` away. This walkthrough assumes Notes is already installed; the steps below are general and apply to any custom UI Aaron adds after Notes.
 
-1. **Install app.** `parachute install app` (calls the standard install path; ships canonical module.json + port 1946 + self-registers services.json row). At first install, Notes is the canonical first app to bootstrap.
+1. **Install surface.** `parachute install surface` (calls the standard install path; ships canonical module.json + port 1946 + self-registers services.json row). At first install, Notes is the canonical first app to bootstrap.
 2. **Configure app.** Hub's admin SPA shows the app module-config form (from its `/.parachute/config/schema`). Set `hub_url` to the local hub URL (typically `http://127.0.0.1:1939` for loopback, or the operator's tailnet URL). Defaults for `auto_dcr_register: true` and `default_scopes: ["vault:*:read"]` are fine.
 3. **Start app.** `parachute start app` — hub-supervised. Verify `parachute status` shows it healthy on 1946.
 4. **Author `meta.json` for Gitcoin Brain.** In `~/Gitcoin/gitcoin-brain-ui/`, create (or update) `meta.json`:
