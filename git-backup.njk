@@ -39,11 +39,11 @@ permalink: /git-backup/
     <section class="section">
         <h2>2. Pick a preset</h2>
 
-        <p>Three preset cards make the common shapes one click. Pick whichever matches what you want:</p>
+        <p>Three preset cards make the common shapes one click. <strong>History</strong> is the easiest start — vault manages everything for you. Pick a different preset only if you specifically want a visible folder to open in Obsidian or push to a remote host.</p>
 
         <ul>
-            <li><strong>History</strong> &mdash; vault manages the mirror at a hidden path (<code>~/.parachute/vault/data/&lt;name&gt;/mirror/</code>). Zero configuration; no GitHub needed. Use this when you want an audit trail and never plan to leave the box. The folder is recreated automatically if it goes missing.</li>
-            <li><strong>Live Mirror</strong> &mdash; you pick a visible folder (like <code>~/Documents/my-vault-mirror</code>). Vault keeps it in sync via the event-driven path. Use this when you want to open the folder in Obsidian, push to GitHub, or both.</li>
+            <li><strong>History (start here)</strong> &mdash; vault manages the mirror at a hidden path under its own data dir (<code>~/.parachute/vault/data/&lt;name&gt;/mirror/</code> on a local install, somewhere inside your Render persistent disk on a managed install). Zero configuration. No path to pick. No remote to wire. You get a per-save audit trail you can navigate from the admin page. The folder is recreated automatically if it goes missing. This is the recommended default for most operators — especially if you're running on Render and don't think of Parachute as a filesystem you navigate.</li>
+            <li><strong>Live Mirror</strong> &mdash; you pick a visible folder (like <code>/Users/you/Documents/my-vault-mirror</code>). Vault keeps it in sync via the event-driven path. Use this if you want to open the folder in Obsidian, push to a remote host, or both. Needs a folder that already exists and is already a git repo (see below).</li>
             <li><strong>Manual Export</strong> &mdash; same as Live Mirror but no auto-sync. You run "Run export now" from the admin page (or <code>parachute-vault export</code> from the CLI) when you want a snapshot. Use this if you prefer batch snapshots over per-edit commits.</li>
         </ul>
 
@@ -67,30 +67,34 @@ git init</code></pre>
     </section>
 
     <section class="section">
-        <h2>4. Connect a git remote (for GitHub-backed backup)</h2>
+        <h2>4. Connect a git remote (for off-machine backup)</h2>
 
-        <p>This step is optional. Skip it if you only want a local mirror.</p>
+        <p>This step is optional. Skip it if you only want a local mirror (the History preset doesn't push anywhere — that's fine if you just want an audit trail).</p>
 
-        <p>Below the location field you'll see a "Git remote" section. Two flows to pick from:</p>
+        <p>Below the location field you'll see a "Git remote" section. Two flows are offered:</p>
 
-        <h3 style="margin-top: 1.5rem;">Connect GitHub (recommended for GitHub users)</h3>
+        <h3 style="margin-top: 1.5rem;">Use a Personal Access Token (works everywhere)</h3>
+
+        <p>The universal path. Works against any HTTPS+token git host — GitHub, GitLab, Gitea, Bitbucket, self-hosted, anything that takes an HTTPS clone URL with a token.</p>
+
+        <p>Click <strong>Use Personal Access Token</strong>. Two fields:</p>
+
+        <ul>
+            <li><strong>Token</strong> &mdash; a PAT from your git host with <code>repo</code> (or equivalent) scope. <a href="https://github.com/settings/tokens/new?scopes=repo">Create one on GitHub</a>, <a href="https://gitlab.com/-/profile/personal_access_tokens">on GitLab</a>, or follow your provider's docs.</li>
+            <li><strong>Remote URL</strong> &mdash; the HTTPS clone URL of your target repo (<code>https://github.com/you/your-mirror.git</code>, <code>https://gitlab.com/you/your-mirror.git</code>, etc.).</li>
+        </ul>
+
+        <p>Vault validates by running <code>git ls-remote</code> against the URL with the token. If the probe succeeds, the credentials save and the mirror is wired to push. Tokens land in <code>~/.parachute/vault/.mirror-credentials.yaml</code> with 0600 perms; they never appear in API responses.</p>
+
+        <h3 style="margin-top: 1.5rem;">Or: Connect GitHub (one-click shortcut for GitHub users)</h3>
+
+        <p>Same end-state as the PAT path, just one fewer step for GitHub users — vault generates the token for you instead of asking you to paste one.</p>
 
         <p>Click <strong>Connect GitHub</strong>. A modal pops up with a short user code (GitHub's format is <code>XXXX-XXXX</code>) and a link to <code>github.com/login/device</code>. Open that link in any browser (your phone counts), paste the code, and click "Authorize Parachute Vault."</p>
 
         <p>Once authorized, the modal closes and you'll see a list of your GitHub repos. Click one to pick it as the push target. Or click <strong>Create new private repo</strong> to spin up a fresh private repo named after your vault — vault uses GitHub's API to create it, and the mirror starts pushing immediately.</p>
 
-        <p>Same flow as <code>gh auth login</code>. No callback URL setup, no OAuth app on your end — vault uses Device Flow which authorizes from any device with a browser. Tokens land in <code>~/.parachute/vault/.mirror-credentials.yaml</code> with 0600 perms; they never appear in API responses.</p>
-
-        <h3 style="margin-top: 1.5rem;">Use a Personal Access Token (GitLab, Gitea, Bitbucket, self-hosted git)</h3>
-
-        <p>Click <strong>Use Personal Access Token</strong>. Two fields:</p>
-
-        <ul>
-            <li><strong>Token</strong> &mdash; a PAT from your git host with <code>repo</code> (or equivalent) scope. <a href="https://github.com/settings/tokens/new?scopes=repo">Create one on GitHub</a> or follow your provider's docs.</li>
-            <li><strong>Remote URL</strong> &mdash; the HTTPS clone URL of your target repo (<code>https://github.com/you/your-mirror.git</code>, <code>https://gitlab.com/you/your-mirror.git</code>, etc.).</li>
-        </ul>
-
-        <p>Vault validates by running <code>git ls-remote</code> against the URL with the token. If the probe succeeds, the credentials save and the mirror is wired to push.</p>
+        <p>Same flow as <code>gh auth login</code>. No callback URL setup; vault uses Device Flow which authorizes from any device with a browser.</p>
     </section>
 
     <section class="section">
