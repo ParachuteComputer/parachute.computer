@@ -61,7 +61,7 @@ permalink: /git-backup/
 cd ~/Documents/my-vault-mirror
 git init</code></pre>
 
-        <p>Then paste <code>~/Documents/my-vault-mirror</code> (the absolute path; tilde-expand it if your form rejects <code>~</code>) into the External path field.</p>
+        <p>Then paste the full absolute path (e.g. <code>/Users/you/Documents/my-vault-mirror</code> on macOS, <code>/home/you/Documents/my-vault-mirror</code> on Linux) into the External path field. The server doesn't tilde-expand <code>~</code>, so use the resolved form.</p>
 
         <p>If you don't have shell access, pick <strong>History</strong> — it's the same engine, the folder lives somewhere vault knows how to manage on your behalf, and you can always switch later.</p>
     </section>
@@ -75,7 +75,7 @@ git init</code></pre>
 
         <h3 style="margin-top: 1.5rem;">Connect GitHub (recommended for GitHub users)</h3>
 
-        <p>Click <strong>Connect GitHub</strong>. A modal pops up with an 8-character code and a link to <code>github.com/login/device</code>. Open that link in any browser (your phone counts), paste the code, and click "Authorize Parachute Vault."</p>
+        <p>Click <strong>Connect GitHub</strong>. A modal pops up with a short user code (GitHub's format is <code>XXXX-XXXX</code>) and a link to <code>github.com/login/device</code>. Open that link in any browser (your phone counts), paste the code, and click "Authorize Parachute Vault."</p>
 
         <p>Once authorized, the modal closes and you'll see a list of your GitHub repos. Click one to pick it as the push target. Or click <strong>Create new private repo</strong> to spin up a fresh private repo named after your vault — vault uses GitHub's API to create it, and the mirror starts pushing immediately.</p>
 
@@ -106,7 +106,7 @@ git init</code></pre>
     <section class="section">
         <h2>6. Verify it works</h2>
 
-        <p>Create a note in your vault — via Notes, via the MCP tools in any AI client, or via the CLI. Within a couple of seconds, the Status card on the admin page updates: <strong>Last export</strong> shows the timestamp, <strong>Notes touched</strong> shows 1, and <strong>Last commit</strong> shows a short SHA.</p>
+        <p>Create a note in your vault — via Notes, via the MCP tools in any AI client, or via the CLI. Within a couple of seconds, the Status card on the admin page updates: <strong>Last export</strong> shows the timestamp and inline note count (something like <code>2026-05-28T03:14:15Z · 1 note</code>), and <strong>Last commit</strong> shows a short SHA.</p>
 
         <p>Browse to your remote repo on GitHub (or wherever) and you should see the new file with your note's content. Open the local mirror folder in your file browser and you'll see the same.</p>
 
