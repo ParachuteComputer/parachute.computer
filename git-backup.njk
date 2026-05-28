@@ -57,11 +57,12 @@ permalink: /git-backup/
 
         <p>For <strong>Live Mirror</strong> or <strong>Manual Export</strong>: pick a path. The folder needs to already exist on disk AND already be a git repo. If you haven't created it yet:</p>
 
-        <pre><code>mkdir -p ~/Documents/my-vault-mirror
+        <pre><code># tilde is fine in the shell — your terminal expands it.
+mkdir -p ~/Documents/my-vault-mirror
 cd ~/Documents/my-vault-mirror
 git init</code></pre>
 
-        <p>Then paste the full absolute path (e.g. <code>/Users/you/Documents/my-vault-mirror</code> on macOS, <code>/home/you/Documents/my-vault-mirror</code> on Linux) into the External path field. The server doesn't tilde-expand <code>~</code>, so use the resolved form.</p>
+        <p>Then paste the <strong>fully resolved absolute path</strong> into the External path field (e.g. <code>/Users/you/Documents/my-vault-mirror</code> on macOS, <code>/home/you/Documents/my-vault-mirror</code> on Linux). The server doesn't tilde-expand <code>~</code> — that's a shell-side thing, not a vault-side one. <code>pwd</code> inside the directory you just created prints the exact string you want to paste.</p>
 
         <p>If you don't have shell access, pick <strong>History</strong> — it's the same engine, the folder lives somewhere vault knows how to manage on your behalf, and you can always switch later.</p>
     </section>
@@ -94,7 +95,7 @@ git init</code></pre>
 
         <p>Once authorized, the modal closes and you'll see a list of your GitHub repos. Click one to pick it as the push target. Or click <strong>Create new private repo</strong> to spin up a fresh private repo named after your vault — vault uses GitHub's API to create it, and the mirror starts pushing immediately.</p>
 
-        <p>Same flow as <code>gh auth login</code>. No callback URL setup; vault uses Device Flow which authorizes from any device with a browser.</p>
+        <p>Same flow as <code>gh auth login</code>. No callback URL setup, no OAuth app on your end &mdash; vault uses Device Flow which authorizes from any device with a browser.</p>
     </section>
 
     <section class="section">
