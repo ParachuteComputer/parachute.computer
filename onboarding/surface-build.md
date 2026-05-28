@@ -10,7 +10,7 @@ A custom front-end for *your* vault, designed to surface what *you* actually loo
 
 This is the second of two starter prompts. The first ([set up your vault](/onboarding/vault-setup/)) is for figuring out what's in your vault. This one is for figuring out how you want to see it.
 
-**Before you paste**: have a vault running with some content in it (even just a getting-started note works), and an API token from your hub's `/admin/tokens` panel. The AI needs both.
+**Before you paste**: have a vault running with some content in it (even just a getting-started note works), and an API token scoped to your vault. Mint one from the vault admin SPA's Tokens page or your hub's `/admin/tokens` panel — both issue revocable **hub JWTs** (the legacy `pvt_*` tokens are being retired). The AI needs both.
 
 ---
 
@@ -24,7 +24,8 @@ needed — just a static SPA in a GitHub repo I own.
 ## What I'll give you
 
 - My vault's HTTP origin (e.g. `https://aaron-hub.fly.dev/vault/default`)
-- An API token (`pvt_...`) with `vault:write` scope
+- An API token with `vault:write` scope (a hub JWT — minted from the
+  vault admin SPA's Tokens page or the hub's `/admin/tokens` panel)
 - A description of what I look at most — projects, people, daily
   notes, etc. (You'll interview me.)
 
@@ -76,7 +77,7 @@ Static SPA only. All vault calls go to the operator's hub via fetch.
 
 The auth pattern: the vault token is held in the SPA's local storage
 after a one-time paste-in screen. Send it as
-`Authorization: Bearer pvt_...` on every fetch. The vault's
+`Authorization: Bearer <token>` on every fetch. The vault's
 `Access-Control-Allow-Origin: *` policy lets the cross-origin call
 through.
 

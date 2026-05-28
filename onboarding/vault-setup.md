@@ -211,12 +211,27 @@ Use Path 3 only when:
   every run
 - I explicitly ask for a script
 
-If we go this route:
-1. Mint a narrow `vault:<name>:write` token via your MCP client's
-   token-creation flow (or, for now, ask me to mint one in the hub
-   admin UI at `/admin/tokens` since the MCP `manage-token` tool
-   isn't shipped yet) with a short TTL (1 hour). You won't see the
-   raw token — it lives in an env var the script reads.
+If we go this route, mint a vault token. Every option below issues a
+**hub JWT** (revocable via the hub's token registry); the legacy `pvt_*`
+tokens are being retired. Pick the one that fits:
+
+1. Get a token for the script. Options, least-to-most terminal use:
+   - **Ephemeral, AI-driven (best for a one-shot import):** if you've
+     given me a `vault:<name>:admin` MCP session, I can call the
+     `manage-token` MCP tool myself — `action: "mint"` with a narrow
+     scope (`vault:write`) and a short TTL. These are short-lived hub
+     JWTs (default 15 min, max 1 hour), pinned to this vault and
+     attenuated to a subset of my own scope. You never see the raw
+     token — it goes straight into an env var the script reads, and I
+     revoke it (`action: "revoke"`) the moment the import finishes.
+   - **Durable, for a script you'll re-run (CI, scheduled sync):** on
+     the hub host, run
+     `parachute auth mint-token --scope vault:<name>:write` (default
+     lifetime 90 days). It prints the JWT to stdout — pipe it into the
+     script's env, don't paste it back into chat.
+   - **From the vault admin SPA:** the Tokens page mints durable hub
+     JWTs with an optional tag-scoped allowlist. Hand me the token via
+     an env var, not chat.
 
 2. Generate a small Bun script that uses
    `@openparachute/surface-client`'s `VaultClient` (the canonical
@@ -243,9 +258,11 @@ If we go this route:
 3. Hand me the script + the command:
    `PARACHUTE_TOKEN=<token> bun script.ts`
 
-4. Tell me to revoke the token after via the hub admin UI's
-   `/admin/tokens` page (or `parachute auth revoke <jti>` if I'm
-   on the hub host).
+4. Revoke the token when the import is done. If I minted it via
+   `manage-token`, I'll revoke it myself (`action: "revoke"` with the
+   `jti` from the mint). Otherwise revoke it from the vault admin SPA's
+   Tokens page, or — on the hub host — run
+   `parachute auth revoke-token <jti>`.
 
 **For Python** or other languages: there's no official client lib
 yet — fall back to raw `requests` (Python) / `axios` (Node) against
