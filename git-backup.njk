@@ -119,6 +119,39 @@ git init</code></pre>
     </section>
 
     <section class="section">
+        <h2>Pull a vault from git (the import flow)</h2>
+
+        <p>Export's symmetric counterpart. One machine pushes a vault to a remote; another machine imports from the same remote and ends up with the same vault state. Useful for moving a vault to a new machine, loading a vault someone else has been mirroring, or syncing a vault between machines you control.</p>
+
+        <p>Below the Git remote section on the admin page you'll find <strong>"Import from a git repo"</strong>. Three input shapes:</p>
+
+        <ul>
+            <li><strong>From a connected GitHub</strong> — visible when you've already connected via the GitHub Device Flow. Opens a repo picker; click the repo you want to import from.</li>
+            <li><strong>From a remote URL</strong> — paste an HTTPS or SSH clone URL. Uses your stored credentials (whichever's active — PAT or GitHub OAuth). For public repos you can leave credentials empty.</li>
+            <li><strong>One-time PAT</strong> — toggle the "one-time" checkbox to paste a different PAT for this single import without touching your stored credentials. Useful for importing from a repo you don't intend to push back to.</li>
+        </ul>
+
+        <p>Then pick a mode:</p>
+
+        <ul>
+            <li><strong>Merge (default)</strong> — upsert by note id. Imported notes are added or updated; notes already in your vault that aren't in the remote <em>survive</em>. Safe for most cases. Tag schemas + typed links + attachments come along.</li>
+            <li><strong>Replace</strong> — wipe first, then import. The remote becomes the new source of truth; any local-only notes are deleted. The button is gated behind a typed-name confirmation when your vault isn't empty — you have to type the vault name to proceed.</li>
+        </ul>
+
+        <p>Click <strong>Start import</strong>. Vault clones the remote into a temp dir, validates that it looks like a vault export (looks for <code>.parachute/vault.yaml</code>), runs the import, cleans up. Synchronous — the page shows "Cloning…" → "Importing…" → a result summary with counts of notes, tags, and attachments imported (plus deletes if you picked Replace).</p>
+
+        <h3 style="margin-top: 1.5rem;">After import: wire it as your mirror remote?</h3>
+
+        <p>On success, vault asks: "Set this repo as the active mirror remote so future writes push back?" Saying yes scrolls you to the Git remote section to configure credentials + remote — closes the round-trip. Saying no keeps the import as a one-shot snapshot (use this if you're loading someone else's vault and don't want to push your edits back to their repo).</p>
+
+        <h3 style="margin-top: 1.5rem;">Multiple vaults pushing to the same repo</h3>
+
+        <p>Don't do this. The supported pattern is <strong>one vault per remote</strong>. If two vaults both auto-push to the same GitHub repo, the second to land each commit silently overwrites the first's changes. There's no conflict resolution; whoever pushes last wins.</p>
+
+        <p>For the legitimate use cases (multiple machines, you want them in sync): export from one machine continuously, import from the other as a one-shot when you want to catch up. Active two-way sync over a shared repo is a future-direction design item — for now, do exports from one place and imports as snapshots elsewhere.</p>
+    </section>
+
+    <section class="section">
         <h2>Sync timing</h2>
 
         <p>"On change" is the default mode. Vault subscribes to in-process events on every note/tag/attachment mutation; the export fires within ~500ms of each save. A safety-net poll (default hourly) catches anything the event path misses.</p>
@@ -143,6 +176,15 @@ git init</code></pre>
 
         <h3 style="margin-top: 1.5rem;">I want to switch hosts (GitHub → GitLab, or local-only → GitHub)</h3>
         <p>Click <strong>Disconnect</strong> to clear the current credentials. Then run whichever connection flow matches the new host. Vault rewrites the mirror's git remote URL on save; the existing commit history travels along.</p>
+
+        <h3 style="margin-top: 1.5rem;">"This doesn't look like a Parachute vault export"</h3>
+        <p>The repo you tried to import from doesn't have a <code>.parachute/vault.yaml</code> at its root. Vault refuses to silently treat a random repo as a vault. If you're sure the repo IS a vault export but it lives in a subdirectory, that's a known limitation today — clone it locally, point vault at the subdirectory via the CLI (<code>parachute-vault import &lt;path&gt;</code>), and file a feature request for subdirectory support in the SPA.</p>
+
+        <h3 style="margin-top: 1.5rem;">"Import already running for vault X"</h3>
+        <p>A previous import is still in flight against this vault. Wait for it to finish (or fail) before starting another. The lock auto-clears on success, failure, or server restart.</p>
+
+        <h3 style="margin-top: 1.5rem;">After Replace mode, my local-only notes are gone</h3>
+        <p>That's the contract — Replace means "the remote is the new source of truth, wipe what was here, fill from the remote." If you wanted them preserved, use Merge mode instead. If you've already lost them and your vault is the only place they existed: check the mirror's <code>.archive-&lt;date&gt;/</code> dirs (Replace doesn't archive — that's only for <code>parachute migrate</code>) and the SQLite file's pre-import backup if you have one. Going forward: turn on auto-push to a remote before doing Replace, so you have an off-machine copy first.</p>
     </section>
 
     <section class="section">
