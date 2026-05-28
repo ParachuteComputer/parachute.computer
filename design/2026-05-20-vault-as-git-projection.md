@@ -5,7 +5,7 @@ description: "Design for making vault tightly integrated with its git mirror —
 # Vault as git projection — v0.7+ architecture
 
 **Date:** 2026-05-20
-**Status:** Design proposal — the v0.7+ arc that follows the small `--watch` / `--git-commit` step shipping in **vault#346** (parallel PR). Informs the implementation chain that comes after.
+**Status:** **Architecture A shipped** as of 2026-05-28. Landed across [vault#380](https://github.com/ParachuteComputer/parachute-vault/pull/380) (admin SPA git-mirror UI + manual-trigger endpoint), [vault#382](https://github.com/ParachuteComputer/parachute-vault/pull/382) (event-driven exports via `HookRegistry` + deletion handling + `sync_mode` schema reframe), and [vault#383](https://github.com/ParachuteComputer/parachute-vault/pull/383) (0.4.9-rc.5 release bump). The polling-shape v0.7-bootstrap from vault#346 has retired in favor of hook-driven exports. Bidirectional sync (Architecture B) and vault-as-thick-UI-over-git (Architecture C) remain deferred; this doc is preserved as the design record. Propagation tracked at [`parachute-patterns/migrations/2026-05-28-mirror-event-driven.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/migrations/2026-05-28-mirror-event-driven.md).
 
 **Companions:**
 - [`2026-05-20-vault-as-git-canonical-thought-experiment.md`](./2026-05-20-vault-as-git-canonical-thought-experiment.md) — focused exploration of Architecture C as a thought experiment (not a commitment)
