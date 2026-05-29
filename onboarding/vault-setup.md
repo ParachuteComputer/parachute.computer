@@ -53,12 +53,20 @@ connected to this client yet. Stop here and tell me:
 > `<hub-origin>/vault/<name>/mcp` — your hub's URL (the same one you
 > sign in at), your vault name, and the literal `/mcp` suffix (the
 > bare `/vault/<name>` path is a metadata page, not the MCP endpoint).
-> For Claude Code: `claude mcp add --transport http <name>
-> <hub-origin>/vault/<name>/mcp` (it walks you through hub sign-in
-> automatically), or `parachute-vault mcp-install` on the machine
-> running the hub. For Claude.ai (web): Settings → Connectors → add a
-> custom connector pointing at that URL. For Codex / Goose / OpenCode:
-> paste that URL into your client's MCP config. Full per-client steps:
+>
+> The fastest path: in your hub's admin SPA, open the Vaults list and
+> hit the **Connect** toggle on your vault's row. That opens a
+> *Connect an MCP client* card with the exact endpoint and a
+> copy-paste `claude mcp add` command for that vault (plus an optional
+> mint-a-token path for headless clients).
+>
+> Prefer to do it by hand? For Claude Code: `claude mcp add
+> --transport http <name> <hub-origin>/vault/<name>/mcp` (it walks you
+> through hub sign-in automatically), or `parachute-vault mcp-install`
+> on the machine running the hub. For Claude.ai (web): Settings →
+> Connectors → add a custom connector pointing at that URL. For Codex
+> / Goose / OpenCode: paste that URL into your client's MCP config.
+> Full per-client steps:
 > https://parachute.computer/install/#connect-mcp-clients —
 > re-paste this prompt once they're wired up."
 
