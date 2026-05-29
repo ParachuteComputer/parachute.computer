@@ -127,7 +127,7 @@ permalink: /deploy/fly/
             <li><strong>Done.</strong> Two tiles: <strong>Open the admin UI</strong> (lands on <code>/admin/vaults</code>; from there you can navigate to <code>/admin/modules</code> to install Notes, Scribe, and any other modules) and <strong>Connect Claude Code (MCP)</strong> (the install command for the MCP wiring &mdash; see step 6).</li>
         </ol>
 
-        <p><strong>What you should see.</strong> The done screen renders the <code>claude mcp add</code> command pre-filled with your hub's URL and vault name. Note: the wizard's command does <em>not</em> include an auth header &mdash; you mint a token separately from <code>/admin/tokens</code> and add the header yourself. Step 6 walks the full pattern.</p>
+        <p><strong>What you should see.</strong> The done screen renders the <code>claude mcp add</code> command pre-filled with your hub's URL, vault name, <em>and</em> the auth header &mdash; the wizard auto-mints a fresh hub token scoped to your vault and drops it into the <code>Authorization: Bearer</code> flag for you. Copy-run it as-is. Step 6 walks the command and the fallback if you need to mint a token by hand.</p>
     </section>
 
     <section class="section">
@@ -145,19 +145,20 @@ permalink: /deploy/fly/
 
         <p><strong>Why this step.</strong> The vault is running and reachable, but no client is wired to it yet. Claude Code talks MCP over HTTP &mdash; one command registers the server in <code>~/.claude.json</code>, then it picks it up on the next session.</p>
 
-        <p>Connecting is a two-step pattern. First, copy the <code>claude mcp add</code> command from the wizard's done screen into your terminal &mdash; it looks like:</p>
+        <p>The simplest path: copy the <code>claude mcp add</code> command straight off the wizard's done screen and run it. The wizard already auto-minted a hub token scoped to your vault and pre-filled the <code>Authorization: Bearer</code> header &mdash; the command is complete as shown:</p>
 
         <div class="code-inline">
-            <code>claude mcp add --transport http parachute-default https://your-app-name.fly.dev/vault/default/mcp</code>
+            <code>claude mcp add --transport http parachute-default https://your-app-name.fly.dev/vault/default/mcp --header "Authorization: Bearer &lt;hub-JWT&gt;"</code>
         </div>
 
-        <p>Then mint an API token: go to <code>/admin/tokens</code> in the admin UI, create a new token (default scope <code>vault:write</code> is what you want), and copy the <code>pvt_...</code> string. Re-run <code>claude mcp add</code> with the header flag &mdash; or edit the entry in <code>~/.claude.json</code> directly &mdash; so the final form is:</p>
+        <p>If you closed the done screen or want to mint your own token, either source works &mdash; both return a hub JWT (not a legacy <code>pvt_</code> string; vault no longer issues those):</p>
 
-        <div class="code-inline">
-            <code>claude mcp add --transport http parachute-default https://your-app-name.fly.dev/vault/default/mcp --header "Authorization: Bearer pvt_..."</code>
-        </div>
+        <ul>
+            <li><strong>Admin UI &rarr; Tokens</strong> &mdash; go to <code>/admin/tokens</code>, create a token scoped to your vault (default <code>vault:write</code> is what you want), and copy the JWT it returns.</li>
+            <li><strong>On the hub host:</strong> <code>parachute auth mint-token --scope vault:default:write</code> prints a JWT to stdout.</li>
+        </ul>
 
-        <p>Start a new Claude Code session in any project. Run <code>/mcp</code> &mdash; <code>parachute-default</code> should appear with its nine tools resolved. Memory now persists across every session, backed by your Fly-hosted hub.</p>
+        <p>Then re-run <code>claude mcp add</code> with that JWT in the header flag (or edit the entry in <code>~/.claude.json</code> directly). Start a new Claude Code session in any project, run <code>/mcp</code> &mdash; <code>parachute-default</code> should appear with its nine tools resolved. Memory now persists across every session, backed by your Fly-hosted hub.</p>
 
         <p><strong>What you should see.</strong> <code>parachute-default</code> in <code>/mcp</code>'s list with status <em>connected</em>. Asking Claude to write a note succeeds and the note appears in the Notes UI on <code>&lt;your-hub&gt;/surface/notes/</code> immediately.</p>
     </section>
