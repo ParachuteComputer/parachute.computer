@@ -52,6 +52,8 @@ The install is one line; [the install guide](/install/) has the rest.
 
 **Parachute Notes** is a web interface for your Vault. Run `parachute install notes`, open `localhost:1942/notes` in your browser, point it at your Vault, and you've got note browsing, search, tag views, a graph visualization, markdown editor with live preview, and voice capture with auto-transcription. Usable today as a local web app on your laptop. The mobile-PWA install flow lands alongside public HTTPS exposure in the next few weeks.
 
+> **Editor's note (2026-05-28):** Notes is now bundled inside **Parachute Surface**, the UI host module — `parachute install surface` (auto-bootstraps Notes), reachable at `<hub>/surface/notes/`. The standalone `parachute install notes` / `localhost:1942/notes` path described here is the launch-era shape; see the [install guide](/install/) for the current flow.
+
 It's also explicitly not the definitive front-end. Our hope is that you might build your own. In this new era, it's genuinely possible to build a front-end that works how *your* brain works — not how a design team at some company guessed it might. [Fork the source](https://github.com/ParachuteComputer/parachute-notes) — Vite + React + TypeScript, AGPL — read the Vault's API, and build something that's uniquely yours. That's the invitation.
 
 ## Where this goes

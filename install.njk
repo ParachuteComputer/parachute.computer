@@ -66,7 +66,7 @@ permalink: /install/
 
         <aside class="upgrade-callout">
             <strong>Advanced: install modules one at a time.</strong>
-            <p>If you'd rather drive the install by hand instead of through the wizard, <code>parachute install &lt;svc&gt;</code> installs and registers a single module &mdash; e.g. <code>parachute install vault</code> installs Vault, runs its init, creates your first vault, and starts it as a background daemon on <code>127.0.0.1:1940</code>. <code>parachute setup</code> is the older interactive multi-service walk-through (survey what's installed, multi-pick from vault, notes, scribe, threads the prompts up front). Both still work and are additive; <code>parachute init</code> &rarr; wizard is the recommended path.</p>
+            <p>If you'd rather drive the install by hand instead of through the wizard, <code>parachute install &lt;svc&gt;</code> installs and registers a single module &mdash; e.g. <code>parachute install vault</code> installs Vault, runs its init, creates your first vault, and starts it as a background daemon on <code>127.0.0.1:1940</code>. <code>parachute setup</code> is the older interactive multi-service walk-through (survey what's installed, multi-pick from vault, surface, scribe, threads the prompts up front). Both still work and are additive; <code>parachute init</code> &rarr; wizard is the recommended path.</p>
         </aside>
     </section>
 
@@ -222,7 +222,7 @@ permalink: /install/
         <ul>
             <li><code>parachute upgrade</code> &mdash; sweeps hub plus every installed service to the latest npm release.</li>
             <li><code>parachute upgrade hub</code> &mdash; upgrades just the dispatcher.</li>
-            <li><code>parachute upgrade vault</code> (or <code>notes</code>, <code>scribe</code>) &mdash; upgrades a single service.</li>
+            <li><code>parachute upgrade vault</code> (or <code>surface</code>, <code>scribe</code>) &mdash; upgrades a single service.</li>
             <li><code>parachute upgrade vault --tag rc</code> &mdash; pin to the <code>rc</code> dist-tag instead of <code>latest</code>.</li>
         </ul>
         <p>Vault's schema and filesystem migrations run automatically on first post-upgrade boot &mdash; idempotent, target-wins on conflict, no manual steps required. If you're jumping from the launch 0.2.4 to today, the <a href="/preview/vault-0.4.5-arc/">0.2.4 &rarr; 0.4.5 upgrade arc</a> is the deep dive.</p>
