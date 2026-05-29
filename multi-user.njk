@@ -92,6 +92,22 @@ permalink: /multi-user/
         </ul>
 
         <p>The literal per-client commands &mdash; <code>claude mcp add --transport http &lt;name&gt; &lt;hub-url&gt;/vault/&lt;name&gt;/mcp</code> for Claude Code, the Settings &rarr; Connectors flow for Claude.ai, and the generic streamable-HTTP shape for everything else &mdash; live in <a href="/install/#connect-mcp-clients">Connecting MCP clients</a> on the install page. Point your friend there; the only substitutions are your hub's URL and their vault name.</p>
+
+        <p><strong>The in-product shortcut:</strong> in your admin SPA, open the Vaults list and hit the <strong>Connect</strong> toggle on the friend's vault row. That expands a <em>Connect an MCP client</em> card with the exact <code>&lt;hub-url&gt;/vault/&lt;name&gt;/mcp</code> endpoint and a copy-paste <code>claude mcp add</code> command already filled in for that vault &mdash; plus an optional mint-a-token path for headless clients. It's the same surface for every vault, any time; no need to retype the URL by hand.</p>
+    </section>
+
+    <section class="section" id="onboarding-checklist">
+        <h2>Onboarding a team member &mdash; the short version</h2>
+
+        <p>The sections above cover each step in depth. Once you've stood up your hub, this is the whole loop per person:</p>
+
+        <ol>
+            <li><strong>Create their account.</strong> <code>/admin/users</code> &rarr; <strong>Create user</strong>: username, a temporary password (you pick it), and the vault(s) to assign. (<a href="#connect-mcp">Provision a vault first</a> if they don't have one yet.)</li>
+            <li><strong>Hand them three things, out-of-band.</strong> Your hub's <code>&lt;hub-url&gt;/login</code>, their username, and the temporary password. Use Signal, in-person, a sealed envelope &mdash; not plain email.</li>
+            <li><strong>They sign in and are force-prompted to set a new password.</strong> On first sign-in at <code>/login</code>, the hub redirects them through change-password before anything else; then drops them at <code>/account/</code>, their home page showing their vault(s).</li>
+            <li><strong>They can change it any time</strong> from <code>/account/</code>. If they forget it, <strong>you reset it</strong> from <code>/admin/users</code> &rarr; <strong>Reset password</strong> (which also revokes their existing tokens).</li>
+            <li><strong>To connect their AI client to their vault,</strong> open the Vaults list and use the per-row <strong>Connect</strong> toggle &rarr; <em>Connect an MCP client</em> card, or send them <a href="#connect-mcp">step 5 above</a> / <a href="/install/#connect-mcp-clients">Connecting MCP clients</a>. Notes (the web app) needs none of this &mdash; it connects with one click.</li>
+        </ol>
     </section>
 
     <section class="section">
