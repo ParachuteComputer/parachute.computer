@@ -145,7 +145,7 @@ permalink: /deploy/fly/
 
         <p><strong>Why this step.</strong> The vault is running and reachable, but no client is wired to it yet. Claude Code talks MCP over HTTP &mdash; one command registers the server in <code>~/.claude.json</code>, then it picks it up on the next session.</p>
 
-        <p>The simplest path: copy the <code>claude mcp add</code> command straight off the wizard's done screen and run it. The wizard already auto-minted a hub token scoped to your vault and pre-filled the <code>Authorization: Bearer</code> header &mdash; the command is complete as shown:</p>
+        <p>The simplest path: copy the <code>claude mcp add</code> command straight off the wizard's done screen and run it. The wizard already auto-minted a hub token scoped to your vault and pre-filled the <code>Authorization: Bearer</code> header &mdash; the command is complete as shown. On a hosted deploy there's no local browser for the OAuth redirect, so you attach the token explicitly here (unlike a laptop install, where Claude Code completes the browser sign-in for you):</p>
 
         <div class="code-inline">
             <code>claude mcp add --transport http parachute-default https://your-app-name.fly.dev/vault/default/mcp --header "Authorization: Bearer &lt;hub-JWT&gt;"</code>
@@ -154,8 +154,8 @@ permalink: /deploy/fly/
         <p>If you closed the done screen or want to mint your own token, either source works &mdash; both return a hub JWT (not a legacy <code>pvt_</code> string; vault no longer issues those):</p>
 
         <ul>
-            <li><strong>Admin UI &rarr; Tokens</strong> &mdash; go to <code>/admin/tokens</code>, create a token scoped to your vault (default <code>vault:write</code> is what you want), and copy the JWT it returns.</li>
-            <li><strong>On the hub host:</strong> <code>parachute auth mint-token --scope vault:default:write</code> prints a JWT to stdout.</li>
+            <li><strong>Admin UI &rarr; Tokens</strong> &mdash; go to <code>/admin/tokens</code>, create a token scoped to your vault (default <code>vault:default:write</code> &mdash; replace <code>default</code> with your vault name if you chose a different one), and copy the JWT it returns.</li>
+            <li><strong>On the hub host:</strong> <code>parachute auth mint-token --scope vault:default:write</code> (replace <code>default</code> with your vault name if you chose a different one) prints a JWT to stdout (default 90-day lifetime).</li>
         </ul>
 
         <p>Then re-run <code>claude mcp add</code> with that JWT in the header flag (or edit the entry in <code>~/.claude.json</code> directly). Start a new Claude Code session in any project, run <code>/mcp</code> &mdash; <code>parachute-default</code> should appear with its nine tools resolved. Memory now persists across every session, backed by your Fly-hosted hub.</p>
