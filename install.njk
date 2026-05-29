@@ -97,11 +97,74 @@ permalink: /install/
             <li><code>--scope vault:read|vault:write|vault:admin</code> &mdash; mints a token narrowed to that scope. Useful for read-only clients (search agents, observability tools) that shouldn't have write authority. Default is <code>vault:write</code> (read + write, but not admin).</li>
         </ul>
 
-        <p><strong>Other local MCP clients</strong> &mdash; <a href="https://github.com/openai/codex" target="_blank">Codex</a>, <a href="https://github.com/block/goose" target="_blank">Goose</a>, <a href="https://opencode.ai" target="_blank">OpenCode</a>, <a href="https://cursor.com" target="_blank">Cursor</a>, <a href="https://zed.dev" target="_blank">Zed</a>, <a href="https://github.com/cline/cline" target="_blank">Cline</a>, your own agent &mdash; connect to the same endpoint:</p>
+        <p>Connecting any other MCP client &mdash; Claude.ai on the web, Codex, Goose, Cursor, Zed, Cline, OpenCode, or your own agent &mdash; comes down to one URL and one auth choice. That's the next section.</p>
+    </section>
+
+    <section class="section" id="connect-mcp-clients">
+        <h2>Connecting MCP clients</h2>
+
+        <p>Every MCP client connects to the same per-vault endpoint:</p>
+
         <div class="code-inline">
-            <code>http://127.0.0.1:1940/vault/default/mcp</code>
+            <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code>
         </div>
-        <p>Each client has its own way to register an MCP server &mdash; usually a settings entry pointing at that URL plus the <code>pvt_...</code> token from your install. Parachute is client-agnostic; Claude Code just gets the one-line auto-wire.</p>
+
+        <p><strong>Two things to get right</strong> &mdash; both are easy to miss:</p>
+
+        <ul>
+            <li><strong>The <code>/mcp</code> suffix is required.</strong> The bare path <code>&lt;hub-origin&gt;/vault/&lt;name&gt;</code> is a read-only metadata page (vault description + stats), <em>not</em> the MCP endpoint. An MCP client's connection handshake is a POST and will fail against the bare path. Always include <code>/mcp</code>.</li>
+            <li><strong><code>&lt;hub-origin&gt;</code> is the address your <em>hub</em> answers on</strong> &mdash; the same URL you use to reach <code>/admin</code> and sign in. On a Render or Fly deploy that's your public URL (<code>https://your-hub.onrender.com</code>); behind Tailscale it's the tailnet name (<code>https://your-hub.tailXXXX.ts.net</code>); only on the same machine as a loopback-only hub is it <code>http://127.0.0.1:1939</code>. It is <strong>not</strong> the vault's own port <code>1940</code> &mdash; a remote or team client pointed at <code>:1940</code> can't be reached and won't OAuth against the hub.</li>
+        </ul>
+
+        <p><code>&lt;name&gt;</code> is the vault name (the default vault is <code>default</code>; on a multi-user hub it's each person's vault name, shown on their <code>/account/</code> page).</p>
+
+        <h3>Claude Code</h3>
+
+        <p>On the machine running the hub, the install already wired this up &mdash; see the section above. To wire any vault on any hub by hand:</p>
+
+        <div class="code-inline">
+            <code>claude mcp add --transport http &lt;name&gt; &lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code>
+        </div>
+
+        <p>No token flag needed. Claude Code does the OAuth dance for you: the first time it connects, the vault returns a challenge, Claude Code opens your browser, you <strong>sign in to the hub</strong> and approve, and the token is stored for you. Run <code>/mcp</code> inside Claude Code to confirm the vault appears with its tools resolved.</p>
+
+        <h3>Claude.ai (web)</h3>
+
+        <p>Your hub must be reachable from the public internet for claude.ai to connect to it (a Render / Fly deploy, or a Cloudflare / Tailscale Funnel exposure &mdash; a loopback-only hub won't work). Then, in claude.ai:</p>
+
+        <ol>
+            <li>Open <strong>Settings &rarr; Connectors</strong>.</li>
+            <li>Choose <strong>Add custom connector</strong> (the "add a remote MCP server" option).</li>
+            <li>Paste the URL <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code> and save.</li>
+            <li>claude.ai redirects you to your hub to sign in and approve the connection (OAuth). Once approved, the vault's tools are available in your chats.</li>
+        </ol>
+
+        <p>(Menu labels in claude.ai's connector UI shift over time; the shape is always "add a custom / remote MCP connector and point it at the URL above.")</p>
+
+        <h3>Any other MCP client (Codex, Goose, Cursor, Zed, Cline, OpenCode, your own agent)</h3>
+
+        <p>Every streamable-HTTP MCP client takes the same two inputs: the transport URL and how to authenticate.</p>
+
+        <ul>
+            <li><strong>Transport:</strong> HTTP (sometimes labelled "streamable HTTP" or "remote MCP server").</li>
+            <li><strong>URL:</strong> <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code>.</li>
+            <li><strong>Auth:</strong> clients that speak OAuth (an increasing number do) discover the hub automatically from the endpoint's challenge and send you through the browser sign-in &mdash; nothing to paste. Clients that don't do OAuth take a bearer header instead:
+                <div class="code-inline">
+                    <code>Authorization: Bearer &lt;hub-JWT&gt;</code>
+                </div>
+            </li>
+        </ul>
+
+        <p>To get a hub JWT for the header path, mint one scoped to the vault (any of these &mdash; least-to-most terminal use):</p>
+
+        <ul>
+            <li><strong>Vault admin SPA &rarr; Tokens</strong> &mdash; mint a durable token with an optional tag allowlist, copy it into your client's config. No shell needed.</li>
+            <li><strong>On the hub host:</strong> <code>parachute auth mint-token --scope vault:&lt;name&gt;:write</code> prints a JWT to stdout (default 90-day lifetime). Use <code>vault:&lt;name&gt;:read</code> for a read-only client.</li>
+        </ul>
+
+        <p>Hub JWTs are revocable any time from the admin SPA's Tokens page or <code>parachute auth revoke-token &lt;jti&gt;</code>. Treat the token like a password &mdash; paste it into your client's config, not into a chat or a committed file.</p>
+
+        <p>Hosting your hub for other people? Each user connects their own clients to <em>their</em> vault the same way &mdash; see the <a href="/multi-user/#connect-mcp">multi-user guide</a>.</p>
     </section>
 
     <section class="section">
@@ -147,7 +210,7 @@ permalink: /install/
     <section class="section">
         <h2>What comes next</h2>
 
-        <p>Tailnet exposure (<code>tailscale serve</code> &mdash; private to your own Tailscale devices) is the supported shape today. <strong>Public</strong> HTTPS exposure (Tailscale Funnel or a Cloudflare Tunnel, reachable from the open internet), custom-connector flows for <strong>claude.ai</strong>, <strong>ChatGPT</strong>, and <strong>Gemini</strong>, and the mobile PWA install flow for Notes all work today &mdash; but the edges aren't polished enough to put in front of everyone just yet. We're running these paths through the next couple of weeks of stabilization and will announce each one as it's ready.</p>
+        <p>Tailnet exposure (<code>tailscale serve</code> &mdash; private to your own Tailscale devices) is the supported shape today. <strong>Public</strong> HTTPS exposure (Tailscale Funnel or a Cloudflare Tunnel, reachable from the open internet), the custom-connector flows for <strong>claude.ai</strong> (covered in <a href="#connect-mcp-clients">Connecting MCP clients</a> above), <strong>ChatGPT</strong>, and <strong>Gemini</strong>, and the mobile PWA install flow for Notes all work today &mdash; but the edges aren't polished enough to put in front of everyone just yet. We're running these paths through the next couple of weeks of stabilization and will announce each one as it's ready.</p>
 
         <p>If you want to poke at them early, <code>parachute expose --help</code> is live. Expect rough edges; <a href="https://github.com/ParachuteComputer/parachute-vault/issues" target="_blank">file issues</a> and we'll fix.</p>
     </section>

@@ -8,7 +8,7 @@ date: 2026-05-26T12:00:00
 
 This is one of two starter prompts ([the other is for building a custom UI](/onboarding/surface-build/)). Paste the block below into any AI client with your vault's MCP server connected — **Claude.ai** (with MCP enabled), Claude Code, Codex, Goose, Cursor, OpenCode, or any other MCP-aware client.
 
-The prompt assumes your MCP is already wired up. The first thing the AI does is try a few MCP tools — if those fail, it'll ask you to set up MCP first and point you at the right command for your client.
+The prompt assumes your MCP is already wired up. The first thing the AI does is try a few MCP tools — if those fail, it'll ask you to set up MCP first and point you at the right command for your client. Not connected yet? [Connecting MCP clients](/install/#connect-mcp-clients) has the per-client steps; the endpoint is always `<hub-origin>/vault/<name>/mcp`.
 
 ---
 
@@ -49,14 +49,18 @@ list, or the calls fail with "tool not found"), the vault's MCP isn't
 connected to this client yet. Stop here and tell me:
 
 > "I don't see Parachute Vault's MCP tools. Add the vault as an MCP
-> server in your client first. For Claude Code:
-> `parachute-vault mcp-install` on the machine running the hub.
-> For Claude.ai (web): go to Settings → Connectors → add the URL
-> shown at /admin → /admin/users → click your username → 'MCP
-> connection.' For Codex / Goose / OpenCode: paste the vault's
-> MCP endpoint into your client's MCP config. The vault URL is
-> shown on your hub's /admin page. Re-paste this prompt once
-> they're wired up."
+> server in your client first. The endpoint is always
+> `<hub-origin>/vault/<name>/mcp` — your hub's URL (the same one you
+> sign in at), your vault name, and the literal `/mcp` suffix (the
+> bare `/vault/<name>` path is a metadata page, not the MCP endpoint).
+> For Claude Code: `claude mcp add --transport http <name>
+> <hub-origin>/vault/<name>/mcp` (it walks you through hub sign-in
+> automatically), or `parachute-vault mcp-install` on the machine
+> running the hub. For Claude.ai (web): Settings → Connectors → add a
+> custom connector pointing at that URL. For Codex / Goose / OpenCode:
+> paste that URL into your client's MCP config. Full per-client steps:
+> https://parachute.computer/install/#connect-mcp-clients —
+> re-paste this prompt once they're wired up."
 
 **If the tools work**, report what you find back to me in a short
 paragraph. Two cases:
