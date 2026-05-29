@@ -16,6 +16,8 @@ permalink: /deploy/fly/
 
         <p><strong>Why this path.</strong> Parachute is happiest on your own machine, but a laptop sleeps. Fly.io is one of two "always-on URL" paths we support that still let you own everything &mdash; a single container running your hub, with a persistent volume for your vault, all in your Fly account. No tenancy, no shared database, no Parachute-operated cloud sitting between you and your data. (See <a href="/deploy/render/">Deploy to Render</a> for the peer path.)</p>
 
+        <p><strong>Same setup as every install.</strong> A Fly deploy isn't a different onboarding &mdash; it's the same <a href="/install/">unified flow</a>. Locally you'd run <code>parachute init</code> to get a hub and land in the setup wizard; here, Fly gives you a running, already-exposed hub at a <code>*.fly.dev</code> URL, and you land in the <em>identical</em> wizard at <code>/admin/setup</code>. You'll walk the same Account &rarr; Vault &rarr; Expose steps an operator on a laptop or an EC2 box walks. The only Fly-specific bit is grabbing a one-time bootstrap token from the logs to claim admin (step 3).</p>
+
         <div class="code-inline">
             <code>gh repo fork ParachuteComputer/parachute-hub --clone && cd parachute-hub<br>./scripts/deploy-to-fly.sh</code>
         </div>
@@ -117,10 +119,10 @@ permalink: /deploy/fly/
     <section class="section">
         <h2>4. Walk the first-boot wizard</h2>
 
-        <p><strong>Why this step.</strong> Your admin account was created in step 3 via the bootstrap-token form. The wizard picks up from there, walking through what still needs to be set up once and can't be defaulted: your first vault and how this hub is reachable on the internet.</p>
+        <p><strong>Why this step.</strong> Your admin account was created in step 3 via the bootstrap-token form. From here it's the <em>same wizard every Parachute install uses</em> &mdash; the one a laptop operator reaches via <code>parachute init</code>, just pre-advanced past the account step. It walks through what still needs to be set up once and can't be defaulted: your first vault and how this hub is reached.</p>
 
         <ol>
-            <li><strong>Vault.</strong> Names your first vault (defaults to <code>default</code>). Any short name made of lowercase letters, numbers, hyphens, or underscores works (<code>notes</code>, <code>journal</code>, <code>work-2026</code>, &hellip;). You can add more vaults later from the admin UI; the name shows up in the URL for that vault's API + MCP endpoints (e.g. <code>/vault/notes/mcp</code>).</li>
+            <li><strong>Vault.</strong> <em>Create</em> a fresh vault (defaults to <code>default</code> &mdash; any short name of lowercase letters, numbers, hyphens, or underscores works: <code>notes</code>, <code>journal</code>, <code>work-2026</code>, &hellip;), <em>import</em> one from a git repo (a previously-exported Parachute vault on any HTTPS / SSH remote; PAT optional for private repos), or <em>skip</em> and create one later from the admin UI. You can add more vaults later either way; the name shows up in the URL for that vault's API + MCP endpoints (e.g. <code>/vault/notes/mcp</code>).</li>
             <li><strong>Expose.</strong> Hub auto-skips this step on Fly &mdash; the platform owns the public URL via <code>*.fly.dev</code>, so the three radio choices (localhost, tailnet, public-with-custom-domain) don't speak to your setup. You'll see a brief confirmation and move straight to <em>Done</em>.</li>
             <li><strong>Done.</strong> Two tiles: <strong>Open the admin UI</strong> (lands on <code>/admin/vaults</code>; from there you can navigate to <code>/admin/modules</code> to install Notes, Scribe, and any other modules) and <strong>Connect Claude Code (MCP)</strong> (the install command for the MCP wiring &mdash; see step 6).</li>
         </ol>
