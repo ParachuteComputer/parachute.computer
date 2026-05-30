@@ -32,7 +32,7 @@ parachute auth mint-token --scope vault:default:read --ephemeral</code></pre>
 export TOKEN=$(parachute auth mint-token --scope vault:default:read --ephemeral)
 export VAULT=https://your-hub.example/vault/default   # or http://localhost:1939/vault/default</code></pre>
 
-        <p><code>$VAULT</code> is your hub's origin plus <code>/vault/&lt;name&gt;</code>. Local scripts can hit the hub on <code>localhost:1939</code>; remote ones use your public hub URL.</p>
+        <p><code>$VAULT</code> is your hub's origin plus <code>/vault/&lt;name&gt;</code>. The hub is the front door — it proxies <code>/vault/&lt;name&gt;/*</code> through to the vault. Local scripts can go through the hub on <code>http://localhost:1939/vault/&lt;name&gt;</code>, or hit the vault directly on <code>http://localhost:1940/vault/&lt;name&gt;</code> (the port the <a href="https://github.com/ParachuteComputer/parachute-vault/blob/main/docs/HTTP_API.md" target="_blank">API reference</a> uses in its examples). Remote scripts use your public hub URL — only the hub is exposed publicly.</p>
 
         <h2>2. The API in 30 seconds</h2>
 
@@ -71,11 +71,11 @@ const res = await fetch(`${vault}/api/notes?tag=reading&limit=10`, {
 const notes = await res.json();
 console.log(notes.map((n) => n.path));</code></pre>
 
-        <p>Other filters compose on the same endpoint: <code>search=query</code> (full-text), <code>path_prefix=Projects/</code>, <code>meta[status][eq]=open</code> (metadata operators), <code>near[note_id]=&lt;id&gt;</code> (graph neighborhood), <code>format=graph&amp;include_links=true</code> (a <code>{nodes, edges}</code> payload ready for d3/cytoscape). Use <code>cursor</code> for "what changed since I last checked" polling.</p>
+        <p>Other filters compose on the same endpoint: <code>search=query</code> (full-text), <code>path_prefix=Projects/</code>, <code>meta[status][eq]=open</code> (metadata operators), <code>near[note_id]=&lt;id&gt;</code> (graph neighborhood), <code>format=graph&amp;include_links=true</code> (a <code>{nodes, edges}</code> payload ready for d3/cytoscape). Use <code>cursor</code> for "what changed since I last checked" polling — with <code>sort=asc</code> (cursor mode rejects <code>sort=desc</code>).</p>
 
         <h2>4. Create a note</h2>
 
-        <p>A write token (<code>vault:default:write</code>) <code>POST</code>s to the same path. <code>content</code> is the only required field; <code>path</code>, <code>tags</code>, <code>metadata</code>, and typed <code>links</code> are optional:</p>
+        <p>A write token (<code>vault:default:write</code>) <code>POST</code>s to the same path. <code>content</code> is the main field (it defaults to an empty string if you omit it); <code>path</code>, <code>tags</code>, <code>metadata</code>, and typed <code>links</code> are optional:</p>
 
         <pre><code># bash — file a dated log note
 curl -s "$VAULT/api/notes" \
