@@ -14,7 +14,7 @@ The prompt assumes your MCP is already wired up. The first thing the AI does is 
 
 ## Copy this:
 
-```markdown
+````markdown
 I'm setting up a Parachute Vault and I want you to help me think through
 how to structure it. The vault is a knowledge graph with notes, tags,
 and links — bare primitives, no opinions baked in. Your job is to help
@@ -283,7 +283,7 @@ them on the VaultClient surface above.
 
 End with a one-paragraph summary of what we built so I can paste it
 into another tool if I want.
-```
+````
 
 ---
 
@@ -297,4 +297,4 @@ into another tool if I want.
 - **Iterate.** This is your vault. Rerun the prompt later, or just
   edit tags / paths via MCP whenever your thinking changes.
 
-When you're done structuring, the [build a custom UI](/onboarding/surface-build/) prompt is the natural next step.
+When you're done structuring, two natural next steps: [build a custom UI](/onboarding/surface-build/) over your vault, or [script against it](/scripting/) from bash, Python, or JS — cron jobs, CI, importers (the same REST + `mint-token` path this prompt uses for imports).

@@ -15,6 +15,8 @@ permalink: /scripting/
 
         <p>There are two ways to reach a Parachute vault. <strong>MCP</strong> is for AI agents — connect Claude (or any MCP client) and it gets typed tools (<code>query-notes</code>, <code>create-note</code>, …) plus a connect-time briefing about your vault. <strong>The HTTP API</strong> is for everything else: a cron job that files a daily note, a CI step that records a deploy, a Python script that pulls your reading list. This guide is the HTTP path.</p>
 
+        <p>Brand-new vault? Run the <a href="/onboarding/vault-setup/">set-up-your-vault starter prompt</a> first to give it some structure, then come back here to automate against it.</p>
+
         <p>The whole happy path is three steps: mint a token, point at <code>/vault/&lt;name&gt;/api</code>, send a request.</p>
 
         <h2>1. Mint a token</h2>
