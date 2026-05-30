@@ -1,0 +1,127 @@
+---
+layout: base.njk
+title: "Scripting your vault — automate Parachute from bash, Python, or JS"
+description: "Mint a scoped token, then talk to your vault's HTTP API from any script — cron jobs, CI, a quick Python one-liner. Read notes, create them, run graph queries. Plus how to think about tags, schemas, and paths so an agent (or you) can find things later."
+permalink: /scripting/
+---
+<main>
+
+    <section class="hero">
+        <h1 class="fade-up fade-up-2">Script your vault</h1>
+        <p class="tagline fade-up fade-up-3">Your vault is an HTTP API. Mint a scoped token and read, write, and query it from bash, Python, JS — anything that can make a request.</p>
+    </section>
+
+    <div class="post-content fade-up fade-up-4">
+
+        <p>There are two ways to reach a Parachute vault. <strong>MCP</strong> is for AI agents — connect Claude (or any MCP client) and it gets typed tools (<code>query-notes</code>, <code>create-note</code>, …) plus a connect-time briefing about your vault. <strong>The HTTP API</strong> is for everything else: a cron job that files a daily note, a CI step that records a deploy, a Python script that pulls your reading list. This guide is the HTTP path.</p>
+
+        <p>The whole happy path is three steps: mint a token, point at <code>/vault/&lt;name&gt;/api</code>, send a request.</p>
+
+        <h2>1. Mint a token</h2>
+
+        <p>Scripts authenticate with a hub-issued JWT, scoped to exactly what the script needs. Mint one on the machine running your hub:</p>
+
+        <pre><code># Read-only token for the "default" vault, short-lived (expires in 1h)
+parachute auth mint-token --scope vault:default:read --ephemeral</code></pre>
+
+        <p>That prints a token to stdout — pipe it, capture it, or copy it. <code>--ephemeral</code> is the right default for scripting: the token lives <strong>1 hour</strong>, long enough to mint &rarr; write your script &rarr; run it, short enough that a leaked scripting token isn't a standing liability. Drop <code>--ephemeral</code> for the 90-day default, or set an explicit lifetime with <code>--expires-in &lt;seconds&gt;</code> for a long-running service.</p>
+
+        <p>Scope to the least you need. A script that only reads gets <code>vault:default:read</code>; one that writes gets <code>vault:default:write</code> (which inherits read). The verb maps to HTTP method: <code>GET</code> needs <code>read</code>, <code>POST</code>/<code>PATCH</code>/<code>DELETE</code> need <code>write</code>. Replace <code>default</code> with your vault's name.</p>
+
+        <pre><code># Capture into a shell variable for the examples below
+export TOKEN=$(parachute auth mint-token --scope vault:default:read --ephemeral)
+export VAULT=https://your-hub.example/vault/default   # or http://localhost:1939/vault/default</code></pre>
+
+        <p><code>$VAULT</code> is your hub's origin plus <code>/vault/&lt;name&gt;</code>. The hub is the front door — it proxies <code>/vault/&lt;name&gt;/*</code> through to the vault. Local scripts can go through the hub on <code>http://localhost:1939/vault/&lt;name&gt;</code>, or hit the vault directly on <code>http://localhost:1940/vault/&lt;name&gt;</code> (the port the <a href="https://github.com/ParachuteComputer/parachute-vault/blob/main/docs/HTTP_API.md" target="_blank">API reference</a> uses in its examples). Remote scripts use your public hub URL — only the hub is exposed publicly.</p>
+
+        <h2>2. The API in 30 seconds</h2>
+
+        <ul>
+            <li><strong>Auth:</strong> <code>Authorization: Bearer &lt;token&gt;</code> (or <code>X-API-Key</code>, or <code>?key=</code> for URL-only clients).</li>
+            <li><strong>Responses are camelCase</strong> (<code>createdAt</code>, <code>sourceId</code>) and <strong>unwrapped</strong> — the body is the data itself, not <code>{data: …}</code>. Errors carry <code>error</code> + <code>message</code> (and often <code>error_type</code>).</li>
+            <li><strong>Query params are snake_case</strong> (<code>?include_content=true</code>, <code>?tag_match=any</code>) — same vocabulary as the MCP tools, so one concept ports between HTTP and MCP.</li>
+            <li><strong>Timestamps are ISO-8601 UTC.</strong> Every endpoint sends <code>Access-Control-Allow-Origin: *</code>, so a static page can read your vault (writes still need a token).</li>
+        </ul>
+
+        <h2>3. Read notes</h2>
+
+        <p>List notes carrying a tag (lean rows by default — pass <code>include_content=true</code> for full bodies):</p>
+
+        <pre><code># bash
+curl -s "$VAULT/api/notes?tag=reading&sort=desc&limit=10" \
+  -H "Authorization: Bearer $TOKEN"</code></pre>
+
+        <pre><code># Python (stdlib only)
+import os, urllib.request, json
+
+vault, token = os.environ["VAULT"], os.environ["TOKEN"]
+req = urllib.request.Request(
+    f"{vault}/api/notes?tag=reading&include_content=true&limit=10",
+    headers={"Authorization": f"Bearer {token}"},
+)
+notes = json.load(urllib.request.urlopen(req))
+for n in notes:
+    print(n["id"], "—", n.get("path") or "(no path)")</code></pre>
+
+        <pre><code>// JavaScript / TypeScript (fetch)
+const vault = process.env.VAULT, token = process.env.TOKEN;
+const res = await fetch(`${vault}/api/notes?tag=reading&limit=10`, {
+  headers: { Authorization: `Bearer ${token}` },
+});
+const notes = await res.json();
+console.log(notes.map((n) => n.path));</code></pre>
+
+        <p>Other filters compose on the same endpoint: <code>search=query</code> (full-text), <code>path_prefix=Projects/</code>, <code>meta[status][eq]=open</code> (metadata operators), <code>near[note_id]=&lt;id&gt;</code> (graph neighborhood), <code>format=graph&amp;include_links=true</code> (a <code>{nodes, edges}</code> payload ready for d3/cytoscape). Use <code>cursor</code> for "what changed since I last checked" polling — with <code>sort=asc</code> (cursor mode rejects <code>sort=desc</code>).</p>
+
+        <h2>4. Create a note</h2>
+
+        <p>A write token (<code>vault:default:write</code>) <code>POST</code>s to the same path. <code>content</code> is the main field (it defaults to an empty string if you omit it); <code>path</code>, <code>tags</code>, <code>metadata</code>, and typed <code>links</code> are optional:</p>
+
+        <pre><code># bash — file a dated log note
+curl -s "$VAULT/api/notes" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "Deployed hub 0.6.1 to prod.",
+    "path": "Logs/2026-05-30-deploy",
+    "tags": ["log", "deploy"],
+    "metadata": { "service": "hub", "version": "0.6.1" }
+  }'</code></pre>
+
+        <pre><code># Python — append today's standup
+import os, urllib.request, json
+vault, token = os.environ["VAULT"], os.environ["TOKEN"]
+body = json.dumps({
+    "content": "Standup: shipped the scope-drop fix, starting the scripting guide.",
+    "tags": ["standup"],
+    "metadata": {"date": "2026-05-30"},
+}).encode()
+req = urllib.request.Request(f"{vault}/api/notes", data=body, method="POST",
+    headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"})
+print(json.load(urllib.request.urlopen(req))["id"])</code></pre>
+
+        <p>Batch up to 500 notes atomically by posting <code>{ "notes": [ … ] }</code> — a mid-batch failure rolls every prior insert back. <code>[[Wikilinks]]</code> in content auto-resolve to links when their target exists.</p>
+
+        <h2>Designing your vault: tags, schemas, paths</h2>
+
+        <p>Vault has no opinions about how you organize — it's the engine, not the schema. That freedom is the trap: a script (or an agent) can only find later what you make findable now. Three primitives, and when to reach for each:</p>
+
+        <ul>
+            <li><strong>Tags</strong> are the primary organizing axis. They're flat labels (<code>reading</code>, <code>standup</code>, <code>deploy</code>) that a note can carry many of. Filter by them (<code>?tag=…</code>), and an agent browses your vault by listing tags first. Prefer a small, reused vocabulary over one-off tags.</li>
+            <li><strong>Paths</strong> are for <em>identity and hierarchy</em> — a note's stable address (<code>Projects/Parachute/roadmap</code>), unique per vault, used for wikilink resolution. Use a path when a note is a singular thing you'll link to or update by name. Use tags when you want to <em>group</em> notes you'll query as a set. Rule of thumb: <strong>one path, many tags</strong>. Don't encode queryable facets into the path — that's what tags and metadata are for.</li>
+            <li><strong>Schemas</strong> turn a tag into a typed shape. Declaring fields on a tag (e.g. <code>reading</code> has <code>author: string</code>, <code>status: enum</code>, <code>rating: number indexed</code>) lets you filter on metadata efficiently (<code>meta[rating][gte]=4</code>) and tells an agent what a "reading" note should contain. Mark a field <code>indexed</code> when you'll filter or sort on it.</li>
+        </ul>
+
+        <p>A useful pattern: declare a <code>_default</code> tag whose fields apply to every note (a universal parent), then give specific tags their own fields on top — child tags inherit the parent's. Start loose (everything freeform), add a schema to a tag once you find yourself querying its notes the same way twice. Schemas are defined over MCP (<code>update-tag</code>) or the <code>/api/tags</code> endpoint; see the <a href="https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/tag-data-model.md" target="_blank">tag data model</a> for the full convention.</p>
+
+        <h2>No-code automation: the runner</h2>
+
+        <p>If your "script" is really "run a prompt on a schedule," you may not need to write one at all. <a href="https://github.com/ParachuteComputer/parachute-runner" target="_blank">Parachute Runner</a> treats your vault as the job substrate: write a note tagged <code>job</code> with YAML frontmatter (a schedule, a model, allowed tools, an output path), save it, and the runner polls for it and spawns <code>claude -p</code> against it on cadence. The job is just a note — you edit it in any client, and its runs land back in the vault. Reach for a hand-written script when you need custom logic; reach for the runner when you need an agent on a timer.</p>
+
+        <h2>Full reference</h2>
+
+        <p>This guide is the on-ramp. The complete endpoint catalog — every filter, the note/link/attachment shapes, cursor pagination, graph queries, tag and config endpoints — lives in <a href="https://github.com/ParachuteComputer/parachute-vault/blob/main/docs/HTTP_API.md" target="_blank">the vault HTTP API reference</a>. The <a href="https://github.com/ParachuteComputer/parachute-vault/blob/main/docs/auth-model.md" target="_blank">auth model</a> covers the OAuth flow, token shapes, and scope semantics in depth.</p>
+
+    </div>
+
+</main>
