@@ -65,5 +65,62 @@
         <p>A Colorado Public Benefit Corporation building open tools for thinking.</p>
         <p style="margin-top: 0.75rem;"><a href="/install/">Install</a> &middot; <a href="/blog/">Blog</a> &middot; <a href="/docs/">Docs</a> &middot; <a href="/roadmap/">Roadmap</a> &middot; <a href="/since-launch/">Since launch</a> &middot; <a href="https://github.com/ParachuteComputer" target="_blank">GitHub</a></p>
     </footer>
+
+    {# Copy-to-clipboard — progressive enhancement. With JS off, no button
+       is added and every code block stays plain, fully selectable text.
+       Targets command blocks (.code-inline) and rendered fenced-code
+       prompt blocks (.post-content pre). Opt out with data-no-copy. #}
+    <script>
+    (function () {
+        if (!navigator.clipboard) return;
+
+        function addButton(el, label) {
+            if (el.dataset.copyReady) return;
+            el.dataset.copyReady = "1";
+            el.classList.add("copy-wrap");
+
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "copy-btn";
+            btn.textContent = label;
+            var resetLabel = label;
+            var timer;
+
+            btn.addEventListener("click", function () {
+                // Copy the code text only, never the button label.
+                var source = el.querySelector("code") || el;
+                var text = source === el
+                    ? Array.prototype.filter
+                        .call(el.childNodes, function (n) { return n !== btn; })
+                        .map(function (n) { return n.textContent; })
+                        .join("")
+                    : source.textContent;
+                navigator.clipboard.writeText(text.trim()).then(function () {
+                    btn.textContent = "Copied";
+                    btn.classList.add("copied");
+                    clearTimeout(timer);
+                    timer = setTimeout(function () {
+                        btn.textContent = resetLabel;
+                        btn.classList.remove("copied");
+                    }, 1600);
+                });
+            });
+
+            el.appendChild(btn);
+        }
+
+        // Command blocks on install / docs pages.
+        document.querySelectorAll(".code-inline:not([data-no-copy])").forEach(function (el) {
+            addButton(el, "Copy");
+        });
+
+        // Rendered fenced-code prompt blocks on the onboarding pages
+        // (and any other markdown post). "Copy prompt" reads right for
+        // the big starter-prompt blocks and is harmless elsewhere.
+        document.querySelectorAll(".post-content pre:not([data-no-copy])").forEach(function (el) {
+            addButton(el, "Copy prompt");
+        });
+    })();
+    </script>
 </body>
 </html>
