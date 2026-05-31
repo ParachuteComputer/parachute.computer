@@ -20,7 +20,7 @@ permalink: /install/
             <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>
         </div>
 
-        <p><code>parachute init</code> starts the hub on port <code>1939</code>, offers to expose it beyond your laptop, installs the vault module, and opens a browser setup wizard at <code>/admin/setup</code>: <strong>Account &rarr; Vault &rarr; Done</strong>. Create an admin login, then create a fresh vault (or import one from a git repo, or skip). It's idempotent &mdash; safe to re-run. Check the stack any time with <code>parachute status</code>.</p>
+        <p><code>parachute init</code> starts the hub on port <code>1939</code>, offers to expose it beyond your laptop, installs the vault module, and opens a browser setup wizard at <code>/admin/setup</code>: <strong>Account &rarr; Vault &rarr; Expose &rarr; Done</strong>. Create an admin login, then create a fresh vault (or import one from a git repo, or skip). It's idempotent &mdash; safe to re-run. Check the stack any time with <code>parachute status</code>.</p>
 
         <aside class="upgrade-callout">
             <strong>Installed during the beta via the old <code>@openparachute/cli</code>?</strong>
@@ -83,7 +83,7 @@ permalink: /install/
 
         <p><strong>Back it up &amp; script it.</strong> Export your whole vault to portable, git-trackable markdown with <code>parachute-vault export &lt;dir&gt;</code> (and <code>import</code> back) &mdash; disaster recovery, vault migration, or editing in another tool. Driving the vault from a script, cron job, or importer is covered in <a href="/scripting/">Scripting your vault</a>. Hosting for friends and family? See the <a href="/multi-user/">multi-user operator guide</a>.</p>
 
-        <p><strong>Stay current.</strong> <code>parachute upgrade</code> sweeps the hub and every installed service to the latest release; <code>parachute upgrade vault</code> (or <code>surface</code>, <code>scribe</code>) does one. Add <code>--tag rc</code> to track release candidates. Vault migrations run automatically on first post-upgrade boot.</p>
+        <p><strong>Stay current.</strong> <code>parachute upgrade</code> sweeps the hub and every installed service to the latest release; <code>parachute upgrade vault</code> (or <code>surface</code>, <code>scribe</code>) does one. Add <code>--channel rc</code> to track release candidates. Vault migrations run automatically on first post-upgrade boot.</p>
 
         <p><strong>Want Parachute Cloud?</strong> A hosted version &mdash; same architecture, no server to run &mdash; is in the works. <a href="https://openparachute.substack.com" target="_blank">Subscribe for updates</a>.</p>
     </section>

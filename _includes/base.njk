@@ -84,6 +84,7 @@
             btn.className = "copy-btn";
             btn.textContent = label;
             var resetLabel = label;
+            var timer;
 
             btn.addEventListener("click", function () {
                 // Copy the code text only, never the button label.
@@ -97,8 +98,8 @@
                 navigator.clipboard.writeText(text.trim()).then(function () {
                     btn.textContent = "Copied";
                     btn.classList.add("copied");
-                    clearTimeout(btn._t);
-                    btn._t = setTimeout(function () {
+                    clearTimeout(timer);
+                    timer = setTimeout(function () {
                         btn.textContent = resetLabel;
                         btn.classList.remove("copied");
                     }, 1600);
