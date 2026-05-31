@@ -1,264 +1,106 @@
 ---
 layout: base.njk
 title: "Install"
-description: "How to install Parachute Vault and connect it to Claude Code. Local-first; web clients coming soon."
+description: "Get Parachute running in one command, connect your AI, and paste a starter prompt that builds your vault for you."
 permalink: /install/
 ---
 <main>
 
     <section class="hero">
         <h1 class="fade-up fade-up-2">Install</h1>
-        <p class="tagline fade-up fade-up-3">Get the hub, run <code>parachute init</code>, finish in the setup wizard. One flow &mdash; laptop, server, or hosted deploy.</p>
+        <p class="tagline fade-up fade-up-3">One command gets you a hub and a vault. Connect your AI, paste a starter prompt, and it builds the rest with you.</p>
     </section>
 
     <section class="section">
-        <h2>The one flow: get the hub, then <code>parachute init</code></h2>
+        <h2>Get started &mdash; one command</h2>
 
-        <p>Every Parachute install converges on the same two moves &mdash; <strong>get a hub</strong>, then <strong>run the setup wizard</strong>. The wizard creates your admin account, sets up your first vault (or imports one, or skips it), and asks how the hub is reached. It runs <strong>in your browser by default</strong> (the <code>/admin/setup</code> page) and is the canonical setup experience on a laptop, an EC2 box, or a Render / Fly deploy. The only thing that differs across environments is how you get the hub running in the first place.</p>
-
-        <h3>On your laptop (or any Mac / Linux box you control)</h3>
-
-        <p>Requires <a href="https://bun.sh" target="_blank">Bun</a> 1.3.0 or later. Check with <code>bun --version</code>; upgrade with <code>bun upgrade</code>. Then:</p>
+        <p>Requires <a href="https://bun.sh" target="_blank">Bun</a> 1.3 or later (<code>bun --version</code> to check, <code>bun upgrade</code> to update). Then run:</p>
 
         <div class="code-inline">
             <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>
         </div>
 
+        <p><code>parachute init</code> starts the hub on port <code>1939</code>, offers to expose it beyond your laptop, installs the vault module, and opens a browser setup wizard at <code>/admin/setup</code>: <strong>Account &rarr; Vault &rarr; Done</strong>. Create an admin login, then create a fresh vault (or import one from a git repo, or skip). It's idempotent &mdash; safe to re-run. Check the stack any time with <code>parachute status</code>.</p>
+
         <aside class="upgrade-callout">
-            <strong>Already installed during the beta via the old <code>@openparachute/cli</code> package?</strong>
-            <p>Run the rename first so the lead command doesn't conflict with the legacy install:</p>
+            <strong>Installed during the beta via the old <code>@openparachute/cli</code>?</strong>
+            <p>Run the rename once before <code>parachute init</code>:</p>
             <div class="code-inline">
                 <code>bun remove -g @openparachute/cli &amp;&amp; bun add -g @openparachute/hub &amp;&amp; parachute upgrade vault</code>
             </div>
-            <p>The package was renamed in April 2026; vault's schema and filesystem migrations run automatically on first post-upgrade boot. If you're coming from Vault 0.2.4 (the launch version) and want the full picture, read the <a href="/preview/vault-0.4.5-arc/">0.2.4 &rarr; 0.4.5 upgrade arc</a>. Once you're on hub, <code>parachute init</code> is the front door from here on.</p>
+            <p>The package was renamed in April 2026; vault migrations run automatically on the next boot. Coming from the launch Vault 0.2.4? The <a href="/preview/vault-0.4.5-arc/">0.2.4 &rarr; 0.4.5 upgrade arc</a> has the full picture. From here on, <code>parachute init</code> is the front door.</p>
         </aside>
-
-        <p><strong>What <code>parachute init</code> does</strong>, end to end (it's idempotent &mdash; safe to re-run):</p>
-
-        <ol>
-            <li><strong>Starts the hub</strong> if it isn't already running (the <code>parachute</code> dispatcher on port <code>1939</code>).</li>
-            <li><strong>Offers to expose it</strong> so you can reach the wizard from other devices. In a terminal you pick: stay loopback-only (the laptop default), Tailscale Funnel, or Cloudflare Tunnel. On a laptop this defaults to "no thanks &mdash; loopback"; on an SSH'd server it pre-selects Cloudflare. Skip the question with <code>--no-expose-prompt</code>, or pin it non-interactively with <code>--expose none|tailnet|cloudflare</code>.</li>
-            <li><strong>Installs the vault module</strong> &mdash; always. The module lands so the wizard can offer create / import / skip, but no vault instance is created yet; that's the wizard's call.</li>
-            <li><strong>Drops you into the setup wizard.</strong> Browser by default (opens <code>/admin/setup</code>); pick the terminal walk-through instead with <code>--cli-wizard</code>, or force the browser with <code>--browser-wizard</code>. It prints the canonical admin URL either way &mdash; loopback when you're not exposed, the tailnet / Cloudflare FQDN when you are.</li>
-        </ol>
-
-        <p><strong>In the wizard</strong> (same three steps in browser and CLI):</p>
-
-        <ol>
-            <li><strong>Account.</strong> Create the admin operator for this hub &mdash; username + password. No email, no signup.</li>
-            <li><strong>Vault.</strong> <em>Create</em> a fresh vault (default name <code>default</code>), <em>import</em> one from a git repo (a previously-exported Parachute vault on GitHub / GitLab / any HTTPS or SSH remote &mdash; PAT optional for private repos), or <em>skip</em> and create one later from the admin UI. The vault module is installed regardless of which you pick.</li>
-            <li><strong>Expose.</strong> Record how the hub is reached (localhost / tailnet / public) so the done screen surfaces the right URLs.</li>
-        </ol>
-
-        <p>The done screen hands you a copy-pasteable <code>claude mcp add</code> command (with a freshly-minted operator token), links to start using your vault, and the admin UI for everything else. Verify the stack any time with:</p>
-        <div class="code-inline">
-            <code>parachute status</code>
-        </div>
-        <p>You should see <code>parachute-hub</code> on port <code>1939</code> and <code>parachute-vault</code> on port <code>1940</code>, both <code>running</code>.</p>
-
-        <h3>On a server (EC2, DigitalOcean, Hetzner, any VPS)</h3>
-
-        <p>Identical to the laptop flow &mdash; <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>. The one difference is the exposure step: because you'll want to reach the wizard from your own machine, <code>init</code> detects the SSH session and pre-selects <strong>Cloudflare Tunnel</strong> (your own domain, public HTTPS). Once exposure is up, <code>init</code> prints the reachable <code>/admin/setup</code> URL &mdash; open it in your browser and finish the same wizard.</p>
-
-        <h3>On a hosted deploy (Render / Fly)</h3>
-
-        <p>You don't run <code>parachute init</code> here &mdash; the platform gives you a running, already-exposed hub at a public URL. You land directly in the same setup wizard at <code>&lt;your-hub&gt;/admin/setup</code>, claim admin with a one-time bootstrap token from the deploy logs, and walk Account &rarr; Vault &rarr; Done &mdash; the wizard's <em>Expose</em> step auto-skips on a hosted deploy because the platform already owns the public URL. (On a laptop or VPS the Expose step is part of the walk; on Render / Fly it isn't.) Step-by-step: <a href="/deploy/render/">Deploy to Render &rarr;</a> &middot; <a href="/deploy/fly/">Deploy to Fly &rarr;</a></p>
-
-        <aside class="upgrade-callout">
-            <strong>Advanced: install modules one at a time.</strong>
-            <p>If you'd rather drive the install by hand instead of through the wizard, <code>parachute install &lt;svc&gt;</code> installs and registers a single module &mdash; e.g. <code>parachute install vault</code> installs Vault, runs its init, creates your first vault, and starts it as a background daemon on <code>127.0.0.1:1940</code>. <code>parachute setup</code> is the older interactive multi-service walk-through (survey what's installed, multi-pick from vault, surface, scribe, threads the prompts up front). Both still work and are additive; <code>parachute init</code> &rarr; wizard is the recommended path.</p>
-        </aside>
-    </section>
-
-    <section class="section">
-        <h2>2. Use it with your local MCP client</h2>
-
-        <p><strong>Why this step.</strong> The Vault is running but nothing's talking to it yet. MCP is the standard protocol AI clients use to read and write structured memory.</p>
-
-        <p><strong>Claude Code</strong> is the zero-config path &mdash; the install already added your Vault as an MCP server to <code>~/.claude.json</code>, and Claude Code picks it up on the next session. Open a project and try:</p>
-
-        <ul>
-            <li><em>"Save a note about today's decision — tag it #product, link to #vault."</em></li>
-            <li><em>"What have I written about auth? Pull the notes tagged #auth and summarize."</em></li>
-            <li><em>"Show me everything connected to last week's design review."</em></li>
-        </ul>
-
-        <p>All nine MCP tools are available: <code>create-note</code>, <code>query-notes</code>, <code>update-note</code>, <code>delete-note</code>, <code>list-tags</code>, <code>update-tag</code>, <code>delete-tag</code>, <code>find-path</code>, <code>vault-info</code>. Memory carries across every session forever; context accretes instead of starting over.</p>
-
-        <p><strong>What you should see.</strong> Run <code>/mcp</code> inside Claude Code &mdash; <code>parachute-vault</code> should appear in the list with the nine tools resolved. If it's missing, re-run the integration:</p>
-
-        <div class="code-inline">
-            <code>parachute-vault mcp-install</code>
-        </div>
-
-        <p>The bare command walks you through it interactively. Advanced flags for power users:</p>
-        <ul>
-            <li><code>--install-scope local|user|project</code> &mdash; <code>local</code> (default) writes under <code>projects[&lt;cwd&gt;].mcpServers</code> in <code>~/.claude.json</code>, scoping the Vault to one directory. <code>user</code> writes the top-level <code>mcpServers</code>, making the Vault available everywhere. <code>project</code> writes <code>./.mcp.json</code> for checking into a repo.</li>
-            <li><code>--scope vault:read|vault:write|vault:admin</code> &mdash; mints a token narrowed to that scope. Useful for read-only clients (search agents, observability tools) that shouldn't have write authority. Default is <code>vault:write</code> (read + write, but not admin).</li>
-        </ul>
-
-        <p>Connecting any other MCP client &mdash; Claude.ai on the web, Codex, Goose, Cursor, Zed, Cline, OpenCode, or your own agent &mdash; comes down to one URL and one auth choice. That's the next section.</p>
     </section>
 
     <section class="section" id="connect-mcp-clients">
-        <h2>Connecting MCP clients</h2>
+        <h2>Connect your AI</h2>
 
-        <p>Every MCP client connects to the same per-vault endpoint:</p>
+        <p>The wizard's done screen hands you a copy-pasteable <code>claude mcp add</code> command with a freshly-minted token &mdash; <strong>Claude Code is auto-configured</strong> by the install on the hub machine. Start a new Claude Code session and run <code>/mcp</code> to confirm the vault appears.</p>
+
+        <p>Connecting any other client &mdash; Claude.ai on the web, Codex, Goose, Cursor, Zed, your own agent &mdash; comes down to one URL. Point the client at your vault's MCP endpoint:</p>
 
         <div class="code-inline">
             <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code>
         </div>
 
-        <p><strong>Two things to get right</strong> &mdash; both are easy to miss:</p>
-
-        <ul>
-            <li><strong>The <code>/mcp</code> suffix is required.</strong> The bare path <code>&lt;hub-origin&gt;/vault/&lt;name&gt;</code> is a read-only metadata page (vault description + stats), <em>not</em> the MCP endpoint. An MCP client's connection handshake is a POST and will fail against the bare path. Always include <code>/mcp</code>.</li>
-            <li><strong><code>&lt;hub-origin&gt;</code> is the address your <em>hub</em> answers on</strong> &mdash; the same URL you use to reach <code>/admin</code> and sign in. On a Render or Fly deploy that's your public URL (<code>https://your-hub.onrender.com</code>); behind Tailscale it's the tailnet name (<code>https://your-hub.tailXXXX.ts.net</code>); only on the same machine as a loopback-only hub is it <code>http://127.0.0.1:1939</code>. It is <strong>not</strong> the vault's own port <code>1940</code> &mdash; a remote or team client pointed at <code>:1940</code> can't be reached and won't OAuth against the hub.</li>
-        </ul>
-
-        <p><code>&lt;name&gt;</code> is the vault name (the default vault is <code>default</code>; on a multi-user hub it's each person's vault name, shown on their <code>/account/</code> page).</p>
-
-        <h3>Claude Code</h3>
-
-        <p>On the machine running the hub, the install already wired this up &mdash; see the section above. To wire any vault on any hub by hand:</p>
-
-        <div class="code-inline">
-            <code>claude mcp add --transport http &lt;name&gt; &lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code>
-        </div>
-
-        <p>No token flag needed. Claude Code does the OAuth dance for you: the first time it connects, the vault returns a challenge, Claude Code opens your browser, you <strong>sign in to the hub</strong> and approve, and the token is stored for you. Run <code>/mcp</code> inside Claude Code to confirm the vault appears with its tools resolved.</p>
-
-        <h3>Claude.ai (web)</h3>
-
-        <p>Your hub must be reachable from the public internet for claude.ai to connect to it (a Render / Fly deploy, or a Cloudflare / Tailscale Funnel exposure &mdash; a loopback-only hub won't work). Then, in claude.ai:</p>
-
-        <ol>
-            <li>Open <strong>Settings &rarr; Connectors</strong>.</li>
-            <li>Choose <strong>Add custom connector</strong> (the "add a remote MCP server" option).</li>
-            <li>Paste the URL <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code> and save.</li>
-            <li>claude.ai redirects you to your hub to sign in and approve the connection (OAuth). Once approved, the vault's tools are available in your chats.</li>
-        </ol>
-
-        <p>(Menu labels in claude.ai's connector UI shift over time; the shape is always "add a custom / remote MCP connector and point it at the URL above.")</p>
-
-        <h3>Any other MCP client (Codex, Goose, Cursor, Zed, Cline, OpenCode, your own agent)</h3>
-
-        <p>Every streamable-HTTP MCP client takes the same two inputs: the transport URL and how to authenticate.</p>
-
-        <ul>
-            <li><strong>Transport:</strong> HTTP (sometimes labelled "streamable HTTP" or "remote MCP server").</li>
-            <li><strong>URL:</strong> <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code>.</li>
-            <li><strong>Auth:</strong> clients that speak OAuth (an increasing number do) discover the hub automatically from the endpoint's challenge and send you through the browser sign-in &mdash; nothing to paste. Clients that don't do OAuth take a bearer header instead:
-                <div class="code-inline">
-                    <code>Authorization: Bearer &lt;hub-JWT&gt;</code>
-                </div>
-            </li>
-        </ul>
-
-        <p>To get a hub JWT for the header path, mint one scoped to the vault (any of these &mdash; least-to-most terminal use):</p>
-
-        <ul>
-            <li><strong>Vault admin SPA &rarr; Tokens</strong> &mdash; mint a durable token with an optional tag allowlist, copy it into your client's config. No shell needed.</li>
-            <li><strong>On the hub host:</strong> <code>parachute auth mint-token --scope vault:&lt;name&gt;:write</code> prints a JWT to stdout (default 90-day lifetime). Use <code>vault:&lt;name&gt;:read</code> for a read-only client.</li>
-        </ul>
-
-        <p>Hub JWTs are revocable any time from the admin SPA's Tokens page or <code>parachute auth revoke-token &lt;jti&gt;</code>. Treat the token like a password &mdash; paste it into your client's config, not into a chat or a committed file.</p>
-
-        <p>Hosting your hub for other people? Each user connects their own clients to <em>their</em> vault the same way &mdash; see the <a href="/multi-user/#connect-mcp">multi-user guide</a>.</p>
-
-        <p><strong>Connected? Now bootstrap your vault.</strong> Paste the <a href="/onboarding/vault-setup/">set-up-your-vault starter prompt</a> into your MCP-connected AI &mdash; it inspects what's already there, interviews you, and proposes a tag structure. (There's a second starter prompt that <a href="/onboarding/surface-build/">builds a custom UI</a> over your vault.) Want to drive the vault from a script or cron job instead? See <a href="/scripting/">Scripting your vault</a>.</p>
+        <p><code>&lt;hub-origin&gt;</code> is the address your hub answers on (the same URL you sign in at); <code>&lt;name&gt;</code> is your vault name (<code>default</code> unless you changed it). The <strong><code>/mcp</code> suffix is required</strong> &mdash; the bare path is a metadata page, not the endpoint. OAuth-capable clients send you through hub sign-in automatically; for clients that need a bearer token, mint one from the vault admin SPA's Tokens page. Full per-client steps and the bearer-token path are in <a href="/docs/">the docs</a>.</p>
     </section>
 
     <section class="section">
-        <h2>3. Want a UI for your notes? (optional)</h2>
+        <h2>Bootstrap your vault</h2>
 
-        <p><strong>Why this step.</strong> The Vault is a SQLite file behind an API. If you want to <em>see</em> your notes &mdash; browse, search, edit, watch the graph form &mdash; you need a UI. <strong>Parachute Surface</strong> is the UI host module; Notes ships as its first canonical surface.</p>
+        <div class="starter-callout">
+            <h3>&#9733; Paste one prompt &mdash; your AI builds your vault</h3>
+            <p>Your vault starts empty. The fastest way to fill it: open <strong>the set-up-your-vault starter prompt</strong>, paste it into your MCP-connected AI, and it inspects what's there, interviews you about how you think, and proposes a tag and path structure &mdash; then builds it on your say-so. This is the payoff. Start here.</p>
+            <a href="/onboarding/vault-setup/" class="button">Open the starter prompt &rarr;</a>
+            <p class="starter-adjacent">Next steps from there: a second prompt that <a href="/onboarding/surface-build/">builds a custom UI</a> over your vault, or <a href="/scripting/">scripting your vault</a> from bash, Python, or JS for imports, cron jobs, and CI.</p>
+        </div>
+    </section>
 
-        <p>Install Surface &mdash; it auto-bootstraps <a href="https://github.com/ParachuteComputer/parachute-surface/tree/main/packages/notes-ui" target="_blank">Notes</a> as the first hosted surface:</p>
+    <section class="section">
+        <h2>See your notes <span style="font-weight:400;color:var(--fg-dim);">(optional)</span></h2>
+
+        <p>Want to browse, search, and edit your notes in a UI &mdash; and watch the graph form? Install <strong>Surface</strong>, the UI host module. It auto-bootstraps Notes as its first surface:</p>
 
         <div class="code-inline">
             <code>parachute install surface</code>
         </div>
 
-        <p><strong>What you should see.</strong> App runs as a background daemon under hub's reverse proxy. Open <a href="http://localhost:1939/surface/notes/" target="_blank"><code>http://localhost:1939/surface/notes/</code></a> in your browser (the legacy <code>http://localhost:1939/notes/</code> URL still works via hub's redirect, for back-compat). Click the vault popover in the header and hit <strong>Connect</strong> next to your vault under "Available from your hub" &mdash; this kicks an OAuth flow through the hub, no token-pasting required. You get note browsing, search, tag views, a graph visualization, voice capture with auto-transcription, and a markdown editor with live preview.</p>
-
-        <p>Notes ships <strong>multi-vault</strong>: one install, every vault on your hub. The popover splits "Connected" (vaults you've OAuthed into) from "Available from your hub" (vaults published at your hub's well-known doc you haven't connected yet). Captures land under hierarchical <code>capture/text</code> / <code>capture/voice</code> tags; Settings &rarr; Larger / Largest scales the whole app for reading; <code>Cmd-=</code>, <code>Cmd--</code>, <code>Cmd-0</code> work the way you'd expect.</p>
-
-        <p><strong>More apps under the same host.</strong> Once App is installed, drop additional custom SPAs in via <code>parachute-surface add &lt;path-to-dist&gt; --name &lt;name&gt; --path &lt;mount-path&gt;</code> (or from the admin SPA). Each lands at <code>&lt;hub&gt;/surface/&lt;name&gt;/</code>, registers as its own OAuth client of the hub, and reads your vault under the scopes it declared. Gitcoin Brain, Unforced Brain, and anything you write next live under the same supervisor.</p>
-
-        <p>Notes is also a starting point: the source is <a href="https://github.com/ParachuteComputer/parachute-surface/tree/main/packages/notes-ui" target="_blank">AGPL</a>, Vite + React + TypeScript, talks to the vault over the documented HTTP API. Fork it and build the UI that matches how <em>your</em> brain works &mdash; then host it under App alongside Notes.</p>
+        <p>Open <a href="http://localhost:1939/surface/notes/" target="_blank"><code>localhost:1939/surface/notes/</code></a>, click the vault popover, and hit <strong>Connect</strong> next to your vault. You get note browsing, search, tag views, a graph visualization, voice capture, and a markdown editor &mdash; multi-vault, one install for every vault on your hub. The source is open (Vite + React + TypeScript); fork it or build your own UI under the same host.</p>
     </section>
 
     <section class="section">
-        <h2>4. Export your vault as portable markdown (optional)</h2>
+        <h2>Going further <span style="font-weight:400;color:var(--fg-dim);">(optional)</span></h2>
 
-        <p><strong>Why this step.</strong> Your Vault is a SQLite file &mdash; great for queries, harder to inspect with grep, diff, or your favorite editor. The portable-markdown export gives you a git-trackable projection of the same graph without leaving SQLite as the source of truth.</p>
-
-        <div class="code-inline">
-            <code>parachute-vault export ~/my-vault-projection</code>
-        </div>
-
-        <p><strong>What you should see.</strong> One file per note (named by its path), with frontmatter carrying ID, path, tags, metadata, typed links, and attachments. Tag schemas land in <code>.parachute/schemas/&lt;tag&gt;.yaml</code>, attachment binaries in <code>.parachute/attachments/</code>. Re-export an unchanged vault and the bytes are identical &mdash; clean git diffs.</p>
-
-        <p>Going the other way works too:</p>
-
-        <div class="code-inline">
-            <code>parachute-vault import ~/my-vault-projection --blow-away --yes</code>
-        </div>
-
-        <p>That's disaster recovery, vault migration, or "let me edit in Obsidian and re-import the changes" &mdash; same primitive, three uses. Read the <a href="https://github.com/ParachuteComputer/parachute-patterns/blob/main/cookbook/vault-portable-export.md" target="_blank">portable-export cookbook</a> for format spec, round-trip guarantees, and a nightly git-projection recipe.</p>
-    </section>
-
-    <section class="section">
-        <h2>What comes next</h2>
-
-        <p>Tailnet exposure (<code>tailscale serve</code> &mdash; private to your own Tailscale devices) is the supported shape today. <strong>Public</strong> HTTPS exposure (Tailscale Funnel or a Cloudflare Tunnel, reachable from the open internet), the custom-connector flows for <strong>claude.ai</strong> (covered in <a href="#connect-mcp-clients">Connecting MCP clients</a> above), <strong>ChatGPT</strong>, and <strong>Gemini</strong>, and the mobile PWA install flow for Notes all work today &mdash; but the edges aren't polished enough to put in front of everyone just yet. We're running these paths through the next couple of weeks of stabilization and will announce each one as it's ready.</p>
-
-        <p>If you want to poke at them early, <code>parachute expose --help</code> is live. Expect rough edges; <a href="https://github.com/ParachuteComputer/parachute-vault/issues" target="_blank">file issues</a> and we'll fix.</p>
-    </section>
-
-    <section class="section">
-        <h2>Staying current</h2>
-
-        <p>Once installed, the dispatcher can upgrade itself and every service:</p>
+        <p><strong>Run it always-on.</strong> Your laptop sleeps; a small server doesn't. Two GUI-/CLI-first paths, ~five minutes each:</p>
         <ul>
-            <li><code>parachute upgrade</code> &mdash; sweeps hub plus every installed service to the latest npm release.</li>
-            <li><code>parachute upgrade hub</code> &mdash; upgrades just the dispatcher.</li>
-            <li><code>parachute upgrade vault</code> (or <code>surface</code>, <code>scribe</code>) &mdash; upgrades a single service.</li>
-            <li><code>parachute upgrade vault --tag rc</code> &mdash; pin to the <code>rc</code> dist-tag instead of <code>latest</code>.</li>
+            <li><a href="/deploy/render/">Deploy to Render &rarr;</a> &mdash; one-click, your own subdomain, ~$7/month.</li>
+            <li><a href="/deploy/fly/">Deploy to Fly &rarr;</a> &mdash; CLI-first peer path, ~$3.34/month, portable volume snapshots.</li>
+            <li>Any VPS works too &mdash; same <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>, then finish in the wizard. On an SSH'd server <code>init</code> pre-selects public exposure so the wizard URL is reachable.</li>
         </ul>
-        <p>Vault's schema and filesystem migrations run automatically on first post-upgrade boot &mdash; idempotent, target-wins on conflict, no manual steps required. If you're jumping from the launch 0.2.4 to today, the <a href="/preview/vault-0.4.5-arc/">0.2.4 &rarr; 0.4.5 upgrade arc</a> is the deep dive.</p>
 
-        <p><em><code>parachute upgrade hub</code> requires hub 0.5.9 or later. If you're on an older version, run <code>bun add -g @openparachute/hub@latest</code> once to upgrade the dispatcher manually, then <code>parachute upgrade &lt;svc&gt;</code> handles everything else.</em></p>
-    </section>
+        <p><strong>Reach it from other devices.</strong> A <a href="https://tailscale.com" target="_blank">Tailnet</a> (<code>tailscale serve</code>) is the smooth private path &mdash; your hub, visible only to your own Tailscale devices. Public HTTPS (Cloudflare Tunnel or Tailscale Funnel) works too and is what claude.ai needs, but we're still polishing those edges &mdash; the <a href="/deploy/render/">Render</a> and <a href="/deploy/fly/">Fly</a> deploys are the easiest way to a clean public URL today.</p>
 
-    <section class="section">
-        <h2>Running it somewhere other than your laptop</h2>
+        <p><strong>Back it up &amp; script it.</strong> Export your whole vault to portable, git-trackable markdown with <code>parachute-vault export &lt;dir&gt;</code> (and <code>import</code> back) &mdash; disaster recovery, vault migration, or editing in another tool. Driving the vault from a script, cron job, or importer is covered in <a href="/scripting/">Scripting your vault</a>. Hosting for friends and family? See the <a href="/multi-user/">multi-user operator guide</a>.</p>
 
-        <p>Your laptop sleeps. If you want your Vault always on, you have options:</p>
+        <p><strong>Stay current.</strong> <code>parachute upgrade</code> sweeps the hub and every installed service to the latest release; <code>parachute upgrade vault</code> (or <code>surface</code>, <code>scribe</code>) does one. Add <code>--tag rc</code> to track release candidates. Vault migrations run automatically on first post-upgrade boot.</p>
 
-        <p><strong>One-click deploy to Render.</strong> The fastest GUI-first "always-on URL" path &mdash; about five minutes from click to a running hub on your own subdomain. Single container, hub-as-supervisor, persistent disk, ~$7/month flat. Modules install onto the disk from the admin UI after first boot. <a href="/deploy/render/">Deploy to Render &rarr;</a></p>
-
-        <p><strong>Or deploy to Fly.io.</strong> The CLI-first peer path &mdash; fork the repo, run <code>./scripts/deploy-to-fly.sh</code>, about the same five minutes, ~$3.34/month all-in. Same architecture, same image; portable volume snapshots if you ever want to move your data. <a href="/deploy/fly/">Deploy to Fly &rarr;</a></p>
-
-        <p><strong>Wait for Parachute Cloud.</strong> We're working on a hosted version — same architecture, same guarantees, no server to run. <a href="https://openparachute.substack.com" target="_blank">Subscribe for updates</a>.</p>
-
-        <p><strong>Run it on a Mac or Linux box yourself.</strong> Same flow as your laptop &mdash; <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>, then finish in the wizard (browser or <code>--cli-wizard</code>). On an SSH'd server, <code>init</code> pre-selects Cloudflare exposure so the wizard URL is reachable from your own machine. Any VPS works — Railway, Hetzner, DigitalOcean, EC2, or a home server (Fly and Render get the dedicated walkthroughs above). We don't have step-by-step per-provider guides for the others yet; want one? <a href="https://github.com/ParachuteComputer/parachute-vault/issues" target="_blank">Open an issue</a>.</p>
-
-        <p><strong>Inviting friends and family to your hub.</strong> Once your hub is up, you can host it for other people too &mdash; one account per person, each pinned to their own vault, without giving out admin access. <a href="/multi-user/">Multi-user operator guide &rarr;</a></p>
+        <p><strong>Want Parachute Cloud?</strong> A hosted version &mdash; same architecture, no server to run &mdash; is in the works. <a href="https://openparachute.substack.com" target="_blank">Subscribe for updates</a>.</p>
     </section>
 
     <section class="section">
         <h2>Troubleshooting</h2>
 
-        <ul>
-            <li><strong>Port 1940 already in use.</strong> <code>lsof -i :1940</code> to see what's there. Change ports in <code>~/.parachute/vault/.env</code>.</li>
-            <li><strong>Claude Code doesn't see the MCP.</strong> Start a new Claude Code session (config is loaded at session start). Run <code>/mcp</code> in Claude Code to confirm. If it's missing, <code>parachute-vault mcp-install</code> adds it.</li>
-            <li><strong>Want the Vault reachable from another device?</strong> The cleanest path is <code>parachute expose</code> (Tailscale or Cloudflare; polished for broad use in a few weeks, runnable early today via <code>parachute expose --help</code>). If you'd rather expose it yourself &mdash; nginx, Caddy, your own reverse proxy &mdash; set <code>VAULT_BIND=0.0.0.0</code> in <code>~/.parachute/vault/.env</code> and restart so the Vault listens on every interface.</li>
-            <li><strong>Stuck on bun 1.2.x?</strong> You may see <code>InvalidPackageResolution: failed to parse lockfile</code> or <code>FileNotFound: failed opening node_modules/package dir</code> &mdash; cosmetic, the package installed anyway. Upgrading to bun 1.3.x makes the warnings go away entirely.</li>
-        </ul>
-
-        <p>Found something we missed? <a href="https://github.com/ParachuteComputer/parachute-vault/issues" target="_blank">Open an issue</a>.</p>
+        <details>
+            <summary>Something not working?</summary>
+            <ul style="margin-top: 1rem;">
+                <li><strong>Claude Code doesn't see the vault.</strong> Start a new session (MCP config loads at session start) and run <code>/mcp</code>. Still missing? Re-run <code>parachute-vault mcp-install</code> on the hub machine.</li>
+                <li><strong>Port 1940 already in use.</strong> Run <code>lsof -i :1940</code> to see what's there; change ports in <code>~/.parachute/vault/.env</code>.</li>
+                <li><strong>A client can't reach the MCP endpoint.</strong> Confirm the URL ends in <code>/mcp</code> and points at the <em>hub</em> origin (the address you sign in at), not the vault's own port <code>1940</code>.</li>
+                <li><strong>Stuck on Bun 1.2.x?</strong> You may see a cosmetic <code>InvalidPackageResolution</code> or <code>FileNotFound</code> warning &mdash; the package installs anyway. Upgrading to Bun 1.3 clears it.</li>
+            </ul>
+            <p style="margin-top: 1rem;">Found something we missed? <a href="https://github.com/ParachuteComputer/parachute-vault/issues" target="_blank">Open an issue</a>.</p>
+        </details>
     </section>
 
     <section class="cta">
