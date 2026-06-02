@@ -49,7 +49,8 @@ list, or the calls fail with "tool not found"), the vault's MCP isn't
 connected to this client yet. Stop here and tell me:
 
 > "I don't see Parachute Vault's MCP tools. Add the vault as an MCP
-> server in your client first. The endpoint is always
+> server in your client first (ChatGPT and similar web UIs call this a
+> connector). The endpoint is always
 > `<hub-origin>/vault/<name>/mcp` — your hub's URL (the same one you
 > sign in at), your vault name, and the literal `/mcp` suffix (the
 > bare `/vault/<name>` path is a metadata page, not the MCP endpoint).
