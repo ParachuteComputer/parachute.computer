@@ -72,12 +72,16 @@ permalink: /install/
     <section class="section">
         <h2>Going further <span style="font-weight:400;color:var(--fg-dim);">(optional)</span></h2>
 
-        <p><strong>Run it always-on.</strong> Your laptop sleeps; a small server doesn't. Two GUI-/CLI-first paths, ~five minutes each:</p>
+        <p><strong>Run it always-on.</strong> Your laptop sleeps; a small server doesn't. Three peer paths to a hub that stays up &mdash; same architecture, same wizard, ~five minutes each:</p>
         <ul>
             <li><a href="/deploy/render/">Deploy to Render &rarr;</a> &mdash; one-click, your own subdomain, ~$7/month.</li>
             <li><a href="/deploy/fly/">Deploy to Fly &rarr;</a> &mdash; CLI-first peer path, ~$3.34/month, portable volume snapshots.</li>
-            <li>Any VPS works too &mdash; same <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>, then finish in the wizard. On an SSH'd server <code>init</code> pre-selects public exposure so the wizard URL is reachable.</li>
+            <li><strong>Your own Linux box</strong> (EC2, Hetzner, any VPS) &mdash; same <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>, then finish in the wizard. On an SSH'd server <code>init</code> pre-selects public exposure so the wizard URL is reachable.</li>
         </ul>
+
+        <p><strong>Your own box works the same way Render does.</strong> Parachute runs one way everywhere: <code>parachute serve</code> &mdash; the hub in the foreground with every module supervised as a child process &mdash; kept alive by the platform's own process manager. On Render or Fly that's the container runtime; on your own machine, <code>parachute init</code> installs the hub as a managed service (a <strong>systemd</strong> unit on a Linux box, a <strong>launchd</strong> agent on a Mac) that keeps it running and supervises the modules. So a self-hosted EC2 or Hetzner box gets the same always-on, survives-a-reboot, manage-it-from-the-admin-UI behavior the hosted deploys do &mdash; you own the box instead of renting the container. No PID-hunting, no manual restarts: the manager brings the hub back after a crash or a reboot, and the hub brings every module back with it.</p>
+
+        <p>Already running an older install that spawned the hub as a detached background process? <code>parachute migrate --to-supervised</code> moves it onto the managed-service model in place &mdash; one command, idempotent, no data migration.</p>
 
         <p><strong>Reach it from other devices.</strong> A <a href="https://tailscale.com" target="_blank">Tailnet</a> (<code>tailscale serve</code>) is the smooth private path &mdash; your hub, visible only to your own Tailscale devices. Public HTTPS (Cloudflare Tunnel or Tailscale Funnel) works too and is what claude.ai needs, but we're still polishing those edges &mdash; the <a href="/deploy/render/">Render</a> and <a href="/deploy/fly/">Fly</a> deploys are the easiest way to a clean public URL today.</p>
 

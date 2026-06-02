@@ -63,6 +63,13 @@ permalink: /docs/
         <p>Capturing the shape Parachute is evolving toward.</p>
         <ul class="blog-list">
             <li>
+                <a href="/design/2026-06-01-hub-as-supervisor-unification/" class="blog-post-card">
+                    <h3>Hub-as-supervisor unification &mdash; serve under a process manager everywhere</h3>
+                    <div class="date">2026-06-01</div>
+                    <p class="excerpt">Parachute runs one way everywhere: <code>parachute serve</code> &mdash; the hub in the foreground supervising every module as a child &mdash; kept alive by the platform's process manager (systemd on a Linux VM, launchd on a Mac, the container runtime on Render / Fly). A self-hosted EC2 or Hetzner box now gets the same always-on, reboot-surviving, manage-from-the-admin-UI behavior the hosted deploys do; <code>parachute migrate --to-supervised</code> moves a legacy detached install over. Retires the older detached-daemon model.</p>
+                </a>
+            </li>
+            <li>
                 <a href="/design/2026-05-20-vault-as-git-canonical-thought-experiment/" class="blog-post-card">
                     <h3>Vault as git-canonical &mdash; a thought experiment (Architecture C)</h3>
                     <div class="date">2026-05-20</div>
