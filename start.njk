@@ -1,0 +1,1814 @@
+---
+layout: base.njk
+title: "Start"
+description: "A clear place to begin with Parachute: what is shipping now, where you belong, what you can access, and how to build with it."
+permalink: /start/
+---
+<style>
+main.start-page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 1.5rem 0 5rem;
+}
+
+.start-page {
+    display: grid;
+    gap: 5rem;
+}
+
+.start-container {
+    width: min(1120px, calc(100vw - 4rem));
+    margin: 0 auto;
+}
+
+.start-breakout {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+}
+
+.start-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.38rem 0.78rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(74, 124, 89, 0.14);
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.start-eyebrow::before {
+    content: "";
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 0.28rem rgba(74, 124, 89, 0.12);
+}
+
+.start-hero {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 34px;
+    background:
+        radial-gradient(circle at top left, rgba(91, 143, 168, 0.18), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(74, 124, 89, 0.16), transparent 32%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 242, 235, 0.96));
+    box-shadow: 0 28px 64px rgba(44, 42, 38, 0.08);
+}
+
+.start-hero::before {
+    content: "";
+    position: absolute;
+    inset: 1rem;
+    border: 1px solid rgba(74, 124, 89, 0.08);
+    border-radius: 26px;
+    pointer-events: none;
+}
+
+.start-hero-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+    gap: 2.5rem;
+    align-items: center;
+    min-height: 84vh;
+    padding: 4.5rem;
+}
+
+.start-hero-copy h1 {
+    margin: 1.2rem 0 1rem;
+    font-family: var(--serif);
+    font-size: clamp(3rem, 6vw, 5.25rem);
+    line-height: 0.95;
+    font-weight: 400;
+    letter-spacing: -0.05em;
+    max-width: 10ch;
+}
+
+.start-hero-copy p {
+    max-width: 38rem;
+    font-size: 1.08rem;
+    line-height: 1.75;
+    color: var(--fg-muted);
+}
+
+.start-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-top: 2rem;
+}
+
+.start-button,
+.start-button-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.95rem;
+    padding: 0.85rem 1.2rem;
+    border-radius: 999px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.start-button {
+    background: var(--fg);
+    color: #fff;
+    box-shadow: 0 12px 26px rgba(44, 42, 38, 0.15);
+}
+
+.start-button:hover {
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.start-button-secondary {
+    color: var(--fg);
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(44, 42, 38, 0.12);
+}
+
+.start-button-secondary:hover {
+    color: var(--fg);
+    transform: translateY(-1px);
+    border-color: rgba(44, 42, 38, 0.22);
+}
+
+.start-hero-visual {
+    position: relative;
+    min-height: 28rem;
+    border-radius: 28px;
+    overflow: hidden;
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.84), rgba(241, 236, 228, 0.72)),
+        linear-gradient(180deg, rgba(91, 143, 168, 0.1), rgba(74, 124, 89, 0.08));
+    border: 1px solid rgba(44, 42, 38, 0.08);
+}
+
+.start-hero-visual::before,
+.start-hero-visual::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.start-hero-visual::before {
+    background-image:
+        linear-gradient(rgba(44, 42, 38, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(44, 42, 38, 0.05) 1px, transparent 1px);
+    background-size: 3.75rem 3.75rem;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.2));
+}
+
+.start-hero-visual::after {
+    inset: auto auto 2.25rem 2rem;
+    width: 14rem;
+    height: 14rem;
+    border-radius: 42% 58% 51% 49% / 46% 41% 59% 54%;
+    background: rgba(91, 143, 168, 0.18);
+    animation: startFloat 9s ease-in-out infinite;
+}
+
+.start-orbit {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 13.5rem;
+    height: 13.5rem;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1px dashed rgba(44, 42, 38, 0.18);
+}
+
+.start-orbit::before {
+    content: "";
+    position: absolute;
+    inset: 1.35rem;
+    border-radius: 50%;
+    border: 1px solid rgba(44, 42, 38, 0.08);
+}
+
+.start-core {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 7.25rem;
+    height: 7.25rem;
+    transform: translate(-50%, -50%);
+    border-radius: 24px;
+    background: linear-gradient(145deg, rgba(74, 124, 89, 0.88), rgba(91, 143, 168, 0.82));
+    box-shadow: 0 18px 44px rgba(74, 124, 89, 0.22);
+}
+
+.start-core::before,
+.start-core::after {
+    content: "";
+    position: absolute;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.34);
+}
+
+.start-core::before {
+    inset: 0.8rem;
+}
+
+.start-core::after {
+    inset: 1.85rem;
+}
+
+.start-chip {
+    position: absolute;
+    padding: 0.5rem 0.82rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(44, 42, 38, 0.08);
+    color: var(--fg-muted);
+    font-size: 0.75rem;
+    box-shadow: 0 8px 22px rgba(44, 42, 38, 0.06);
+}
+
+.start-chip-a { top: 18%; right: 8%; }
+.start-chip-b { bottom: 18%; left: 10%; }
+.start-chip-c { top: 60%; right: 12%; }
+
+.start-section-intro {
+    display: flex;
+    justify-content: space-between;
+    gap: 1.5rem;
+    align-items: end;
+    margin-bottom: 1.4rem;
+}
+
+.start-section-intro h2 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 3.6vw, 3rem);
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+}
+
+.start-section-intro p {
+    max-width: 36rem;
+    color: var(--fg-muted);
+}
+
+.start-access-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
+.start-access-card {
+    display: grid;
+    gap: 1rem;
+    min-height: 27rem;
+    padding: 1.8rem;
+    border-radius: 28px;
+    border: 1px solid rgba(44, 42, 38, 0.08);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 242, 235, 0.94));
+}
+
+.start-access-card-alt {
+    background: linear-gradient(180deg, rgba(245, 249, 251, 0.98), rgba(240, 236, 229, 0.94));
+}
+
+.start-access-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    min-height: 2.8rem;
+    padding: 0.35rem 1.05rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.start-access-card h3,
+.start-update-panel h3,
+.start-discover-card h3,
+.start-tool-link h3,
+.start-footer-column a {
+    letter-spacing: -0.03em;
+}
+
+.start-access-card h3 {
+    font-size: 1.75rem;
+    line-height: 1.05;
+}
+
+.start-access-card p,
+.start-discover-card p,
+.start-tool-link p,
+.start-developer-copy p,
+.start-community-copy p,
+.start-footer-lead {
+    color: var(--fg-muted);
+}
+
+.start-access-audience {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: auto;
+}
+
+.start-access-audience span,
+.start-benefits li,
+.start-footer-pill {
+    font-size: 0.82rem;
+}
+
+.start-access-audience span {
+    padding: 0.36rem 0.66rem;
+    border-radius: 999px;
+    background: rgba(44, 42, 38, 0.05);
+    color: var(--fg-muted);
+}
+
+.start-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--fg);
+    font-weight: 500;
+}
+
+.start-link::after {
+    content: "\2192";
+}
+
+.start-link:hover {
+    color: var(--accent);
+}
+
+.start-feature-band {
+    position: relative;
+    overflow: hidden;
+    min-height: 92vh;
+    background: #101618;
+}
+
+.start-feature-band img {
+    position: absolute;
+    inset: -8% 0;
+    width: 100%;
+    height: 116%;
+    object-fit: cover;
+    transform: translate3d(0, var(--parallax-shift, 0px), 0) scale(1.06);
+    will-change: transform;
+}
+
+.start-feature-band::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(11, 15, 17, 0.14), rgba(11, 15, 17, 0.48)),
+        linear-gradient(90deg, rgba(11, 15, 17, 0.58), rgba(11, 15, 17, 0.1) 58%, rgba(11, 15, 17, 0.24));
+}
+
+.start-feature-copy {
+    position: relative;
+    z-index: 1;
+    min-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-items: center;
+    width: min(1120px, calc(100vw - 4rem));
+    margin: 0 auto;
+    padding: 4rem 0;
+    gap: 2rem;
+    text-align: center;
+}
+
+.start-feature-copy h2 {
+    max-width: 18ch;
+    font-family: var(--serif);
+    font-size: clamp(2.8rem, 6vw, 5.8rem);
+    line-height: 0.96;
+    letter-spacing: -0.05em;
+    color: #fff;
+    font-weight: 400;
+    text-wrap: balance;
+}
+
+.start-feature-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 0.9rem;
+    align-items: center;
+    width: min(46rem, 100%);
+}
+
+.start-feature-pill,
+.start-feature-pill-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    padding: 0.88rem 1.25rem;
+    border-radius: 999px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.start-feature-action-left {
+    justify-self: end;
+}
+
+.start-feature-action-center {
+    justify-self: center;
+}
+
+.start-feature-action-right {
+    justify-self: start;
+}
+
+.start-feature-pill {
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--fg);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
+}
+
+.start-feature-pill:hover {
+    color: var(--fg);
+    transform: translateY(-1px);
+}
+
+.start-feature-pill-secondary {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #fff;
+}
+
+.start-feature-pill-secondary:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.start-updates {
+    display: grid;
+    gap: 1.1rem;
+}
+
+.start-updates-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 1rem;
+}
+
+.start-update-lead {
+    display: grid;
+    min-height: 38rem;
+    grid-template-rows: 1fr auto;
+    border-radius: 28px;
+    overflow: hidden;
+    background: #12191d;
+    color: #fff;
+}
+
+.start-update-lead-visual {
+    position: relative;
+    overflow: hidden;
+    background: #1a2226;
+}
+
+.start-update-lead-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: translate3d(0, var(--launch-parallax-shift, 0px), 0) scale(1.04);
+    will-change: transform;
+}
+
+.start-update-window {
+    position: absolute;
+    left: 2.5rem;
+    right: 2.5rem;
+    bottom: 2.25rem;
+    border-radius: 24px;
+    padding: 1.1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.start-update-window-bar {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.9rem;
+}
+
+.start-update-window-bar span {
+    width: 0.58rem;
+    height: 0.58rem;
+    border-radius: 50%;
+}
+
+.start-update-window-bar span {
+    background: rgba(255, 255, 255, 0.42);
+}
+
+.start-update-lines {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1.25rem;
+    align-items: center;
+}
+
+.start-update-message {
+    min-height: 4.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.start-update-message p {
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 1.02rem;
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 320ms ease, transform 320ms ease;
+}
+
+.start-update-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 9rem;
+}
+
+.start-update-meta-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.38rem 0.68rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: rgba(255, 255, 255, 0.84);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.start-update-meta-label::before {
+    content: "";
+    width: 0.44rem;
+    height: 0.44rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.86);
+}
+
+.start-update-message p.is-exiting {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+.start-update-message p.is-entering {
+    opacity: 0;
+    transform: translateY(-8px);
+}
+
+.start-update-lead-copy {
+    display: grid;
+    gap: 0.7rem;
+    padding: 1.7rem;
+    background: rgba(15, 22, 26, 0.96);
+}
+
+.start-update-lead-cta {
+    justify-self: center;
+    margin-top: 0.35rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.start-update-lead-cta:hover {
+    color: var(--accent);
+}
+
+.start-kicker {
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.start-update-lead .start-kicker,
+.start-update-lead p,
+.start-update-lead .start-date,
+.start-community-copy .start-kicker,
+.start-community-copy p,
+.start-community-copy .start-link,
+.start-developer-band .start-kicker,
+.start-developer-copy p {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.start-update-lead h3 {
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    line-height: 1;
+    letter-spacing: -0.05em;
+    font-weight: 500;
+}
+
+.start-date {
+    font-size: 0.84rem;
+}
+
+.start-update-side {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.start-update-panel {
+    display: grid;
+    gap: 0.8rem;
+    min-height: 18.25rem;
+    padding: 1.25rem;
+    border-radius: 28px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(44, 42, 38, 0.08);
+}
+
+.start-update-panel-dark {
+    background: #111517;
+    color: #fff;
+}
+
+.start-update-panel h3 {
+    font-size: 1.3rem;
+    line-height: 1.08;
+}
+
+.start-update-panel p {
+    color: var(--fg-muted);
+}
+
+.start-update-panel-dark p,
+.start-update-panel-dark .start-kicker,
+.start-update-panel-dark .start-date,
+.start-update-panel-dark .start-link {
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.start-update-art-image {
+    display: block;
+    width: 100%;
+    height: 9.75rem;
+    object-fit: cover;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.start-community-band {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #142327 0%, #304a56 46%, #5f7b76 100%);
+}
+
+.start-community-band::before {
+    content: "";
+    position: absolute;
+    inset: auto auto -8rem -6rem;
+    width: 22rem;
+    height: 22rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.start-community-band::after {
+    content: "";
+    position: absolute;
+    right: -4rem;
+    top: -4rem;
+    width: 18rem;
+    height: 18rem;
+    border-radius: 42% 58% 51% 49% / 44% 41% 59% 56%;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.start-community-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 18rem;
+    gap: 2rem;
+    min-height: 62vh;
+    align-items: center;
+    width: min(1120px, calc(100vw - 4rem));
+    margin: 0 auto;
+    padding: 4rem 0;
+}
+
+.start-community-copy h2,
+.start-developer-copy h2 {
+    font-family: var(--serif);
+    font-size: clamp(2.4rem, 5vw, 4.6rem);
+    line-height: 0.96;
+    font-weight: 400;
+    letter-spacing: -0.05em;
+    color: #fff;
+    margin: 0.8rem 0 1rem;
+    max-width: 10ch;
+}
+
+.start-community-copy p {
+    max-width: 32rem;
+    margin-bottom: 1.35rem;
+}
+
+.start-community-copy .start-link:hover {
+    color: #fff;
+}
+
+.start-community-graph {
+    position: relative;
+    min-height: 22rem;
+    width: 100%;
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    overflow: hidden;
+}
+
+.start-community-graph::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 18% 18%, rgba(154, 214, 172, 0.14), transparent 30%),
+        radial-gradient(circle at 82% 78%, rgba(146, 204, 223, 0.14), transparent 30%);
+    pointer-events: none;
+}
+
+.start-community-graph svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.start-community-graph .graph-link {
+    stroke: rgba(203, 232, 223, 0.22);
+    stroke-width: 1.2;
+}
+
+.start-community-graph .graph-node {
+    fill: rgba(216, 243, 235, 0.88);
+}
+
+.start-community-graph .graph-node.graph-node-muted {
+    fill: rgba(162, 209, 193, 0.62);
+}
+
+.start-community-graph .graph-node.graph-node-accent {
+    fill: rgba(154, 214, 172, 0.96);
+}
+
+.start-discover-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.start-discover-card {
+    display: grid;
+    gap: 0.9rem;
+    min-height: 17rem;
+    padding: 1.5rem;
+    border-radius: 24px;
+    border: 1px solid rgba(44, 42, 38, 0.08);
+    background: rgba(255, 255, 255, 0.92);
+}
+
+.start-discover-card-soft {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 248, 250, 0.92));
+}
+
+.start-discover-card h3 {
+    font-size: 1.35rem;
+    line-height: 1.05;
+}
+
+.start-icon {
+    width: 2.7rem;
+    height: 2.7rem;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(74, 124, 89, 0.12), rgba(91, 143, 168, 0.12));
+}
+
+.start-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.start-developer-band {
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 20% 24%, rgba(95, 139, 119, 0.12), transparent 28%),
+        linear-gradient(135deg, #0d1517 0%, #132126 42%, #27464b 100%);
+}
+
+.start-developer-band::before,
+.start-developer-band::after {
+    content: "";
+    position: absolute;
+    inset: auto;
+    border-radius: 50%;
+    filter: blur(56px);
+    opacity: 0.82;
+    pointer-events: none;
+}
+
+.start-developer-band::before {
+    width: 34rem;
+    height: 34rem;
+    left: -8rem;
+    top: 8%;
+    background: radial-gradient(circle, rgba(122, 180, 142, 0.42) 0%, rgba(122, 180, 142, 0.18) 34%, rgba(122, 180, 142, 0) 74%);
+    animation: developerDriftA 34s ease-in-out infinite alternate;
+}
+
+.start-developer-band::after {
+    width: 30rem;
+    height: 30rem;
+    right: -6rem;
+    bottom: 6%;
+    background: radial-gradient(circle, rgba(112, 173, 194, 0.44) 0%, rgba(112, 173, 194, 0.2) 30%, rgba(112, 173, 194, 0) 74%);
+    animation: developerDriftB 42s ease-in-out infinite alternate;
+}
+
+.start-developer-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    gap: 2rem;
+    align-items: center;
+    min-height: 84vh;
+    width: min(1120px, calc(100vw - 4rem));
+    margin: 0 auto;
+    padding: 4rem 0;
+}
+
+.start-developer-ambient {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.start-developer-ambient span {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(42px);
+    opacity: 0.58;
+    mix-blend-mode: screen;
+}
+
+.start-developer-ambient span:nth-child(1) {
+    width: 26rem;
+    height: 26rem;
+    left: 18%;
+    top: 12%;
+    background: radial-gradient(circle, rgba(154, 214, 172, 0.48) 0%, rgba(154, 214, 172, 0.18) 42%, rgba(154, 214, 172, 0) 72%);
+    animation: developerDriftC 28s ease-in-out infinite alternate;
+}
+
+.start-developer-ambient span:nth-child(2) {
+    width: 22rem;
+    height: 22rem;
+    right: 18%;
+    top: 18%;
+    background: radial-gradient(circle, rgba(146, 204, 223, 0.42) 0%, rgba(146, 204, 223, 0.16) 42%, rgba(146, 204, 223, 0) 74%);
+    animation: developerDriftD 38s ease-in-out infinite alternate;
+}
+
+.start-developer-ambient span:nth-child(3) {
+    width: 28rem;
+    height: 28rem;
+    left: 42%;
+    bottom: -6%;
+    background: radial-gradient(circle, rgba(95, 152, 113, 0.34) 0%, rgba(95, 152, 113, 0.12) 38%, rgba(95, 152, 113, 0) 72%);
+    animation: developerDriftE 46s ease-in-out infinite alternate;
+}
+
+.start-developer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 1.35rem;
+}
+
+.start-developer-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.95rem;
+    padding: 0.85rem 1.2rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #fff;
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.start-developer-button:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.28);
+    transform: translateY(-1px);
+}
+
+.start-developer-link {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.start-developer-link:hover {
+    color: var(--accent-light);
+}
+
+.start-benefits {
+    list-style: none;
+    display: grid;
+    gap: 0.75rem;
+}
+
+.start-benefits li {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.8rem 0.95rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.start-benefits li::before {
+    content: "";
+    width: 0.56rem;
+    height: 0.56rem;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #7ab38a, #88b6ca);
+    flex: none;
+}
+
+.start-tools {
+    display: grid;
+    gap: 1.4rem;
+}
+
+.start-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem;
+}
+
+.start-tool-link {
+    display: grid;
+    gap: 0.35rem;
+    min-height: 9rem;
+    padding: 1.15rem 0;
+    border-top: 1px solid var(--border);
+}
+
+.start-tool-link h3 {
+    font-size: 1.08rem;
+    line-height: 1.1;
+}
+
+.start-tool-link:hover h3 {
+    color: var(--accent);
+}
+
+.start-footer {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.start-footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.start-footer-column {
+    padding: 1.25rem 0;
+    border-top: 1px solid var(--border);
+}
+
+.start-footer-column h3 {
+    margin-bottom: 0.8rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+}
+
+.start-footer-column ul {
+    list-style: none;
+    display: grid;
+    gap: 0.58rem;
+}
+
+.start-footer-column a {
+    color: var(--fg);
+}
+
+.start-footer-column a:hover {
+    color: var(--accent);
+}
+
+.start-footer-product {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+}
+
+.start-footer-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.18rem 0.48rem;
+    border-radius: 999px;
+    background: rgba(74, 124, 89, 0.12);
+    border: 1px solid rgba(74, 124, 89, 0.2);
+    color: var(--accent);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+@keyframes startFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes developerDriftA {
+    0% { transform: translate3d(0, 0, 0) scale(1); }
+    100% { transform: translate3d(9%, 6%, 0) scale(1.14); }
+}
+
+@keyframes developerDriftB {
+    0% { transform: translate3d(0, 0, 0) scale(1); }
+    100% { transform: translate3d(-8%, -4%, 0) scale(1.12); }
+}
+
+@keyframes developerDriftC {
+    0% { transform: translate3d(-2%, 0, 0) scale(1); }
+    100% { transform: translate3d(10%, 7%, 0) scale(1.16); }
+}
+
+@keyframes developerDriftD {
+    0% { transform: translate3d(0, -2%, 0) scale(1); }
+    100% { transform: translate3d(-9%, 5%, 0) scale(1.13); }
+}
+
+@keyframes developerDriftE {
+    0% { transform: translate3d(0, 0, 0) scale(1); }
+    100% { transform: translate3d(-6%, -8%, 0) scale(1.18); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .start-hero-visual::after {
+        animation: none;
+    }
+
+    .start-button,
+    .start-button-secondary {
+        transition: none;
+    }
+
+    .start-update-message p {
+        transition: none;
+    }
+
+    .start-developer-button {
+        transition: none;
+    }
+
+    .start-developer-band::before,
+    .start-developer-band::after,
+    .start-developer-ambient span {
+        animation: none;
+    }
+}
+
+@media (max-width: 980px) {
+    .start-container {
+        width: min(1120px, calc(100vw - 2.4rem));
+    }
+
+    .start-hero-grid,
+    .start-access-grid,
+    .start-updates-grid,
+    .start-discover-grid,
+    .start-community-grid,
+    .start-developer-grid,
+    .start-footer-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .start-update-side,
+    .start-tools-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .start-hero-grid {
+        min-height: auto;
+        padding: 2.5rem;
+    }
+
+    .start-feature-band,
+    .start-feature-copy {
+        min-height: 72vh;
+    }
+}
+
+@media (max-width: 720px) {
+    main.start-page {
+        padding: 1rem 0 4rem;
+    }
+
+    .start-page {
+        gap: 3.75rem;
+    }
+
+    .start-container {
+        width: calc(100vw - 1.6rem);
+    }
+
+    .start-hero {
+        border-radius: 24px;
+    }
+
+    .start-hero::before {
+        inset: 0.75rem;
+        border-radius: 18px;
+    }
+
+    .start-hero-grid {
+        padding: 1.4rem;
+    }
+
+    .start-hero-copy h1,
+    .start-feature-copy h2,
+    .start-community-copy h2,
+    .start-developer-copy h2 {
+        font-size: clamp(2.5rem, 11vw, 3.6rem);
+    }
+
+    .start-section-intro {
+        flex-direction: column;
+        align-items: start;
+    }
+
+    .start-hero-actions {
+        flex-direction: column;
+    }
+
+    .start-developer-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .start-button,
+    .start-button-secondary,
+    .start-link {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .start-feature-pill,
+    .start-feature-pill-secondary {
+        width: auto;
+    }
+
+    .start-feature-actions {
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    .start-feature-action-left,
+    .start-feature-action-center,
+    .start-feature-action-right {
+        justify-self: center;
+    }
+
+    .start-access-card,
+    .start-update-lead,
+    .start-update-panel,
+    .start-discover-card {
+        min-height: auto;
+    }
+
+    .start-update-side,
+    .start-tools-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .start-update-lines {
+        grid-template-columns: 1fr;
+    }
+
+    .start-update-meta {
+        justify-content: flex-start;
+        min-width: 0;
+    }
+
+    .start-feature-band,
+    .start-feature-copy {
+        min-height: 58vh;
+    }
+}
+</style>
+
+<main class="start-page">
+    <section class="start-container start-hero fade-up fade-up-1">
+        <div class="start-hero-grid">
+            <div class="start-hero-copy">
+                <span class="start-eyebrow">Welcome to Parachute</span>
+                <h1>Tools, software, and experiments for better work.</h1>
+                <p>Choose your path, discover what&rsquo;s new, and access the latest tools from the Parachute community.</p>
+                <div class="start-hero-actions">
+                    <a href="#access" class="start-button">Get Started</a>
+                    <a href="#updates" class="start-button-secondary">Explore Updates</a>
+                </div>
+            </div>
+            <div class="start-hero-visual" aria-hidden="true">
+                <div class="start-orbit"></div>
+                <div class="start-core"></div>
+                <span class="start-chip start-chip-a">Builders</span>
+                <span class="start-chip start-chip-b">Resources</span>
+                <span class="start-chip start-chip-c">Experiments</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="start-container fade-up fade-up-2" id="access">
+        <div class="start-section-intro">
+            <div>
+                <h2>Choose Your Access</h2>
+            </div>
+            <p>Pick the door that fits how you want to use Parachute right now.</p>
+        </div>
+        <div class="start-access-grid">
+            <article class="start-access-card">
+                <span class="start-access-label">For builders</span>
+                <h3>our.parachute.computer</h3>
+                <p>Access early tools, prototypes, testing environments, and community projects.</p>
+                <div class="start-access-audience">
+                    <span>Startup teams</span>
+                    <span>Collaborators</span>
+                    <span>Technical users</span>
+                    <span>Close friends</span>
+                </div>
+                <a href="https://our.parachute.computer" class="start-link">Enter our.parachute.computer</a>
+            </article>
+            <article class="start-access-card start-access-card-alt">
+                <span class="start-access-label">For friends</span>
+                <h3>friends.parachute.computer</h3>
+                <p>Explore launches, updates, events, and community resources designed for invited members.</p>
+                <div class="start-access-audience">
+                    <span>Non-technical users</span>
+                    <span>Early supporters</span>
+                    <span>Community members</span>
+                </div>
+                <a href="https://friends.parachute.computer" class="start-link">Enter friends.parachute.computer</a>
+            </article>
+        </div>
+    </section>
+
+    <section class="start-breakout start-feature-band fade-up fade-up-3" aria-label="Featured launch">
+        <img
+            src="/assets/start/para-start-cta-2.png"
+            alt=""
+            loading="eager"
+            data-parallax
+        >
+        <div class="start-feature-copy">
+            <h2>A collection of tools designed to help work move forward, wherever you are.</h2>
+            <div class="start-feature-actions">
+                <a href="/blog/" class="start-feature-pill-secondary start-feature-action-left">Read latest updates</a>
+                <a href="/install/" class="start-feature-pill start-feature-action-center">Try Vault</a>
+                <a href="/docs/" class="start-feature-pill-secondary start-feature-action-right">Browse guides</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="start-container start-updates fade-up fade-up-4" id="updates">
+        <div class="start-section-intro">
+            <div>
+                <h2>What&rsquo;s Happening</h2>
+            </div>
+            <p>Recent launches, community activity, and the work taking shape now.</p>
+        </div>
+        <div class="start-updates-grid">
+            <article class="start-update-lead">
+                <div class="start-update-lead-visual" aria-hidden="true">
+                    <img
+                        src="/assets/start/para-start-whats-here.png"
+                        alt=""
+                        class="start-update-lead-image"
+                        loading="lazy"
+                        data-parallax="launch"
+                    >
+                    <div class="start-update-window">
+                        <div class="start-update-window-bar">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div class="start-update-lines">
+                            <div class="start-update-message" data-rotating-message>
+                                <p>Hey, Parachute... help me sketch a better week from the notes I already have.</p>
+                            </div>
+                            <div class="start-update-meta" aria-hidden="true">
+                                <span class="start-update-meta-label">Live prompt</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="start-update-lead-copy">
+                    <span class="start-kicker">Featured Launch</span>
+                    <h3>Parachute is Here</h3>
+                    <p>A clear look at what is shipping now, what is changing, and where the work is headed next.</p>
+                    <span class="start-date">April 23, 2026</span>
+                    <a href="/blog/parachute-is-here/" class="start-link start-update-lead-cta">Read the launch note</a>
+                </div>
+            </article>
+            <div class="start-update-side">
+                <article class="start-update-panel start-update-panel-dark">
+                    <img
+                        src="/assets/start/para-start-marketing-wh-notes.png"
+                        alt=""
+                        class="start-update-art-image"
+                        loading="lazy"
+                    >
+                    <span class="start-kicker">Community Events</span>
+                    <h3>Join upcoming sessions and field notes from the community.</h3>
+                    <p>Follow launches, gatherings, and small experiments as they happen.</p>
+                    <a href="/blog/" class="start-link">See updates</a>
+                </article>
+                <article class="start-update-panel">
+                    <img
+                        src="/assets/start/para-start-marketing-wh-backup.png"
+                        alt=""
+                        class="start-update-art-image"
+                        loading="lazy"
+                    >
+                    <span class="start-kicker">New Tool</span>
+                    <h3>Git backup</h3>
+                    <p>Back your vault up to a git repository and keep a readable history.</p>
+                    <a href="/git-backup/" class="start-link">Open guide</a>
+                </article>
+                <article class="start-update-panel">
+                    <img
+                        src="/assets/start/para-start-marketing-wh-fam.png"
+                        alt=""
+                        class="start-update-art-image"
+                        loading="lazy"
+                    >
+                    <span class="start-kicker">Community Update</span>
+                    <h3>Host for friends and family</h3>
+                    <p>Run one hub for a small group and give each person their own vault.</p>
+                    <a href="/multi-user/" class="start-link">See setup</a>
+                </article>
+                <article class="start-update-panel start-update-panel-dark">
+                    <img
+                        src="/assets/start/para-start-marketing-wh-surface.png"
+                        alt=""
+                        class="start-update-art-image"
+                        loading="lazy"
+                    >
+                    <span class="start-kicker">Featured Experiment</span>
+                    <h3>Build your own surface</h3>
+                    <p>Use the starter prompt to shape a custom interface over your vault.</p>
+                    <a href="/onboarding/surface-build/" class="start-link">Try it</a>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="start-breakout start-community-band fade-up fade-up-5">
+        <div class="start-community-grid">
+            <div class="start-community-copy">
+                <span class="start-kicker">Community Highlight</span>
+                <h2>Follow the work as a living publication.</h2>
+                <p>Parachute is shaped in public through launches,<br>notes, guides, and live updates.</p>
+                <a href="/blog/" class="start-link">Browse recent notes</a>
+            </div>
+            <div class="start-community-graph" aria-hidden="true">
+                <svg viewBox="0 0 320 320" preserveAspectRatio="xMidYMid meet" data-community-graph></svg>
+            </div>
+        </div>
+    </section>
+
+    <section class="start-container fade-up fade-up-6">
+        <div class="start-section-intro">
+            <div>
+                <h2>Discover</h2>
+            </div>
+            <p>Explore tools, resources, and experiments across the Parachute community.</p>
+        </div>
+        <div class="start-discover-grid">
+            <article class="start-discover-card">
+                <div class="start-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M4 7h16"></path><path d="M7 4v16"></path><rect x="4" y="4" width="16" height="16" rx="3"></rect></svg>
+                </div>
+                <h3>Tools</h3>
+                <p>Software and utilities you can install, run, and adapt to your own work.</p>
+                <a href="/install/" class="start-link">Browse tools</a>
+            </article>
+            <article class="start-discover-card start-discover-card-soft">
+                <div class="start-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M7 3.5h8l4 4V20a1 1 0 0 1-1 1H7a2 2 0 0 1-2-2V5.5a2 2 0 0 1 2-2z"></path><path d="M15 3.5V8h4"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg>
+                </div>
+                <h3>Resources</h3>
+                <p>Documentation, guides, and learnings that help you get moving fast.</p>
+                <a href="/docs/" class="start-link">Read resources</a>
+            </article>
+            <article class="start-discover-card">
+                <div class="start-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M9 18h6"></path><path d="M10 21h4"></path><path d="M8.5 14.5c-1.1-.9-2-2.5-2-4.5a5.5 5.5 0 1 1 11 0c0 2-.9 3.6-2 4.5-.8.7-1.5 1.5-1.5 2.5h-4c0-1-.7-1.8-1.5-2.5Z"></path></svg>
+                </div>
+                <h3>Experiments</h3>
+                <p>New ideas and works-in-progress that show where Parachute may go next.</p>
+                <a href="/docs/" class="start-link">View experiments</a>
+            </article>
+        </div>
+    </section>
+
+    <section class="start-breakout start-developer-band">
+        <div class="start-developer-ambient" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="start-developer-grid">
+            <div class="start-developer-copy">
+                <span class="start-kicker">Developer Program</span>
+                <h2>Build with Parachute</h2>
+                <p>The Parachute Developer Program provides access to APIs, integrations, previews, and tools for developers building alongside the work.</p>
+                <div class="start-developer-actions">
+                    <a href="#" class="start-developer-button">Join Our Community</a>
+                    <a href="/docs/" class="start-link start-developer-link">Learn about the developer program</a>
+                </div>
+            </div>
+            <ul class="start-benefits">
+                <li>Early access</li>
+                <li>Documentation</li>
+                <li>API updates</li>
+                <li>Developer previews</li>
+                <li>Community support</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="start-container start-tools">
+        <div class="start-section-intro">
+            <div>
+                <h2>Quick Tools &amp; Guides</h2>
+            </div>
+            <p>Fast access to setup, references, downloads, support, updates, and status.</p>
+        </div>
+        <div class="start-tools-grid">
+            <a class="start-tool-link" href="/install/">
+                <h3>Getting Started</h3>
+                <p>Setup guides and onboarding.</p>
+            </a>
+            <a class="start-tool-link" href="/docs/">
+                <h3>Documentation</h3>
+                <p>Product documentation and references.</p>
+            </a>
+            <a class="start-tool-link" href="/install/">
+                <h3>Downloads</h3>
+                <p>Software and resources.</p>
+            </a>
+            <a class="start-tool-link" href="https://github.com/ParachuteComputer">
+                <h3>Support</h3>
+                <p>Help and troubleshooting.</p>
+            </a>
+            <a class="start-tool-link" href="/since-launch/">
+                <h3>Changelog</h3>
+                <p>Recent updates and releases.</p>
+            </a>
+            <a class="start-tool-link" href="/roadmap/">
+                <h3>Status</h3>
+                <p>System and rollout health.</p>
+            </a>
+        </div>
+    </section>
+
+    <section class="start-container start-footer">
+        <div class="start-section-intro">
+            <div>
+                <h2>Start with Parachute</h2>
+            </div>
+            <p class="start-footer-lead">A simple navigation hub for products, community, developer work, and company information.</p>
+        </div>
+        <div class="start-footer-grid">
+            <div class="start-footer-column">
+                <h3>Products</h3>
+                <ul>
+                    <li>
+                        <a href="/install/" class="start-footer-product">
+                            <span>Vault</span>
+                            <span class="start-footer-pill">Available now</span>
+                        </a>
+                    </li>
+                    <li><a href="/start/">Canvas</a></li>
+                    <li><a href="/start/">Beacon</a></li>
+                    <li><a href="/start/">Signal</a></li>
+                </ul>
+            </div>
+            <div class="start-footer-column">
+                <h3>Community</h3>
+                <ul>
+                    <li><a href="/blog/">Updates</a></li>
+                    <li><a href="/blog/">Events</a></li>
+                    <li><a href="https://friends.parachute.computer">Friends</a></li>
+                    <li><a href="/blog/">Newsletter</a></li>
+                </ul>
+            </div>
+            <div class="start-footer-column">
+                <h3>Developers</h3>
+                <ul>
+                    <li><a href="/docs/">Developer Program</a></li>
+                    <li><a href="/docs/">Documentation</a></li>
+                    <li><a href="/docs/">APIs</a></li>
+                    <li><a href="/since-launch/">Changelog</a></li>
+                </ul>
+            </div>
+            <div class="start-footer-column">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="/">About</a></li>
+                    <li><a href="mailto:hello@parachute.computer">Contact</a></li>
+                    <li><a href="https://github.com/ParachuteComputer">Careers</a></li>
+                    <li><a href="https://github.com/ParachuteComputer">Press</a></li>
+                    <li><a href="/">Privacy</a></li>
+                    <li><a href="/">Terms</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</main>
+<script>
+(function () {
+    var media = document.querySelectorAll("[data-parallax]");
+    if (!media.length || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    function updateParallax(el) {
+        var rect = el.getBoundingClientRect();
+        var viewport = window.innerHeight || document.documentElement.clientHeight;
+        var progress = (rect.top + rect.height / 2 - viewport / 2) / viewport;
+        var kind = el.getAttribute("data-parallax");
+
+        if (kind === "launch") {
+            el.style.setProperty("--launch-parallax-shift", (progress * -24).toFixed(2) + "px");
+            return;
+        }
+
+        el.style.setProperty("--parallax-shift", (progress * -36).toFixed(2) + "px");
+    }
+
+    function updateAll() {
+        media.forEach(updateParallax);
+    }
+
+    updateAll();
+    window.addEventListener("scroll", updateAll, { passive: true });
+    window.addEventListener("resize", updateAll);
+})();
+
+(function () {
+    var container = document.querySelector("[data-rotating-message]");
+    if (!container) return;
+
+    var prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var messages = [
+        "Hey, Parachute... help me sketch a better week from the notes I already have.",
+        "Hey, Parachute... pull together everything I said about hosting for friends and family.",
+        "Hey, Parachute... turn these scattered ideas into a cleaner plan I can share.",
+        "Hey, Parachute... show me what changed this week and what still needs attention.",
+        "Hey, Parachute... draft a simple update from the work that shipped most recently."
+    ];
+
+    var current = 0;
+    var node = container.querySelector("p");
+    if (!node) return;
+
+    function swapMessage() {
+        current = (current + 1) % messages.length;
+
+        if (prefersReduced) {
+            node.textContent = messages[current];
+            return;
+        }
+
+        node.classList.add("is-exiting");
+
+        window.setTimeout(function () {
+            node.textContent = messages[current];
+            node.classList.remove("is-exiting");
+            node.classList.add("is-entering");
+
+            window.requestAnimationFrame(function () {
+                window.requestAnimationFrame(function () {
+                    node.classList.remove("is-entering");
+                });
+            });
+        }, 320);
+    }
+
+    window.setInterval(swapMessage, 4200);
+})();
+
+(function () {
+    var svg = document.querySelector("[data-community-graph]");
+    if (!svg) return;
+
+    var prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var ns = "http://www.w3.org/2000/svg";
+    var width = 320;
+    var height = 320;
+    var centerX = width / 2;
+    var centerY = height / 2;
+    var frame = 0;
+    var growthEvery = 240;
+    var jitterEvery = 720;
+    var initialCount = prefersReduced ? 22 : 8;
+    var activeCount = initialCount;
+
+    var linkLayer = document.createElementNS(ns, "g");
+    var nodeLayer = document.createElementNS(ns, "g");
+    svg.appendChild(linkLayer);
+    svg.appendChild(nodeLayer);
+
+    function buildNode(index, total) {
+        var ring = 44 + (index / total) * 82;
+        var angle = index * 2.3999632297;
+        var x = centerX + Math.cos(angle) * ring;
+        var y = centerY + Math.sin(angle) * ring * 0.88;
+        return {
+            x: x,
+            y: y,
+            r: index % 9 === 0 ? 7.5 : index % 5 === 0 ? 6.5 : 5.4,
+            ampX: 5 + (index % 6) * 1.5,
+            ampY: 5 + (index % 5) * 1.7,
+            speed: 0.0038 + (index % 7) * 0.00038,
+            phase: index * 0.73,
+            kind: index % 11 === 0 ? "accent" : index % 4 === 0 ? "muted" : "base"
+        };
+    }
+
+    function buildNodes(total) {
+        var arr = [];
+        for (var i = 0; i < total; i += 1) arr.push(buildNode(i, total));
+        return arr;
+    }
+
+    var nodes = buildNodes(52);
+
+    function buildLinks(nodeCount) {
+        var output = [];
+        for (var i = 1; i < nodeCount; i += 1) {
+            var parent = Math.max(0, i - (2 + (i % 5)));
+            output.push([i, parent]);
+            if (i > 6 && i % 3 === 0) output.push([i, Math.max(0, i - 6)]);
+            if (i > 10 && i % 5 === 0) output.push([i, Math.max(0, i - 11)]);
+        }
+        return output;
+    }
+
+    var links = buildLinks(nodes.length);
+
+    function jitterNode(node) {
+        node.phase = Math.random() * Math.PI * 2;
+        node.ampX = 4 + Math.random() * 8;
+        node.ampY = 4 + Math.random() * 8;
+        node.speed = 0.0035 + Math.random() * 0.0018;
+    }
+
+    var linkEls = links.map(function () {
+        var line = document.createElementNS(ns, "line");
+        line.setAttribute("class", "graph-link");
+        linkLayer.appendChild(line);
+        return line;
+    });
+
+    var nodeEls = nodes.map(function (node) {
+        var circle = document.createElementNS(ns, "circle");
+        var className = "graph-node";
+        if (node.kind === "muted") className += " graph-node-muted";
+        if (node.kind === "accent") className += " graph-node-accent";
+        circle.setAttribute("class", className);
+        circle.setAttribute("r", node.r);
+        nodeLayer.appendChild(circle);
+        return circle;
+    });
+
+    function setVisible(el, visible) {
+        el.style.opacity = visible ? "1" : "0";
+    }
+
+    function positionFor(node, t) {
+        var angle = node.phase + t * node.speed;
+        var radial = 1 + 0.08 * Math.sin(t * node.speed * 0.7 + node.phase);
+        return {
+            x: centerX + (node.x - centerX) * radial + Math.cos(angle) * node.ampX,
+            y: centerY + (node.y - centerY) * radial + Math.sin(angle * 1.15) * node.ampY
+        };
+    }
+
+    function draw() {
+        var t = frame;
+        var positions = nodes.map(function (node) { return positionFor(node, t); });
+
+        linkEls.forEach(function (line, i) {
+            var sourceIndex = links[i][0];
+            var targetIndex = links[i][1];
+            var visible = sourceIndex < activeCount && targetIndex < activeCount;
+            setVisible(line, visible);
+            if (!visible) return;
+            var a = positions[sourceIndex];
+            var b = positions[targetIndex];
+            line.setAttribute("x1", a.x.toFixed(2));
+            line.setAttribute("y1", a.y.toFixed(2));
+            line.setAttribute("x2", b.x.toFixed(2));
+            line.setAttribute("y2", b.y.toFixed(2));
+        });
+
+        nodeEls.forEach(function (circle, i) {
+            var visible = i < activeCount;
+            setVisible(circle, visible);
+            if (!visible) return;
+            var p = positions[i];
+            circle.setAttribute("cx", p.x.toFixed(2));
+            circle.setAttribute("cy", p.y.toFixed(2));
+        });
+    }
+
+    function tick() {
+        if (!prefersReduced) {
+            frame += 1;
+            if (frame % growthEvery === 0 && activeCount < nodes.length) {
+                activeCount += 1;
+                jitterNode(nodes[activeCount - 1]);
+            }
+            if (frame % jitterEvery === 0) {
+                jitterNode(nodes[(frame / jitterEvery) % activeCount]);
+            }
+        }
+        draw();
+        window.requestAnimationFrame(tick);
+    }
+
+    draw();
+    window.requestAnimationFrame(tick);
+})();
+</script>
