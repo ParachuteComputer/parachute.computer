@@ -3,6 +3,9 @@ layout: base.njk
 title: Blog
 description: "Product updates and thinking from the Parachute team"
 permalink: /blog/
+# Opt back into Nunjucks: blog.11tydata.json sets templateEngineOverride: md
+# for the markdown posts (see #99), but this listing IS a Nunjucks template.
+templateEngineOverride: njk
 ---
 <main>
     <div class="roadmap-header fade-up fade-up-1">
