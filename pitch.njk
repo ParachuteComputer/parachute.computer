@@ -1111,8 +1111,8 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                         <div class="pi-flywheel-body"><strong>The memory + knowledge layer.</strong> Notes, tags, links.</div>
                     </div>
                     <div class="pi-flywheel-row">
-                        <div class="pi-flywheel-role">Agent</div>
-                        <div class="pi-flywheel-body"><strong>Custom knowledge agents</strong> on any vault.</div>
+                        <div class="pi-flywheel-role">Intelligence</div>
+                        <div class="pi-flywheel-body"><strong>Bring the AI you trust</strong> to any vault &mdash; over MCP + the open API.</div>
                     </div>
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Surface</div>
@@ -1122,9 +1122,9 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                 <aside class="pi-notes">
                     <p>Parachute helps you organize your thoughts, notes, and projects in a coherent way &mdash; without architecting the perfect system first. Add things in, be in easy conversation with your AI.</p>
                     <p>Think of it as bringing together the best of what Obsidian offers (notes, tags, links, files on your machine) and what Notion offers (a clean place to organize a project, a life, a team) &mdash; in a truly personal interface.</p>
-                    <p><strong>Vault</strong> is self-hostable and customizable. <strong>Agents</strong> let you bring the AI you trust to the data you own. <strong>Surfaces</strong> let you navigate, view, share, and interact with your data however fits.</p>
+                    <p><strong>Vault</strong> is self-hostable and customizable. <strong>Intelligence</strong> means you bring the AI you trust to the data you own. <strong>Surfaces</strong> let you navigate, view, share, and interact with your data however fits.</p>
                     <p>Every vault is reachable over an <strong>open REST API</strong> &mdash; so people can build whatever interface they want on top &mdash; and over <strong>MCP</strong>, so any AI system you use instantly works with your data.</p>
-                    <p>The three layers are the conceptual model. Underneath them sit the modules that ship today (vault, scribe, notes, hub, agent) &mdash; we'll get to those in a moment.</p>
+                    <p>The three layers are the conceptual model. Underneath them sit the modules that ship today (vault, scribe, surface, hub, runner) &mdash; we'll get to those in a moment.</p>
                 </aside>
             </section>
 
@@ -1165,7 +1165,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                         <div class="pi-flywheel-body"><strong>Your data.</strong> Self-host or cloud. REST + MCP.</div>
                     </div>
                     <div class="pi-flywheel-row">
-                        <div class="pi-flywheel-role">Agent</div>
+                        <div class="pi-flywheel-role">Intelligence</div>
                         <div class="pi-flywheel-body"><strong>Your intelligence.</strong> Bring the AI you trust.</div>
                     </div>
                     <div class="pi-flywheel-row">
@@ -1175,9 +1175,9 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                 </div>
                 <aside class="pi-notes">
                     <p><strong>Vault</strong> is your data: notes, tags, links, files. Runs on your machine or our cloud. Reachable over an open REST API and MCP &mdash; so any tool can read and write to it.</p>
-                    <p><strong>Agent</strong> is your intelligence: custom knowledge agents you spin up on any vault. Bring the AI you trust (Claude, GPT, local) to the data you own.</p>
+                    <p><strong>Intelligence</strong> is the AI you trust (Claude, GPT, local), brought to the data you own &mdash; over MCP and the open REST API. For scheduled or automated agent work, <strong>Runner</strong> runs a prompt on a schedule against your vault.</p>
                     <p><strong>Surface</strong> is your interface: custom web views to navigate, share, and interact with your data. Notes (the PWA) is one surface we ship; build your own, or use what we make.</p>
-                    <p>The three layers sit on top of a few small modules that ship today &mdash; <strong>vault</strong>, <strong>scribe</strong> (transcription), <strong>notes</strong>, <strong>hub</strong> (the coordinator that handles auth), <strong>agent</strong> (an opinionated agent-on-vault distribution).</p>
+                    <p>The three layers sit on top of a few small modules that ship today &mdash; <strong>vault</strong>, <strong>scribe</strong> (transcription), <strong>surface</strong> (the UI host that bundles Notes), <strong>hub</strong> (the coordinator that handles auth), <strong>runner</strong> (a prompt on a schedule against your vault).</p>
                     <p>The contract underneath: every vault speaks an <strong>open REST API</strong> and <strong>MCP</strong> &mdash; the open standard every major lab now supports. That's what makes the substrate portable: you don't depend on us to use your data.</p>
                 </aside>
             </section>
@@ -1185,7 +1185,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
             {# ── Slide 5: The flywheel ── #}
             <section class="pi-slide fade-up fade-up-5" data-slide-id="5" data-video-start="120" data-video-end="150">
                 <p class="pi-label">How it compounds</p>
-                <h2 class="pi-h2">Vault grows. Agents read. Surfaces<br>render. The graph compounds.</h2>
+                <h2 class="pi-h2">Vault grows. AI reads. Surfaces<br>render. The graph compounds.</h2>
                 <div class="pi-flywheel">
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">Capture</div>
@@ -1222,7 +1222,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
             {# ── Slide 6: Where we're at ── #}
             <section class="pi-slide fade-up fade-up-5" data-slide-id="6" data-video-start="150" data-video-end="185">
                 <p class="pi-label">Where we're at</p>
-                <h2 class="pi-h2">Soft-launched in April.<br>Open beta in about a month.</h2>
+                <h2 class="pi-h2">Soft-launched in April.<br>Opening up in June.</h2>
                 <div class="pi-modules">
                     <div class="pi-mod">
                         <span class="pi-mod-tag">Core</span>
@@ -1236,8 +1236,8 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                     </div>
                     <div class="pi-mod">
                         <span class="pi-mod-tag">Core</span>
-                        <h3>Notes</h3>
-                        <p>Browser-based companion for the Vault. Installable PWA, works offline, voice capture wired to Scribe.</p>
+                        <h3>Surface</h3>
+                        <p>The UI host module. Ships Notes &mdash; an installable PWA, offline, voice capture wired to Scribe. <code>surface-client</code> / <code>surface-render</code> make your own surface a thin import.</p>
                     </div>
                     <div class="pi-mod">
                         <span class="pi-mod-tag">Core</span>
@@ -1245,9 +1245,9 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                         <p>The coordinator. Install, start, stop, expose. OAuth issuer with scope-narrowed JWTs and per-module admin UIs.</p>
                     </div>
                     <div class="pi-mod">
-                        <span class="pi-mod-tag">Core</span>
-                        <h3>Agent</h3>
-                        <p>A Parachute distribution &mdash; a fork of NanoClaw with vault integration. An opinionated all-in-one for spinning up knowledge agents on a vault.</p>
+                        <span class="pi-mod-tag exploration">Shipped</span>
+                        <h3>Runner</h3>
+                        <p>Vault-as-job-substrate &mdash; a prompt on a schedule against your vault. The lightweight path for owner-operated automation.</p>
                     </div>
                     <div class="pi-mod">
                         <span class="pi-mod-tag">Patterns</span>
@@ -1256,12 +1256,12 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                     </div>
                 </div>
                 <p class="pi-shipped-stamp">
-                    <strong>Latest &middot; May 11, 2026</strong> &mdash; hub 0.5.8 &middot; vault 0.4.3 &middot; scribe 0.4.2 &middot; notes 0.3.13 &middot; agent 0.1.4 &middot; scope-guard 0.2.1 <em>(internal JWT library shared across modules)</em>. All on <code>npm @latest</code>.
+                    <strong>Latest &middot; June 4, 2026</strong> &mdash; hub 0.6.3 &middot; vault 0.5.1 &middot; scribe 0.4.5 &middot; surface 0.2.2 &middot; runner 0.1.0 &middot; scope-guard 0.4.0 &middot; surface-client 0.2.0 &middot; surface-render 0.2.0. All on <code>npm @latest</code>.
                 </p>
                 <aside class="pi-notes">
                     <p>We soft-launched Vault on <strong>April 23, 2026</strong>. A small group of beta users is testing the app right now, finding it valuable, and giving us feedback that's helping us refine quickly.</p>
-                    <p>In the eighteen days since launch we shipped a coordinated ecosystem-wide auth-architecture migration (vault-scoped tokens, a shared JWT-validation kernel called <code>scope-guard</code>) plus a holistic UX rework across vault, hub, and notes &mdash; the last of it landed today. Every package stable on <code>npm @latest</code>.</p>
-                    <p>We're about <strong>one month away</strong> from shipping a solid open beta for everyday people &mdash; polished onboarding, the cloud option ready, mobile capture flow tight.</p>
+                    <p>In the weeks since launch we shipped a lot: an ecosystem-wide auth-architecture unification (vault-scoped tokens on a shared JWT kernel, <code>scope-guard</code>), a one-container cloud deploy with hub-as-supervisor, per-host Cloudflare tunnels for exposing a vault, the surfaces SDK (<code>surface-client</code> / <code>surface-render</code> &mdash; building a bespoke UI over your vault is now a thin import), invite + individual-user onboarding flows, and an Obsidian-import convergence. Every package stable on <code>npm @latest</code>.</p>
+                    <p>Now the focus is a <strong>bigger June launch</strong> &mdash; polished onboarding, the cloud option ready, and a tight mobile capture flow.</p>
                 </aside>
             </section>
 
@@ -1279,6 +1279,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                         <div class="pi-flywheel-body"><strong>Licenses + integration services.</strong> AGPL forces companies to share &mdash; or buy a commercial license.</div>
                     </div>
                 </div>
+                {# TODO(aaron): confirm cloud tier pricing — current v0.6 single-container deploy runs ~$7/mo flat on Render #}
                 <div class="pi-tiers" style="margin-top: 1.25rem;">
                     <div class="pi-tier">
                         <div class="pi-tier-price">Free<span>&nbsp;</span></div>
@@ -1295,7 +1296,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                 </div>
                 <aside class="pi-notes">
                     <p>We're open-sourcing everything. More people want technology they can truly own &mdash; that openness is what makes both revenue paths work.</p>
-                    <p><strong>Hosted side:</strong> managed instances of vault / agent / surface &mdash; or the whole computer. A few tiers, healthy margins. The bet is open source builds trust &rarr; more self-hosters &rarr; bigger pipe of would-be hosted customers.</p>
+                    <p><strong>Hosted side:</strong> managed instances of vault / surface &mdash; or the whole computer. A few tiers, healthy margins. The bet is open source builds trust &rarr; more self-hosters &rarr; bigger pipe of would-be hosted customers.</p>
                     <p><strong>Enterprise side:</strong> a company that wants to weave Parachute into a commercial product has to share their own code back &mdash; <em>unless</em> they buy a commercial license. Most won't want to share, so we offer special licenses + integration services to deploy Parachute as their internal knowledge / project-management / custom-agent stack. <em>The license is the moat that funds this path.</em></p>
                     <p><strong>Cloud pricing:</strong> starts at $2/mo to lower the friction for self-hosters considering convenience. Scales up with bundled AI access, multi-device sync, larger storage, team features. Same code as self-host. Export everything. Leave any time. We're not pricing your context.</p>
                 </aside>
@@ -1308,7 +1309,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                 <aside class="pi-notes">
                     <p>Every person is going to need a place where their context lives that <strong>isn't</strong> any single AI lab &mdash; one that travels across whichever models, agents, and surfaces they're using this year and next. That's what we're building.</p>
                     <p><strong>The pendant</strong> is always-on-when-you-press-it voice capture, writing straight to your vault. Working prototype today; shippable v1 lands through the native-mobile path.</p>
-                    <p><strong>Custom surfaces:</strong> Loveable, v0, Dia &mdash; people are building bespoke UIs at unprecedented speed. Each one needs a place to put data. Vault is that place.</p>
+                    <p><strong>Custom surfaces:</strong> Loveable, v0, Dia &mdash; people are building bespoke UIs at unprecedented speed. Each one needs a place to put data. Vault is that place &mdash; and the surfaces SDK is live on npm today (<code>@openparachute/surface-client</code> + <code>surface-render</code>), so a bespoke UI over your vault is a thin import, not a from-scratch build.</p>
                     <p><strong>Agents on substrate:</strong> Claude, ChatGPT, custom assistants. They get more powerful when they have continuity. Continuity needs a place to live that survives the model upgrade.</p>
                     <p><strong>Third-party modules:</strong> anyone can build a service that plugs into a Parachute hub. Calendar, email, knowledge bases, custom agents &mdash; rendered like they were native.</p>
                 </aside>
@@ -1319,7 +1320,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                     </div>
                     <div class="pi-future-card">
                         <strong>Custom surfaces</strong>
-                        <span>Bespoke UIs at unprecedented speed. Each one needs a place to put data.</span>
+                        <span>Bespoke UIs at unprecedented speed. The surfaces SDK is live on npm &mdash; building one over your vault is a thin import today.</span>
                     </div>
                     <div class="pi-future-card">
                         <strong>Agents on substrate</strong>
@@ -1378,7 +1379,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                     <p><strong>Neil Yarnal</strong> &mdash; visual identity, product design, the look and feel of every surface that touches a user.</p>
                     <p><strong>Benjamin Life</strong> &mdash; knowledge-management practice. The bridge between Parachute and people building serious second brains.</p>
                     <p><strong>Jon Bo</strong> &mdash; multi-time founding engineer. Tasteful product architect.</p>
-                    <p><strong>Lucian Hymer</strong> &mdash; agentic-system wizard. Multi-time founding engineer. Leads the agent layer.</p>
+                    <p><strong>Lucian Hymer</strong> &mdash; agentic-system wizard. Multi-time founding engineer.</p>
                     <p><strong>Marvin Melzer</strong> &mdash; elegant hardware craftsman. Pendant prototype lead, CU ATLAS.</p>
                 </aside>
                 <div class="pi-team">
@@ -1449,6 +1450,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
             {# ── Slide 10: The ask ── #}
             <section class="pi-slide pi-slide-center fade-up fade-up-6" data-slide-id="10" data-video-start="265" data-video-end="9999">
                 <p class="pi-label">The ask</p>
+                {# TODO(aaron): confirm ask figures still current #}
                 <div class="pi-ask">
                     <p class="pi-ask-quote">Raising a <strong>$150K SAFE @ $3M cap</strong> &mdash; a friends-and-family round.</p>
                     <div class="pi-prose" style="margin-bottom: 1.5rem;">
