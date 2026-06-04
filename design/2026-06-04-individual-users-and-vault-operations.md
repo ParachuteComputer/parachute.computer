@@ -150,6 +150,8 @@ The schema has moved **past** the 2026-05-20 Phase 1 doc. That doc described a s
 
 **The dormant role.** `vaultVerbsForRole("write")` → `["read","write","admin"]`, `("read")` → `["read"]`, unknown → `[]` (fail-closed) ([`users.ts:178-182`](#)). But **every assignment is written `role='write'`** ([`users.ts:273,431`](#)) → so **any assigned user gets full vault admin** (token mint/revoke + config edits on that vault). This was Aaron's explicit 2026-05-30 call. The `role='read'→[read]` path **exists in code but no flow ever creates it.**
 
+> **Footnote for code PRs citing this doc:** the docstring at [`users.ts:190-191`](#) is **stale** — it says `vaultVerbsForRole('write')` returns "today always `["read", "write"]`", which contradicts the actual code (it returns `["read", "write", "admin"]`). Trust the code, not that comment, when implementing the owner-vs-shared role split.
+
 ### The problem this opens
 
 Self-serve sharing forces the question: the moment you invite someone into a vault you co-use, they hold **admin** over it — they can mint admin tokens, revoke *your* tokens on that vault, and edit its config (providers, retention, schema). There is **no owner-vs-shared distinction.** For a single-operator-N-friends-with-N-separate-vaults model this never bit (each friend owns their one vault). For *shared* vaults it is the biggest blast-radius lever in the system.
@@ -184,17 +186,21 @@ The first-admin-by-earliest-row heuristic is fine for single-operator but should
 
 ## 5. Monitoring — per-vault usage (Aaron's priority)
 
-### Current state
+### Already shipped (vault main)
 
-**There is no usage/disk-size monitoring anywhere.** `getVaultStats` ([core `notes.ts:1540-1596`](#)) computes logical counts only (notes, attachments, links, tags, date range, histogram) — **no bytes**. `byteSize` exists per-note ([`notes.ts:1485`](#)) but is never summed. The admin SPA vault row shows only name/version/url/Connect/Manage ([`VaultsList.tsx:178-235`](#)); its only data source is the anonymous `/.well-known/parachute.json` (logical topology). The `/account/` tiles show no usage. **Genuinely greenfield** — no `du`/`statfs`/dir-walk anywhere.
+> **Update, post-research:** the vault-side usage endpoint **landed in vault#437** (on `main`) while this doc was in review — it matches the design below almost exactly. Shipped: `src/usage.ts` (`buildUsageReport`, with the TTL-cached dir-walks + `?fresh=1` bypass); `GET /vault/<name>/.parachute/usage` dispatched in [`routing.ts:474`](#), gated `hasScopeForVault(auth.scopes, vaultName, "read")` (read-scope, exactly as recommended — a user sees their own vault's size, the operator inherits read); and `contentBytes` added to `getVaultStats` via `SUM(LENGTH(CAST(content AS BLOB)))` ([core `types.ts:79`](#), [`notes.ts:1586`](#)). So the **load-bearing vault primitive exists.** What remains is purely **hub-side**: aggregation + surfacing (below). The §5 design is retained as the contract the shipped endpoint satisfies.
 
-The on-disk paths to measure (research monitoring §currentState): per-vault dir `<root>/vault/data/<name>` containing `vault.db` (+ `-wal` + `-shm` sidecars — WAL mode, so all three count), `assets/` (date-bucketed uploads), and `mirror/` (the internal git working tree + `.git`).
+### Prior state (what was greenfield when the research ran)
 
-### Decision: compute usage vault-side, aggregate in hub, surface in both SPA and /account
+`getVaultStats` ([core `notes.ts:1540-1596`](#)) computed logical counts only (notes, attachments, links, tags, date range, histogram) — **no bytes**; `byteSize` existed per-note ([`notes.ts:1485`](#)) but was never summed. The admin SPA vault row still shows only name/version/url/Connect/Manage ([`VaultsList.tsx:178-235`](#)), sourced from the anonymous `/.well-known/parachute.json` (logical topology), and the `/account/` tiles still show no usage — **those hub surfaces are the remaining work.**
 
-The `GET /vault/<name>/.parachute/mirror` admin-metric endpoint is the exact dispatch+scope precedent to clone — but for usage we use **read** scope, not admin (a user should see their own vault's size; matches the bare-root stats precedent at [`routing.ts:452`](#)).
+The on-disk paths the shipped endpoint measures (research monitoring §currentState): per-vault dir `<root>/vault/data/<name>` containing `vault.db` (+ `-wal` + `-shm` sidecars — WAL mode, so all three count), `assets/` (date-bucketed uploads), and `mirror/` (the internal git working tree + `.git`).
 
-**(a) The vault-side endpoint** — `GET /vault/<name>/.parachute/usage`, gated `hasScopeForVault(scopes, name, "read")`, returning:
+### Decision: surface the shipped vault endpoint — aggregate in hub, render in both SPA and /account
+
+The shipped `GET /vault/<name>/.parachute/usage` uses **read** scope, not admin (a user should see their own vault's size; matches the bare-root stats precedent at [`routing.ts:452`](#)). The endpoint contract it satisfies:
+
+**(a) The vault-side endpoint (shipped, vault#437)** — `GET /vault/<name>/.parachute/usage`, gated `hasScopeForVault(scopes, name, "read")`, returning:
 
 ```jsonc
 {
@@ -212,7 +218,7 @@ The `GET /vault/<name>/.parachute/mirror` admin-metric endpoint is the exact dis
 
 `content` and `db` are O(1)/cheap-SQL and stay always-on. `assets` + `mirror` need recursive dir-walks — the cost center.
 
-**(b) Caching — required, not optional.** **Recommendation (Uni) — confirm:** compute counts + content + db **always**; compute the two dir-walks **lazily behind a ~60s in-process TTL cache** keyed by vault name, invalidated on upload ([`routes.ts:2435`](#)) and on a mirror export pass; `?fresh=1` forces recompute. This bounds walk cost to once/minute/vault. (Fallback if caching is contentious: ship counts + content + db only first — already answers "how big is this vault's data" for the DB-dominant case.)
+**(b) Caching — shipped.** The endpoint computes counts + content + db cheaply and caches the two dir-walks behind a TTL (with `?fresh=1` bypass), exactly the once/minute/vault posture recommended. No further work; the hub aggregator should respect the cache (don't pass `?fresh=1` on the common poll).
 
 **(c) Hub aggregation + surfacing.** Add `getVaultUsage(name)` to the SPA api client ([`web/ui/src/lib/api.ts`](#)) fetching through the existing `proxyToVault` ([`hub-server.ts:586`](#)); render a size + note-count cell in the `VaultsList` row. For the cross-vault total: client-side fan-out first (N small), promote to a hub `GET /api/vaults/usage` aggregator if N grows. On `/account/`, fetch each assigned vault's usage in `handleAccountHomeGet` via the user's own session-derived vault bearer and render a one-line stat per tile — **read scope is the key unlock**; the user's own credential suffices (admin-only would block them).
 
@@ -229,6 +235,8 @@ Monitoring first, per Aaron. The endpoint's `bytes.total` is the natural cap inp
 Strangers getting accounts on a shared box changes the threat model. The research mapped the hub's five gate flavors (host-admin bearer; session + first-admin; session-any-user `/account/*`; capability-attenuation mint; generic service/vault proxy with no hub-level auth) and the strong cross-vault isolation (audience strict-check + `vault_scope` claim + broad-scope reject — three independent gates in vault `auth.ts`). Below is the **prioritized risk register**, split load-bearing (opened/amplified by this program) vs pre-existing.
 
 ### P0 — directly opened or amplified by invites/self-serve. **These GATE shipping invites.**
+
+**P0-0 — CRITICAL: tag-scoped tokens leak out-of-scope note CONTENT via `expand_links`.** (Found by the deep verification sweep; the research fan-out missed it.) A token holding `vault:<name>:read` **plus a tag scope** (`scoped_tags`) is meant to read only notes carrying those tags. But link-expansion fetches the wikilink **target's full content with no tag-scope filter**: [`core/src/expand.ts:70`](#) calls `noteOps.getNote(ctx.db, noteId)` on the resolved target unconditionally, and the `routes.ts` call sites ([577](#), [626](#), [817](#), [1125](#)) — plus the MCP wrapper — inline that out-of-scope content into the response **before/around** the tag filter. So any in-scope note that wikilinks to an out-of-scope note discloses the out-of-scope note's body when fetched with `expand_links=true`. This is **live and exercisable against any existing tag-scoped token today** — not a future-invited-user problem. Two lower-severity siblings in the same class: **MEDIUM** — `GET /vault/<name>/.parachute/unresolved-wikilinks` ([`routes.ts:1888`](#)) leaks out-of-scope note IDs + the wikilink strings; **MINOR** — `include_links` neighbor hydration leaks out-of-scope neighbor path/ID (not body). **A vault-side fix is being built separately** (filter the expansion target through the caller's tag scope; deny-or-redact out-of-scope targets). **This GATES offering tag-scoped / sub-vault sharing** (§11-l): the moment the program issues a tag-scoped token to a shared user, this becomes a cross-user content-disclosure breach. *Mitigating note:* **zero tag-scoped tokens are currently issued on the box**, so today it is latent — but it must be fixed before this program mints the first one.
 
 **P0-1 — #469: force-change-password is redirect-only, not per-request.** ([`hub-server.ts:2197-2200`](#) comment is explicit.) A friend handed a temp password can navigate directly to `/account/`, `/account/vault-token/<name>`, or a per-vault proxy URL and operate **indefinitely** on the un-rotated secret. Invites = temp-credential handoff *at scale*, so this scales with every invited user. **Fix:** implement the per-request gate the issue sketches — hard-gate `/account/*` (except `/logout`) + per-vault proxy on `password_changed===true`, redirect to `/account/change-password` otherwise. The hub already resolves the user per request, so the cost is low; the only design call is which surfaces stay reachable pre-rotation (§11-f). Pair with auto-cascade reset-password → session-revoke (`resetUserPassword` already revokes tokens at [`users.ts:546`](#); add a sessions DELETE in the same tx). **Do this in the invite PR.**
 
@@ -253,11 +261,11 @@ Strangers getting accounts on a shared box changes the threat model. The researc
 - **`/account/*` origin-check asymmetry** — friend POSTs rely on CSRF double-submit + SameSite=Lax but do not call `isSameOriginRequest` (the belt the oauth/admin POSTs use). Defensible, but close it when the friend surface broadens — `isSameOriginRequest` ([`origin-check.ts:112`](#)) is ready to call.
 - **`UNKNOWN_IP_SENTINEL` shared rate-limit bucket** ([`rate-limit.ts:293-306`](#)) — header-absent peers collapse into one `/login`+2FA throttle bucket. Throttle-evasion / mutual-DoS seam, low sev; noisier with strangers on the box.
 - **`revocation_lag_seconds: 60`** — admin reset/revoke takes up to 60s to propagate (scope-guard cache). Compounds P0-1's standing-temp-password exposure; the "kill NOW" path needs a module restart.
-- **patterns#37 tag-scoped-tokens §Future** — 8 deferred sub-vault delegation knobs (read/write split, path-form allowlist, tag-groups, etc.). Not regressions; capability gaps that limit how finely a shared vault can be delegated. Relevant only if invites want sub-vault sharing rather than whole-vault membership. §11.
+- **patterns#37 tag-scoped-tokens §Future** — 8 deferred sub-vault delegation knobs (read/write split, path-form allowlist, tag-groups, etc.). Capability gaps that limit how finely a shared vault can be delegated. Relevant only if invites want sub-vault sharing rather than whole-vault membership — and note that sub-vault sharing is **separately gated by P0-0** (the `expand_links` content leak must be fixed first). §11.
 
 ### What gates invites
 
-**P0-1 (per-request force-change), P0-2 (owner-vs-shared default role), and P0-3 (env-seed provisioning) GATE shipping invites.** All three are low-code because the primitives exist. P1-4 (#526 cloak) + the P1-5 mint-token folds belong in the same hardening sweep but don't strictly block. The separate deep adversarial sweep should focus on the **mint/attenuation arithmetic** and the **`enforceVaultScope` empty=open sentinel** ([`scope.ts:108-114`](#)) under adversarial scope strings — those are the load-bearing correctness invariants.
+**P0-1 (per-request force-change), P0-2 (owner-vs-shared default role), and P0-3 (env-seed provisioning) GATE shipping invites.** All three are low-code because the primitives exist. **P0-0 (the `expand_links` tag-scope content leak) GATES the narrower case of tag-scoped / sub-vault sharing specifically** — a vault fix is in flight separately; whole-vault membership invites are not blocked by it, but no tag-scoped token may be issued until it lands. P1-4 (#526 cloak) + the P1-5 mint-token folds belong in the same hardening sweep but don't strictly block. The separate deep adversarial sweep should focus on the **mint/attenuation arithmetic** and the **`enforceVaultScope` empty=open sentinel** ([`scope.ts:108-114`](#)) under adversarial scope strings — those are the load-bearing correctness invariants (and it already paid off — P0-0 came out of exactly that sweep).
 
 ---
 
@@ -289,14 +297,14 @@ An invite is the flow that hands a temp-equivalent credential and creates shared
 
 Serial, per-repo, one PR through merge before the next (workspace governance). Roughly:
 
-1. **Vault: usage endpoint** (Aaron's priority, no auth/product decision) — `SUM(content-bytes)` into `getVaultStats`, `dirSize`/`dbBytes` helpers, `GET /.parachute/usage` (read-scope) + 60s cache. Pure additive, testable against fixtures.
-2. **Hub: surface usage** — SPA `VaultsList` cell + `/account/` tile stat via `proxyToVault`. Client-side fan-out for the cross-vault total.
-3. **Vault: default_mirror knob + createVault writes History preset** — pure vault repo, no hub coupling. Add `--no-mirror` flag for parity.
-4. **Hub + vault-SPA: self-serve backup unlock** — `/account/vault-admin-token/<name>` (assignment-gated sibling of the admin endpoint), `/account/backup/<vault>` page (or deep-link to `VaultMirror.tsx#token=…`), "Back up this vault" + "Back up to GitHub" affordances. Update the stale `admin-vault-admin-token.ts` doc-comment. **This is the highest-leverage UI PR.**
-5. **Hub: the §6 security sweep** — P0-1 per-request force-change + cascade revoke, P0-2 owner-vs-shared role default, P1-4 #526 cloak fix, P1-5 mint-token folds. (Scribe self-heal P1-6 is a separate scribe-repo PR.)
-6. **Hub: invite links** — migration v12, `invites.ts`, `/api/invites`, `/account/setup/<token>`, `Users.tsx` section. **After** steps 4 + 5; P0-1 lands here if not already.
+1. **Hub: surface usage (vault endpoint already exists — aggregate + render in admin SPA + /account)** (Aaron's priority). The vault-side `GET /.parachute/usage` shipped in vault#437 (read-scope, cached); the remaining work is hub-side: `getVaultUsage(name)` in the SPA api client via `proxyToVault`, a size + note-count cell in `VaultsList`, a per-tile stat on `/account/`, and (if N grows) a `GET /api/vaults/usage` aggregator. No auth/product decision.
+2. **Vault: default_mirror knob + createVault writes History preset** — pure vault repo, no hub coupling. Add `--no-mirror` flag for parity.
+3. **Hub + vault-SPA: self-serve backup unlock** — `/account/vault-admin-token/<name>` (assignment-gated sibling of the admin endpoint), `/account/backup/<vault>` page (or deep-link to `VaultMirror.tsx#token=…`), "Back up this vault" + "Back up to GitHub" affordances. Update the stale `admin-vault-admin-token.ts` doc-comment. **This is the highest-leverage UI PR.**
+4. **Hub: the §6 security sweep** — P0-1 per-request force-change + cascade revoke, P0-2 owner-vs-shared role default, P1-4 #526 cloak fix, P1-5 mint-token folds. (Scribe self-heal P1-6 is a separate scribe-repo PR.)
+5. **Vault: the P0-0 tag-scope `expand_links` content-leak fix** (in flight separately) — gates issuing any tag-scoped token; must land before invites mint one.
+6. **Hub: invite links** — migration v12, `invites.ts`, `/api/invites`, `/account/setup/<token>`, `Users.tsx` section. **After** steps 3 + 4; P0-1 lands here if not already. Tag-scoped invites additionally wait on step 5.
 
-Steps 1–4 deliver the individual-user value; 5 is the prerequisite hardening for 6.
+Steps 1–3 deliver the individual-user value; 4 is the prerequisite hardening for 6, and 5 gates the tag-scoped/sub-vault sharing case specifically.
 
 ---
 
@@ -351,7 +359,7 @@ The genuine product calls. Defaults above are tagged "Recommendation (Uni) — c
 
 **(k) Per-user module reachability mediation.** Should the hub mediate which user may reach which module (scribe/notes/etc.), or is "each module self-gates, hub just proxies" the permanent boundary ([`hub-server.ts:671-718`](#))? Needs a *written* decision before a future module trusts the hub session implicitly. (Directly relevant to the scribe P1-6 self-heal: if the hub mediated, an auth-open scribe would be less reachable.)
 
-**(l) Sub-vault delegation depth.** Whole-vault membership only (today), or do invites want sub-vault sharing via the deferred tag-scoped/path-form allowlist (patterns#37 §Future)? Determines whether the tag-scope survey gets de-deferred for this program.
+**(l) Sub-vault delegation depth.** Whole-vault membership only (today), or do invites want sub-vault sharing via the deferred tag-scoped/path-form allowlist (patterns#37 §Future)? Determines whether the tag-scope survey gets de-deferred for this program. **Note:** any sub-vault sharing is hard-gated by **§6 P0-0** — the `expand_links` tag-scope content leak must be fixed before a single tag-scoped token is issued (vault fix in flight).
 
 **(m) Mint-token caller-controllable subject.** Is anyone relying on it (e.g. operator minting on behalf of a user), or is it pure forgery surface to pin shut (§6 P1-5)? Pinning is safe only if no flow depends on it.
 
