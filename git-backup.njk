@@ -140,9 +140,15 @@ git init</code></pre>
 
         <p>Click <strong>Start import</strong>. Vault clones the remote into a temp dir, validates that it looks like a vault export (looks for <code>.parachute/vault.yaml</code>), runs the import, cleans up. Synchronous — the page shows "Cloning…" → "Importing…" → a result summary with counts of notes, tags, and attachments imported (plus deletes if you picked Replace).</p>
 
-        <h3 style="margin-top: 1.5rem;">After import: wire it as your mirror remote?</h3>
+        <h3 style="margin-top: 1.5rem;">Sync back to the repo you imported from (default-on)</h3>
 
-        <p>On success, vault asks: "Set this repo as the active mirror remote so future writes push back?" Saying yes <strong>scrolls you to the Git remote section</strong> — it's a navigation hint, not auto-configuration; you still pick credentials + the target repo there manually, but the import you just did pre-positions your mental model. Saying no keeps the import as a one-shot snapshot (use this if you're loading someone else's vault and don't want to push your edits back to their repo).</p>
+        <p>The import form includes <strong>"Also sync changes back to this repo"</strong> — checked by default. Leave it checked and a successful import also wires that repo as your active mirror remote, reusing the access you provided for the import: future vault writes push back automatically. "Import a repo" and "back up to that repo going forward" are one fluid flow. Uncheck it to keep the import as a one-shot snapshot (use this when loading someone else's vault you don't want to push your edits back to).</p>
+
+        <p>Sync-enabling never breaks an import. If the repo was public and you provided no push credentials, or a mirror is already configured for a <em>different</em> remote (vault won't silently clobber your existing backup target), the import still succeeds and the panel shows an informational warning instead of enabling sync.</p>
+
+        <h3 style="margin-top: 1.5rem;">If the host doesn't have git installed</h3>
+
+        <p>Mirror and import both shell out to <code>git</code>. On a machine without it (some minimal server images), vault answers with a clear message explaining that git isn't installed on the server, naming the install command for your platform — not a raw <code>Executable not found</code> 500. Install git, retry, and everything above works.</p>
 
         <h3 style="margin-top: 1.5rem;">Multiple vaults pushing to the same repo</h3>
 
