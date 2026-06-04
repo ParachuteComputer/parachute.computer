@@ -185,7 +185,7 @@ This is load-bearing for two reasons:
 |---|---|---|---|
 | `vault_url` | string (uri) | — required | Origin where the target vault is reachable. Loopback for v0.6 single-container; tailnet/wan when split |
 | `vault_name` | string | `default` | Which vault on that origin to read jobs from |
-| `vault_token` | string (secret) | — required | `pvt_*` bearer with `vault:<name>:write` scope. Stored encrypted on disk (see decision 8) |
+| `vault_token` | string (secret) | — required | Hub-issued JWT bearer with `vault:<name>:write` scope (mint via `parachute auth mint-token`; the `pvt_*` token class this originally specified was retired in vault#412). Stored encrypted on disk (see decision 8) |
 | `poll_interval_seconds` | integer | 60 | How often to re-scan for jobs |
 | `max_concurrent_jobs` | integer | 4 | Fan-out limit per scheduler tick |
 | `disabled` | boolean | false | Global kill switch — daemon stays running but skips all maturation |
@@ -331,7 +331,7 @@ These are flagged for resolution during MVP build, not blockers to start:
 
 - **Cron-string library choice.** `node-cron`, `croner`, `cron-parser` — pick one during build. All viable. Probably `croner` for its native ESM + zero deps, but verify Bun compatibility.
 - **MCP config synthesis: library or shell out to vault CLI?** The `parachute-vault mcp-config` CLI is shipped; runner could shell out per maturation. Alternative: vault exposes the JSON-construction as a library function imported directly. Library is faster (no subprocess) and avoids the parser cost; CLI is the public API surface that's already documented. Probably library + CLI both call into the same function in vault's `core/`. Mild coordination with vault to ship a library export.
-- **Bearer rotation.** If the operator rotates the `pvt_*` token in vault, how does the runner pick up the new value? PUT to `.parachute/config` + restart? Hot-reload from disk? Probably PUT-with-restart is the v0.7 answer; hot-reload is a Phase 2 niceness.
+- **Bearer rotation.** If the operator re-mints the vault bearer (a hub-issued JWT post-vault#412; this originally said `pvt_*`), how does the runner pick up the new value? PUT to `.parachute/config` + restart? Hot-reload from disk? Probably PUT-with-restart is the v0.7 answer; hot-reload is a Phase 2 niceness. *(Resolved in Phase 1.2: `vault_token` hot-reloads via PUT-config.)*
 - **Multiple runner instances on one host.** Two operators on one machine each want their own runner instance pointing at their own vault. The install-slug pattern (parachute-agent learned this the hard way per paraclaw#91) needs application here — runner storage paths must namespace on something operator-controllable so two installs don't clobber each other's `secrets.db`. Probably `$PARACHUTE_HOME/runner/<install-slug>/` with the slug deriving from cwd-hash, matching the existing convention.
 - **Healthcheck semantics.** What counts as "unhealthy" for hub-as-supervisor's restart loop? Last-tick-ago > 5 * poll_interval? Scheduler thread crashed but parent still up? MVP can ship with `last_tick_ago_ms` exposed and "no auto-restart, log loudly" semantics; refine if operators hit wedges.
 
