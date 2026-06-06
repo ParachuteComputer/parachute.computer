@@ -30,7 +30,7 @@ permalink: /multi-user/
             <li><a href="/install/">Your own machine</a> &mdash; a home server, EC2, or any VPS runs the same supervised hub Render does, kept alive by a managed service (systemd / launchd) across reboots.</li>
         </ul>
 
-        <p>The wizard at <code>/admin/setup</code> walks you through naming your vault, picking a scribe provider, and exposing your hub. <strong>You</strong> become the first admin during the wizard &mdash; the username and password you pick there are yours.</p>
+        <p>The wizard at <code>/admin/setup</code> walks you through creating your first vault and exposing your hub. <strong>You</strong> become the first admin during the wizard &mdash; the username and password you pick there are yours. (On a public deploy, the wizard asks for the one-time bootstrap token <code>init</code> printed before it lets you create that admin.)</p>
 
         <p>Verify before inviting anyone: load your hub URL, sign in, and navigate to <code>/admin/vaults</code>, <code>/admin/users</code>, and <code>/admin/permissions</code>. If those load without 401 or 403, you're set up correctly.</p>
     </section>
