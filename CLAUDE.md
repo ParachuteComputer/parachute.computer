@@ -131,7 +131,7 @@ GitHub Pages deployment needs to run `npx @11ty/eleventy` and serve `_site/`. Op
 
 Architecture design notes live in `design/` — documents that anchor post-launch direction without committing code. Currently (2026-04-20):
 
-- `2026-04-20-module-architecture.md` — the canonical module protocol (info, config, services.json, well-known), third-party extensibility path, scope format
+- `2026-04-20-module-architecture.md` — the historical origin of the module protocol (info, services.json, well-known, scope format, extensibility path); the hub-rendered-config-form model and `kind` taxonomy it describes are retired — for current ownership rules see [`parachute-patterns/patterns/hub-module-boundary.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/hub-module-boundary.md)
 - `2026-04-20-hub-as-portal-oauth-and-service-catalog.md` — OAuth architecture with hub-as-issuer, phasing, service catalog in token response
 - `2026-04-20-cloud-offering-sketch.md` — cloud deployment shape (tenant-per-subdomain, Postgres-backed, CDN-hosted Notes, pooled Scribe)
 
