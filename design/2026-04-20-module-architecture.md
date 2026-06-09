@@ -4,8 +4,20 @@ description: "The canonical module protocol: info, config, services.json, .well-
 ---
 # Parachute module architecture
 
+> **Historical foundation — superseded in part (2026-06-09)**
+>
+> This document is the historical origin of the Parachute module protocol. Two of its core models have since been retired:
+>
+> - **Hub-rendered config forms** (`GET /.parachute/config/schema` → hub renders a config UI, `PUT /.parachute/config` driven by hub) — this "thick hub" pattern is retired. Module-owned admin surfaces (e.g. `/vault/admin/`) now own their own config UX; the hub owns the identity transactions, not the form rendering.
+> - **`kind` taxonomy** (`"api" | "frontend" | "tool"` in `/.parachute/info`) — retired; no current enforcement or rendering depends on it.
+>
+> **Current ownership rules:** [`parachute-patterns/patterns/hub-module-boundary.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/hub-module-boundary.md) is the boundary charter — what hub owns vs what modules own.
+> **Modular-UI shift:** [`parachute-patterns/design/2026-06-09-modular-ui-architecture.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/design/2026-06-09-modular-ui-architecture.md) documents the architectural shift that retired the hub-rendered-config-form model.
+>
+> The module-protocol fundamentals below (`.parachute/info`, `services.json`, `module.json`, scope format, extensibility) remain accurate. The config-form contracts (§4–6 of Module contracts) and the hub-as-configuration-UI framing (§The hub as orchestrator) describe the retired model.
+
 **Date:** 2026-04-20
-**Status:** Canonical architecture north-star for post-launch evolution. Launch ships with a subset; this doc defines the target.
+**Status:** Historical foundation — see the boundary charter for current ownership rules. Launch ships with a subset; this doc defined the original target.
 
 **Companions:**
 - `DESIGN-2026-04-20-hub-as-portal-oauth-and-service-catalog.md` — OAuth architecture

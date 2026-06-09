@@ -4,6 +4,17 @@ description: "OAuth architecture with the hub as issuer. One ecosystem sign-in, 
 ---
 # Hub as portal, OAuth, and the service catalog
 
+> **Partially superseded (2026-06-09) — two halves, different fates**
+>
+> This document merged two architectural threads. They have diverged since:
+>
+> - **OAuth-issuer half (hub-as-issuer):** remains canonical and load-bearing. Hub is the ecosystem OAuth issuer; modules accept hub-issued JWTs; the hub JWKS + `/oauth/*` surface is the live, enforced contract. Nothing here has changed.
+>
+> - **Config-portal half (hub renders config dashboards / privileged writes via `PUT /.parachute/config`):** this is the "thick hub" pattern that seeded the architectural debt the 2026-06-09 shift retired. Hub driving `PUT /.parachute/config` forms is no longer the target shape. Module-owned admin surfaces (e.g. `/vault/admin/`) now own their config UX; hub owns the provisioning transaction, not the form rendering. See the boundary charter and the modular-UI design doc for the current model.
+>
+> **Current ownership rules:** [`parachute-patterns/patterns/hub-module-boundary.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/hub-module-boundary.md)
+> **Modular-UI shift:** [`parachute-patterns/design/2026-06-09-modular-ui-architecture.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/design/2026-06-09-modular-ui-architecture.md)
+
 **Date:** 2026-04-20 (launch week — launch target 2026-04-23)
 **Context:** Aaron is out walking, has two related architectural thoughts that converge.
 
