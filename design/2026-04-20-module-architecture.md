@@ -1,6 +1,6 @@
 ---
 title: "Module architecture"
-description: "The canonical module protocol: info, config, services.json, .well-known/parachute.json. How Vault, Notes, Scribe, and third-party modules plug into a single ecosystem under one HTTPS URL."
+description: "Historical origin of the module protocol: info, config, services.json, .well-known/parachute.json. The hub-rendered-config-form model and kind taxonomy are retired; current ownership rules live in the hub-module boundary charter."
 ---
 # Parachute module architecture
 

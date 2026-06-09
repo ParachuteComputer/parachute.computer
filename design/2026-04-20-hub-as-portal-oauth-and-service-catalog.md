@@ -1,6 +1,6 @@
 ---
 title: "Hub as portal — OAuth and the service catalog"
-description: "OAuth architecture with the hub as issuer. One ecosystem sign-in, tokens carrying a service catalog, scopes that constrain what a client can reach."
+description: "OAuth architecture with the hub as issuer — still canonical. One ecosystem sign-in, tokens carrying a service catalog, scoped access. (The config-portal half of this doc was retired 2026-06-09.)"
 ---
 # Hub as portal, OAuth, and the service catalog
 
