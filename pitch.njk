@@ -3,8 +3,8 @@ layout: base.njk
 title: "Pitch"
 description: "Parachute is personal technology, on your terms — a memory and knowledge layer for your data and your AI. Open source. From Open Parachute, PBC."
 permalink: /pitch/
-og_title: "Own your context. Own your AI."
-og_description: "Personal technology, on your terms. A memory and knowledge layer for your data + your AI."
+og_title: "Truly personal computing. Your knowledge belongs with you."
+og_description: "An open memory and knowledge layer for everything you know — genuinely yours, and usable by any AI."
 ---
 <style>
 /* Pitch v4 — single full-width deck + floating corner video widget.
@@ -189,7 +189,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
     /* Use the slide's data-id rather than a CSS counter — CSS counters
        only increment on elements that generate a box, and inactive slides
        are `display: none`, so a counter shows the wrong number. */
-    content: attr(data-slide-id) " / 8";
+    content: attr(data-slide-id) " / 9";
     position: absolute;
     top: 1.5rem;
     right: 1.75rem;
@@ -243,6 +243,24 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
 .pi-deck-controls button:disabled {
     opacity: 0.35;
     cursor: not-allowed;
+}
+.pi-deck-controls .pi-pdf-dl {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 1.1rem;
+    font: inherit;
+    font-size: 0.9rem;
+    color: var(--fg);
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.pi-deck-controls .pi-pdf-dl:hover {
+    background: var(--bg-soft);
+    border-color: var(--accent);
+    color: var(--accent);
 }
 .pi-notes-toggle[aria-pressed="true"] {
     background: var(--accent-soft);
@@ -850,7 +868,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
        landscape renders) and flex-grow the whole gallery so it fills the
        vertical space below the future-cards grid. Means the gallery scales
        up at larger viewports without overflowing short ones. */
-    .pi-deck .pi-slide[data-slide-id="7"] .pi-pendant-gallery {
+    .pi-deck .pi-slide[data-slide-id="8"] .pi-pendant-gallery {
         flex: 1 1 0;
         min-height: 0;
         margin: 0.65rem 0 0.35rem;
@@ -858,7 +876,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
         grid-template-rows: minmax(0, 1fr);
         align-items: stretch;
     }
-    .pi-deck .pi-slide[data-slide-id="7"] .pi-pendant-gallery .pi-img {
+    .pi-deck .pi-slide[data-slide-id="8"] .pi-pendant-gallery .pi-img {
         margin: 0;
         height: auto;
         min-height: 0;
@@ -868,12 +886,12 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
         overflow: hidden;
         display: block;
     }
-    .pi-deck .pi-slide[data-slide-id="7"] .pi-pendant-gallery .pi-img picture {
+    .pi-deck .pi-slide[data-slide-id="8"] .pi-pendant-gallery .pi-img picture {
         display: block;
         width: 100%;
         height: 100%;
     }
-    .pi-deck .pi-slide[data-slide-id="7"] .pi-pendant-gallery .pi-img img {
+    .pi-deck .pi-slide[data-slide-id="8"] .pi-pendant-gallery .pi-img img {
         width: 100%;
         height: 100%;
         max-height: 100%;
@@ -881,7 +899,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
         object-position: center;
     }
     /* Caption must not flex-grow — pin it under the gallery at natural height. */
-    .pi-deck .pi-slide[data-slide-id="7"] > .pi-img-caption {
+    .pi-deck .pi-slide[data-slide-id="8"] > .pi-img-caption {
         flex-shrink: 0;
         margin-top: 0.4rem;
     }
@@ -972,7 +990,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
         font-size: 0.78rem;
         line-height: 1.45;
     }
-    .pi-deck .pi-slide[data-slide-id="7"] .pi-h2 { margin-bottom: 0.7rem; }
+    .pi-deck .pi-slide[data-slide-id="8"] .pi-h2 { margin-bottom: 0.7rem; }
 
     /* Team grid (slide 9) — three columns on wide screens, denser cards. */
     .pi-deck .pi-slide .pi-team {
@@ -1083,7 +1101,7 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
             <section class="pi-slide pi-hero pi-slide-center fade-up fade-up-2" data-slide-id="1" data-video-start="0" data-video-end="15">
                 <p class="pi-eyebrow">Open Parachute, PBC &middot; 2026</p>
                 <h1 class="pi-h1">Own your context.<br>Own your AI.</h1>
-                <p class="pi-lede">Personal technology, on your terms. A memory and knowledge layer for your data + your AI.</p>
+                <p class="pi-lede">Truly personal computing. Your knowledge belongs with you &mdash; an open memory and knowledge layer that any AI can use.</p>
                 <aside class="pi-notes">
                     <p>Parachute is a place for your thoughts, projects, and knowledge to live &mdash; on your terms, available to whichever AI you want to use, in whichever interface fits you. Open source. Self-hostable. A few of us building it together in Boulder.</p>
                 </aside>
@@ -1135,11 +1153,11 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                 <div class="pi-flywheel">
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">The shift</div>
-                        <div class="pi-flywheel-body">AI is becoming everyone's daily thinking partner &mdash; and it's only as good as the context you can hand it.</div>
+                        <div class="pi-flywheel-body">AI is finally good enough to be an extension of your mind &mdash; but only with your context, and it's only as good as the context you can hand it.</div>
                     </div>
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">The trap</div>
-                        <div class="pi-flywheel-body">Every lab is building its own memory silo. Your context gets locked inside whichever model you used &mdash; not portable, not yours.</div>
+                        <div class="pi-flywheel-body">Your context is scattered across Notion, Obsidian, docs, and chat &mdash; and every lab is racing to lock its own memory silo. Not portable, not yours.</div>
                     </div>
                     <div class="pi-flywheel-row">
                         <div class="pi-flywheel-role">The opening</div>
@@ -1158,20 +1176,17 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                 <p class="pi-label">How it's built &amp; compounds</p>
                 <h2 class="pi-h2">Spin up a vault. Bring your own AI.<br><em>The graph compounds.</em></h2>
                 <div class="pi-img">
-                    {# Reused from old NVC deck slide 5: phone/browser/pendant → Vault → Claude/ChatGPT/Gemini.
-                       TODO: refresh diagram for current ecosystem — vault at center, agents + surfaces orbiting,
-                       open REST + MCP on every vault. #}
+                    {# Three-layer model: Capture → Your Vault → Surfaces, with Intelligence (your AI) reading via MCP. #}
                     <picture>
                         <source type="image/webp"
-                                srcset="/assets/pitch/optimized/vault-architecture-800w.webp 800w,
-                                        /assets/pitch/optimized/vault-architecture-1600w.webp 1600w,
-                                        /assets/pitch/optimized/vault-architecture-2400w.webp 2400w"
+                                srcset="/assets/pitch/optimized/three-layer-diagram-800w.webp 800w,
+                                        /assets/pitch/optimized/three-layer-diagram-1600w.webp 1600w"
                                 sizes="(max-width: 900px) 100vw, 60vw">
-                        <img src="/assets/pitch/optimized/vault-architecture-1600w.webp"
-                             alt="Vault architecture: phone, browser, pendant connect to Parachute Vault, which connects via MCP to Claude, ChatGPT, Gemini"
+                        <img src="/assets/pitch/optimized/three-layer-diagram-1600w.webp"
+                             alt="Parachute's three-layer model: Capture (voice, text, files) flows into Your Vault, a knowledge graph at the center; Intelligence (Claude, ChatGPT, local) reads it via MCP; Surfaces render it as bespoke web interfaces"
                              loading="lazy">
                     </picture>
-                    <p class="pi-img-caption">Vault at the center; agents and surfaces orbit around it. Diagram refresh planned to show the three-layer model.</p>
+                    <p class="pi-img-caption">Capture grows the vault; your AI reads it over MCP; surfaces render it. One owned graph at the center.</p>
                 </div>
                 <div class="pi-flywheel">
                     <div class="pi-flywheel-row">
@@ -1200,48 +1215,28 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
             {# ── Slide 5: Traction ── #}
             <section class="pi-slide fade-up fade-up-5" data-slide-id="5" data-video-start="150" data-video-end="185">
                 <p class="pi-label">Traction</p>
-                <h2 class="pi-h2">Launched in April. Shipping weekly.<br>Three live vaults: <em>personal, team, org.</em></h2>
-                {# TODO(aaron): the "org" vault is the Gitcoin engagement — confirm whether to name Gitcoin on the slide face / in notes for the Techstars submission, or keep it generic as "an outside organization." #}
-                <div class="pi-modules">
-                    <div class="pi-mod">
-                        <span class="pi-mod-tag">Core</span>
-                        <h3>Vault</h3>
-                        <p>SQLite-backed graph. REST + MCP. Wikilinks, full-text and semantic search, Obsidian import/export.</p>
+                <h2 class="pi-h2">Launched in April.<br>Paying customers, and we run on it ourselves.</h2>
+                <div class="pi-flywheel">
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Paying</div>
+                        <div class="pi-flywheel-body"><strong>Gitcoin</strong> runs its team's knowledge on Parachute &mdash; a live paid engagement &mdash; alongside paying early customers. The services line is <strong>real revenue today</strong>, not a projection.</div>
                     </div>
-                    <div class="pi-mod">
-                        <span class="pi-mod-tag">Core</span>
-                        <h3>Scribe</h3>
-                        <p>Whisper-compatible transcription API. Local by default; BYO cloud provider.</p>
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">We run on it</div>
+                        <div class="pi-flywheel-body">Parachute's own roadmap, decisions, meetings, and feedback live in a Parachute vault our AI tends and we govern. <strong>Three live vaults</strong> &mdash; personal, team, org &mdash; each prefiguring a product.</div>
                     </div>
-                    <div class="pi-mod">
-                        <span class="pi-mod-tag">Core</span>
-                        <h3>Surface</h3>
-                        <p>The UI host module. Ships Notes &mdash; an installable PWA, offline, voice capture wired to Scribe. <code>surface-client</code> / <code>surface-render</code> make your own surface a thin import.</p>
-                    </div>
-                    <div class="pi-mod">
-                        <span class="pi-mod-tag">Core</span>
-                        <h3>Hub</h3>
-                        <p>The coordinator. Install, start, stop, expose. OAuth issuer with scope-narrowed JWTs and per-module admin UIs.</p>
-                    </div>
-                    <div class="pi-mod">
-                        <span class="pi-mod-tag exploration">Shipped</span>
-                        <h3>Runner</h3>
-                        <p>Vault-as-job-substrate &mdash; a prompt on a schedule against your vault. The lightweight path for owner-operated automation.</p>
-                    </div>
-                    <div class="pi-mod">
-                        <span class="pi-mod-tag">Patterns</span>
-                        <h3>Module protocol</h3>
-                        <p><code>info</code>, <code>config</code>, <code>services.json</code>, <code>well-known</code>. The contract third-party modules plug into.</p>
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Shipping</div>
+                        <div class="pi-flywheel-body">A full stable release train on <strong>June 9</strong> (hub 0.7.0, vault 0.6.0). Five modules, all on npm. Small but growing beta.</div>
                     </div>
                 </div>
                 <p class="pi-shipped-stamp">
-                    <strong>Latest &middot; June 4, 2026</strong> &mdash; hub 0.6.3 &middot; vault 0.5.1 &middot; scribe 0.4.5 &middot; surface 0.2.2 &middot; runner 0.1.0 &middot; scope-guard 0.4.0 &middot; surface-client 0.2.0 &middot; surface-render 0.2.0. All on <code>npm @latest</code>.
+                    <strong>Latest &middot; June 9, 2026</strong> &mdash; hub 0.7.0 &middot; vault 0.6.0 &middot; scribe 0.5.0 &middot; surface 0.3.0 &middot; runner 0.2.0. All on <code>npm @latest</code>.
                 </p>
                 <aside class="pi-notes">
-                    <p>The strongest signal isn't a vanity metric &mdash; it's that Parachute already runs three different ways in the real world, every day:</p>
-                    <p><strong>Personal</strong> &mdash; a 2,000+ note vault as the memory layer for one person's daily AI. <strong>Team</strong> &mdash; this company runs on Parachute: our roadmap, decisions, meetings, and user feedback all live in a Parachute vault that our AI tends and we govern. <strong>Org</strong> &mdash; we operate a knowledge system for an outside organization on the very same stack &mdash; the first shape of our services business.</p>
-                    <p>We soft-launched Vault on <strong>April 23, 2026</strong>; a <strong>small but growing group of beta users</strong> is on it now, giving us the feedback that's sharpening it fast. Since launch we shipped an ecosystem-wide auth unification (shared JWT kernel, <code>scope-guard</code>), a one-container cloud deploy, per-host Cloudflare tunnels, the surfaces SDK (<code>surface-client</code> / <code>surface-render</code> &mdash; a bespoke UI over your vault is now a thin import), and invite-based onboarding. Every package stable on <code>npm @latest</code>.</p>
-                    <p>Next: a bigger public launch &mdash; polished onboarding, the cloud option ready, a tight mobile capture flow.</p>
+                    <p><strong>Paying customers, already.</strong> Gitcoin &mdash; the Web3 public-goods foundation &mdash; runs its team knowledge system on Parachute: a live paid engagement (~$4k/mo) with founder Kevin Owocki. Adam Elfers is a paid early customer. The services line of the business is generating revenue <em>today</em>, not on a projection slide.</p>
+                    <p><strong>We dogfood it.</strong> Parachute's own development runs on a Parachute vault &mdash; roadmap, decisions, meetings, feedback &mdash; with our AI proposing structure and us governing what's kept. Three live archetypes (personal / team / org), each prefiguring a product line.</p>
+                    <p><strong>Shipping fast.</strong> Soft-launched April 23; a full stable train landed June 9 (hub 0.7.0 / vault 0.6.0), five modules on <code>npm @latest</code>. A small but growing beta group is giving us the feedback sharpening it. Next: a bigger public launch &mdash; polished onboarding, cloud ready, tight mobile capture.</p>
                 </aside>
             </section>
 
@@ -1282,8 +1277,33 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                 </aside>
             </section>
 
-            {# ── Slide 8: Where this goes ── #}
+            {# ── Slide 7: Why we win (the wedge + the moat) ── #}
             <section class="pi-slide fade-up fade-up-5" data-slide-id="7" data-video-start="220" data-video-end="245">
+                <p class="pi-label">Why we win</p>
+                <h2 class="pi-h2">Owned, or AI-usable.<br>Until now, <em>you had to pick one.</em></h2>
+                <div class="pi-flywheel">
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Note apps</div>
+                        <div class="pi-flywheel-body">Obsidian, Notion &mdash; <strong>yours</strong>, but your AI can't fluidly use them, and you keep them up by hand.</div>
+                    </div>
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">AI memory</div>
+                        <div class="pi-flywheel-body">ChatGPT &amp; co. &mdash; the AI <strong>uses</strong> it, but it isn't yours: not portable, opaque, ungoverned.</div>
+                    </div>
+                    <div class="pi-flywheel-row">
+                        <div class="pi-flywheel-role">Parachute</div>
+                        <div class="pi-flywheel-body"><strong>Both.</strong> Open, portable, yours &mdash; and <strong>governed</strong>: AI proposes, you decide what it remembers. The graph compounds.</div>
+                    </div>
+                </div>
+                <aside class="pi-notes">
+                    <p>Today you're forced to choose: knowledge that's <em>yours but your AI can't really use</em> (note apps), or knowledge your <em>AI uses but that isn't yours</em> (vendor memory). Parachute is the layer that's both.</p>
+                    <p><strong>Why won't the labs just build this?</strong> Their incentive is memory locked to their model; ours is the opposite &mdash; the open, portable, owned substrate every model reads and writes through MCP. That's the layer that survives their churn, and it compounds as you use it and as AI improves.</p>
+                    <p>The deepest moat may be the <strong>governance loop</strong> itself: AI proposes, you govern what's kept. It's how a knowledge base stays trustworthy while AI writes to it &mdash; and nobody else is building it.</p>
+                </aside>
+            </section>
+
+            {# ── Slide 8: Where this goes ── #}
+            <section class="pi-slide fade-up fade-up-5" data-slide-id="8" data-video-start="245" data-video-end="270">
                 <p class="pi-label">Where this goes</p>
                 <h2 class="pi-h2">A substrate that grows<br>with the AI ecosystem around it.</h2>
                 <aside class="pi-notes">
@@ -1349,8 +1369,8 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
                 <p class="pi-img-caption" style="margin-top: -0.5rem;">Pendant prototype &mdash; render, PCB, and worn. The gesture-first capture surface for the substrate underneath.</p>
             </section>
 
-            {# ── Slide 8: Team + momentum (close) ── #}
-            <section class="pi-slide fade-up fade-up-5" data-slide-id="8" data-video-start="245" data-video-end="9999">
+            {# ── Slide 9: Team + momentum (close) ── #}
+            <section class="pi-slide fade-up fade-up-5" data-slide-id="9" data-video-start="270" data-video-end="9999">
                 <p class="pi-label">Team</p>
                 <h2 class="pi-h2">Small, capable, committed.</h2>
                 <aside class="pi-notes">
@@ -1434,7 +1454,8 @@ og_description: "Personal technology, on your terms. A memory and knowledge laye
             <nav class="pi-deck-controls" aria-label="Pitch deck navigation">
                 <button type="button" class="pi-prev" aria-label="Previous slide">&larr; Prev</button>
                 <button type="button" class="pi-notes-toggle" aria-pressed="false" aria-label="Toggle speaker notes">Notes</button>
-                <span class="pi-counter" aria-live="polite">1 / 8</span>
+                <a class="pi-pdf-dl" href="/assets/pitch/parachute-pitch-deck.pdf" download="Parachute-Pitch-Deck.pdf" aria-label="Download the pitch deck as a PDF">&darr; PDF</a>
+                <span class="pi-counter" aria-live="polite">1 / 9</span>
                 <button type="button" class="pi-next" aria-label="Next slide">Next &rarr;</button>
             </nav>
             <p class="pi-deck-hint">← → arrows to navigate &middot; <kbd>N</kbd> toggles speaker notes &middot; play the video and the deck follows along</p>
