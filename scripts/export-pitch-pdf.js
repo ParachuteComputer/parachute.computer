@@ -5,7 +5,8 @@
 // step through each slide via the ?s=N deep-link, screenshot the slide card,
 // and assemble the shots into a single PDF — one slide per page, uniform size.
 //
-// Prereqs: Playwright chromium installed, and the eleventy dev server running:
+// Prereqs: Playwright + chromium, and the eleventy dev server running:
+//   npm i -D playwright && npx playwright install chromium
 //   npx @11ty/eleventy --serve --port 8080
 // Usage: node scripts/export-pitch-pdf.js [outPath] [slideCount] [baseUrl]
 const { chromium } = require('playwright');
