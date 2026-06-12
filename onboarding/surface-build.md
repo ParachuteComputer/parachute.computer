@@ -1,7 +1,7 @@
 ---
 layout: post.njk
 title: "Starter prompt — build a custom UI for your vault"
-description: "Paste this into Claude Code or Codex with your vault's HTTP API + an API token. The AI will generate a static SPA, host it on GitHub Pages, and wire it to your vault."
+description: "Paste this into Claude Code or Codex. The AI generates a static SPA on the surface SDK (@openparachute/surface-client + surface-render), hosts it on GitHub Pages, and signs in to your vault via your hub's OAuth."
 permalink: /onboarding/surface-build/
 date: 2026-05-26T12:00:00
 ---
@@ -10,7 +10,7 @@ A custom front-end for *your* vault, designed to surface what *you* actually loo
 
 This is the second of two starter prompts. The first ([set up your vault](/onboarding/vault-setup/)) is for figuring out what's in your vault. This one is for figuring out how you want to see it.
 
-**Before you paste**: have a vault running with some content in it (even just a getting-started note works), and an API token scoped to your vault. Mint one from the vault admin SPA's Tokens page or your hub's `/admin/tokens` panel — both issue revocable **hub JWTs** (the legacy `pvt_*` tokens are being retired). The AI needs both.
+**Before you paste**: have a vault running with some content in it (even just a getting-started note works), and know your hub's URL + your vault's name. No token to mint — the app signs you in through your hub's standard OAuth flow and you approve it once on a consent screen.
 
 ---
 
@@ -23,32 +23,40 @@ needed — just a static SPA in a GitHub repo I own.
 
 ## What I'll give you
 
-- My vault's HTTP origin (e.g. `https://aaron-hub.fly.dev/vault/default`)
-- An API token with `vault:write` scope (a hub JWT — minted from the
-  vault admin SPA's Tokens page or the hub's `/admin/tokens` panel)
+- My hub's URL (e.g. `https://aaron-hub.fly.dev`) and my vault's name
+  (e.g. `default`)
 - A description of what I look at most — projects, people, daily
   notes, etc. (You'll interview me.)
 
-## Reference implementations
+No API token — auth is the hub's standard OAuth, handled by the
+client library below. I'll approve the app once on my hub's consent
+screen the first time I sign in.
 
-You can read these to see how the vault's HTTP API is shaped + how a
-typical client structures itself:
+## Use the surface SDK — don't hand-roll the plumbing
 
-- **Notes UI** — the canonical PWA, source at
-  https://github.com/ParachuteComputer/parachute-surface/tree/main/packages/notes-ui
-  — full CRUD, OAuth, PWA caching, multi-vault. Probably more than I
-  need; useful as a reference.
+Two npm packages cover everything generic. Read their READMEs before
+writing code; import, don't reimplement:
 
-- **Vault HTTP API reference** — the README in
-  https://github.com/ParachuteComputer/parachute-vault — lists
-  endpoints for notes (`/api/notes` — full-text search via the
-  `?search=` query param), tags (`/api/tags`), graph
-  (`/api/find-path`), attachments, and the per-vault MCP at
-  `/mcp`. Wikilinks are inline `[[...]]` syntax in note content,
-  not a separate endpoint.
+- **`@openparachute/surface-client`** — auth + data, framework-
+  agnostic. `createVaultSurface({ clientName, hubUrl, vaultName,
+  redirectUri })` handles OAuth (PKCE + dynamic client registration),
+  token storage, and refresh, and hands back a typed `VaultClient`
+  (`queryNotes`, `createNotes`, `updateNote`, `fetchAttachmentBlob`,
+  `subscribe` for live-updating views over SSE).
+  https://github.com/ParachuteComputer/parachute-surface/tree/main/packages/surface-client
 
-Read whichever you need. I don't expect you to use Notes UI as a
-starting point unless I tell you to — the framing here is "build me
+- **`@openparachute/surface-render`** — React rendering primitives:
+  `<NoteRenderer>` (format-dispatched), `<MarkdownView>` with
+  `[[wikilink]]` resolution, `<VaultImage>`/`<VaultAudio>` for auth'd
+  attachments, plus a base `styles.css`. Primitives, not an app shell
+  — routing and layout stay mine.
+  https://github.com/ParachuteComputer/parachute-surface/tree/main/packages/surface-render
+
+Other references if you need them: the full vault HTTP API is
+documented in https://github.com/ParachuteComputer/parachute-vault
+(docs/HTTP_API.md), and Notes — the canonical full-featured PWA — is
+at packages/notes-ui in the parachute-surface repo. Don't use Notes
+as a starting point unless I say so — the framing here is "build me
 something *new*, smaller, that fits my brain."
 
 ## Interview before building
@@ -62,7 +70,8 @@ Don't start coding yet. Ask me:
 2. Do I want a graph visualization? A list? A timeline? A board?
 3. Single page that does it all, or multiple routes / tabs?
 4. Anything that should be loud (e.g. unread captures from a runner
-   job)? Anything that should be quiet?
+   job)? Anything that should be quiet? Anything that should update
+   live (`subscribe` makes that cheap)?
 5. Styling preferences — do I have a favorite reference site or
    look I want to mimic?
 
@@ -71,20 +80,21 @@ yet. Make sure I agree on what we're building before you build it.
 
 ## Build
 
-Use a minimal stack — Vite + React + TypeScript is the cleanest
-default, but if I prefer Svelte / Vue / vanilla, do that. No backend.
-Static SPA only. All vault calls go to the operator's hub via fetch.
+Vite + React + TypeScript (surface-render is React; the data layer
+works anywhere). No backend — static SPA only.
 
-The auth pattern: the vault token is held in the SPA's local storage
-after a one-time paste-in screen. Send it as
-`Authorization: Bearer <token>` on every fetch. The vault's
-`Access-Control-Allow-Origin: *` policy lets the cross-origin call
-through.
-
-For an MVP, use a single config screen ("paste your vault URL +
-token") + the views I described. The Notes UI's OAuth flow is more
-robust (DCR + per-session token) but is overkill for a personal
-dashboard — token-paste is fine for the first cut.
+Wiring:
+- One `createVaultSurface` call at module scope. Set `redirectUri` so
+  it's correct on the deployed path, e.g.
+  `` `${location.origin}${import.meta.env.BASE_URL}oauth/callback` ``
+  (GitHub Pages serves project sites under `/repo-name/` — set Vite's
+  `base` to match).
+- An `/oauth/callback` route that calls `surface.handleCallback()`
+  then redirects home.
+- `surface.getClient()` → a ready `VaultClient`, or null → show a
+  "Sign in" button that calls `surface.login()`.
+- Render note content through `<NoteRenderer>` / `<MarkdownView>`,
+  attachments through `<VaultImage>` / `<VaultAudio>`.
 
 ## Deploy
 
@@ -100,8 +110,10 @@ GitHub Pages. Steps:
 Write the deploy action for me. I'll commit + push.
 
 ## Don't:
-- Hardcode my vault URL or token in source — keep them in the SPA's
-  local storage with a paste-in screen
+- Hand-roll OAuth, a vault REST client, token storage, or markdown /
+  wikilink rendering — the two packages above own that layer
+- Hardcode tokens anywhere (there are none in this flow; if I ever
+  paste one, stop me)
 - Add npm dependencies I don't recognize unless you explain why
 - Build for someone else's brain — this is mine
 ```
@@ -110,7 +122,7 @@ Write the deploy action for me. I'll commit + push.
 
 ## What you get
 
-A repo you own with a static SPA that hits your vault. Lives at `username.github.io/my-vault-ui/` (or your own domain). Updates by pushing to main.
+A repo you own with a static SPA that signs in to your vault through your hub. Lives at `username.github.io/my-vault-ui/` (or your own domain). Updates by pushing to main.
 
 Some operators stop at one. Some build five — a daily-capture view, a project dashboard, a graph explorer, a meeting-prep tool, a weekly-review board. Each is a separate small repo, all hitting the same vault. The vault doesn't care which UI calls it.
 
