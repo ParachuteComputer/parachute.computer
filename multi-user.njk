@@ -14,9 +14,9 @@ permalink: /multi-user/
     <section class="section">
         <h2>What multi-user gives you</h2>
 
-        <p>You run a single Parachute hub on Render, Fly, or your own machine. You create an account per person and assign them one or more vaults. They sign in, change the password you handed them, open Notes against any of their assigned vaults, and they're using their own private knowledge graphs &mdash; without anyone else able to read or write them.</p>
+        <p>You run a single Parachute hub on Render, Fly, or your own machine. You send each person an invite link (or create their account by hand). They pick a password, open Notes against their vault, and they're using their own private knowledge graph &mdash; without anyone else able to read or write it.</p>
 
-        <p>The current shape: <strong>one admin (you), N users, each with one or more vaults.</strong> Phase 2 (shipped 2026-05-27) adds multi-vault membership and admin-initiated password reset. No self-service signup, no invite links, no role granularity below admin/user yet. Those land later as people ask for them. The point is to get you hosting your handful of people without standing up infrastructure per person.</p>
+        <p>The current shape: <strong>one admin (you), N users, each with one or more vaults.</strong> Two ways to onboard a person: an <strong>invite link</strong> &mdash; one-time, expiring, optionally pre-configured with their username, their own new vault, or read-only/read-write access to one of your existing vaults &mdash; or creating the account yourself with a default password. No public self-service signup; you issue every invite. The point is to get you hosting your handful of people without standing up infrastructure per person.</p>
     </section>
 
     <section class="section">
@@ -42,43 +42,33 @@ permalink: /multi-user/
 
         <p>Provision via <code>/admin/vaults</code> &rarr; <strong>Add vault</strong>. Give it a name your friend will recognize when they sign in &mdash; their first name or initials work. <code>maya</code>, <code>jp</code>, <code>dad</code>. Lowercase, alphanumeric, dashes and underscores only.</p>
 
-        <p>The vault boots immediately. Check the vault list shows it as <code>running</code> before moving on.</p>
+        <p>The vault boots immediately. Check the vault list shows it as <code>running</code> before moving on. (Sending an invite that provisions a <em>new</em> vault? Skip this step &mdash; the vault is created when your friend redeems the link.)</p>
     </section>
 
     <section class="section">
-        <h2>3. Create an account for your friend</h2>
+        <h2>3. Send your friend an invite link</h2>
 
-        <p>Go to <code>/admin/users</code> &rarr; <strong>Create user</strong>. Three fields:</p>
+        <p>Go to <code>/admin/users</code> &rarr; <strong>Invite links</strong>. Pick the shape of the invite:</p>
 
         <ul>
-            <li><strong>Username</strong> &mdash; lowercase, 2&ndash;32 characters, alphanumeric + dash + underscore. Your friend will type this every time they sign in; keep it short.</li>
-            <li><strong>Default password</strong> &mdash; at least 12 characters. You pick this. Your friend will be force-redirected to change it the moment they sign in.</li>
-            <li><strong>Assigned vaults</strong> &mdash; pick one or more vaults for them. The multi-select lists every vault on the hub. Most friends want just one vault; pick two or more if the friend will be working across separate contexts (e.g. personal + family-shared). Leaving it empty means "no vaults yet" &mdash; they can sign in but can't authorize any vault until you assign one via the Edit Vaults action later.</li>
+            <li><strong>Create a new vault</strong> (the default) &mdash; your friend redeems the link, picks a username and password, and becomes owner of a freshly-provisioned vault. You can pre-name the vault, or let them name it.</li>
+            <li><strong>Share an existing vault</strong> &mdash; the link assigns them to one of your hub's vaults at the role you choose: <strong>read-only</strong> or <strong>read &amp; write</strong>. This is the "give Jonathan read-only access to the vault I built" move.</li>
+            <li><strong>Pre-name the username</strong> (optional, either shape) &mdash; the redemption form shows it read-only; they only pick a password.</li>
         </ul>
 
-        <p>Submit. The user appears in the table with their assigned vaults shown and <strong>Password set: No</strong> &mdash; the bit that tells the hub to force-redirect them through change-password on first sign-in.</p>
+        <p>Hit <strong>Create invite</strong>, then <strong>Copy message</strong> &mdash; a ready-to-send note that tells your friend what the link does, with the link included. The link is <strong>one-time and expiring</strong> (7 days by default), and it's shown only once &mdash; the hub stores only a hash, so copy it before you navigate away (no copy = no recovery, by design &mdash; just revoke and issue a new one). An unredeemed invite can be revoked from the same list.</p>
 
-        <p><strong>Securely hand off the default password.</strong> Signal, an in-person screen-share, a sealed envelope &mdash; not plain email, not a chat log that lives forever. The password is one-time use; the moment your friend signs in they'll be told to pick their own. But it still gates access to their vault until they do, so treat it like the first key to a house.</p>
+        <p><strong>Send it over a channel you trust.</strong> Signal, an in-person handoff &mdash; not a chat log that lives forever. Anyone holding the link can redeem it (once) before it expires.</p>
+
+        <p><strong>The manual alternative:</strong> <code>/admin/users</code> &rarr; <strong>Create user</strong> still works &mdash; you pick their username, a default password (12+ characters, handed off out-of-band), and their assigned vault(s). They're force-redirected through change-password on first sign-in. Reach for this when you'd rather set everything yourself; the invite link is the smoother default.</p>
     </section>
 
     <section class="section">
-        <h2>4. Send your friend the sign-in link</h2>
+        <h2>4. What your friend sees</h2>
 
-        <p>What they need from you:</p>
+        <p>They open the invite link, land on a <strong>Claim your invite</strong> page that spells out what they're getting (their username if you pre-named it, the vault and role), pick a password, and are dropped at <code>/account/</code> &mdash; their personal home page. It shows their vault(s) as cards, each with its own <strong>Open Notes</strong> button, and a link to change their password later if they want.</p>
 
-        <ul>
-            <li>Your hub's URL &mdash; e.g. <code>https://parachute.your-domain.com</code> or whatever you set up at the wizard.</li>
-            <li>Their username.</li>
-            <li>The default password you set.</li>
-        </ul>
-
-        <p>A short message that works:</p>
-
-        <div class="code-inline">
-            <code>I set you up with a Parachute vault. Sign in at &lt;hub-url&gt;/login with username &lt;u&gt; and the password I sent separately. You'll be asked to change it on first sign-in. From there, click Open Notes.</code>
-        </div>
-
-        <p>When they sign in, they land at <code>/account/change-password</code>, pick a new password, and then are dropped at <code>/account/</code> &mdash; their personal home page. It shows their assigned vault(s) as cards, each with its own <strong>Open Notes</strong> button, and a link to change their password later if they want.</p>
+        <p>From then on they sign in at <code>&lt;hub-url&gt;/login</code> with their username and password &mdash; the only things they ever need to remember.</p>
     </section>
 
     <section class="section" id="connect-mcp">
@@ -102,10 +92,10 @@ permalink: /multi-user/
         <p>The sections above cover each step in depth. Once you've stood up your hub, this is the whole loop per person:</p>
 
         <ol>
-            <li><strong>Create their account.</strong> <code>/admin/users</code> &rarr; <strong>Create user</strong>: username, a temporary password (you pick it), and the vault(s) to assign. (<a href="#connect-mcp">Provision a vault first</a> if they don't have one yet.)</li>
-            <li><strong>Hand them three things, out-of-band.</strong> Your hub's <code>&lt;hub-url&gt;/login</code>, their username, and the temporary password. Use Signal, in-person, a sealed envelope &mdash; not plain email.</li>
-            <li><strong>They sign in and are force-prompted to set a new password.</strong> On first sign-in at <code>/login</code>, the hub redirects them through change-password before anything else; then drops them at <code>/account/</code>, their home page showing their vault(s).</li>
-            <li><strong>They can change it any time</strong> from <code>/account/</code>. If they forget it, <strong>you reset it</strong> from <code>/admin/users</code> &rarr; <strong>Reset password</strong> (which also revokes their existing tokens).</li>
+            <li><strong>Create an invite.</strong> <code>/admin/users</code> &rarr; <strong>Invite links</strong>: new vault (they become owner) or share an existing vault at read-only / read &amp; write; optionally pre-name their username.</li>
+            <li><strong>Copy message, send it out-of-band.</strong> The ready-to-send note includes the link and what it grants. Use Signal or an in-person handoff &mdash; the link is one-time and expires in 7 days.</li>
+            <li><strong>They redeem it.</strong> They pick a username (unless you pre-named it) and a password, and land at <code>/account/</code>, their home page showing their vault(s).</li>
+            <li><strong>They can change their password any time</strong> from <code>/account/</code>. If they forget it, <strong>you reset it</strong> from <code>/admin/users</code> &rarr; <strong>Reset password</strong> (which also revokes their existing tokens).</li>
             <li><strong>To connect their AI client to their vault,</strong> open the Vaults list and use the per-row <strong>Connect</strong> toggle &rarr; <em>Connect an MCP client</em> card, or send them <a href="#connect-mcp">step 5 above</a> / <a href="/install/#connect-mcp-clients">Connecting MCP clients</a>. Notes (the web app) needs none of this &mdash; it connects with one click.</li>
         </ol>
     </section>
@@ -135,7 +125,7 @@ permalink: /multi-user/
 
         <p>This is where multi-user gets interesting. A friend who codes can build their own UI &mdash; a custom Notes-like app, a journaling tool, a research workbench &mdash; that talks directly to their vault on your hub.</p>
 
-        <p>Hand them the <a href="/onboarding/surface-build/">Surface-build starter prompt</a>. It walks an AI client through scaffolding a custom UI that wires into the vault's MCP via the standard OAuth flow. They'll need:</p>
+        <p>Hand them the <a href="/onboarding/surface-build/">Surface-build starter prompt</a>. It walks an AI client through scaffolding a custom UI on the surface SDK (<code>@openparachute/surface-client</code> + <code>surface-render</code>), wired to the vault's HTTP API via the standard OAuth flow. They'll need:</p>
 
         <ul>
             <li>Your hub's URL (the same one they use to sign in).</li>
@@ -165,13 +155,13 @@ permalink: /multi-user/
         <p>Honest about the current limits:</p>
 
         <ul>
-            <li><strong>No self-service signup.</strong> You create every account. There's no invite link, no "sign up with email," no SSO. Phase 2 follow-up: invite-link onboarding (alternative to default password).</li>
-            <li><strong>No role granularity.</strong> Either you're the admin (first user) or you're a regular user with read/write access to your assigned vaults. No "viewer" / "editor" mid-tier. The schema is forward-compatible with per-vault roles (a `role` column is already in place); Phase 3 wires it into scope-narrowing.</li>
-            <li><strong>No 2FA.</strong> Password-only sign-in. Multi-factor lands later; until then, pick a real password and limit your hub's public exposure if you can.</li>
-            <li><strong>No self-service password reset by the user.</strong> Friends can change their password any time at <code>/account/change-password</code>, but if they forget it, you (the admin) have to reset it via <code>/admin/users</code>. Self-service email-based reset is Phase 3 work.</li>
+            <li><strong>No public signup.</strong> Every account starts with you &mdash; an invite link you issue, or an account you create. There's no "sign up with email," no SSO.</li>
+            <li><strong>Roles stop at read-only / read &amp; write per vault.</strong> A shared vault can be granted read-only or read &amp; write (enforced server-side, down to the token scope). There's no finer granularity &mdash; no per-tag or per-note permissions, no delegated admin.</li>
+            <li><strong>2FA is opt-in per user.</strong> Anyone can enroll TOTP two-factor from <code>/account/2fa</code> (recommended on a publicly exposed hub), but you can't <em>require</em> it for your users yet.</li>
+            <li><strong>No self-service password reset by the user.</strong> Friends can change their password any time at <code>/account/change-password</code>, but if they forget it, you (the admin) have to reset it via <code>/admin/users</code>. Self-service email-based reset comes later.</li>
         </ul>
 
-        <p>The design document for the full plan is at <a href="/design/2026-05-20-multi-user-phase-1/">/design/2026-05-20-multi-user-phase-1/</a> &mdash; including what Phase 2 and 3 add. If any of the Phase 1 limits block your use case, open an issue at <a href="https://github.com/ParachuteComputer/parachute-hub/issues">the hub tracker</a> and we'll prioritize.</p>
+        <p>The original design document is at <a href="/design/2026-05-20-multi-user-phase-1/">/design/2026-05-20-multi-user-phase-1/</a> (invite links and per-vault read-only roles have shipped since it was written). If any of these limits block your use case, open an issue at <a href="https://github.com/ParachuteComputer/parachute-hub/issues">the hub tracker</a> and we'll prioritize.</p>
     </section>
 
 </main>

@@ -225,8 +225,8 @@ Use Path 3 only when:
 - I explicitly ask for a script
 
 If we go this route, mint a vault token. Every option below issues a
-**hub JWT** (revocable via the hub's token registry); the legacy `pvt_*`
-tokens are being retired. Pick the one that fits:
+**hub JWT**, revocable via the hub's token registry. Pick the one that
+fits:
 
 1. Get a token for the script. Options, least-to-most terminal use:
    - **Ephemeral, AI-driven (best for a one-shot import):** if you've

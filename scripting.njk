@@ -75,6 +75,19 @@ console.log(notes.map((n) => n.path));</code></pre>
 
         <p>Other filters compose on the same endpoint: <code>search=query</code> (full-text), <code>path_prefix=Projects/</code>, <code>meta[status][eq]=open</code> (metadata operators), <code>near[note_id]=&lt;id&gt;</code> (graph neighborhood), <code>format=graph&amp;include_links=true</code> (a <code>{nodes, edges}</code> payload ready for d3/cytoscape). Use <code>cursor</code> for "what changed since I last checked" polling — with <code>sort=asc</code> (cursor mode rejects <code>sort=desc</code>).</p>
 
+        <h3>Reading a large note in pages</h3>
+
+        <p>A 100KB transcript doesn't have to come back in one response. <code>content_offset</code> / <code>content_length</code> page through a note's <em>content</em> in byte windows (orthogonal to <code>cursor</code>, which pages through note <em>lists</em>):</p>
+
+        <pre><code># First 64KB of a big note
+curl -s "$VAULT/api/notes/&lt;id&gt;?content_offset=0&content_length=65536" \
+  -H "Authorization: Bearer $TOKEN"
+# → { ..., "content": "&lt;first slice&gt;",
+#        "content_total_length": 118034,   // full size, UTF-8 bytes
+#        "content_next_offset": 65530 }    // pass back as content_offset; null when done</code></pre>
+
+        <p>Loop until <code>content_next_offset</code> is <code>null</code> — concatenating the slices reconstructs the content byte-for-byte (slices end on codepoint boundaries, so the next offset can land a few bytes under your budget; always resume from <code>content_next_offset</code>, don't compute offsets by hand). The same two params work on the MCP <code>query-notes</code> tool — useful when an MCP client hits its response-size limit on a big note.</p>
+
         <h2>4. Create a note</h2>
 
         <p>A write token (<code>vault:default:write</code>) <code>POST</code>s to the same path. <code>content</code> is the main field (it defaults to an empty string if you omit it); <code>path</code>, <code>tags</code>, <code>metadata</code>, and typed <code>links</code> are optional:</p>
@@ -84,10 +97,10 @@ curl -s "$VAULT/api/notes" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "content": "Deployed hub 0.6.1 to prod.",
-    "path": "Logs/2026-05-30-deploy",
+    "content": "Deployed hub 0.7.1 to prod.",
+    "path": "Logs/2026-06-12-deploy",
     "tags": ["log", "deploy"],
-    "metadata": { "service": "hub", "version": "0.6.1" }
+    "metadata": { "service": "hub", "version": "0.7.1" }
   }'</code></pre>
 
         <pre><code># Python — append today's standup
