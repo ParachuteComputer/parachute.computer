@@ -34,7 +34,7 @@ permalink: /deploy/render/
 
         <p><strong>Modules are not pre-installed.</strong> The container ships with only the hub. After first boot, the admin UI lets you install <a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank">Vault</a>, <strong>Surface</strong> (the UI host module, with <a href="https://github.com/ParachuteComputer/parachute-surface/tree/main/packages/notes-ui" target="_blank">Notes</a> auto-bootstrapped as the first hosted surface), and <a href="https://github.com/ParachuteComputer/parachute-scribe" target="_blank">Scribe</a> with one click each &mdash; they install onto the persistent disk under <code>/parachute/modules</code>, so they survive redeploys.</p>
 
-        <p>This is the deploy mirror of the local model: locally, the hub supervises vault, app, and scribe as child processes sharing <code>~/.parachute/</code>. On Render, the hub supervises the same children in the same container, sharing the mounted disk. See the <a href="/design/2026-05-18-v06-deploy-architecture/">v0.6 deploy architecture note</a> for the full shape.</p>
+        <p>This is the deploy mirror of the local model: locally, the hub supervises vault, surface, and scribe as child processes sharing <code>~/.parachute/</code>. On Render, the hub supervises the same children in the same container, sharing the mounted disk. See the <a href="/design/2026-05-18-v06-deploy-architecture/">v0.6 deploy architecture note</a> for the full shape.</p>
     </section>
 
     <section class="section">
@@ -49,7 +49,7 @@ permalink: /deploy/render/
         <p><strong>Optional env vars you might want to set:</strong></p>
         <ul>
             <li><code>PARACHUTE_HUB_ORIGIN</code> &mdash; only set this if you're attaching a custom domain at deploy time. See the <a href="#custom-domain">Custom domain</a> section below for what this does and why. Leaving it blank is the right answer for the Render-assigned <code>*.onrender.com</code> URL &mdash; hub will use whatever URL the request came in on as the OAuth issuer, which just works.</li>
-            <li><code>PARACHUTE_INSTALL_CHANNEL</code> &mdash; pre-set to <code>latest</code> by the blueprint. Modules you install via the admin SPA (vault, app, scribe, runner) pull stable releases. Flip to <code>rc</code> if you want pre-release modules (dev/testing against the rc release line). Per-install <code>--channel</code> / <code>--tag</code> always override.</li>
+            <li><code>PARACHUTE_INSTALL_CHANNEL</code> &mdash; pre-set to <code>latest</code> by the blueprint. Modules you install via the admin SPA (vault, surface, scribe, runner) pull stable releases. Flip to <code>rc</code> if you want pre-release modules (dev/testing against the rc release line). Per-install <code>--channel</code> / <code>--tag</code> always override.</li>
         </ul>
 
         <p>Click <strong>Apply</strong>.</p>
@@ -177,7 +177,7 @@ permalink: /deploy/render/
             <li><strong>Custom domain:</strong> free, assuming you already own the domain. TLS via Let's Encrypt is included.</li>
         </ul>
 
-        <p><strong>Expected total:</strong> ~$7/month plus disk-overage for hub + vault + app (with notes-ui auto-bootstrapped) + scribe running together &mdash; most single-operator setups stay at the $7 floor.</p>
+        <p><strong>Expected total:</strong> ~$7/month plus disk-overage for hub + vault + surface (with notes-ui auto-bootstrapped) + scribe running together &mdash; most single-operator setups stay at the $7 floor.</p>
 
         <p><em>Compare locally:</em> the same stack on your own Mac or Linux box is free, but you give up the always-on URL and the "works from my phone, anywhere" property. The Render path is the trade.</p>
     </section>
@@ -186,9 +186,9 @@ permalink: /deploy/render/
         <h2>Limitations</h2>
 
         <ul>
-            <li><strong>One container shares 512MB of RAM.</strong> Render Starter is enough for hub + vault + app + scribe at typical sub-1000-note usage. If you hit the ceiling &mdash; large vaults, heavy transcription workloads &mdash; the path is either upgrade the Render plan (Standard is 2GB) or split a module out to its own service later. We'll document that when someone needs it.</li>
+            <li><strong>One container shares 512MB of RAM.</strong> Render Starter is enough for hub + vault + surface + scribe at typical sub-1000-note usage. If you hit the ceiling &mdash; large vaults, heavy transcription workloads &mdash; the path is either upgrade the Render plan (Standard is 2GB) or split a module out to its own service later. We'll document that when someone needs it.</li>
             <li><strong>No free tier.</strong> Free Render web services don't support persistent disks, and a stateful hub needs a disk. Starter ($7) is the floor.</li>
-            <li><strong>Module installs take a minute.</strong> Each "Install" click runs a real <code>bun install</code> on the container against the npm registry. First-time installs of vault or app take roughly a minute; redeploys re-use the cached disk.</li>
+            <li><strong>Module installs take a minute.</strong> Each "Install" click runs a real <code>bun install</code> on the container against the npm registry. First-time installs of vault or surface take roughly a minute; redeploys re-use the cached disk.</li>
             <li><strong>Redeploys are not zero-downtime.</strong> When you push to the repo (or Render redeploys for any reason), the container restarts. Expect ~30 seconds where the hub is unreachable. For a single-operator hub this is a non-issue; for teams it's worth knowing.</li>
             <li><strong>Edge cold-start can briefly 502.</strong> Right after a deploy goes Live, Render's edge router takes another ~10&ndash;30 seconds to settle routes to the new container. Probes during that window may return 502. Once warm, the hub is stable (this is platform-level behavior, not a hub bug).</li>
         </ul>

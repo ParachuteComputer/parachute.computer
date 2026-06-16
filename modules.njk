@@ -1,0 +1,181 @@
+---
+layout: base.njk
+title: "Modules — the four committed-core pieces"
+description: "Parachute is four committed-core modules — Vault, Surface, Scribe, Hub — that compose into one system, plus Channel as an experimental preview. Each installs on its own; together they're your memory layer."
+permalink: /modules/
+---
+<style>
+/* Modules — one card per committed-core module + an experimental preview. */
+
+.mod-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+.mod-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--card-bg);
+    padding: 1.85rem 1.85rem 1.6rem;
+    display: flex;
+    flex-direction: column;
+}
+.mod-card.mod-preview {
+    grid-column: 1 / -1;
+    background: var(--bg-soft);
+    border-style: dashed;
+}
+.mod-card-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    margin-bottom: 0.85rem;
+    flex-wrap: wrap;
+}
+.mod-card-head h2 {
+    font-family: var(--serif);
+    font-size: 1.7rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    margin: 0;
+    color: var(--fg);
+}
+.mod-tag {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid rgba(74, 124, 89, 0.18);
+    border-radius: 999px;
+    padding: 0.18rem 0.55rem;
+}
+.mod-tag.mod-tag-preview {
+    color: var(--sky);
+    background: var(--sky-soft);
+    border-color: rgba(91, 143, 168, 0.22);
+}
+.mod-card p {
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0 0 1rem;
+}
+.mod-card p:last-of-type { margin-bottom: 1.25rem; }
+.mod-card .code-inline {
+    margin: 0 0 1.1rem;
+}
+.mod-card-foot {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    font-size: 0.85rem;
+}
+.mod-card-foot a {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+}
+.mod-card-foot .mod-version {
+    color: var(--fg-dim);
+    font-family: var(--mono);
+    font-size: 0.74rem;
+}
+
+@media (max-width: 720px) {
+    .mod-cards { grid-template-columns: 1fr; }
+}
+</style>
+
+<main>
+    <section class="hero">
+        <h1 class="fade-up fade-up-2">The modules</h1>
+        <p class="tagline fade-up fade-up-3">Parachute is four committed-core pieces that compose into one system. Install any one on its own; run them together and you have a memory layer for everything you think with.</p>
+    </section>
+
+    <section class="section fade-up fade-up-4">
+        <p>Everything runs through the <strong>Hub</strong> &mdash; one <code>parachute</code> command, one portal, one OAuth issuer. Install a module and the hub supervises it; the <strong>Vault</strong> holds your knowledge, <strong>Surface</strong> renders it, and <strong>Scribe</strong> turns voice into text on the way in. Each module is its own open-source repo and its own npm package.</p>
+
+        <div class="mod-cards">
+
+            <div class="mod-card">
+                <div class="mod-card-head">
+                    <h2>Vault</h2>
+                    <span class="mod-tag">Memory graph</span>
+                </div>
+                <p>Your knowledge graph &mdash; notes, tags, wikilinks &mdash; in one SQLite-backed store that speaks both REST and <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>. Any AI or app reads and writes the same source of truth, with full-text and semantic search and lossless portable-markdown export for git projection or Obsidian round-trip. Reach for it the moment you want your memory to outlive a single chat or tool.</p>
+                <div class="code-inline"><code>parachute install vault</code></div>
+                <div class="mod-card-foot">
+                    <a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank">GitHub &rarr;</a>
+                    <span class="mod-version">v0.6.1</span>
+                </div>
+            </div>
+
+            <div class="mod-card">
+                <div class="mod-card-head">
+                    <h2>Surface</h2>
+                    <span class="mod-tag">UI host</span>
+                </div>
+                <p>The UI host module, with <strong>Notes</strong> bundled as its first canonical surface: an installable, offline-capable PWA for browsing, searching, editing, and voice-capturing into your vault &mdash; multi-vault, one install for every vault on your hub. Drop additional custom SPAs under the same supervisor. Use it when you want a screen on your vault, or a starting point for a UI shaped to your own brain.</p>
+                <div class="code-inline"><code>parachute install surface</code></div>
+                <div class="mod-card-foot">
+                    <a href="https://github.com/ParachuteComputer/parachute-surface" target="_blank">GitHub &rarr;</a>
+                    <span class="mod-version">v0.2.2</span>
+                </div>
+            </div>
+
+            <div class="mod-card">
+                <div class="mod-card-head">
+                    <h2>Scribe</h2>
+                    <span class="mod-tag">Transcription</span>
+                </div>
+                <p>A Whisper-compatible transcription worker. It turns voice notes into text on the way into your vault &mdash; running locally by default, or against a cloud provider you bring if you'd rather. Install it when you want to capture by speaking; Surface's voice capture wires up to it automatically.</p>
+                <div class="code-inline"><code>parachute install scribe</code></div>
+                <div class="mod-card-foot">
+                    <a href="https://github.com/ParachuteComputer/parachute-scribe" target="_blank">GitHub &rarr;</a>
+                    <span class="mod-version">v0.5.0</span>
+                </div>
+            </div>
+
+            <div class="mod-card">
+                <div class="mod-card-head">
+                    <h2>Hub</h2>
+                    <span class="mod-tag">Portal &middot; CLI</span>
+                </div>
+                <p>The coordinator everything else runs through: the portal on <code>:1939</code>, the OAuth issuer that mints per-vault scoped tokens, the supervisor that keeps every module alive, and the <code>parachute</code> CLI itself &mdash; <code>install</code>, <code>start</code>, <code>stop</code>, <code>expose</code>, lifecycle for the whole system. It's the first thing you install; <code>parachute init</code> brings it up and drops you into the setup wizard.</p>
+                <div class="code-inline"><code>bun add -g @openparachute/hub &amp;&amp; parachute init</code></div>
+                <div class="mod-card-foot">
+                    <a href="https://github.com/ParachuteComputer/parachute-hub" target="_blank">GitHub &rarr;</a>
+                    <span class="mod-version">v0.7.1</span>
+                </div>
+            </div>
+
+            <div class="mod-card mod-preview">
+                <div class="mod-card-head">
+                    <h2>Channel</h2>
+                    <span class="mod-tag mod-tag-preview">Experimental preview &middot; v0.1.0</span>
+                </div>
+                <p>An early, experimental gateway for talking to AI through your vault. Today it gives you a <strong>vault-backed chat</strong> with your own Claude Code sessions, <strong>browser-driven sandboxed agent sessions</strong> you can spin up and watch, and an <strong>in-page terminal</strong> &mdash; all inside the hub. The shape is still moving: treat it as a preview of where agent-in-the-loop work is heading, not a settled module. Worth a look if you want Claude reachable from a chat window backed by your own memory.</p>
+                <div class="code-inline"><code>parachute install channel</code></div>
+                <div class="mod-card-foot">
+                    <a href="https://github.com/ParachuteComputer/parachute-channel" target="_blank">GitHub &rarr;</a>
+                    <span class="mod-version">v0.1.0 &middot; experimental</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="cta fade-up fade-up-5">
+        <h2>Install the whole thing</h2>
+        <p>One command brings up the hub and walks you through the rest in the setup wizard &mdash; vault, surface, and scribe install from there.</p>
+        <div class="code-inline" style="max-width: 32rem; margin: 0 auto 1.5rem;">
+            <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>
+        </div>
+        <a href="/install/" class="button">Full install guide</a>
+        <p class="cta-secondary">Or read the <a href="/roadmap/">roadmap</a> for where each module is headed.</p>
+    </section>
+</main>
