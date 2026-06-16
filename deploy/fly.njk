@@ -32,7 +32,7 @@ permalink: /deploy/fly/
 
         <p><strong>Modules are not pre-installed.</strong> The container ships with only the hub. After first boot, the admin UI lets you install <a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank">Vault</a>, <strong>Surface</strong> (the UI host module, with <a href="https://github.com/ParachuteComputer/parachute-surface/tree/main/packages/notes-ui" target="_blank">Notes</a> auto-bootstrapped as the first hosted surface), and <a href="https://github.com/ParachuteComputer/parachute-scribe" target="_blank">Scribe</a> with one click each &mdash; they install onto the persistent volume under <code>/parachute/modules</code>, so they survive redeploys.</p>
 
-        <p>This is the deploy mirror of the local model: locally, the hub supervises vault, app, and scribe as child processes sharing <code>~/.parachute/</code>. On Fly, the hub supervises the same children in the same container, sharing the mounted volume. See the <a href="/design/2026-05-18-v06-deploy-architecture/">v0.6 deploy architecture note</a> for the full shape.</p>
+        <p>This is the deploy mirror of the local model: locally, the hub supervises vault, surface, and scribe as child processes sharing <code>~/.parachute/</code>. On Fly, the hub supervises the same children in the same container, sharing the mounted volume. See the <a href="/design/2026-05-18-v06-deploy-architecture/">v0.6 deploy architecture note</a> for the full shape.</p>
 
         <p><strong>Why Fly vs Render?</strong> Both work. Fly is CLI-first (you'll spend more time in a terminal); Render is GUI-first (more clicks, no CLI install needed). Fly is cheaper (~$3.50 vs $7). Fly's volumes are <em>portable</em> &mdash; <code>fly volumes snapshot</code> lets you take your data with you. Render's disks don't snapshot-export. Pick whichever fits your operator preferences. See <a href="/design/2026-05-26-fly-migration-path/">the Fly migration design note</a> for the longer reasoning.</p>
     </section>
@@ -191,7 +191,7 @@ permalink: /deploy/fly/
             <li><strong>Custom domain:</strong> free, assuming you already own the domain. TLS via Let's Encrypt is included.</li>
         </ul>
 
-        <p><strong>Expected total:</strong> ~$3.34/month for hub + vault + app (with notes-ui auto-bootstrapped) + scribe running together in <code>iad</code>. Other regions add ~$0.50&ndash;$1/month.</p>
+        <p><strong>Expected total:</strong> ~$3.34/month for hub + vault + surface (with notes-ui auto-bootstrapped) + scribe running together in <code>iad</code>. Other regions add ~$0.50&ndash;$1/month.</p>
 
         <p><em>Compare locally:</em> the same stack on your own Mac or Linux box is free, but you give up the always-on URL and the "works from my phone, anywhere" property. The Fly path is the trade.</p>
 
@@ -202,10 +202,10 @@ permalink: /deploy/fly/
         <h2>Limitations</h2>
 
         <ul>
-            <li><strong>One machine shares 512MB of RAM.</strong> Fly <code>shared-cpu-1x</code> 512MB is enough for hub + vault + app + scribe at typical sub-1000-note usage. If you hit the ceiling &mdash; large vaults, heavy transcription workloads &mdash; scale up with <code>fly scale memory 1024 --app your-app-name</code> (triggers a machine restart, ~30s downtime). Or split a module out to its own Fly app later.</li>
+            <li><strong>One machine shares 512MB of RAM.</strong> Fly <code>shared-cpu-1x</code> 512MB is enough for hub + vault + surface + scribe at typical sub-1000-note usage. If you hit the ceiling &mdash; large vaults, heavy transcription workloads &mdash; scale up with <code>fly scale memory 1024 --app your-app-name</code> (triggers a machine restart, ~30s downtime). Or split a module out to its own Fly app later.</li>
             <li><strong>Single-region by default.</strong> The default <code>fly.toml</code> pins one region. Multi-region Parachute would need volume replication, which Fly doesn't do natively for single-writer SQLite workloads. If <code>iad</code> has a bad day, your hub is down until they fix it. Same constraint as Render's regional disks; not a Fly-specific limit.</li>
             <li><strong>CLI install required.</strong> Unlike Render's one-button deploy, you need <code>flyctl</code> on your machine. The deploy script installs it for you if missing, but the dependency is real.</li>
-            <li><strong>Module installs take a minute.</strong> Each "Install" click runs a real <code>bun install</code> on the machine against the npm registry. First-time installs of vault or app take roughly a minute; redeploys re-use the cached volume.</li>
+            <li><strong>Module installs take a minute.</strong> Each "Install" click runs a real <code>bun install</code> on the machine against the npm registry. First-time installs of vault or surface take roughly a minute; redeploys re-use the cached volume.</li>
             <li><strong>Redeploys are not zero-downtime.</strong> When you run <code>fly deploy</code> or push to the repo (if you've wired CI), the machine restarts. Expect ~30 seconds where the hub is unreachable. For a single-operator hub this is a non-issue; for teams it's worth knowing.</li>
             <li><strong>Edge cold-start can briefly 502.</strong> Like every PaaS, Fly's edge proxy occasionally takes a few seconds to settle routes to a newly-started machine. Probes during that window may return 502. Once warm, the hub is stable.</li>
         </ul>

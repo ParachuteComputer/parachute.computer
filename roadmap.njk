@@ -7,7 +7,7 @@ permalink: /roadmap/
 <main>
     <div class="roadmap-header fade-up fade-up-1">
         <h1>Roadmap</h1>
-        <p class="dates">Updated 2026-05-28 &middot; Refreshed every couple of weeks &middot; <a href="/since-launch/">What shipped since launch &rarr;</a></p>
+        <p class="dates">Updated 2026-06-16 &middot; Refreshed every couple of weeks &middot; <a href="/since-launch/">What shipped since launch &rarr;</a></p>
     </div>
 
     <section class="section">
@@ -19,8 +19,19 @@ permalink: /roadmap/
             <li><strong>Parachute Scribe</strong> &mdash; Whisper-compatible transcription API. Runs locally by default; BYO cloud provider if you want one. <a href="https://github.com/ParachuteComputer/parachute-scribe" target="_blank">Source &rarr;</a></li>
             <li><strong>Parachute Hub</strong> &mdash; the coordinator. <code>install</code>, <code>start</code>, <code>stop</code>, <code>expose</code>, lifecycle for every service. OAuth issuer with per-vault scopes and cross-origin approve flow that works across loopback, tailnet, and public layers. <strong>Multi-user hosting shipped</strong> (Phase 2, 2026-05-27): one admin, N users, each with their own vault(s). <a href="https://github.com/ParachuteComputer/parachute-hub" target="_blank">Source &rarr;</a></li>
             <li><strong>Parachute Runner</strong> &mdash; vault-as-job-substrate. A lightweight runner that spawns <code>claude -p</code> against <code>tag:job</code> notes &mdash; owner-operated automation without standing up containers. Shipped; not yet promoted to committed-core. <a href="https://github.com/ParachuteComputer/parachute-runner" target="_blank">Source &rarr;</a></li>
-            <li><strong>Parachute Channel</strong> &mdash; messaging gateway that lets Claude Code agents reach you through Telegram, Discord, and other channels. Exploration; may retire if not pulled by real use. <a href="https://github.com/ParachuteComputer/parachute-channel" target="_blank">Source &rarr;</a></li>
+            <li><strong>Parachute Channel</strong> <em>(experimental preview)</em> &mdash; an early gateway for talking to AI through your vault: a vault-backed chat with your Claude Code sessions, browser-driven sandboxed agent sessions, and an in-page terminal, all inside the hub. The shape is still moving (v0.1.0) &mdash; a preview of where agent-in-the-loop work is heading. <a href="/modules/">On the modules page</a> &middot; <a href="https://github.com/ParachuteComputer/parachute-channel" target="_blank">Source &rarr;</a></li>
             <li><strong>v0.6 hosted self-host</strong> <em>(just shipped)</em> &mdash; two peer paths to an always-on hub on your own subdomain. <a href="/deploy/render/">Deploy to Render</a> (GUI-first, ~$7/month) or <a href="/deploy/fly/">Deploy to Fly</a> (CLI-first, ~$3.34/month). Single container, hub-as-supervisor, persistent disk; modules install at runtime via the admin UI. <a href="/design/2026-05-18-v06-deploy-architecture/">Architecture note &rarr;</a></li>
+        </ul>
+    </section>
+
+    <section class="section">
+        <h2>Recently shipped</h2>
+        <p>Things that were on the near-term list and have since landed. The running log is in <a href="/since-launch/">since-launch</a>.</p>
+        <ul>
+            <li><strong>Invite links</strong> &mdash; one-time, expiring links that provision a brand-new vault or share an existing one at read-only / read &amp; write, with an optional pre-named username. The smooth path to <a href="/multi-user/">hosting friends and family</a> without creating each account by hand.</li>
+            <li><strong>Hosted self-host on Render &amp; Fly</strong> &mdash; two peer one-command deploys to an always-on hub on your own subdomain: single container, hub-as-supervisor, persistent disk, modules installed at runtime from the admin UI. <a href="/deploy/render/">Render</a> &middot; <a href="/deploy/fly/">Fly</a>.</li>
+            <li><strong>Surface SDK</strong> &mdash; the "build a custom dashboard against the vault" pattern is now real packages: <code>@openparachute/surface-client</code> (auth + vault API in a few lines) and <code>@openparachute/surface-render</code> (note rendering). Build a UI shaped to your own brain without hand-rolling OAuth.</li>
+            <li><strong>Vault atomic tag operations</strong> &mdash; rename and merge tags cleanly across a whole vault in one request, so clients don't have to orchestrate it.</li>
         </ul>
     </section>
 
@@ -28,11 +39,10 @@ permalink: /roadmap/
         <h2>Next few weeks</h2>
         <p>Driven by what's blocking real users plus what we've named in <a href="/since-launch/">since-launch</a>'s "still on the bench" section.</p>
         <ul>
-            <li><strong>Multi-user UX polish</strong> &mdash; multi-user hosting <a href="/multi-user/">shipped</a> (one admin, N users, each with their own vault(s); Phase 2 added multi-vault membership and admin-initiated password reset). Still ahead: self-service signup, invite links, and role granularity below admin/user &mdash; landing as people ask for them.</li>
+            <li><strong>Self-service signup &amp; role granularity</strong> &mdash; multi-user, invite links, and admin-initiated password reset are <a href="/multi-user/">live</a>. Still ahead: public self-service signup and roles below admin/user &mdash; landing as people ask for them.</li>
             <li><strong>Public HTTPS exposure + web-AI connectors</strong> &mdash; polishing the Tailscale Funnel and Cloudflare Tunnel paths, and the OAuth handshake for custom connectors in <strong>claude.ai</strong>, <strong>ChatGPT</strong>, and <strong>Gemini</strong>. <code>parachute expose</code> works today; we're smoothing the on-ramp before announcing broadly.</li>
-            <li><strong>Dashboard SDK</strong> &mdash; the "build a custom dashboard against the export format" pattern wants a small typed helper library. Today it's a recipe in the <a href="https://github.com/ParachuteComputer/parachute-patterns/blob/main/cookbook/vault-portable-export.md" target="_blank">cookbook</a>; tomorrow it's a package.</li>
             <li><strong>Notes header polish</strong> &mdash; the popover landed; the chrome around it could be tighter. Pinned and archived views, the today view, path tree.</li>
-            <li><strong>Vault atomic tag operations</strong> &mdash; rename and merge tags cleanly across a whole vault in one request, so clients don't have to orchestrate it.</li>
+            <li><strong>Channel, firming up</strong> &mdash; the experimental <a href="/modules/">Channel preview</a> (vault-backed chat, sandboxed agent sessions, in-page terminal) gets pulled toward something settled as real use shapes it.</li>
         </ul>
     </section>
 
