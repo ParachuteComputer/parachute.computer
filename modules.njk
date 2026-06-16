@@ -68,6 +68,11 @@ permalink: /modules/
 .mod-card .code-inline {
     margin: 0 0 1.1rem;
 }
+.mod-card .mod-note {
+    margin: 0 0 1.1rem;
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+}
 .mod-card-foot {
     margin-top: auto;
     display: flex;
@@ -106,7 +111,7 @@ permalink: /modules/
                     <h2>Vault</h2>
                     <span class="mod-tag">Memory graph</span>
                 </div>
-                <p>Your knowledge graph &mdash; notes, tags, wikilinks &mdash; in one SQLite-backed store that speaks both REST and <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>. Any AI or app reads and writes the same source of truth, with full-text and semantic search and lossless portable-markdown export for git projection or Obsidian round-trip. Reach for it the moment you want your memory to outlive a single chat or tool.</p>
+                <p>Your knowledge graph &mdash; notes, tags, wikilinks &mdash; in one SQLite-backed store that speaks both REST and <a href="https://modelcontextprotocol.io" target="_blank">MCP</a>. Any AI or app reads and writes the same source of truth, with full-text search and lossless portable-markdown export for git projection or Obsidian round-trip. Reach for it the moment you want your memory to outlive a single chat or tool.</p>
                 <div class="code-inline"><code>parachute install vault</code></div>
                 <div class="mod-card-foot">
                     <a href="https://github.com/ParachuteComputer/parachute-vault" target="_blank">GitHub &rarr;</a>
@@ -159,7 +164,7 @@ permalink: /modules/
                     <span class="mod-tag mod-tag-preview">Experimental preview &middot; v0.1.0</span>
                 </div>
                 <p>An early, experimental gateway for talking to AI through your vault. Today it gives you a <strong>vault-backed chat</strong> with your own Claude Code sessions, <strong>browser-driven sandboxed agent sessions</strong> you can spin up and watch, and an <strong>in-page terminal</strong> &mdash; all inside the hub. The shape is still moving: treat it as a preview of where agent-in-the-loop work is heading, not a settled module. Worth a look if you want Claude reachable from a chat window backed by your own memory.</p>
-                <div class="code-inline"><code>parachute install channel</code></div>
+                <p class="mod-note">Runs from source today (npm publish pending) &mdash; see <a href="https://github.com/ParachuteComputer/parachute-channel#running-it" target="_blank">Running it</a> in the repo README.</p>
                 <div class="mod-card-foot">
                     <a href="https://github.com/ParachuteComputer/parachute-channel" target="_blank">GitHub &rarr;</a>
                     <span class="mod-version">v0.1.0 &middot; experimental</span>
