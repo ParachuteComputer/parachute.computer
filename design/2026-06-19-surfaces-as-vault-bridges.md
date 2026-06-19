@@ -1,12 +1,19 @@
 # Surfaces as least-privilege vault bridges
 
 **Status:** the core primitives are BUILT (see "What works today"); this doc names
-the model, the patterns, the operator flow, and the roadmap. Companion to
-[`2026-06-10-surface-runtime-primitives.md`](./2026-06-10-surface-runtime-primitives.md)
-(the P1–P11 primitive spec) and
+the model, the patterns, the operator flow, and the roadmap. Companion to the
+P1–P11 primitive spec (`parachute-surface/design/2026-06-10-surface-runtime-primitives.md`,
+in the surface repo) and
 [`2026-05-21-parachute-surface-design.md`](./2026-05-21-parachute-surface-design.md)
 (the host shape). Written 2026-06-19 alongside the first two backed surfaces —
 `meeting-ingest` (write) and `meeting-mcp` (read).
+
+> **Tag convention:** the namespaced `capture/meeting` (consistent with the vault's
+> `capture/text` / `capture/voice`) is the intended tag for ingested meetings, and
+> what `meeting-mcp` reads by default. NOTE the current divergence:
+> `meeting-ingest` still defaults to the bare `meeting` tag, so the two reference
+> surfaces must be aligned via each surface's `config.tag` until the defaults are
+> reconciled (tracked in `parachute-surface`). Examples below use `capture/meeting`.
 
 ## The thesis
 
@@ -48,7 +55,9 @@ A backed surface composes these — nothing more:
 The line: a surface owns **domain logic, route shapes, projection definitions, and
 config**. The kit/host own **actor resolution, the credential custody, the
 deny-by-default routing, rate-limit, CSRF, and trust-layer derivation**. A backed
-surface is meant to be *thin* — meeting-ingest's whole gateway is ~30 lines.
+surface is meant to be *thin*: meeting-ingest's `createBackend` *wiring* is ~40
+lines (the domain logic — HMAC verify, the GraphQL fetch, the transform — lives in
+its own modules), because the kit does the dangerous parts.
 
 ## The trust + credential model (and the proof)
 
@@ -58,10 +67,12 @@ surface is meant to be *thin* — meeting-ingest's whole gateway is ~30 lines.
   scope.
 - The credential is **tag-scoped** (`scoped_tags`) and the **vault enforces it**.
   Verified 2026-06-19 against the live vault with a `vault:default:write` token
-  scoped to `#capture/meeting`:
+  whose `permissions.scoped_tags` is `["#capture/meeting"]`:
   - write a note tagged `#capture/meeting` → **201**
   - write a note tagged anything else → **403 `tag_scope_violation`**
-    (*"This token is restricted to tags: #capture/meeting"*)
+    (the vault returns *"This token is restricted to tags: capture/meeting. The
+    note (or write) is outside that scope."* — note `scoped_tags` is stored
+    without the `#` prefix; the `#` is display convention)
 - So "this surface can write only `#capture/meeting`" is a real, enforced property —
   not a convention. A public projection over `#capture/meeting` (read, tag-scoped)
   can expose only those notes, and only the fields its `shape` function copies.
@@ -104,8 +115,12 @@ operator (no CLI/headless path). For a backed surface:
    `meta.json` + `dist/` + `server/index.bundle.js` in `~/.parachute/surface/uis/<name>/`
    and restart surface).
 2. **Approve its credential connection** — grant the surface `vault:<v>:read|write`
-   **scoped to its tag(s)** (e.g. `#capture/meeting`). Until delivered, the static
-   bundle serves but `/api/*` returns 503 (`not_configured`/pending-credential).
+   **scoped to its tag(s)** (e.g. `#capture/meeting`). Until a credential is
+   delivered the static bundle still serves, but the host gates `/api/*` with a
+   `credential_pending` 503 (host layer, `backend-supervisor.ts`). (Distinct from an
+   *app-layer* config gate — e.g. meeting-ingest returns its own `not_configured`
+   503 when the webhook secret is missing from `config.json`, even with a credential
+   present.)
 3. (Ingest) **Approve the fan-out connection** — `note.created (filter <tag>) →
    agent message.deliver` — if you want the downstream action.
 4. (Provider surfaces) set the surface's `config.json` (0600) — e.g. the Fireflies
