@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}{% if title %} | {% endif %}Parachute Computer</title>
-    <meta name="description" content="{{ description or 'One memory for all your AIs. An open, self-hosted home for your notes that every AI you use can read and write — on your machine, as files you own.' }}">
+    <meta name="description" content="{{ description or 'One memory for all your AIs. An open, self-hosted home for your notes that every AI you use can read and write — on your machine, yours to keep and export anytime.' }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="/style.css">
@@ -18,7 +18,7 @@
     {# Open Graph / share-preview metadata. Posts can override via
        frontmatter: og_title, og_description, og_image, og_type. #}
     {% set _ogTitle = og_title or title %}
-    {% set _ogDescription = og_description or description or "One memory for all your AIs. An open, self-hosted home for your notes that every AI you use can read and write — on your machine, as files you own." %}
+    {% set _ogDescription = og_description or description or "One memory for all your AIs. An open, self-hosted home for your notes that every AI you use can read and write — on your machine, yours to keep and export anytime." %}
     {% set _ogImage = og_image or "/assets/og-default.jpg" %}
     {% set _ogType = og_type or "website" %}
     {% set _canonicalUrl = "https://parachute.computer" + (page.url or "/") %}
