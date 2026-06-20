@@ -14,6 +14,11 @@ in the surface repo) and
 > `meeting-ingest` still defaults to the bare `meeting` tag, so the two reference
 > surfaces must be aligned via each surface's `config.tag` until the defaults are
 > reconciled (tracked in `parachute-surface`). Examples below use `capture/meeting`.
+>
+> **`#`-prefix footgun:** the vault stores tags **literally** — there is no `#`
+> normalization. Write `capture/meeting`, NOT `#capture/meeting`; the `#` is a
+> display convention only, and a `#`-prefixed write lands in a *separate* tag the
+> read surface (querying `capture/meeting`) will never see. Verified the hard way.
 
 ## The thesis
 
@@ -28,7 +33,7 @@ construction.
 That single idea unlocks a family of things people actually want:
 
 - **Ingest** — a webhook drops external data into one tag (e.g. Read.ai/Fireflies
-  transcripts → `#capture/meeting`) and can touch nothing else.
+  transcripts → `capture/meeting`) and can touch nothing else.
 - **Public write-only intake** — a feedback form anyone can submit to, writing one
   tag, reading nothing. No blind token that could read or rewrite the vault.
 - **Custom end-user MCP** — a curated, domain-vocabulary MCP/REST over a slice of a
@@ -50,7 +55,7 @@ A backed surface composes these — nothing more:
 | **P9 projections** | `defineProjection` → one definition derives **both** a REST endpoint **and** an MCP tool; only `notes.map(shape)` leaves | surface-server kit |
 | Audience auth | per-surface auth distinct from operator + vault (capabilities `cap_`, personal links `lnk_`) | surface-server kit |
 | `ctx.store` | per-surface SQLite for *operational* state (caches, cursors) — knowledge lives in the vault | host |
-| Triggers / Connections | vault `note.created/updated (filter)` → an action (e.g. wake an agent) — reactive fan-out | hub Connections engine |
+| Triggers / Connections | vault `note.created/updated (filter)` → a sink module action (today: deliver a chat message / reload a def; "react to a domain note" is agent#120) | hub Connections engine |
 
 The line: a surface owns **domain logic, route shapes, projection definitions, and
 config**. The kit/host own **actor resolution, the credential custody, the
@@ -67,29 +72,36 @@ its own modules), because the kit does the dangerous parts.
   scope.
 - The credential is **tag-scoped** (`scoped_tags`) and the **vault enforces it**.
   Verified 2026-06-19 against the live vault with a `vault:default:write` token
-  whose `permissions.scoped_tags` is `["#capture/meeting"]`:
-  - write a note tagged `#capture/meeting` → **201**
-  - write a note tagged anything else → **403 `tag_scope_violation`**
-    (the vault returns *"This token is restricted to tags: capture/meeting. The
-    note (or write) is outside that scope."* — note `scoped_tags` is stored
-    without the `#` prefix; the `#` is display convention)
-- So "this surface can write only `#capture/meeting`" is a real, enforced property —
-  not a convention. A public projection over `#capture/meeting` (read, tag-scoped)
-  can expose only those notes, and only the fields its `shape` function copies.
+  whose `permissions.scoped_tags` is `["capture/meeting"]`:
+  - write a note tagged `capture/meeting` → **201**
+  - write a note tagged anything else → **403 `tag_scope_violation`** (*"This token
+    is restricted to tags: capture/meeting. The note (or write) is outside that
+    scope."*)
+- And the full chain end-to-end: that scoped write → the `meeting-mcp` P9 read
+  surface's `recent-meetings` returned the note **shaped** to `{id, title, date,
+  summary}` (no tags, no path, no raw note) over both REST and the MCP `tools/call`.
+- So "this surface can write only `capture/meeting`" is a real, enforced property —
+  not a convention. A public projection over `capture/meeting` (read, tag-scoped)
+  exposes only those notes, and only the fields its `shape` function copies.
 
 ## The patterns
 
-### 1. Ingest + trigger (meeting-ingest)
-A `public`, HMAC-verified webhook writes one tag, then a **vault trigger** fans out:
+### 1. Ingest (+ a future trigger fan-out) — meeting-ingest
+A `public`, HMAC-verified webhook writes one tag:
 ```
 Fireflies → POST /surface/meeting-ingest/api/webhook/fireflies   (public, HMAC)
-          → ctx.vault.createNote(#capture/meeting)               (write scoped to that tag)
-          → vault trigger: note.created (filter #capture/meeting)
-          → hub Connections → agent message.deliver              (wake an agent)
+          → ctx.vault.createNote(capture/meeting)                (write scoped to that tag)
 ```
-Keep the downstream action a **trigger**, not surface code: the surface stays
-scoped to one write-tag; the fan-out is a separate, operator-approved connection
-(the same engine that drives reactive agent def-reload).
+The natural next step is "wake an agent on each new meeting," and the right *shape*
+is a **vault trigger**, not surface code — so the surface stays scoped to one
+write-tag and the fan-out is a separate connection. **Status (corrected
+2026-06-19): not wired yet.** The trigger *engine* exists (vault triggers + the hub
+Connections engine), but the agent side has no action that consumes a *domain*
+note: `message.deliver` accepts only inbound **message** notes (it requires
+`metadata.channel`), so a `capture/meeting` note can't drive a turn. Waking an
+agent from a domain note needs a new agent "react to a note" action
+(parachute-agent#120). So today: ingest + tag-scoped write is **live**; the agent
+fan-out is a **roadmap** item, not a click.
 
 ### 2. Public write-only intake (feedback)
 A `public` POST route writing `#capture/feedback` on a tag-scoped credential. The
@@ -105,26 +117,37 @@ boundary — raw notes never leave. This is how you give end-users (or their AI)
 friendly window into a vault slice (city-council meetings, a knowledge base) without
 vault access.
 
-## Operator provisioning (the clicks that aren't headless)
+## Operator provisioning (what's automatic, what's a click)
 
-Installing a surface is in the operator's hands by design — provisioning a vault
-credential or a trigger is an *approval*, so it's cookie-gated to the portal
-operator (no CLI/headless path). For a backed surface:
+Provisioning is cookie-gated to the portal operator (no headless/CLI path), but
+it's mostly lighter than "approve a pending item." **Connections are *created* in
+the hub Connections *builder*, not approved** — the Connections "Approve" button
+appears ONLY for the narrow credential-*renewal* claim flow (a module re-presenting
+a credential it already holds; surface#113), never for a new surface or trigger. So
+**an empty Connections view with nothing wired is the correct, expected state** —
+you *build* there, you don't wait for an approval that won't come. For a backed
+surface:
 
-1. **Install** the surface (admin SPA `inspect → stage → install`, or place its
-   `meta.json` + `dist/` + `server/index.bundle.js` in `~/.parachute/surface/uis/<name>/`
-   and restart surface).
-2. **Approve its credential connection** — grant the surface `vault:<v>:read|write`
-   **scoped to its tag(s)** (e.g. `#capture/meeting`). Until a credential is
-   delivered the static bundle still serves, but the host gates `/api/*` with a
-   `credential_pending` 503 (host layer, `backend-supervisor.ts`). (Distinct from an
-   *app-layer* config gate — e.g. meeting-ingest returns its own `not_configured`
-   503 when the webhook secret is missing from `config.json`, even with a credential
-   present.)
-3. (Ingest) **Approve the fan-out connection** — `note.created (filter <tag>) →
-   agent message.deliver` — if you want the downstream action.
-4. (Provider surfaces) set the surface's `config.json` (0600) — e.g. the Fireflies
-   API key + webhook secret.
+1. **Install** the surface (admin SPA `inspect → stage → install`, or place
+   `meta.json` + `dist/` + `server/index.bundle.js` in
+   `~/.parachute/surface/uis/<name>/` and restart surface).
+2. **Vault credential:**
+   - *Read surface, single vault* → **nothing to do.** The host **auto-binds** a
+     least-privilege read credential (`credential-store.ts`) — no click, no
+     Connections entry. (This is why `meeting-mcp` read live with an empty
+     Connections view.)
+   - *Write surface* → **create** a credential connection in the builder (a write
+     credential *requires* a non-empty tag scope — vault-wide write is refused),
+     then **bind it in the surface's OWN admin page (`CredentialPanel`)**, not the
+     hub Connections view. Binding ambiguity (multiple matching credentials)
+     surfaces only there. Until a credential resolves, the static bundle serves but
+     `/api/*` gates with a host `credential_pending` 503 (distinct from an app-layer
+     `not_configured` 503 — e.g. a missing webhook secret in `config.json`).
+3. **Fan-out trigger** (optional) → **create** a `note.created (filter <tag>) →
+   agent <action>` connection in the builder. NOTE: the agent consumer isn't built
+   yet (Pattern 1 / agent#120) — the engine is ready, the agent action isn't.
+4. **Provider surfaces** → set `config.json` (0600) — e.g. the Fireflies API key +
+   webhook secret.
 
 Roadmap items #124/#125 below make steps 2–3 *declared by the surface* so install
 offers them as one click instead of hand-wiring.
@@ -139,7 +162,10 @@ auth (capabilities/links), `ctx.store`, and the Connections/trigger engine. Two
 backed surfaces ship as references: `meeting-ingest` (write) and `meeting-mcp`
 (read/MCP).
 
-**Roadmap** (`parachute-surface` issues):
+**Roadmap** (`parachute-surface` issues, + `parachute-agent`):
+- **agent#120** — an agent "react to a domain note" action: the missing consumer
+  that makes the ingest→agent fan-out (Pattern 1) actually work. The trigger engine
+  is ready; this is the agent side.
 - **#124** — declare a surface's write-tag so the credential auto-scopes (ergonomics
   over the operator-set `scoped_tags`).
 - **#125** — declare a post-write trigger/connection on a surface (one-click fan-out
@@ -155,9 +181,12 @@ backed surfaces ship as references: `meeting-ingest` (write) and `meeting-mcp`
 
 ## How close is the vision?
 
-The **operator-builds-their-own-surfaces** version — a feedback intake, a council-
-meeting MCP, an ingest+trigger pipeline — is *working-today-with-provisioning*, not a
-roadmap: every thread is a composition of primitives that exist. The
-**anyone-publishes-a-surface** version needs exactly two things, both named and
-scoped above: an authoring/distribution DX (#126) and per-surface process isolation
-for untrusted code (#127). Neither is invented from scratch.
+The **operator-builds-their-own-surfaces** version is mostly *working-today-with-
+provisioning*: tag-scoped **ingest** (write), **public write-only intake**, and the
+**custom end-user MCP** (proven end-to-end on real data) are compositions of
+primitives that exist. The one piece that *looks* done but isn't: the
+**ingest→agent fan-out** — the trigger engine is ready but the agent has no action
+to consume a domain note (agent#120). The **anyone-publishes-a-surface** version
+needs two more things, both scoped above: authoring/distribution DX (#126) and
+per-surface process isolation for untrusted code (#127). None is invented from
+scratch.
