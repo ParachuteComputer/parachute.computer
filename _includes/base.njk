@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}{% if title %} | {% endif %}Parachute Computer</title>
-    <meta name="description" content="{{ description or 'The note-taking system you have been looking for. An open knowledge layer for humans and AI to think and remember together.' }}">
+    <meta name="description" content="{{ description or 'One memory for all your AIs. An open, self-hosted home for your notes that every AI you use can read and write — on your machine, yours to keep and export anytime.' }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="/style.css">
@@ -18,7 +18,7 @@
     {# Open Graph / share-preview metadata. Posts can override via
        frontmatter: og_title, og_description, og_image, og_type. #}
     {% set _ogTitle = og_title or title %}
-    {% set _ogDescription = og_description or description or "The note-taking system you have been looking for. An open knowledge layer for humans and AI to think and remember together." %}
+    {% set _ogDescription = og_description or description or "One memory for all your AIs. An open, self-hosted home for your notes that every AI you use can read and write — on your machine, yours to keep and export anytime." %}
     {% set _ogImage = og_image or "/assets/og-default.jpg" %}
     {% set _ogType = og_type or "website" %}
     {% set _canonicalUrl = "https://parachute.computer" + (page.url or "/") %}
@@ -49,8 +49,8 @@
                 <span class="logo-text">Parachute Computer</span>
             </a>
             <div class="nav-links">
-                <a href="/modules/">Modules</a>
                 <a href="/install/">Install</a>
+                <a href="/modules/">Modules</a>
                 <a href="/blog/">Blog</a>
                 <a href="/docs/">Docs</a>
                 <a href="/roadmap/">Roadmap</a>
@@ -62,9 +62,8 @@
     {{ content | safe }}
 
     <footer>
-        <p>&copy; 2026 Open Parachute, PBC</p>
-        <p>A Colorado Public Benefit Corporation building open tools for thinking.</p>
-        <p style="margin-top: 0.75rem;"><a href="/modules/">Modules</a> &middot; <a href="/install/">Install</a> &middot; <a href="/blog/">Blog</a> &middot; <a href="/docs/">Docs</a> &middot; <a href="/roadmap/">Roadmap</a> &middot; <a href="/since-launch/">Since launch</a> &middot; <a href="https://github.com/ParachuteComputer" target="_blank">GitHub</a></p>
+        <p style="margin-bottom: 0.75rem;"><a href="/install/">Install</a> &middot; <a href="/modules/">Modules</a> &middot; <a href="/blog/">Blog</a> &middot; <a href="/docs/">Docs</a> &middot; <a href="/roadmap/">Roadmap</a> &middot; <a href="https://github.com/ParachuteComputer" target="_blank">GitHub</a></p>
+        <p>&copy; 2026 Open Parachute, PBC &mdash; a Colorado Public Benefit Corporation building open tools for thinking.</p>
     </footer>
 
     {# Copy-to-clipboard — progressive enhancement. With JS off, no button

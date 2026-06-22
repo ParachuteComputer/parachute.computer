@@ -8,7 +8,7 @@ permalink: /install/
 
     <section class="hero">
         <h1 class="fade-up fade-up-2">Install</h1>
-        <p class="tagline fade-up fade-up-3">One command gets you a hub and a vault. Connect your AI, paste a starter prompt, and it builds the rest with you.</p>
+        <p class="tagline fade-up fade-up-3">One command gets you running. Connect your AI, then open your notes in the browser.</p>
     </section>
 
     <section class="section">
@@ -20,16 +20,17 @@ permalink: /install/
             <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>
         </div>
 
-        <p><code>parachute init</code> starts the hub on port <code>1939</code>, offers to expose it beyond your laptop (Cloudflare Tunnel is the default on a server &mdash; it'll offer to install <code>cloudflared</code> for you on macOS and Linux), installs the vault module quietly, and opens a browser setup wizard at <code>/admin/setup</code>: <strong>Account &rarr; Vault &rarr; Expose &rarr; Done</strong>. Create an admin login, then create your first vault (or import one from a git repo, or skip &mdash; vault creation lives in the wizard, not the CLI). If an expose attempt fails, <code>init</code> doesn't abort &mdash; it keeps going on the loopback URL and prints a retry hint (<code>parachute expose public --cloudflare</code>). When the hub <em>is</em> exposed publicly and no admin exists yet, <code>init</code> prints a one-time <strong>bootstrap token</strong> &mdash; the wizard asks for it before it lets you create the first admin (loopback installs skip this). It's idempotent &mdash; safe to re-run. Check the stack any time with <code>parachute status</code>.</p>
+        <p><code>parachute init</code> starts your hub, installs your vault &mdash; the place all your notes live &mdash; and opens a browser setup wizard: <strong>Account &rarr; Vault &rarr; Expose &rarr; Done</strong>. Create an admin login, then create your first vault (or import one from a git repo, or skip for now). That's the whole happy path.</p>
 
-        <aside class="upgrade-callout">
-            <strong>Installed during the beta via the old <code>@openparachute/cli</code>?</strong>
-            <p>Run the rename once before <code>parachute init</code>:</p>
-            <div class="code-inline">
-                <code>bun remove -g @openparachute/cli &amp;&amp; bun add -g @openparachute/hub &amp;&amp; parachute upgrade vault</code>
-            </div>
-            <p>The package was renamed in April 2026; vault migrations run automatically on the next boot. Coming from the launch Vault 0.2.4? The <a href="/preview/vault-0.4.5-arc/">0.2.4 &rarr; 0.4.5 upgrade arc</a> has the full picture. From here on, <code>parachute init</code> is the front door.</p>
-        </aside>
+        <details>
+            <summary>Ports, exposing it, tokens, and re-running</summary>
+            <ul style="margin-top: 1rem;">
+                <li><strong>Ports.</strong> The hub answers on <code>1939</code>; the vault runs on <code>1940</code> behind it.</li>
+                <li><strong>Going beyond your laptop.</strong> <code>init</code> offers to expose your hub publicly (a Cloudflare Tunnel is the default on a server &mdash; it'll offer to install <code>cloudflared</code> for you on macOS and Linux). If an expose attempt fails, <code>init</code> keeps going on the local URL and prints a retry hint: <code>parachute expose public --cloudflare</code>.</li>
+                <li><strong>Bootstrap token.</strong> When the hub is exposed publicly and no admin exists yet, <code>init</code> prints a one-time bootstrap token; the wizard asks for it before it lets you create the first admin (local-only installs skip this).</li>
+                <li><strong>Safe to re-run.</strong> <code>init</code> is idempotent. Check the stack any time with <code>parachute status</code>.</li>
+            </ul>
+        </details>
     </section>
 
     <section class="section" id="connect-mcp-clients">
@@ -47,26 +48,26 @@ permalink: /install/
     </section>
 
     <section class="section">
-        <h2>Bootstrap your vault</h2>
+        <h2>&#9733; See your first note</h2>
 
-        <div class="starter-callout">
-            <h3>&#9733; Paste one prompt &mdash; your AI builds your vault</h3>
-            <p>Your vault starts empty. The fastest way to fill it: open <strong>the set-up-your-vault starter prompt</strong>, paste it into your MCP-connected AI, and it inspects what's there, interviews you about how you think, and proposes a tag and path structure &mdash; then builds it on your say-so. This is the payoff. Start here.</p>
-            <a href="/onboarding/vault-setup/" class="button">Open the starter prompt &rarr;</a>
-            <p class="starter-adjacent">Next steps from there: a second prompt that <a href="/onboarding/surface-build/">builds a custom UI</a> over your vault, or <a href="/scripting/">scripting your vault</a> from bash, Python, or JS for imports, cron jobs, and CI.</p>
-        </div>
-    </section>
-
-    <section class="section">
-        <h2>See your notes <span style="font-weight:400;color:var(--fg-dim);">(optional)</span></h2>
-
-        <p>Want to browse, search, and edit your notes in a UI &mdash; and watch the graph form? Install <strong>Surface</strong>, the UI host module. It auto-bootstraps Notes as its first surface:</p>
+        <p>The fastest win: ask your AI to write a quick note (&ldquo;jot down that I'm trying Parachute today&rdquo;), then open it in your browser. Install <strong>Surface</strong>, the module that hosts your UIs &mdash; it brings up Notes automatically:</p>
 
         <div class="code-inline">
             <code>parachute install surface</code>
         </div>
 
-        <p>Open <a href="http://localhost:1939/surface/notes/" target="_blank"><code>localhost:1939/surface/notes/</code></a>, click the vault popover, and hit <strong>Connect</strong> next to your vault. You get note browsing, search, tag views, a graph visualization, voice capture, and a markdown editor &mdash; multi-vault, one install for every vault on your hub. The source is open (Vite + React + TypeScript) &mdash; and when you want a UI shaped to your own brain, the <a href="/onboarding/surface-build/">build-a-custom-UI starter prompt</a> scaffolds one on the surface SDK, no Parachute install needed.</p>
+        <p>Open <a href="http://localhost:1939/surface/notes/" target="_blank"><code>localhost:1939/surface/notes/</code></a>, click the vault popover, and hit <strong>Connect</strong> next to your vault. There's the note you just made. You also get search, tag views, a visual map of how your notes link together, voice capture, and a markdown editor &mdash; one install covers every vault on your hub. The source is open (Vite + React + TypeScript).</p>
+    </section>
+
+    <section class="section">
+        <h2>Now let your AI structure your whole vault &rarr;</h2>
+
+        <div class="starter-callout">
+            <h3>Paste one prompt &mdash; your AI organizes your vault</h3>
+            <p>Your vault starts mostly empty. To fill it out fast: open <strong>the set-up-your-vault starter prompt</strong>, paste it into your connected AI, and it interviews you about how you think, proposes a tag and folder structure, and builds it on your say-so.</p>
+            <a href="/onboarding/vault-setup/" class="button">Open the starter prompt &rarr;</a>
+            <p class="starter-adjacent">From there: a second prompt that <a href="/onboarding/surface-build/">builds a custom UI</a> over your vault, or <a href="/scripting/">scripting your vault</a> from bash, Python, or JS for imports, cron jobs, and CI.</p>
+        </div>
     </section>
 
     <section class="section">
