@@ -81,7 +81,7 @@ permalink: /multi-user/
             <li><strong>Auth is the hub's standard OAuth.</strong> When their client connects, it sends them to your hub to sign in and approve &mdash; their token is pinned to their own vault and can't reach anyone else's. No token-pasting for OAuth-capable clients; for clients that need a bearer header instead, they can mint a hub JWT scoped to their vault from their own access (or you mint and hand one off out-of-band).</li>
         </ul>
 
-        <p>The literal per-client commands &mdash; <code>claude mcp add --transport http &lt;name&gt; &lt;hub-url&gt;/vault/&lt;name&gt;/mcp</code> for Claude Code, the Settings &rarr; Connectors flow for Claude.ai, and the generic streamable-HTTP shape for everything else &mdash; live in <a href="/install/#connect-mcp-clients">Connecting MCP clients</a> on the install page. Point your friend there; the only substitutions are your hub's URL and their vault name.</p>
+        <p>The literal per-client commands &mdash; <code>claude mcp add --transport http &lt;name&gt; &lt;hub-url&gt;/vault/&lt;name&gt;/mcp</code> for Claude Code, the Settings &rarr; Connectors flow for Claude.ai, and the generic streamable-HTTP shape for everything else &mdash; live in <a href="/start/#connect-mcp-clients">Connecting MCP clients</a> on the install page. Point your friend there; the only substitutions are your hub's URL and their vault name.</p>
 
         <p><strong>The in-product shortcut:</strong> in your admin SPA, open the Vaults list and hit the <strong>Connect</strong> toggle on the friend's vault row. That expands a <em>Connect an MCP client</em> card with the exact <code>&lt;hub-url&gt;/vault/&lt;name&gt;/mcp</code> endpoint and a copy-paste <code>claude mcp add</code> command already filled in for that vault &mdash; plus an optional mint-a-token path for headless clients. It's the same surface for every vault, any time; no need to retype the URL by hand.</p>
     </section>
@@ -96,7 +96,7 @@ permalink: /multi-user/
             <li><strong>Copy message, send it out-of-band.</strong> The ready-to-send note includes the link and what it grants. Use Signal or an in-person handoff &mdash; the link is one-time and expires in 7 days.</li>
             <li><strong>They redeem it.</strong> They pick a username (unless you pre-named it) and a password, and land at <code>/account/</code>, their home page showing their vault(s).</li>
             <li><strong>They can change their password any time</strong> from <code>/account/</code>. If they forget it, <strong>you reset it</strong> from <code>/admin/users</code> &rarr; <strong>Reset password</strong> (which also revokes their existing tokens).</li>
-            <li><strong>To connect their AI client to their vault,</strong> open the Vaults list and use the per-row <strong>Connect</strong> toggle &rarr; <em>Connect an MCP client</em> card, or send them <a href="#connect-mcp">step 5 above</a> / <a href="/install/#connect-mcp-clients">Connecting MCP clients</a>. Notes (the web app) needs none of this &mdash; it connects with one click.</li>
+            <li><strong>To connect their AI client to their vault,</strong> open the Vaults list and use the per-row <strong>Connect</strong> toggle &rarr; <em>Connect an MCP client</em> card, or send them <a href="#connect-mcp">step 5 above</a> / <a href="/start/#connect-mcp-clients">Connecting MCP clients</a>. Notes (the web app) needs none of this &mdash; it connects with one click.</li>
         </ol>
     </section>
 

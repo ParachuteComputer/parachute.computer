@@ -23,8 +23,9 @@ needed — just a static SPA in a GitHub repo I own.
 
 ## What I'll give you
 
-- My hub's URL (e.g. `https://aaron-hub.fly.dev`) and my vault's name
-  (e.g. `default`)
+- My hub's URL (e.g. `https://hub.yourdomain.com`, or
+  `http://localhost:1939` if you're trying it on your laptop) and my
+  vault's name (e.g. `default`)
 - A description of what I look at most — projects, people, daily
   notes, etc. (You'll interview me.)
 
@@ -48,9 +49,20 @@ writing code; import, don't reimplement:
 - **`@openparachute/surface-render`** — React rendering primitives:
   `<NoteRenderer>` (format-dispatched), `<MarkdownView>` with
   `[[wikilink]]` resolution, `<VaultImage>`/`<VaultAudio>` for auth'd
-  attachments, plus a base `styles.css`. Primitives, not an app shell
-  — routing and layout stay mine.
+  attachments, `useVaultFetchBlob(client)` for fetching attachments
+  yourself, plus an importable base `styles.css`. Primitives, not an
+  app shell — routing and layout stay mine. I supply three hooks:
+  `resolve(target)` (map a `[[wikilink]]` to *my* route + note index —
+  validate against my own index, never echo a raw vault string as an
+  href), `linkComponent` (my router's `<Link>`), and `fetchBlob`.
   https://github.com/ParachuteComputer/parachute-surface/tree/main/packages/surface-render
+
+  This is the fast path and what you should reach for. *Only* if I
+  need `[[wikilink]]` resolution that surface-render can't express —
+  e.g. resolving against a custom client-side entity index with
+  in-app routing — render with `react-markdown` + a small `components`
+  map instead, and keep using the client's `fetchAttachmentBlob` for
+  auth'd attachments. Ask me before going that route.
 
 Other references if you need them: the full vault HTTP API is
 documented in https://github.com/ParachuteComputer/parachute-vault
@@ -95,6 +107,16 @@ Wiring:
   "Sign in" button that calls `surface.login()`.
 - Render note content through `<NoteRenderer>` / `<MarkdownView>`,
   attachments through `<VaultImage>` / `<VaultAudio>`.
+- For anything where staleness would show, use
+  `client.subscribe(query, handlers)` (live-query over SSE) instead of
+  polling — it self-corrects on reconnect and carries auth in the
+  header. A free "thinking…"/live indicator falls out of subscribing
+  to a query and reading note `metadata.status` — no extra writes.
+- Branch on the typed error classes the client throws
+  (`VaultAuthError`, `VaultPermissionError`, `VaultConflictError`,
+  `VaultNotFoundError`, `VaultUnreachableError`) — don't string-match
+  HTTP status. A `400 invalid_grant` on refresh is terminal: clear
+  tokens and re-auth, don't loop (the client handles this for you).
 
 ## Deploy
 

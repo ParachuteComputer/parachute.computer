@@ -12,7 +12,7 @@ og_type: "article"
 
 ![A parachute descending over open plains at dawn, its canopy woven with a luminous knowledge graph.](/assets/blog/parachute-is-here.jpg)
 
-> **Update (2026-05-26):** Notes has migrated to live as the first canonical surface inside **parachute-surface** (renamed from parachute-app). The architecture has consolidated to four committed-core modules: vault, surface, scribe, hub. See the [parachute-surface design doc](/design/2026-05-21-parachute-surface-design/) for the migration arc. Operators on legacy notes-daemon installs continue to work; hub redirects `/notes/*` → `/surface/notes/*` for backwards compat. The install commands below are kept verbatim as historical record; the [install guide](/install/) has the up-to-date snippets.
+> **Update (2026-05-26):** Notes has migrated to live as the first canonical surface inside **parachute-surface** (renamed from parachute-app). The architecture has consolidated to four committed-core modules: vault, surface, scribe, hub. See the [parachute-surface design doc](/design/2026-05-21-parachute-surface-design/) for the migration arc. Operators on legacy notes-daemon installs continue to work; hub redirects `/notes/*` → `/surface/notes/*` for backwards compat. The install commands below are kept verbatim as historical record; the [install guide](/start/) has the up-to-date snippets.
 
 > The mind is like a parachute. It doesn't work if it's not open.
 >
@@ -46,13 +46,13 @@ Today the cleanest on-ramp is **Claude Code**: install the Vault, open a session
 
 **claude.ai, ChatGPT, Gemini come next.** The plumbing exists; we're finishing the polish on public HTTPS exposure and the custom-connector OAuth flow. Those land in the next couple of weeks — we wanted to ship the single-client experience well before promising the many-client one. The architecture was designed around it from day one.
 
-The install is one line; [the install guide](/install/) has the rest.
+The install is one line; [the install guide](/start/) has the rest.
 
 ## A reference UI — if you want one
 
 **Parachute Notes** is a web interface for your Vault. Run `parachute install notes`, open `localhost:1942/notes` in your browser, point it at your Vault, and you've got note browsing, search, tag views, a graph visualization, markdown editor with live preview, and voice capture with auto-transcription. Usable today as a local web app on your laptop. The mobile-PWA install flow lands alongside public HTTPS exposure in the next few weeks.
 
-> **Editor's note (2026-05-28):** Notes is now bundled inside **Parachute Surface**, the UI host module — `parachute install surface` (auto-bootstraps Notes), reachable at `<hub>/surface/notes/`. The standalone `parachute install notes` / `localhost:1942/notes` path described here is the launch-era shape; see the [install guide](/install/) for the current flow.
+> **Editor's note (2026-05-28):** Notes is now bundled inside **Parachute Surface**, the UI host module — `parachute install surface` (auto-bootstraps Notes), reachable at `<hub>/surface/notes/`. The standalone `parachute install notes` / `localhost:1942/notes` path described here is the launch-era shape; see the [install guide](/start/) for the current flow.
 
 It's also explicitly not the definitive front-end. Our hope is that you might build your own. In this new era, it's genuinely possible to build a front-end that works how *your* brain works — not how a design team at some company guessed it might. [Fork the source](https://github.com/ParachuteComputer/parachute-notes) — Vite + React + TypeScript, AGPL — read the Vault's API, and build something that's uniquely yours. That's the invitation.
 
@@ -64,7 +64,7 @@ The [roadmap](/roadmap/) is live. The [source](https://github.com/ParachuteCompu
 
 ## Try it
 
-> **Editor's note (2026-04-26):** the npm package was renamed from `@openparachute/cli` to `@openparachute/hub` shortly after this post. The current install command is `bun add -g @openparachute/hub && parachute install vault`. See the [install guide](/install/) for the up-to-date snippet.
+> **Editor's note (2026-04-26):** the npm package was renamed from `@openparachute/cli` to `@openparachute/hub` shortly after this post. The current install command is `bun add -g @openparachute/hub && parachute install vault`. See the [install guide](/start/) for the up-to-date snippet.
 
 ```sh
 bun add -g @openparachute/cli && parachute install vault
@@ -72,7 +72,7 @@ bun add -g @openparachute/cli && parachute install vault
 
 Start a Claude Code session after install and your Vault's tools are right there — `create-note`, `query-notes`, `update-note`, `delete-note`, `list-tags`, `update-tag`, `delete-tag`, `find-path`, `vault-info`. Ask Claude to save something, pull what you've written about a topic, walk the graph. That's the whole loop.
 
-The [install guide](/install/) has the rest. Public HTTPS + claude.ai / ChatGPT connectors land in the next few weeks; subscribe via [the blog](/blog/) or watch the [GitHub org](https://github.com/ParachuteComputer) for the announcement. If something breaks now, [open an issue](https://github.com/ParachuteComputer) — we're launching this small and listening carefully.
+The [install guide](/start/) has the rest. Public HTTPS + claude.ai / ChatGPT connectors land in the next few weeks; subscribe via [the blog](/blog/) or watch the [GitHub org](https://github.com/ParachuteComputer) for the announcement. If something breaks now, [open an issue](https://github.com/ParachuteComputer) — we're launching this small and listening carefully.
 
 I'm really looking forward to seeing what you build with it.
 

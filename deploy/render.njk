@@ -21,7 +21,7 @@ permalink: /deploy/render/
 
         <p><strong>Why this path.</strong> Parachute is happiest on your own machine, but a laptop sleeps. Render is a container-based alternative that still lets you own everything &mdash; a single container running your hub, with a persistent disk for your vault, all in your Render account. No tenancy, no shared database, no Parachute-operated cloud sitting between you and your data. It's not the path we recommend &mdash; <a href="/deploy/vps/">Deploy to a VPS</a> is the one we point people to &mdash; but if you're already on Render or prefer a container, the full walkthrough is below.</p>
 
-        <p><strong>Same setup as every install.</strong> A Render deploy isn't a different onboarding &mdash; it's the same <a href="/install/">unified flow</a>. Locally you'd run <code>parachute init</code> to get a hub and land in the setup wizard; here, Render gives you a running, already-exposed hub at a public URL, and you land in the <em>identical</em> wizard at <code>/admin/setup</code>. You'll walk the same Account &rarr; Vault steps an operator on a laptop or an EC2 box walks; the wizard's <em>Expose</em> step auto-skips on Render (the platform already owns the public URL), so you go straight to <em>Done</em>. The only Render-specific bit is grabbing a one-time bootstrap token from the logs to claim admin (step 3).</p>
+        <p><strong>Same setup as every install.</strong> A Render deploy isn't a different onboarding &mdash; it's the same <a href="/start/">unified flow</a>. Locally you'd run <code>parachute init</code> to get a hub and land in the setup wizard; here, Render gives you a running, already-exposed hub at a public URL, and you land in the <em>identical</em> wizard at <code>/admin/setup</code>. You'll walk the same Account &rarr; Vault steps an operator on a laptop or an EC2 box walks; the wizard's <em>Expose</em> step auto-skips on Render (the platform already owns the public URL), so you go straight to <em>Done</em>. The only Render-specific bit is grabbing a one-time bootstrap token from the logs to claim admin (step 3).</p>
 
         <p style="text-align: center; margin: 2rem 0;">
             <a href="https://render.com/deploy?repo=https://github.com/ParachuteComputer/parachute-hub" target="_blank" rel="noopener">
@@ -203,7 +203,7 @@ permalink: /deploy/render/
         <h2>What comes next</h2>
 
         <ul>
-            <li><a href="/install/">Local install</a> &mdash; the same stack on your own machine. Free, but sleeps when your laptop sleeps.</li>
+            <li><a href="/start/">Local install</a> &mdash; the same stack on your own machine. Free, but sleeps when your laptop sleeps.</li>
             <li><a href="/design/2026-05-18-v06-deploy-architecture/">v0.6 deploy architecture</a> &mdash; the design note explaining <em>why</em> it's one container with hub-as-supervisor.</li>
             <li><a href="https://github.com/ParachuteComputer/parachute-hub/issues" target="_blank">parachute-hub issues</a> &mdash; deploy questions, bugs, friction. We read all of them.</li>
         </ul>
@@ -215,7 +215,7 @@ permalink: /deploy/render/
                 <img src="https://render.com/images/deploy-to-render-button.svg" alt="Deploy to Render" style="height: 44px;">
             </a>
         </p>
-        <p class="cta-secondary">Or <a href="/install/">install locally</a>.</p>
+        <p class="cta-secondary">Or <a href="/start/">install locally</a>.</p>
     </section>
 
 </main>
