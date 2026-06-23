@@ -1117,8 +1117,18 @@ footer p:first-child {
         margin-top: 1.5rem;
     }
 
+    /* Let the header wrap on narrow screens so the nav links don't run
+       off-screen (Roadmap/GitHub were getting truncated at phone width).
+       Logo stays on the first row; nav links wrap onto the next, and the
+       links themselves wrap if needed — no JS / hamburger needed. */
+    nav {
+        flex-wrap: wrap;
+        row-gap: 0.6rem;
+    }
+
     .nav-links {
-        gap: 1.25rem;
+        flex-wrap: wrap;
+        gap: 0.55rem 1.1rem;
     }
 
     .logo {
