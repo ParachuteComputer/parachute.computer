@@ -91,15 +91,17 @@ permalink: /install/
     <section class="section">
         <h2>&#9733; 4 &middot; See your first note</h2>
 
-        <p>Here's the payoff. Install <strong>Surface</strong>, the module that hosts your UIs &mdash; it brings up Notes automatically:</p>
+        <p>Here's the payoff. Ask your AI to jot a quick note (&ldquo;jot down that I'm trying Parachute today&rdquo;), then open it in a browser &mdash; two ways:</p>
+
+        <p><strong>Fastest &mdash; nothing to install.</strong> Open <a href="https://notes.parachute.computer" target="_blank">notes.parachute.computer</a>, the hosted Notes app. Enter your hub's vault URL (<code>&lt;hub-origin&gt;/vault/&lt;name&gt;</code>) and sign in. The app runs in your browser; your notes never leave your hub. There's the note you just made.</p>
+
+        <p><strong>Host it on your own hub.</strong> Install <strong>Surface</strong> &mdash; the module that serves your UIs from your own hub &mdash; and it brings up Notes automatically:</p>
 
         <div class="code-inline">
             <code>parachute install surface</code>
         </div>
 
-        <p>Open <a href="http://localhost:1939/surface/notes/" target="_blank"><code>localhost:1939/surface/notes/</code></a>, click the vault popover, and hit <strong>Connect</strong> next to your vault. Now <strong>ask your AI to jot a quick note</strong> (&ldquo;jot down that I'm trying Parachute today&rdquo;) &mdash; watch it appear.</p>
-
-        <p>You also get search, tag views, a visual map of how your notes link together, voice capture, and a markdown editor &mdash; one install covers every vault on your hub.</p>
+        <p>Open <a href="http://localhost:1939/surface/notes/" target="_blank"><code>localhost:1939/surface/notes/</code></a>, click the vault popover, and hit <strong>Connect</strong>. The same Notes, now served from your own hub &mdash; plus search, tag views, a visual map of how your notes link together, voice capture, and a markdown editor. One install covers every vault on your hub.</p>
 
         <div class="starter-callout">
             <h3>Paste one prompt &mdash; your AI organizes your vault</h3>
@@ -107,6 +109,49 @@ permalink: /install/
             <a href="/onboarding/vault-setup/" class="button">Open the starter prompt &rarr;</a>
             <p class="starter-adjacent">From there: a second prompt that <a href="/onboarding/surface-build/">builds a custom UI</a> over your vault, or <a href="/scripting/">scripting your vault</a> from bash, Python, or JS for imports, cron jobs, and CI.</p>
         </div>
+    </section>
+
+    <style>
+    /* Page-local: graceful frame for the custom-surface example shot.
+       Reuses the global tokens; degrades to a styled panel if the PNG
+       hasn't landed yet (no broken-image icon). Mirrors the home hero shot. */
+    .surface-shot-frame {
+        position: relative;
+        aspect-ratio: 16 / 10;
+        max-width: 720px;
+        margin: 1.5rem auto 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background:
+            radial-gradient(120% 120% at 50% 0%, var(--accent-soft), transparent 60%),
+            var(--bg-soft);
+        box-shadow: 0 12px 40px rgba(44, 42, 38, 0.06);
+        overflow: hidden;
+    }
+    .surface-shot-frame img {
+        position: absolute; inset: 0;
+        width: 100%; height: 100%;
+        object-fit: cover; border: none; border-radius: 14px;
+    }
+    .surface-shot-cap {
+        text-align: center; font-size: 0.9rem; color: var(--fg-dim);
+        max-width: 720px; margin: 0 auto;
+    }
+    </style>
+
+    <section class="section">
+        <h2>Make it yours &mdash; build a custom surface</h2>
+
+        <p>Notes is just the first surface. Everything lives in an open vault your AI can read and write, so you can build a UI shaped to <em>your</em> brain &mdash; a dashboard, a daily journal, a garden &mdash; and host it on the same hub. <a href="https://www.npmjs.com/package/@openparachute/surface-client" target="_blank"><code>@openparachute/surface-client</code></a> gives you auth + the vault API, and <a href="https://www.npmjs.com/package/@openparachute/surface-render" target="_blank"><code>surface-render</code></a> renders your notes &mdash; a working surface in a few lines.</p>
+
+        <figure style="margin: 0;">
+            <div class="surface-shot-frame">
+                <img src="/assets/install/unisurface.png" alt="UniSurface — a custom Parachute surface, 'a quiet garden for the mind', showing one person's vault" loading="lazy" width="1600" height="1000">
+            </div>
+            <figcaption class="surface-shot-cap">UniSurface (<a href="https://my.unforced.org" target="_blank">my.unforced.org</a>) &mdash; &ldquo;a quiet garden for the mind&rdquo;: a custom surface built on top of a personal vault.</figcaption>
+        </figure>
+
+        <p style="margin-top: 1.5rem;">Want to build your own? The <a href="/onboarding/surface-build/">build-a-surface starter prompt</a> walks your AI through it end to end.</p>
     </section>
 
     <section class="section">
