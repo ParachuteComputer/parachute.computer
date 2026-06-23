@@ -11,10 +11,15 @@ permalink: /deploy/render/
         <p class="tagline fade-up fade-up-3">Your own Parachute, your own data, in a browser tab. About five minutes from click to a running URL.</p>
     </section>
 
+    <aside class="upgrade-callout">
+        <strong>A legacy path &mdash; not the one we'd point you to anymore.</strong>
+        <p>Render runs Parachute as a container, which diverges from the bun-native <code>parachute init</code> install the rest of the product is built around. We hit container-specific friction often enough that this is no longer the way we recommend self-hosting. The always-on path we point people to now is <a href="/deploy/vps/"><strong>Deploy to a VPS</strong></a> (Hetzner, DigitalOcean, or any Linux box) &mdash; the same one-command install, on a box that never sleeps. This guide stays for operators already running on Render.</p>
+    </aside>
+
     <section class="section">
         <h2>One click to start</h2>
 
-        <p><strong>Why this path.</strong> Parachute is happiest on your own machine, but a laptop sleeps. Render is one of two "always-on URL" paths we support that still let you own everything &mdash; a single container running your hub, with a persistent disk for your vault, all in your Render account. No tenancy, no shared database, no Parachute-operated cloud sitting between you and your data. (See <a href="/deploy/fly/">Deploy to Fly.io</a> for the peer path.)</p>
+        <p><strong>Why this path.</strong> Parachute is happiest on your own machine, but a laptop sleeps. Render is a container-based alternative that still lets you own everything &mdash; a single container running your hub, with a persistent disk for your vault, all in your Render account. No tenancy, no shared database, no Parachute-operated cloud sitting between you and your data. It's not the path we recommend &mdash; <a href="/deploy/vps/">Deploy to a VPS</a> is the one we point people to &mdash; but if you're already on Render or prefer a container, the full walkthrough is below.</p>
 
         <p><strong>Same setup as every install.</strong> A Render deploy isn't a different onboarding &mdash; it's the same <a href="/install/">unified flow</a>. Locally you'd run <code>parachute init</code> to get a hub and land in the setup wizard; here, Render gives you a running, already-exposed hub at a public URL, and you land in the <em>identical</em> wizard at <code>/admin/setup</code>. You'll walk the same Account &rarr; Vault steps an operator on a laptop or an EC2 box walks; the wizard's <em>Expose</em> step auto-skips on Render (the platform already owns the public URL), so you go straight to <em>Done</em>. The only Render-specific bit is grabbing a one-time bootstrap token from the logs to claim admin (step 3).</p>
 

@@ -11,10 +11,15 @@ permalink: /deploy/fly/
         <p class="tagline fade-up fade-up-3">Your own Parachute on Fly.io. CLI-first deploy, portable volume snapshots, ~$3.50/month. About five minutes from clone to a running URL.</p>
     </section>
 
+    <aside class="upgrade-callout">
+        <strong>A legacy path &mdash; not the recommended way to self-host.</strong>
+        <p>Fly runs Parachute as a container, which diverges from the bun-native <code>parachute init</code> install the rest of the product is built around. We hit container-specific friction often enough that it's no longer the path we point people to. The always-on path we recommend now is <a href="/deploy/vps/"><strong>Deploy to a VPS</strong></a> (Hetzner, DigitalOcean, or any Linux box) &mdash; the same one-command install, on a box that never sleeps. This guide stays for operators already running on Fly.</p>
+    </aside>
+
     <section class="section">
         <h2>One command to start</h2>
 
-        <p><strong>Why this path.</strong> Parachute is happiest on your own machine, but a laptop sleeps. Fly.io is one of two "always-on URL" paths we support that still let you own everything &mdash; a single container running your hub, with a persistent volume for your vault, all in your Fly account. No tenancy, no shared database, no Parachute-operated cloud sitting between you and your data. (See <a href="/deploy/render/">Deploy to Render</a> for the peer path.)</p>
+        <p><strong>Why this path.</strong> Parachute is happiest on your own machine, but a laptop sleeps. Fly.io is a container-based alternative that still lets you own everything &mdash; a single container running your hub, with a persistent volume for your vault, all in your Fly account. No tenancy, no shared database, no Parachute-operated cloud sitting between you and your data. It's not the path we recommend &mdash; <a href="/deploy/vps/">Deploy to a VPS</a> is the one we point people to &mdash; but if you're already on Fly or prefer a container, the full walkthrough is below.</p>
 
         <p><strong>Same setup as every install.</strong> A Fly deploy isn't a different onboarding &mdash; it's the same <a href="/install/">unified flow</a>. Locally you'd run <code>parachute init</code> to get a hub and land in the setup wizard; here, Fly gives you a running, already-exposed hub at a <code>*.fly.dev</code> URL, and you land in the <em>identical</em> wizard at <code>/admin/setup</code>. You'll walk the same Account &rarr; Vault steps an operator on a laptop or an EC2 box walks; the wizard's <em>Expose</em> step auto-skips on Fly (the platform already owns the public URL via <code>*.fly.dev</code>), so you go straight to <em>Done</em>. The only Fly-specific bit is grabbing a one-time bootstrap token from the logs to claim admin (step 3).</p>
 
@@ -34,7 +39,7 @@ permalink: /deploy/fly/
 
         <p>This is the deploy mirror of the local model: locally, the hub supervises vault, surface, and scribe as child processes sharing <code>~/.parachute/</code>. On Fly, the hub supervises the same children in the same container, sharing the mounted volume. See the <a href="/design/2026-05-18-v06-deploy-architecture/">v0.6 deploy architecture note</a> for the full shape.</p>
 
-        <p><strong>Why Fly vs Render?</strong> Both work. Fly is CLI-first (you'll spend more time in a terminal); Render is GUI-first (more clicks, no CLI install needed). Fly is cheaper (~$3.50 vs $7). Fly's volumes are <em>portable</em> &mdash; <code>fly volumes snapshot</code> lets you take your data with you. Render's disks don't snapshot-export. Pick whichever fits your operator preferences. See <a href="/design/2026-05-26-fly-migration-path/">the Fly migration design note</a> for the longer reasoning.</p>
+        <p><strong>Fly vs Render?</strong> Both are container-based alternatives, and both work. Fly is CLI-first (you'll spend more time in a terminal); Render is GUI-first (more clicks, no CLI install needed). Fly costs less (~$3.50 vs $7), and its volumes are <em>portable</em> &mdash; <code>fly volumes snapshot</code> lets you take your data with you, where Render's disks don't snapshot-export. Between the two containers, pick whichever fits your operator preferences &mdash; though for a fresh always-on setup, the path we recommend is <a href="/deploy/vps/">Deploy to a VPS</a>. See <a href="/design/2026-05-26-fly-migration-path/">the Fly migration design note</a> for the longer reasoning.</p>
     </section>
 
     <section class="section">

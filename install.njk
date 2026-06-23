@@ -1,26 +1,34 @@
 ---
 layout: base.njk
 title: "Install"
-description: "Get Parachute running in one command, connect your AI, and paste a starter prompt that builds your vault for you."
+description: "One command gets Parachute running. Connect your AI, finish the wizard, and watch your first note appear in the browser."
 permalink: /install/
 ---
 <main>
 
     <section class="hero">
         <h1 class="fade-up fade-up-2">Install</h1>
-        <p class="tagline fade-up fade-up-3">One command gets you running. Connect your AI, then open your notes in the browser.</p>
+        <p class="tagline fade-up fade-up-3">One command. Then connect your AI, and see your first note.</p>
     </section>
 
     <section class="section">
-        <h2>Get started &mdash; one command</h2>
+        <h2>1 &middot; Run one command</h2>
 
-        <p>Requires <a href="https://bun.sh" target="_blank">Bun</a> 1.3 or later (<code>bun --version</code> to check, <code>bun upgrade</code> to update). Then run:</p>
+        <p>You'll need <a href="https://bun.sh" target="_blank">Bun</a> 1.3 or later.</p>
+
+        <details>
+            <summary>On Bun 1.2.x / checking your version</summary>
+            <ul style="margin-top: 1rem;">
+                <li><strong>Check it.</strong> <code>bun --version</code> &mdash; if it's below 1.3, run <code>bun upgrade</code>.</li>
+                <li><strong>Stuck on 1.2.x?</strong> You may see a cosmetic <code>InvalidPackageResolution</code> or <code>FileNotFound</code> warning during install &mdash; the package installs anyway. Upgrading to Bun 1.3 clears it.</li>
+            </ul>
+        </details>
 
         <div class="code-inline">
             <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>
         </div>
 
-        <p><code>parachute init</code> starts your hub, installs your vault &mdash; the place all your notes live &mdash; and opens a browser setup wizard: <strong>Account &rarr; Vault &rarr; Expose &rarr; Done</strong>. Create an admin login, then create your first vault (or import one from a git repo, or skip for now). That's the whole happy path.</p>
+        <p><code>parachute init</code> starts your hub, installs your vault &mdash; the place all your notes live &mdash; and opens a browser setup wizard: <strong>Account &rarr; Vault &rarr; Expose &rarr; Done</strong>.</p>
 
         <details>
             <summary>Ports, exposing it, tokens, and re-running</summary>
@@ -33,34 +41,67 @@ permalink: /install/
         </details>
     </section>
 
+    <section class="section">
+        <h2>2 &middot; Finish the wizard</h2>
+
+        <p style="margin-bottom: 1.25rem;">
+            <span class="status-badge status-done">Account</span> <span style="color: var(--fg-dim);">&rarr;</span>
+            <span class="status-badge status-done">Vault</span> <span style="color: var(--fg-dim);">&rarr;</span>
+            <span class="status-badge status-done">Expose</span> <span style="color: var(--fg-dim);">&rarr;</span>
+            <span class="status-badge status-done">Done</span>
+        </p>
+
+        <ul>
+            <li><strong>Account.</strong> Create your admin login.</li>
+            <li><strong>Vault.</strong> Create your first vault &mdash; or import one from a git repo, or skip for now.</li>
+            <li><strong>Expose.</strong> Choose how (or whether) to reach your hub from outside. This step <em>auto-skips on a local laptop</em>, and <em>pre-selects public on an SSH'd server</em> so the wizard URL is reachable.</li>
+            <li><strong>Done.</strong> The wizard hands you everything you need to connect your AI.</li>
+        </ul>
+    </section>
+
     <section class="section" id="connect-mcp-clients">
-        <h2>Connect your AI</h2>
+        <h2>3 &middot; Connect your AI</h2>
 
-        <p>The wizard's done screen hands you a copy-pasteable <code>claude mcp add</code> command with a freshly-minted token &mdash; <strong>Claude Code is auto-configured</strong> by the install on the hub machine. Start a new Claude Code session and run <code>/mcp</code> to confirm the vault appears.</p>
-
-        <p>Connecting any other client &mdash; Claude.ai on the web, Codex, Goose, Cursor, Zed, your own agent &mdash; comes down to one URL. Point the client at your vault's MCP endpoint (ChatGPT and similar web UIs call this a <strong>connector</strong>):</p>
+        <p>Connecting any AI &mdash; Claude.ai on the web, ChatGPT, Claude Code, Cursor, Zed, your own agent &mdash; comes down to one URL: your vault's MCP endpoint. Point your client at it (web UIs call this a <strong>connector</strong>):</p>
 
         <div class="code-inline">
             <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code>
         </div>
 
-        <p><code>&lt;hub-origin&gt;</code> is the address your hub answers on (the same URL you sign in at); <code>&lt;name&gt;</code> is your vault name (<code>default</code> unless you changed it). The <strong><code>/mcp</code> suffix is required</strong> &mdash; the bare path is a metadata page, not the endpoint. OAuth-capable clients send you through hub sign-in automatically; for clients that need a bearer token, mint one from the vault admin SPA's Tokens page. Full per-client steps and the bearer-token path are in <a href="/docs/">the docs</a>.</p>
+        <p><code>&lt;hub-origin&gt;</code> is the address your hub answers on &mdash; the same URL you sign in at, <em>not</em> the vault's own port <code>1940</code>. <code>&lt;name&gt;</code> is your vault name (<code>default</code> unless you changed it). The <strong><code>/mcp</code> suffix is required</strong> &mdash; the bare path is a metadata page, not the endpoint. OAuth-capable clients send you through hub sign-in automatically.</p>
+
+        <p>Pick your client:</p>
+
+        <details open>
+            <summary>Claude.ai, ChatGPT &amp; other web AIs</summary>
+            <p style="margin-top: 1rem;">In your AI's settings, add a new <strong>connector</strong> (custom MCP server) pointing at <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code>. You'll be sent to your hub to sign in and approve &mdash; then the AI can read and write your vault. Nothing to install; the easiest path for most people.</p>
+        </details>
+
+        <details>
+            <summary>Claude Code &amp; other CLI / MCP clients</summary>
+            <p style="margin-top: 1rem;">Register the server once with <code>claude mcp add</code> &mdash; the wizard's done screen gives you a ready-to-paste version with a freshly-minted token. Then start a new session (MCP config loads at session start) and run <code>/mcp</code> to confirm the vault appears. Codex, Goose, Cursor, and Zed take the same <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code> URL.</p>
+        </details>
+
+        <details>
+            <summary>Clients that need a bearer token</summary>
+            <p style="margin-top: 1rem;">Some clients can't do OAuth and want a static token instead. Mint one from the vault admin SPA's <strong>Tokens</strong> page, then give it to the client alongside the same <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code> URL.</p>
+        </details>
     </section>
 
     <section class="section">
-        <h2>&#9733; See your first note</h2>
+        <h2>&#9733; 4 &middot; See your first note</h2>
 
-        <p>The fastest win: ask your AI to write a quick note (&ldquo;jot down that I'm trying Parachute today&rdquo;), then open it in your browser. Install <strong>Surface</strong>, the module that hosts your UIs &mdash; it brings up Notes automatically:</p>
+        <p>Here's the payoff. Ask your AI to jot a quick note (&ldquo;jot down that I'm trying Parachute today&rdquo;), then open it in a browser &mdash; two ways:</p>
+
+        <p><strong>Fastest &mdash; nothing to install.</strong> Open <a href="https://notes.parachute.computer" target="_blank">notes.parachute.computer</a>, the hosted Notes app. Enter your hub's vault URL (<code>&lt;hub-origin&gt;/vault/&lt;name&gt;</code>) and sign in. The app runs in your browser; your notes never leave your hub. There's the note you just made.</p>
+
+        <p><strong>Host it on your own hub.</strong> Install <strong>Surface</strong> &mdash; the module that serves your UIs from your own hub &mdash; and it brings up Notes automatically:</p>
 
         <div class="code-inline">
             <code>parachute install surface</code>
         </div>
 
-        <p>Open <a href="http://localhost:1939/surface/notes/" target="_blank"><code>localhost:1939/surface/notes/</code></a>, click the vault popover, and hit <strong>Connect</strong> next to your vault. There's the note you just made. You also get search, tag views, a visual map of how your notes link together, voice capture, and a markdown editor &mdash; one install covers every vault on your hub. The source is open (Vite + React + TypeScript).</p>
-    </section>
-
-    <section class="section">
-        <h2>Now let your AI structure your whole vault &rarr;</h2>
+        <p>Open <a href="http://localhost:1939/surface/notes/" target="_blank"><code>localhost:1939/surface/notes/</code></a>, click the vault popover, and hit <strong>Connect</strong>. The same Notes, now served from your own hub &mdash; plus search, tag views, a visual map of how your notes link together, voice capture, and a markdown editor. One install covers every vault on your hub.</p>
 
         <div class="starter-callout">
             <h3>Paste one prompt &mdash; your AI organizes your vault</h3>
@@ -70,27 +111,68 @@ permalink: /install/
         </div>
     </section>
 
+    <style>
+    /* Page-local: graceful frame for the custom-surface example shot.
+       Reuses the global tokens; degrades to a styled panel if the PNG
+       hasn't landed yet (no broken-image icon). Mirrors the home hero shot. */
+    .surface-shot-frame {
+        position: relative;
+        aspect-ratio: 16 / 10;
+        max-width: 720px;
+        margin: 1.5rem auto 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background:
+            radial-gradient(120% 120% at 50% 0%, var(--accent-soft), transparent 60%),
+            var(--bg-soft);
+        box-shadow: 0 12px 40px rgba(44, 42, 38, 0.06);
+        overflow: hidden;
+    }
+    .surface-shot-frame img {
+        position: absolute; inset: 0;
+        width: 100%; height: 100%;
+        object-fit: cover; border: none; border-radius: 14px;
+    }
+    .surface-shot-cap {
+        text-align: center; font-size: 0.9rem; color: var(--fg-dim);
+        max-width: 720px; margin: 0 auto;
+    }
+    </style>
+
+    <section class="section">
+        <h2>Make it yours &mdash; build a custom surface</h2>
+
+        <p>Notes is just the first surface. Everything lives in an open vault your AI can read and write, so you can build a UI shaped to <em>your</em> brain &mdash; a dashboard, a daily journal, a garden &mdash; and host it on the same hub. <a href="https://www.npmjs.com/package/@openparachute/surface-client" target="_blank"><code>@openparachute/surface-client</code></a> gives you auth + the vault API, and <a href="https://www.npmjs.com/package/@openparachute/surface-render" target="_blank"><code>surface-render</code></a> renders your notes &mdash; a working surface in a few lines.</p>
+
+        <figure style="margin: 0;">
+            <div class="surface-shot-frame">
+                <img src="/assets/install/unisurface.png" alt="UniSurface — a custom Parachute surface, 'a quiet garden for the mind', showing one person's vault" loading="lazy" width="1600" height="1000">
+            </div>
+            <figcaption class="surface-shot-cap">UniSurface (<a href="https://my.unforced.org" target="_blank">my.unforced.org</a>) &mdash; &ldquo;a quiet garden for the mind&rdquo;: a custom surface built on top of a personal vault.</figcaption>
+        </figure>
+
+        <p style="margin-top: 1.5rem;">Want to build your own? The <a href="/onboarding/surface-build/">build-a-surface starter prompt</a> walks your AI through it end to end.</p>
+    </section>
+
     <section class="section">
         <h2>Going further <span style="font-weight:400;color:var(--fg-dim);">(optional)</span></h2>
 
-        <p><strong>Run it always-on.</strong> Your laptop sleeps; a small server doesn't. Three peer paths to a hub that stays up &mdash; same architecture, same wizard, ~five minutes each:</p>
+        <p>The four steps above are the whole first run. Everything here is for later.</p>
+
         <ul>
-            <li><a href="/deploy/render/">Deploy to Render &rarr;</a> &mdash; one-click, your own subdomain, ~$7/month.</li>
-            <li><a href="/deploy/fly/">Deploy to Fly &rarr;</a> &mdash; CLI-first peer path, ~$3.34/month, portable volume snapshots.</li>
-            <li><strong>Your own Linux box</strong> (EC2, Hetzner, any VPS) &mdash; same <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>, then finish in the wizard. On an SSH'd server <code>init</code> pre-selects public exposure so the wizard URL is reachable.</li>
+            <li>
+                <strong>Run it always-on.</strong> Your laptop sleeps; a server doesn't. <a href="/deploy/vps/">Deploy to a VPS &rarr;</a> (Hetzner, DigitalOcean, or any Linux box) runs the <em>same</em> <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code> flow on a box that never sleeps &mdash; or use a Mac you leave on (e.g. a Mac mini). On an SSH'd server <code>init</code> pre-selects public exposure so the wizard URL is reachable.
+            </li>
+            <li><strong>Reach it from other devices.</strong> A <a href="https://tailscale.com" target="_blank">Tailnet</a> (<code>tailscale serve</code>) is the smooth private path &mdash; your hub, visible only to your own Tailscale devices. For public HTTPS that claude.ai can reach, a Cloudflare Tunnel gives you a clean public URL; see <a href="/deploy/vps/">Deploy to a VPS</a> for the full walkthrough.</li>
+            <li><strong>Back it up &amp; script it.</strong> Export your whole vault to portable, git-trackable markdown with <code>parachute-vault export &lt;dir&gt;</code> (and <code>import</code> back). Driving the vault from a script, cron job, or importer is covered in <a href="/scripting/">Scripting your vault</a>; hosting for friends and family is in the <a href="/multi-user/">multi-user operator guide</a>.</li>
+            <li><strong>Stay current.</strong> <code>parachute upgrade</code> sweeps the hub and every installed service to the latest release. Add <code>--channel rc</code> to track release candidates. Vault migrations run automatically on first post-upgrade boot.</li>
         </ul>
 
-        <p><strong>Your own box works the same way Render does.</strong> Parachute runs one way everywhere: <code>parachute serve</code> &mdash; the hub in the foreground with every module supervised as a child process &mdash; kept alive by the platform's own process manager. On Render or Fly that's the container runtime; on your own machine, <code>parachute init</code> installs the hub as a managed service (a <strong>systemd</strong> unit on a Linux box, a <strong>launchd</strong> agent on a Mac) that keeps it running and supervises the modules. So a self-hosted EC2 or Hetzner box gets the same always-on, survives-a-reboot, manage-it-from-the-admin-UI behavior the hosted deploys do &mdash; you own the box instead of renting the container. No PID-hunting, no manual restarts: the manager brings the hub back after a crash or a reboot, and the hub brings every module back with it.</p>
+        <aside class="upgrade-callout">
+            <p><strong>Prefer a container PaaS?</strong> <a href="/deploy/render/">Deploy to Render</a> or <a href="/deploy/fly/">Fly</a> still work but aren't recommended &mdash; their container build diverges from the bun-native install above.</p>
+        </aside>
 
-        <p>Already running an older install that spawned the hub as a detached background process? <code>parachute migrate --to-supervised</code> moves it onto the managed-service model in place &mdash; one command, idempotent, no data migration.</p>
-
-        <p><strong>Reach it from other devices.</strong> A <a href="https://tailscale.com" target="_blank">Tailnet</a> (<code>tailscale serve</code>) is the smooth private path &mdash; your hub, visible only to your own Tailscale devices. Public HTTPS (Cloudflare Tunnel or Tailscale Funnel) works too and is what claude.ai needs, but we're still polishing those edges &mdash; the <a href="/deploy/render/">Render</a> and <a href="/deploy/fly/">Fly</a> deploys are the easiest way to a clean public URL today.</p>
-
-        <p><strong>Back it up &amp; script it.</strong> Export your whole vault to portable, git-trackable markdown with <code>parachute-vault export &lt;dir&gt;</code> (and <code>import</code> back) &mdash; disaster recovery, vault migration, or editing in another tool. Driving the vault from a script, cron job, or importer is covered in <a href="/scripting/">Scripting your vault</a>. Hosting for friends and family? See the <a href="/multi-user/">multi-user operator guide</a>.</p>
-
-        <p><strong>Stay current.</strong> <code>parachute upgrade</code> sweeps the hub and every installed service to the latest release; <code>parachute upgrade vault</code> (or <code>surface</code>, <code>scribe</code>) does one. Add <code>--channel rc</code> to track release candidates. Vault migrations run automatically on first post-upgrade boot.</p>
-
-        <p><strong>Want Parachute Cloud?</strong> A hosted version &mdash; same architecture, no server to run &mdash; is in the works. <a href="https://openparachute.substack.com" target="_blank">Subscribe for updates</a>.</p>
+        <p style="margin-top: 1.5rem;"><strong>Want Parachute Cloud?</strong> A hosted version &mdash; no server to run &mdash; is on the roadmap. <a href="https://openparachute.substack.com" target="_blank">Subscribe for updates</a>.</p>
     </section>
 
     <section class="section">
@@ -104,16 +186,18 @@ permalink: /install/
                 <li><strong>A client can't reach the MCP endpoint.</strong> Confirm the URL ends in <code>/mcp</code> and points at the <em>hub</em> origin (the address you sign in at), not the vault's own port <code>1940</code>.</li>
                 <li><strong>Stuck on Bun 1.2.x?</strong> You may see a cosmetic <code>InvalidPackageResolution</code> or <code>FileNotFound</code> warning &mdash; the package installs anyway. Upgrading to Bun 1.3 clears it.</li>
                 <li>
-                    <strong>The Claude connector fails right after consent, over a Cloudflare tunnel.</strong>
-                    You exposed your hub publicly with a <a href="https://www.cloudflare.com/products/tunnel/" target="_blank">Cloudflare Tunnel</a> (<code>parachute expose public --cloudflare</code>) and tried to add your vault to the <strong>Claude Desktop / claude.ai / mobile MCP connector</strong>. OAuth consent succeeds, then Claude reports <em>&ldquo;the integration rejected the credentials&rdquo;</em> or <em>&ldquo;the connection was reverted&rdquo;</em> and never reaches the vault &mdash; while Notes and Claude Code (which use a static token) keep working fine, so it looks like an OAuth bug.
-                    <p style="margin-top: 0.75rem;"><strong>Cause &mdash; this is a Cloudflare edge setting, not a Parachute bug.</strong> Consent runs in your <em>browser</em>, so it passes Cloudflare. But the token exchange (<code>POST /oauth/token</code>) and the MCP calls are <em>server-to-server</em> requests from Anthropic's servers &mdash; and Cloudflare's <strong>Bot Fight Mode</strong> / <strong>Super Bot Fight Mode</strong> / <strong>Browser Integrity Check</strong> (or a Cloudflare Access policy) challenges them with a <code>403</code> &ldquo;Access denied&rdquo; page. Claude gets the 403 instead of a token.</p>
-                    <p style="margin-top: 0.75rem;"><strong>Fix &mdash; in your Cloudflare dashboard for the exposed zone:</strong></p>
-                    <ul style="margin-top: 0.5rem;">
-                        <li>Turn <strong>off</strong> Bot Fight Mode / Super Bot Fight Mode (Security &rarr; Bots), <em>or</em> add a <strong>WAF Skip rule</strong> scoped to your exposed hostname (or the API paths <code>/oauth/*</code>, <code>/.well-known/*</code>, <code>/vault/*</code>) that skips Bot Fight Mode, Managed Rules, and the Browser Integrity Check.</li>
-                        <li>If <strong>Browser Integrity Check</strong> is on, disable it (or skip it for those paths).</li>
-                        <li>If you put the hostname behind <strong>Cloudflare Access (Zero Trust)</strong>, remove that policy &mdash; the hub does its own OAuth, and an outer Access gate blocks the API.</li>
-                    </ul>
-                    <p style="margin-top: 0.75rem;"><strong>Confirm it's this.</strong> From any non-browser tool, hit your public origin with a non-browser user-agent &mdash; e.g. <code>curl -A python-requests https://&lt;your-host&gt;/.well-known/oauth-authorization-server</code>. If Cloudflare's <code>403</code> &ldquo;Access denied&rdquo; HTML page comes back (rather than a hub response) while a normal browser loads the same URL fine, that's the cause. The failed token exchange also won't appear in <code>~/.parachute/hub/logs/hub.log</code> &mdash; Cloudflare blocked it before it ever reached the hub.</p>
+                    <details>
+                        <summary>Claude connector fails right after consent over a Cloudflare tunnel</summary>
+                        <p style="margin-top: 1rem;">You exposed your hub publicly with a <a href="https://www.cloudflare.com/products/tunnel/" target="_blank">Cloudflare Tunnel</a> (<code>parachute expose public --cloudflare</code>) and tried to add your vault to the <strong>Claude Desktop / claude.ai / mobile MCP connector</strong>. OAuth consent succeeds, then Claude reports <em>&ldquo;the integration rejected the credentials&rdquo;</em> or <em>&ldquo;the connection was reverted&rdquo;</em> and never reaches the vault &mdash; while Notes and Claude Code (which use a static token) keep working fine, so it looks like an OAuth bug.</p>
+                        <p style="margin-top: 0.75rem;"><strong>Cause &mdash; this is a Cloudflare edge setting, not a Parachute bug.</strong> Consent runs in your <em>browser</em>, so it passes Cloudflare. But the token exchange (<code>POST /oauth/token</code>) and the MCP calls are <em>server-to-server</em> requests from Anthropic's servers &mdash; and Cloudflare's <strong>Bot Fight Mode</strong> / <strong>Super Bot Fight Mode</strong> / <strong>Browser Integrity Check</strong> (or a Cloudflare Access policy) challenges them with a <code>403</code> &ldquo;Access denied&rdquo; page. Claude gets the 403 instead of a token.</p>
+                        <p style="margin-top: 0.75rem;"><strong>Fix &mdash; in your Cloudflare dashboard for the exposed zone:</strong></p>
+                        <ul style="margin-top: 0.5rem;">
+                            <li>Turn <strong>off</strong> Bot Fight Mode / Super Bot Fight Mode (Security &rarr; Bots), <em>or</em> add a <strong>WAF Skip rule</strong> scoped to your exposed hostname (or the API paths <code>/oauth/*</code>, <code>/.well-known/*</code>, <code>/vault/*</code>) that skips Bot Fight Mode, Managed Rules, and the Browser Integrity Check.</li>
+                            <li>If <strong>Browser Integrity Check</strong> is on, disable it (or skip it for those paths).</li>
+                            <li>If you put the hostname behind <strong>Cloudflare Access (Zero Trust)</strong>, remove that policy &mdash; the hub does its own OAuth, and an outer Access gate blocks the API.</li>
+                        </ul>
+                        <p style="margin-top: 0.75rem;"><strong>Confirm it's this.</strong> From any non-browser tool, hit your public origin with a non-browser user-agent &mdash; e.g. <code>curl -A python-requests https://&lt;your-host&gt;/.well-known/oauth-authorization-server</code>. If Cloudflare's <code>403</code> &ldquo;Access denied&rdquo; HTML page comes back (rather than a hub response) while a normal browser loads the same URL fine, that's the cause. The failed token exchange also won't appear in <code>~/.parachute/hub/logs/hub.log</code> &mdash; Cloudflare blocked it before it ever reached the hub.</p>
+                    </details>
                 </li>
             </ul>
             <p style="margin-top: 1rem;">Found something we missed? <a href="https://github.com/ParachuteComputer/parachute-vault/issues" target="_blank">Open an issue</a>.</p>

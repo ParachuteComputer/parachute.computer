@@ -70,10 +70,29 @@ permalink: /
     color: var(--fg-muted);
 }
 .home-trust {
-    font-size: 0.82rem;
-    color: var(--fg-dim);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.9rem;
+    font-size: 0.85rem;
+    color: var(--fg-muted);
     letter-spacing: 0.01em;
 }
+.home-trust span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+.home-trust span::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    flex: none;
+}
+.home-trust a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.home-trust a:hover { color: var(--accent); }
 
 /* Section rhythm for screens 2–5 */
 .home-screen {
@@ -241,7 +260,7 @@ permalink: /
             <span class="home-cta-note">~2 minutes, one command</span>
             <a href="https://github.com/ParachuteComputer" class="home-cta-quiet" target="_blank">GitHub</a>
         </div>
-        <p class="home-trust">Local-first &middot; <a href="https://modelcontextprotocol.io" target="_blank">Open standard (MCP)</a> &middot; Open source (AGPL)</p>
+        <p class="home-trust"><span>Local-first</span><span><a href="https://modelcontextprotocol.io" target="_blank">Open standard (MCP)</a></span><span>Open source (AGPL)</span><span>Your data, exportable anytime</span></p>
     </section>
 
     <section class="home-screen home-proof fade-up fade-up-2">
