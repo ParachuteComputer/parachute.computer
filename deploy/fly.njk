@@ -21,7 +21,7 @@ permalink: /deploy/fly/
 
         <p><strong>Why this path.</strong> Parachute is happiest on your own machine, but a laptop sleeps. Fly.io is a container-based alternative that still lets you own everything &mdash; a single container running your hub, with a persistent volume for your vault, all in your Fly account. No tenancy, no shared database, no Parachute-operated cloud sitting between you and your data. It's not the path we recommend &mdash; <a href="/deploy/vps/">Deploy to a VPS</a> is the one we point people to &mdash; but if you're already on Fly or prefer a container, the full walkthrough is below.</p>
 
-        <p><strong>Same setup as every install.</strong> A Fly deploy isn't a different onboarding &mdash; it's the same <a href="/install/">unified flow</a>. Locally you'd run <code>parachute init</code> to get a hub and land in the setup wizard; here, Fly gives you a running, already-exposed hub at a <code>*.fly.dev</code> URL, and you land in the <em>identical</em> wizard at <code>/admin/setup</code>. You'll walk the same Account &rarr; Vault steps an operator on a laptop or an EC2 box walks; the wizard's <em>Expose</em> step auto-skips on Fly (the platform already owns the public URL via <code>*.fly.dev</code>), so you go straight to <em>Done</em>. The only Fly-specific bit is grabbing a one-time bootstrap token from the logs to claim admin (step 3).</p>
+        <p><strong>Same setup as every install.</strong> A Fly deploy isn't a different onboarding &mdash; it's the same <a href="/start/">unified flow</a>. Locally you'd run <code>parachute init</code> to get a hub and land in the setup wizard; here, Fly gives you a running, already-exposed hub at a <code>*.fly.dev</code> URL, and you land in the <em>identical</em> wizard at <code>/admin/setup</code>. You'll walk the same Account &rarr; Vault steps an operator on a laptop or an EC2 box walks; the wizard's <em>Expose</em> step auto-skips on Fly (the platform already owns the public URL via <code>*.fly.dev</code>), so you go straight to <em>Done</em>. The only Fly-specific bit is grabbing a one-time bootstrap token from the logs to claim admin (step 3).</p>
 
         <div class="code-inline">
             <code>gh repo fork ParachuteComputer/parachute-hub --clone && cd parachute-hub<br>./scripts/deploy-to-fly.sh</code>
@@ -220,7 +220,7 @@ permalink: /deploy/fly/
         <h2>What comes next</h2>
 
         <ul>
-            <li><a href="/install/">Local install</a> &mdash; the same stack on your own machine. Free, but sleeps when your laptop sleeps.</li>
+            <li><a href="/start/">Local install</a> &mdash; the same stack on your own machine. Free, but sleeps when your laptop sleeps.</li>
             <li><a href="/deploy/render/">Deploy to Render</a> &mdash; the peer hosted path. GUI-first; pick the one that fits.</li>
             <li><a href="/design/2026-05-18-v06-deploy-architecture/">v0.6 deploy architecture</a> &mdash; the design note explaining <em>why</em> it's one container with hub-as-supervisor.</li>
             <li><a href="/design/2026-05-26-fly-migration-path/">Fly migration design note</a> &mdash; the strategic context for why we added Fly as a peer to Render.</li>
@@ -234,7 +234,7 @@ permalink: /deploy/fly/
                 Fork &amp; deploy on Fly.io
             </a>
         </p>
-        <p class="cta-secondary">Or <a href="/deploy/render/">deploy on Render</a>, or <a href="/install/">install locally</a>.</p>
+        <p class="cta-secondary">Or <a href="/deploy/render/">deploy on Render</a>, or <a href="/start/">install locally</a>.</p>
     </section>
 
 </main>

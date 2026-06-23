@@ -8,7 +8,7 @@ date: 2026-05-26T12:00:00
 
 This is one of two starter prompts ([the other is for building a custom UI](/onboarding/surface-build/)). Paste the block below into any AI client with your vault's MCP server connected — **Claude.ai** (with MCP enabled), Claude Code, Codex, Goose, Cursor, OpenCode, or any other MCP-aware client.
 
-The prompt assumes your MCP is already wired up. The first thing the AI does is try a few MCP tools — if those fail, it'll ask you to set up MCP first and point you at the right command for your client. Not connected yet? [Connecting MCP clients](/install/#connect-mcp-clients) has the per-client steps; the endpoint is always `<hub-origin>/vault/<name>/mcp`.
+The prompt assumes your MCP is already wired up. The first thing the AI does is try a few MCP tools — if those fail, it'll ask you to set up MCP first and point you at the right command for your client. Not connected yet? [Connecting MCP clients](/start/#connect-mcp-clients) has the per-client steps; the endpoint is always `<hub-origin>/vault/<name>/mcp`.
 
 ---
 
@@ -68,7 +68,7 @@ connected to this client yet. Stop here and tell me:
 > Connectors → add a custom connector pointing at that URL. For Codex
 > / Goose / OpenCode: paste that URL into your client's MCP config.
 > Full per-client steps:
-> https://parachute.computer/install/#connect-mcp-clients —
+> https://parachute.computer/start/#connect-mcp-clients —
 > re-paste this prompt once they're wired up."
 
 **If the tools work**, report what you find back to me in a short

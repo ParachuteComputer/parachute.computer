@@ -1,13 +1,13 @@
 ---
 layout: base.njk
-title: "Install"
+title: "Get started"
 description: "One command gets Parachute running. Connect your AI, finish the wizard, and watch your first note appear in the browser."
-permalink: /install/
+permalink: /start/
 ---
 <main>
 
     <section class="hero">
-        <h1 class="fade-up fade-up-2">Install</h1>
+        <h1 class="fade-up fade-up-2">Get started</h1>
         <p class="tagline fade-up fade-up-3">One command. Then connect your AI, and see your first note.</p>
     </section>
 
@@ -29,6 +29,8 @@ permalink: /install/
         </div>
 
         <p><code>parachute init</code> starts your hub, installs your vault &mdash; the place all your notes live &mdash; and opens a browser setup wizard: <strong>Account &rarr; Vault &rarr; Expose &rarr; Done</strong>.</p>
+
+        <p><strong>Where should it live?</strong> A laptop is perfect for trying it out &mdash; but Parachute is happiest on a machine that stays awake, so your vault is reachable from your phone and your AIs even when your laptop is closed. The ideal home is a small <a href="/deploy/vps/">always-on box</a> (a ~$5&ndash;12/mo VPS, or a Mac you leave on) &mdash; start on your laptop and move over anytime.</p>
 
         <details>
             <summary>Ports, exposing it, tokens, and re-running</summary>
@@ -79,7 +81,7 @@ permalink: /install/
 
         <details>
             <summary>Claude Code &amp; other CLI / MCP clients</summary>
-            <p style="margin-top: 1rem;">Register the server once with <code>claude mcp add</code> &mdash; the wizard's done screen gives you a ready-to-paste version with a freshly-minted token. Then start a new session (MCP config loads at session start) and run <code>/mcp</code> to confirm the vault appears. Codex, Goose, Cursor, and Zed take the same <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code> URL.</p>
+            <p style="margin-top: 1rem;">Register the server once with <code>claude mcp add</code> &mdash; the wizard's done screen gives you a ready-to-paste command. The first time it connects, it sends you through your hub's sign-in in the browser (OAuth); after that, start a new session (MCP config loads at session start) and run <code>/mcp</code> &mdash; the vault's tools are there. Codex, Goose, Cursor, and Zed take the same <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code> URL. (Headless box that can't do the browser flow? Mint a token on the vault's Tokens page and append <code>--header "Authorization: Bearer &lt;token&gt;"</code>.)</p>
         </details>
 
         <details>
@@ -101,13 +103,15 @@ permalink: /install/
             <code>parachute install surface</code>
         </div>
 
-        <p>Open <a href="http://localhost:1939/surface/notes/" target="_blank"><code>localhost:1939/surface/notes/</code></a>, click the vault popover, and hit <strong>Connect</strong>. The same Notes, now served from your own hub &mdash; plus search, tag views, a visual map of how your notes link together, voice capture, and a markdown editor. One install covers every vault on your hub.</p>
+        <p>Open <a href="http://localhost:1939/surface/notes/" target="_blank"><code>localhost:1939/surface/notes/</code></a>, click the vault popover, and hit <strong>Connect</strong>. The same Notes, now served from your own hub &mdash; plus search, tag views, a visual map of how your notes link together, voice capture, and a markdown editor. One install covers every vault on your hub. Notes is the first surface; you can also build your own (below).</p>
 
         <div class="starter-callout">
-            <h3>Paste one prompt &mdash; your AI organizes your vault</h3>
-            <p>Your vault starts mostly empty. To fill it out fast: open <strong>the set-up-your-vault starter prompt</strong>, paste it into your connected AI, and it interviews you about how you think, proposes a tag and folder structure, and builds it on your say-so.</p>
-            <a href="/onboarding/vault-setup/" class="button">Open the starter prompt &rarr;</a>
-            <p class="starter-adjacent">From there: a second prompt that <a href="/onboarding/surface-build/">builds a custom UI</a> over your vault, or <a href="/scripting/">scripting your vault</a> from bash, Python, or JS for imports, cron jobs, and CI.</p>
+            <h3>Two prompts, paste-and-go &mdash; fill your vault, then shape your view</h3>
+            <p><strong>1. Fill your vault.</strong> Your vault starts mostly empty. This prompt interviews you about how you think, proposes a tag and folder structure, and imports what you already have &mdash; built on your say-so.</p>
+            <a href="/onboarding/vault-setup/" class="button">Open the fill-your-vault prompt &rarr;</a>
+            <p style="margin-top: 1.5rem;"><strong>2. Shape your view.</strong> This prompt interviews you, then builds a custom UI over your vault &mdash; a static SPA on the surface SDK, hosted on your own hub or GitHub Pages.</p>
+            <a href="/onboarding/surface-build/" class="button">Open the shape-your-view prompt &rarr;</a>
+            <p class="starter-adjacent">Do them in order: structure what's in the vault first, then build how you see it. (Power users: you can also <a href="/scripting/">script your vault</a> from bash, Python, or JS for imports, cron jobs, and CI.)</p>
         </div>
     </section>
 
@@ -146,12 +150,12 @@ permalink: /install/
 
         <figure style="margin: 0;">
             <div class="surface-shot-frame">
-                <img src="/assets/install/unisurface.png" alt="UniSurface — a custom Parachute surface, 'a quiet garden for the mind', showing one person's vault" loading="lazy" width="1600" height="1000">
+                <img src="/assets/install/unisurface.png" alt="A custom Parachute surface over a personal vault, with the quick-capture panel open and the background dimmed behind it" loading="lazy" width="1600" height="1000">
             </div>
-            <figcaption class="surface-shot-cap">UniSurface (<a href="https://my.unforced.org" target="_blank">my.unforced.org</a>) &mdash; &ldquo;a quiet garden for the mind&rdquo;: a custom surface built on top of a personal vault.</figcaption>
+            <figcaption class="surface-shot-cap">My personal surface &mdash; &ldquo;a quiet garden for the mind&rdquo;: a custom surface built on top of my own vault.</figcaption>
         </figure>
 
-        <p style="margin-top: 1.5rem;">Want to build your own? The <a href="/onboarding/surface-build/">build-a-surface starter prompt</a> walks your AI through it end to end.</p>
+        <p style="margin-top: 1.5rem;">The <a href="/onboarding/surface-build/">shape-your-view prompt</a> above walks your AI through this end to end &mdash; give it your hub URL and a description of what you look at most.</p>
     </section>
 
     <section class="section">

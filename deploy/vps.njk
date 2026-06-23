@@ -16,7 +16,7 @@ permalink: /deploy/vps/
 
         <p>A laptop sleeps; a sleeping hub can't answer your phone or your AI's connector. A small always-on Linux box fixes that without handing your data to anyone &mdash; you rent the box, you own everything on it.</p>
 
-        <p><strong>This is the bun-native happy path.</strong> The exact same <a href="/install/">install flow</a> you'd run locally &mdash; <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code> &mdash; on a server that never sleeps. No Dockerfile to maintain, no container build to keep in sync with releases. The hub installs itself as a <code>systemd</code> unit (survives reboots and crashes), supervises every module as a child, and <code>parachute upgrade</code> keeps the stack current.</p>
+        <p><strong>This is the bun-native happy path.</strong> The exact same <a href="/start/">install flow</a> you'd run locally &mdash; <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code> &mdash; on a server that never sleeps. No Dockerfile to maintain, no container build to keep in sync with releases. The hub installs itself as a <code>systemd</code> unit (survives reboots and crashes), supervises every module as a child, and <code>parachute upgrade</code> keeps the stack current.</p>
 
         <p>Hetzner and DigitalOcean are worked through below, but any Ubuntu VPS &mdash; EC2, Linode, Vultr, a box in your closet &mdash; walks the identical steps.</p>
     </section>
@@ -163,7 +163,7 @@ permalink: /deploy/vps/
         <h2>What comes next</h2>
 
         <ul>
-            <li><a href="/install/">Local install</a> &mdash; the same stack on your own machine. Free, but sleeps when your laptop sleeps.</li>
+            <li><a href="/start/">Local install</a> &mdash; the same stack on your own machine. Free, but sleeps when your laptop sleeps.</li>
             <li><a href="/deploy/render/">Deploy to Render</a> and <a href="/deploy/fly/">Deploy to Fly.io</a> &mdash; the container PaaS paths, if you'd rather click than SSH.</li>
             <li><a href="/design/2026-05-18-v06-deploy-architecture/">v0.6 deploy architecture</a> &mdash; the design note explaining <em>why</em> it's hub-as-supervisor.</li>
             <li><a href="https://github.com/ParachuteComputer/parachute-hub/issues" target="_blank">parachute-hub issues</a> &mdash; deploy questions, bugs, friction. We read all of them.</li>
@@ -175,7 +175,7 @@ permalink: /deploy/vps/
         <div class="code-inline" style="margin: 1.5rem auto; max-width: 640px;">
             <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>
         </div>
-        <p class="cta-secondary">Or <a href="/install/">install locally</a> first.</p>
+        <p class="cta-secondary">Or <a href="/start/">install locally</a> first.</p>
     </section>
 
 </main>
