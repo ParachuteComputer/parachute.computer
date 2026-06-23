@@ -55,29 +55,31 @@ permalink: /install/
             <li><strong>Account.</strong> Create your admin login.</li>
             <li><strong>Vault.</strong> Create your first vault &mdash; or import one from a git repo, or skip for now.</li>
             <li><strong>Expose.</strong> Choose how (or whether) to reach your hub from outside. This step <em>auto-skips on a local laptop</em>, and <em>pre-selects public on an SSH'd server</em> so the wizard URL is reachable.</li>
-            <li><strong>Done.</strong> The wizard hands you a copy-pasteable command to connect Claude Code.</li>
+            <li><strong>Done.</strong> The wizard hands you everything you need to connect your AI.</li>
         </ul>
     </section>
 
     <section class="section" id="connect-mcp-clients">
         <h2>3 &middot; Connect your AI</h2>
 
-        <p><strong>Claude Code is auto-configured</strong> by the install on the hub machine. Start a new Claude Code session and run <code>/mcp</code> &mdash; your vault should be there. That's it.</p>
+        <p>Connecting any AI &mdash; Claude.ai on the web, ChatGPT, Claude Code, Cursor, Zed, your own agent &mdash; comes down to one URL: your vault's MCP endpoint. Point your client at it (web UIs call this a <strong>connector</strong>):</p>
 
-        <p>Connecting a different client? Pick yours:</p>
+        <div class="code-inline">
+            <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code>
+        </div>
+
+        <p><code>&lt;hub-origin&gt;</code> is the address your hub answers on &mdash; the same URL you sign in at, <em>not</em> the vault's own port <code>1940</code>. <code>&lt;name&gt;</code> is your vault name (<code>default</code> unless you changed it). The <strong><code>/mcp</code> suffix is required</strong> &mdash; the bare path is a metadata page, not the endpoint. OAuth-capable clients send you through hub sign-in automatically.</p>
+
+        <p>Pick your client:</p>
 
         <details open>
-            <summary>Claude Code &mdash; automatic</summary>
-            <p style="margin-top: 1rem;">Nothing to do on the hub machine: the install wires it up and the wizard's done screen also hands you a <code>claude mcp add</code> command with a freshly-minted token. Start a new session (MCP config loads at session start) and run <code>/mcp</code> to confirm the vault appears.</p>
+            <summary>Claude.ai, ChatGPT &amp; other web AIs</summary>
+            <p style="margin-top: 1rem;">In your AI's settings, add a new <strong>connector</strong> (custom MCP server) pointing at <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code>. You'll be sent to your hub to sign in and approve &mdash; then the AI can read and write your vault. Nothing to install; the easiest path for most people.</p>
         </details>
 
         <details>
-            <summary>Claude.ai on the web &amp; other MCP clients</summary>
-            <p style="margin-top: 1rem;">Codex, Goose, Cursor, Zed, your own agent &mdash; it all comes down to one URL. Point the client at your vault's MCP endpoint (ChatGPT and similar web UIs call this a <strong>connector</strong>):</p>
-            <div class="code-inline">
-                <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code>
-            </div>
-            <p style="margin-top: 1rem;"><code>&lt;hub-origin&gt;</code> is the address your hub answers on &mdash; the same URL you sign in at, <em>not</em> the vault's own port <code>1940</code>. <code>&lt;name&gt;</code> is your vault name (<code>default</code> unless you changed it). The <strong><code>/mcp</code> suffix is required</strong> &mdash; the bare path is a metadata page, not the endpoint. OAuth-capable clients send you through hub sign-in automatically.</p>
+            <summary>Claude Code &amp; other CLI / MCP clients</summary>
+            <p style="margin-top: 1rem;">Register the server once with <code>claude mcp add</code> &mdash; the wizard's done screen gives you a ready-to-paste version with a freshly-minted token. Then start a new session (MCP config loads at session start) and run <code>/mcp</code> to confirm the vault appears. Codex, Goose, Cursor, and Zed take the same <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code> URL.</p>
         </details>
 
         <details>
