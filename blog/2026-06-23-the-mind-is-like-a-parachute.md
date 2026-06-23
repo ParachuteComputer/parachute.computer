@@ -32,9 +32,11 @@ It's still early and still rough in places, but it's solid enough that I now run
 
 ## Make it yours
 
-That's possible because the vault is simply an open knowledge graph that any AI — and any UI — can read and write. So you can build a surface shaped to *your* brain and run it however suits you: a small static app on your own machine, hosted free on GitHub Pages, or served from your hub by the **surface** module. Our default, [notes.parachute.computer](https://notes.parachute.computer), is one such surface — increasingly a *reference implementation* to build your own on top of, and it's been a joy to watch people do exactly that.
+That's possible because the vault is simply an open knowledge graph that any AI — and any UI — can read and write. So the way *you* see your vault doesn't have to be the way I see mine. A **surface** is a custom interface over your vault, shaped to how you actually think: a daily-capture inbox, a project dashboard, a weekly-review board, a quiet reading garden. Your AI can build one *for* you, right in your editor — it's a few lines on our surface SDK (`@openparachute/surface-client` for auth + the vault API, `@openparachute/surface-render` for rendering), so it can spend its effort on the parts that are actually yours rather than re-plumbing OAuth and markdown.
 
-There's also a newer module that isn't ready for a major release — but if you're brave and can tolerate things changing under your feet, I'm happy to show you around. The **agent** module lets you call an agent (just Claude, for now) that's deeply integrated with your vault, so you can define a whole suite of agents from inside the very system they operate in. It's young, but it points at something genuinely self-organizing.
+And you run a surface however suits you: a small static app on your own machine, hosted free on GitHub Pages, or served from your hub by the **surface** module. The vault doesn't care which one is asking — they all read and write the same graph. Our default, [notes.parachute.computer](https://notes.parachute.computer), is one such surface; increasingly it's a *reference implementation* to build your own on top of rather than the only way in. That's been one of the most exciting parts of this stretch — watching people stand up surfaces I'd never have thought to make, each fitting a mind I'll never fully see.
+
+There's something even newer taking shape underneath all this, too — vault-native agents you define from inside the vault itself — but that's a story for another post.
 
 ## Come along for the ride
 
