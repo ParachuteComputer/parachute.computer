@@ -10,6 +10,8 @@ description: "A year ago today I wrote 'started work on the parachute mvp.' Wher
 
 It was one year ago today that I wrote in my journal: *"started work on the parachute mvp."* A week earlier I'd copied down a line from Frank Zappa — *"The mind is like a parachute, it doesn't work if it's not open"* — and dropped it into [an article I was writing](https://unforced.org/writing/cognition-computation-and-connection/). It was somewhere in that piece that I knew Parachute was the name for the thing I was chasing.
 
+![A figure drifting down beneath a warm-canopied parachute, working on a laptop mid-air.](/assets/blog/parachute-laptop.png)
+
 I knew it had to do with memory, and with knowledge graphs. I had a strong conviction that there was a way to blend LLMs and knowledge graphs that nobody was quite doing yet — the closest things were Claude Code and Obsidian, and the "LLM wikis" Andrej Karpathy had started tweeting about.
 
 This had been a long time coming. One of my first real projects, back in college, was an app I called [QuantifiedLife](https://github.com/unforced/QuantifiedLife) — a place to track and *notice* the texture of my days. I lost the thread of it for years; my dad passed away around the time I graduated, and I spent a long stretch traveling rather than building. But the core of it never quite let go of me. By the time I landed back at Google in 2021 — working under data-privacy rules that pushed me toward tools which respect your data — I was circling the same idea again, and it rekindled a lifelong pull toward open source.
