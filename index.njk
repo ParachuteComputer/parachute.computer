@@ -93,6 +93,17 @@ permalink: /
 }
 .home-trust a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .home-trust a:hover { color: var(--accent); }
+.home-latest {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--fg-dim);
+}
+.home-latest a {
+    color: var(--fg-muted);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.home-latest a:hover { color: var(--accent); }
 
 /* Section rhythm for screens 2–5 */
 .home-screen {
@@ -261,6 +272,10 @@ permalink: /
             <a href="https://github.com/ParachuteComputer" class="home-cta-quiet" target="_blank">GitHub</a>
         </div>
         <p class="home-trust"><span>Local-first</span><span><a href="https://modelcontextprotocol.io" target="_blank">Open standard (MCP)</a></span><span>Open source (AGPL)</span><span>Your data, exportable anytime</span></p>
+        {%- set latestPost = collections.posts | first %}
+        {%- if latestPost %}
+        <p class="home-latest">Latest from the blog: <a href="{{ latestPost.url }}">{{ latestPost.data.title }}</a> &rarr;</p>
+        {%- endif %}
     </section>
 
     <section class="home-screen home-proof fade-up fade-up-2">
