@@ -19,12 +19,14 @@
 name = "parachute-subscribe"
 main = "worker/subscribe.ts"
 compatibility_date = "2025-01-01"
+# Cloudflare account: "Unforced Development" (the Parachute account). Pinned so
+# deploys are non-interactive (the login has multiple accounts).
+account_id = "8f2a7eb9d5e21ffa902a76cf62975c82"
 
-# D1 binding — the Worker reads `env.DB`. `database_id` is a placeholder;
-# Aaron fills it in after `wrangler d1 create parachute-interests` and
-# commits the real ID.
+# D1 binding — the Worker reads `env.DB`. Created via
+# `wrangler d1 create parachute-interests` (2026-06-24).
 [[d1_databases]]
 binding = "DB"
 database_name = "parachute-interests"
-database_id = "PLACEHOLDER"
+database_id = "c2c1c39d-a812-4d1b-a10f-76ebbdeb5037"
 migrations_dir = "migrations"
