@@ -10,9 +10,16 @@ module.exports = function (eleventyConfig) {
 
   // Ignore non-content files
   eleventyConfig.ignores.add("CLAUDE.md");
+  eleventyConfig.ignores.add("DEPLOY-subscribe.md");
   eleventyConfig.ignores.add("blog/drafts/**");
   eleventyConfig.ignores.add("node_modules/**");
   eleventyConfig.ignores.add("archive/**");
+  // Subscribe Worker backend assets — not part of the static site output.
+  // The Worker deploys via `wrangler deploy` (a separate Cloudflare
+  // origin); `migrations/` + `wrangler.toml` are its config, not content.
+  eleventyConfig.ignores.add("worker/**");
+  eleventyConfig.ignores.add("migrations/**");
+  eleventyConfig.ignores.add("wrangler.toml");
 
   // Date formatting filter (uses UTC to avoid timezone offset issues)
   eleventyConfig.addFilter("dateDisplay", (dateObj) => {
