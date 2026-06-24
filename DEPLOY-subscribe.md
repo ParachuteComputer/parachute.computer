@@ -39,7 +39,8 @@ One-time setup. Run these from this repo root.
    ```
 
    This prints a `database_id`. **Paste it into `wrangler.toml`** in place
-   of the `database_id = "PLACEHOLDER"` line, and commit that change.
+   of the `database_id = "PLACEHOLDER"` line, then **commit that change**
+   (the placeholder must not stay in `main`).
 
 3. **Apply the migration to the remote DB** (creates the `interests` table)
 
@@ -100,3 +101,10 @@ One-time setup. Run these from this repo root.
   truth; junk gets filtered downstream at vault-sync time.
 - **No de-dup.** Duplicate signups are tolerated and preserve signal
   (when someone came back, from where, via `source_path`).
+- **`source_path` is often NULL.** It's derived from the `Referer`
+  header, but most browsers' default Referrer-Policy
+  (`strict-origin-when-cross-origin`) sends only the origin — no path —
+  on a cross-origin POST. So expect `source_path` to be NULL for the
+  majority of real submissions. Not a bug; the Worker handles it
+  gracefully. (If per-page attribution ever matters, add a hidden
+  `source` input to the form instead of relying on Referer.)
