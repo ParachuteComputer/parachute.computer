@@ -1,0 +1,30 @@
+# wrangler.toml — standalone Cloudflare Worker for the Parachute
+# interest list (issue #25).
+#
+# This is a WORKER, not a Pages project. The static site stays on GitHub
+# Pages (no apex DNS migration); only the email-capture backend lives on
+# Cloudflare. So there's no `pages_build_output_dir` here — just the
+# Worker entrypoint + its D1 binding.
+#
+# Local dev:    npx wrangler dev
+# Deploy:       npx wrangler deploy
+# Migrate (remote): npx wrangler d1 migrations apply parachute-interests --remote
+#
+# The Worker is served at its own origin. Default expected public URL is
+# https://subscribe.parachute.computer/ (set via a custom domain / route
+# in the Cloudflare dashboard after deploy). The site form's action is
+# wired through _data/site.json — keep that in sync with whatever URL the
+# Worker ends up on (custom domain or the *.workers.dev fallback).
+
+name = "parachute-subscribe"
+main = "worker/subscribe.ts"
+compatibility_date = "2025-01-01"
+
+# D1 binding — the Worker reads `env.DB`. `database_id` is a placeholder;
+# Aaron fills it in after `wrangler d1 create parachute-interests` and
+# commits the real ID.
+[[d1_databases]]
+binding = "DB"
+database_name = "parachute-interests"
+database_id = "PLACEHOLDER"
+migrations_dir = "migrations"

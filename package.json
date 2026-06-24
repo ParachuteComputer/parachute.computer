@@ -6,10 +6,14 @@
     "build": "npx @11ty/eleventy",
     "serve": "npx @11ty/eleventy --serve",
     "clean": "rm -rf _site",
-    "screenshots": "npx playwright install chromium && node scripts/screenshot-pitch.js"
+    "screenshots": "npx playwright install chromium && node scripts/screenshot-pitch.js",
+    "dev:worker": "npx wrangler dev",
+    "db:migrate": "npx wrangler d1 migrations apply parachute-interests --remote"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.1.2",
-    "playwright": "^1.59.1"
+    "@cloudflare/workers-types": "^4.20250101.0",
+    "playwright": "^1.59.1",
+    "wrangler": "^3.99.0"
   }
 }
