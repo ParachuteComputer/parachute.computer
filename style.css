@@ -1280,6 +1280,68 @@ footer p:first-child {
     color: var(--fg-muted);
 }
 
+/* Two-up "where should it live?" path cards (the /start page). */
+.section .path-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin: 1.5rem 0;
+    max-width: 880px;
+    align-items: stretch;
+}
+
+@media (max-width: 720px) {
+    .section .path-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+.section .path-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 1.6rem;
+    background: var(--bg);
+}
+
+.section .path-card-recommended {
+    border-color: rgba(74, 124, 89, 0.3);
+    background: var(--accent-soft);
+}
+
+.section .path-card h3 {
+    margin-top: 0;
+    margin-bottom: 0.6rem;
+    font-size: 1.2rem;
+    color: var(--accent);
+}
+
+.section .path-card p {
+    margin-bottom: 0.85rem;
+    font-size: 0.97rem;
+}
+
+.section .path-card p:last-child {
+    margin-bottom: 0;
+}
+
+.section .path-card .code-inline {
+    margin: 0.5rem 0 0;
+}
+
+.path-badge {
+    display: inline-block;
+    margin-left: 0.4rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    vertical-align: middle;
+    text-transform: uppercase;
+}
+
 /* Collapsible detail (troubleshooting on the install page). */
 .section details > summary {
     cursor: pointer;

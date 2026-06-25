@@ -38,7 +38,9 @@ here first, then interview me.
 
 Before asking me anything, call:
 - `vault-info` — see if there's an existing vault description and
-  the basic stats (note count, tag count).
+  the basic stats (note count, tag count). It also reports the vault's
+  own coordinates (hub origin, REST base, MCP base), so you can read
+  those rather than ask me for them.
 - `list-tags` (with schema detail) — see what tag conventions already
   exist, if any.
 - `query-notes` with an empty filter (limit 10) — see if there are
