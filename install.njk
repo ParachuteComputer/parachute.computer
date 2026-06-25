@@ -12,9 +12,31 @@ permalink: /start/
     </section>
 
     <section class="section">
-        <h2>1 &middot; Run one command</h2>
+        <h2>1 &middot; Where should it live?</h2>
 
-        <p>You'll need <a href="https://bun.sh" target="_blank">Bun</a> 1.3 or later.</p>
+        <p>Parachute is one command either way. Two good places to run it &mdash; pick the one that fits where you are:</p>
+
+        <div class="path-cards">
+            <div class="path-card">
+                <h3>Try it instantly &mdash; on your laptop</h3>
+                <p>Perfect for kicking the tires. Free, runs in a minute. The catch: it sleeps when your laptop sleeps, so your phone and your AIs can't reach it while it's closed.</p>
+                <p>You'll need <a href="https://bun.sh" target="_blank">Bun</a> 1.3 or later, then:</p>
+                <div class="code-inline">
+                    <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>
+                </div>
+            </div>
+            <div class="path-card path-card-recommended">
+                <h3>Stand up an always-on home <span class="path-badge">simplest for most</span></h3>
+                <p>A real Parachute your phone and your AIs can reach around the clock &mdash; even when your laptop's shut. A <strong>$6/mo DigitalOcean droplet</strong> is the easiest always-on box: one command stands up hub + vault, and you own every byte.</p>
+                <p style="margin-bottom: 0.5rem;">Create the droplet, SSH in, then run one command (or skip the SSH entirely with cloud-init &mdash; see the guide):</p>
+                <div class="code-inline">
+                    <code>curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
+                </div>
+                <p style="margin-top: 0.75rem;"><a href="/deploy/digitalocean/">Deploy to DigitalOcean &rarr;</a> &mdash; run it by SSH, or fully unattended via cloud-init User Data (the droplet self-installs on first boot). Any <a href="/deploy/vps/">other VPS</a> (Hetzner, EC2) or a Mac you leave on works with the same flow.</p>
+            </div>
+        </div>
+
+        <p style="margin-top: 1.5rem;">Either way, <code>parachute init</code> starts your hub, installs your vault &mdash; the place all your notes live &mdash; and opens a browser setup wizard: <strong>Account &rarr; Vault &rarr; Expose &rarr; Done</strong>. Start on your laptop and move to an always-on box anytime; nothing's locked in.</p>
 
         <details>
             <summary>On Bun 1.2.x / checking your version</summary>
@@ -23,14 +45,6 @@ permalink: /start/
                 <li><strong>Stuck on 1.2.x?</strong> You may see a cosmetic <code>InvalidPackageResolution</code> or <code>FileNotFound</code> warning during install &mdash; the package installs anyway. Upgrading to Bun 1.3 clears it.</li>
             </ul>
         </details>
-
-        <div class="code-inline">
-            <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>
-        </div>
-
-        <p><code>parachute init</code> starts your hub, installs your vault &mdash; the place all your notes live &mdash; and opens a browser setup wizard: <strong>Account &rarr; Vault &rarr; Expose &rarr; Done</strong>.</p>
-
-        <p><strong>Where should it live?</strong> A laptop is perfect for trying it out &mdash; but Parachute is happiest on a machine that stays awake, so your vault is reachable from your phone and your AIs even when your laptop is closed. The ideal home is a small <a href="/deploy/vps/">always-on box</a> (a ~$5&ndash;12/mo VPS, or a Mac you leave on) &mdash; start on your laptop and move over anytime.</p>
 
         <details>
             <summary>Ports, exposing it, tokens, and re-running</summary>
@@ -165,7 +179,7 @@ permalink: /start/
 
         <ul>
             <li>
-                <strong>Run it always-on.</strong> Your laptop sleeps; a server doesn't. <a href="/deploy/digitalocean/">Deploy to DigitalOcean &rarr;</a> stands up hub + vault on a $6/mo droplet with one command (<code>curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>), or <a href="/deploy/vps/">deploy to any VPS</a> (Hetzner, EC2, or a box in your closet) with the <em>same</em> <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code> flow &mdash; or use a Mac you leave on (e.g. a Mac mini). On an SSH'd server <code>init</code> pre-selects public exposure so the wizard URL is reachable.
+                <strong>Still on your laptop?</strong> Move to an always-on home anytime &mdash; <a href="/deploy/digitalocean/">DigitalOcean &rarr;</a> (the simplest, one command), <a href="/deploy/vps/">any VPS</a> (Hetzner, EC2, or a box in your closet, same <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code> flow), or a Mac you leave on. On an SSH'd server <code>init</code> pre-selects public exposure so the wizard URL is reachable.
             </li>
             <li><strong>Reach it from other devices.</strong> A <a href="https://tailscale.com" target="_blank">Tailnet</a> (<code>tailscale serve</code>) is the smooth private path &mdash; your hub, visible only to your own Tailscale devices. For public HTTPS that claude.ai can reach, a Cloudflare Tunnel gives you a clean public URL; see <a href="/deploy/vps/">Deploy to a VPS</a> for the full walkthrough.</li>
             <li><strong>Back it up &amp; script it.</strong> Export your whole vault to portable, git-trackable markdown with <code>parachute-vault export &lt;dir&gt;</code> (and <code>import</code> back). Driving the vault from a script, cron job, or importer is covered in <a href="/scripting/">Scripting your vault</a>; hosting for friends and family is in the <a href="/multi-user/">multi-user operator guide</a>.</li>
@@ -209,9 +223,10 @@ permalink: /start/
     </section>
 
     <section class="cta">
-        <div class="code-inline" style="margin: 1.5rem auto; max-width: 640px;">
+        <div class="code-inline" style="margin: 1.5rem auto 0.75rem; max-width: 640px;">
             <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>
         </div>
+        <p class="cta-secondary" style="margin-bottom: 1.5rem;">On your laptop to try it &mdash; or <a href="/deploy/digitalocean/">stand up an always-on home on DigitalOcean</a> (simplest for most).</p>
         <a href="https://github.com/ParachuteComputer/parachute-vault" class="button" target="_blank">Parachute Vault on GitHub</a>
     </section>
 

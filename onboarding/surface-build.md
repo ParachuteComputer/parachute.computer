@@ -1,7 +1,7 @@
 ---
 layout: post.njk
 title: "Starter prompt — build a custom UI for your vault"
-description: "Paste this into Claude Code or Codex. The AI generates a static SPA on the surface SDK (@openparachute/surface-client + surface-render), hosts it on GitHub Pages, and signs in to your vault via your hub's OAuth."
+description: "Paste this into Claude Code (or your editor's AI). It builds a static SPA on the surface SDK (@openparachute/surface-client + surface-render) against a local dev server, then deploys the built output to GitHub Pages — signing in to your vault via your hub's OAuth."
 permalink: /onboarding/surface-build/
 date: 2026-05-26T12:00:00
 ---
@@ -10,22 +10,39 @@ A custom front-end for *your* vault, designed to surface what *you* actually loo
 
 This is the second of two starter prompts. The first ([set up your vault](/onboarding/vault-setup/)) is for figuring out what's in your vault. This one is for figuring out how you want to see it.
 
-**Before you paste**: have a vault running with some content in it (even just a getting-started note works), and know your hub's URL + your vault's name. No token to mint — the app signs you in through your hub's standard OAuth flow and you approve it once on a consent screen.
+**Build this one in your editor, not in chat.** A surface runs in a *browser* — it needs a real OAuth redirect to your hub and back, a local dev server, and a CORS origin your hub trusts. None of that exists in an MCP/chat session (no browser, no redirect, no dev server). So paste this into **Claude Code** (or Cursor, Zed, Codex — any AI that works in your editor against a local dev server), not into a chat-only client. The AI builds and iterates against `vite`/`bun dev` and you sign in through the browser there.
+
+**Before you paste**: have a vault running with some content in it (even just the seeded *Getting Started* note works). You usually don't need to look up your hub URL or vault name — once your hub is exposed, the vault **states its own coordinates** (hub origin, REST base, MCP base) via `vault-info`, so the AI reads them rather than ask (on a purely-local hub it'll ask you once). No token to mint either — the app signs you in through your hub's standard OAuth flow and you approve it once on a consent screen.
 
 ---
 
 ## Copy this:
 
 ```markdown
-I want to build a custom front-end for my Parachute Vault. Hosted on
-GitHub Pages, talks to my vault over HTTP. No Parachute installation
-needed — just a static SPA in a GitHub repo I own.
+I want to build a custom front-end for my Parachute Vault. A static
+SPA in a GitHub repo I own, talking to my vault over HTTP. No Parachute
+installation needed.
+
+## Build this in my editor, not from a chat/MCP session
+
+A surface runs in a *browser*: it needs a real OAuth round-trip (a
+redirect to my hub's consent screen and back), a local dev server, and
+a CORS origin my hub trusts. None of that exists in an MCP/chat session.
+So build it here in my editor against a local dev server (`vite` /
+`bun dev`) — that's where I sign in through the browser and we iterate.
+Don't try to "run" the surface from a vault MCP session.
+
+## Coordinates — read them, don't ask me
+
+You don't need to ask me for my hub URL or vault name. My vault states
+its own coordinates — hub origin, REST base, and MCP base — via
+`vault-info` (and the instruction it sends on connect). If you have my
+vault connected over MCP, call `vault-info` and read them. (If you're
+working purely in the editor with no MCP connection, then ask me for
+the hub origin and vault name once — but prefer reading them.)
 
 ## What I'll give you
 
-- My hub's URL (e.g. `https://hub.yourdomain.com`, or
-  `http://localhost:1939` if you're trying it on your laptop) and my
-  vault's name (e.g. `default`)
 - A description of what I look at most — projects, people, daily
   notes, etc. (You'll interview me.)
 
@@ -93,10 +110,14 @@ yet. Make sure I agree on what we're building before you build it.
 ## Build
 
 Vite + React + TypeScript (surface-render is React; the data layer
-works anywhere). No backend — static SPA only.
+works anywhere). No backend — static SPA only. Develop against a local
+dev server (`vite` / `bun dev`); that's where the OAuth redirect and
+sign-in actually happen.
 
 Wiring:
-- One `createVaultSurface` call at module scope. Set `redirectUri` so
+- One `createVaultSurface` call at module scope. `clientName` is the
+  only required option; pass `hubUrl` + `vaultName` from `vault-info`'s
+  coordinates (don't make me type them). Set `redirectUri` so
   it's correct on the deployed path, e.g.
   `` `${location.origin}${import.meta.env.BASE_URL}oauth/callback` ``
   (GitHub Pages serves project sites under `/repo-name/` — set Vite's
@@ -118,18 +139,37 @@ Wiring:
   HTTP status. A `400 invalid_grant` on refresh is terminal: clear
   tokens and re-auth, don't loop (the client handles this for you).
 
-## Deploy
+## Deploy — push the built output, no Actions workflow
 
-GitHub Pages. Steps:
+This is a static build: `vite build` produces a `dist/` folder of plain
+HTML/JS/CSS that hosts **anywhere static** — GitHub Pages, Cloudflare
+Pages, Netlify, an S3 bucket. Nothing server-side.
+
+**Deploy by pushing the *built output* to a branch — do NOT write a
+GitHub Actions workflow.** Some AI/agent GitHub integrations can't push
+files under `.github/workflows/` (it's a permission a lot of tokens lack),
+so a `deploy.yml`-based flow silently fails for many people. Pushing the
+built bytes themselves always works. For GitHub Pages, either path:
 
 1. `gh repo create my-vault-ui --public`
-2. Build to `dist/` with `vite build`
-3. Use the `actions/deploy-pages` action to publish from `dist/`
-4. Configure Pages → Source = GitHub Actions
-5. Custom domain optional; default `username.github.io/my-vault-ui/`
-   is fine for personal use
+2. Build to `dist/` with `vite build` (set Vite's `base` to
+   `/my-vault-ui/` so asset paths resolve under the project-site
+   subpath).
+3. Publish the built `dist/` — pick one:
+   - **`gh-pages` branch:** push the contents of `dist/` to a `gh-pages`
+     branch (e.g. with the `gh-pages` npm package, or
+     `git subtree push --prefix dist origin gh-pages`), then set
+     Pages → Source = **Deploy from a branch** → `gh-pages` / root.
+   - **`docs/` folder on main:** build into `docs/`, commit it, and set
+     Pages → Source = **Deploy from a branch** → `main` / `docs`.
+4. Custom domain optional; default `username.github.io/my-vault-ui/`
+   is fine for personal use. (Hosting elsewhere? Cloudflare Pages /
+   Netlify just want the `dist/` output and a build command — same
+   bytes.)
 
-Write the deploy action for me. I'll commit + push.
+Set up the build + the push-to-branch step for me (a small npm script
+is fine — e.g. `"deploy": "vite build && gh-pages -d dist"`). I'll
+commit + push.
 
 ## Don't:
 - Hand-roll OAuth, a vault REST client, token storage, or markdown /
@@ -144,7 +184,7 @@ Write the deploy action for me. I'll commit + push.
 
 ## What you get
 
-A repo you own with a static SPA that signs in to your vault through your hub. Lives at `username.github.io/my-vault-ui/` (or your own domain). Updates by pushing to main.
+A repo you own with a static SPA that signs in to your vault through your hub. Lives at `username.github.io/my-vault-ui/` (or your own domain — and it hosts on Cloudflare Pages or Netlify just as well). Updates by rebuilding and re-publishing the `dist/` output (one `npm run deploy`).
 
 Some operators stop at one. Some build five — a daily-capture view, a project dashboard, a graph explorer, a meeting-prep tool, a weekly-review board. Each is a separate small repo, all hitting the same vault. The vault doesn't care which UI calls it.
 

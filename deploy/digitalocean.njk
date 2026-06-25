@@ -12,16 +12,18 @@ permalink: /deploy/digitalocean/
     </section>
 
     <section class="section">
-        <h2>Which path is this?</h2>
+        <h2>Why this path?</h2>
 
-        <p>There are two fast ways to start with Parachute. This guide is the <strong>second</strong> one &mdash; the durable, own-your-data path.</p>
+        <p>A DigitalOcean droplet is the <strong>simplest way to a real, always-on Parachute</strong> &mdash; one your phone and your AIs can reach even when your laptop is closed. One command stands up your hub + vault; you own every byte. It's the path we point most people to once they're past kicking the tires on their laptop.</p>
 
         <ul>
-            <li><strong>The 30-second, no-infra path</strong> is our cloud beta &mdash; sign up with an email, get a vault, connect your AI, done. Nothing to provision. That's the frictionless on-ramp, and it's not this page.</li>
-            <li><strong>This path</strong> is for the own-it-yourself crowd: a $6/mo Linux box <em>you</em> rent, running your hub + vault, with <em>your</em> Cloudflare or Tailscale account fronting it. No tenancy, no shared database, no Parachute-operated cloud between you and your data. Everything lives on your disk under <code>~/.parachute/</code>.</li>
+            <li><strong>Always on.</strong> A $6/mo Linux box <em>you</em> rent doesn't sleep when your laptop does &mdash; your vault stays reachable around the clock.</li>
+            <li><strong>Fully yours.</strong> Your hub + vault run on your box, fronted by <em>your</em> Cloudflare or Tailscale account. No tenancy, no shared database, no Parachute-operated cloud between you and your data. Everything lives on your disk under <code>~/.parachute/</code>.</li>
         </ul>
 
         <p><strong>Honest framing up front:</strong> standing up the box is one command. Making it reachable from your phone and from claude.ai is a <em>deliberate</em> second step that uses <strong>your own</strong> Cloudflare account + domain (or a Tailscale Funnel). That's the price of owning the URL and the bytes &mdash; it is not zero-config, and we won't pretend it is.</p>
+
+        <p>Just want to try Parachute instantly? <a href="/start/">Install it on your laptop</a> first &mdash; same stack, free, but it sleeps when your machine does. Come back here when you want an always-on home.</p>
     </section>
 
     <section class="section" id="fastest">
@@ -140,7 +142,7 @@ permalink: /deploy/digitalocean/
         <div class="code-inline">
             <code>&lt;your-hub-origin&gt;/vault/&lt;vault-name&gt;/mcp</code>
         </div>
-        <p>The done screen (and the admin SPA's <strong>Connect</strong> toggle on each vault row) hands you a copy-paste <code>claude mcp add</code> command with a fresh token, plus the per-client steps for Claude.ai, Codex, Goose, and others. Then try the <a href="/onboarding/vault-setup/">set-up-your-vault starter prompt</a> &mdash; connect your AI and say "help me set up my parachute."</p>
+        <p>The done screen (and the admin SPA's <strong>Connect</strong> toggle on each vault row) hands you a copy-paste <code>claude mcp add</code> command with a fresh token, plus the per-client steps for Claude.ai, Codex, Goose, and others. Then try the two starter prompts: the <a href="/onboarding/vault-setup/">set-up-your-vault prompt</a> (connect your AI and say "help me set up my parachute") to fill your vault, then the <a href="/onboarding/surface-build/">build-a-surface prompt</a> to shape a custom view over it.</p>
     </section>
 
     <section class="section">
