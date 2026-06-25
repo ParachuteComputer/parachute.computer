@@ -28,8 +28,9 @@ permalink: /start/
             <div class="path-card path-card-recommended">
                 <h3>Stand up an always-on home <span class="path-badge">simplest for most</span></h3>
                 <p>A real Parachute your phone and your AIs can reach around the clock &mdash; even when your laptop's shut. A <strong>$6/mo DigitalOcean droplet</strong> is the easiest always-on box: one command stands up hub + vault, and you own every byte.</p>
+                <p style="margin-bottom: 0.5rem;">Create the droplet, SSH in, then run one command (or skip the SSH entirely with cloud-init &mdash; see the guide):</p>
                 <div class="code-inline">
-                    <code>#!/bin/bash<br>curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
+                    <code>curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
                 </div>
                 <p style="margin-top: 0.75rem;"><a href="/deploy/digitalocean/">Deploy to DigitalOcean &rarr;</a> &mdash; run it by SSH, or fully unattended via cloud-init User Data (the droplet self-installs on first boot). Any <a href="/deploy/vps/">other VPS</a> (Hetzner, EC2) or a Mac you leave on works with the same flow.</p>
             </div>

@@ -12,7 +12,7 @@ This is the second of two starter prompts. The first ([set up your vault](/onboa
 
 **Build this one in your editor, not in chat.** A surface runs in a *browser* — it needs a real OAuth redirect to your hub and back, a local dev server, and a CORS origin your hub trusts. None of that exists in an MCP/chat session (no browser, no redirect, no dev server). So paste this into **Claude Code** (or Cursor, Zed, Codex — any AI that works in your editor against a local dev server), not into a chat-only client. The AI builds and iterates against `vite`/`bun dev` and you sign in through the browser there.
 
-**Before you paste**: have a vault running with some content in it (even just the seeded *Getting Started* note works). You don't need to look up your hub URL or vault name — the vault **states its own coordinates** (hub origin, REST base, MCP base) via `vault-info`, so the AI can read them rather than ask. No token to mint either — the app signs you in through your hub's standard OAuth flow and you approve it once on a consent screen.
+**Before you paste**: have a vault running with some content in it (even just the seeded *Getting Started* note works). You usually don't need to look up your hub URL or vault name — once your hub is exposed, the vault **states its own coordinates** (hub origin, REST base, MCP base) via `vault-info`, so the AI reads them rather than ask (on a purely-local hub it'll ask you once). No token to mint either — the app signs you in through your hub's standard OAuth flow and you approve it once on a consent screen.
 
 ---
 
