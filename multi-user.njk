@@ -25,7 +25,7 @@ permalink: /multi-user/
         <p>Your hub is the door everyone walks through. It runs as a single container, supervises vault and scribe as child processes, and issues OAuth tokens for clients. Pick the deploy that fits:</p>
 
         <ul>
-            <li><a href="/deploy/vps/">A VPS or your own machine</a> (recommended) &mdash; a home server, EC2, or any VPS runs the same supervised hub, kept alive by a managed service (systemd / launchd) across reboots. The most control, the lowest cost.</li>
+            <li><a href="/deploy/vps/">A VPS or your own machine</a> (recommended) &mdash; a home server, EC2, or any VPS runs the same supervised hub, kept alive by a managed service (systemd / launchd) across reboots. The most control, the lowest cost. On <a href="/deploy/digitalocean/">DigitalOcean</a> it's a single <code>curl … | bash</code> command on a $6/mo droplet.</li>
             <li><a href="/deploy/render/">Render</a> &mdash; a one-click container host alternative: persistent disk, $7/month flat.</li>
             <li><a href="/deploy/fly/">Fly</a> &mdash; peer container host to Render, machines + volumes shape, comparable cost.</li>
         </ul>

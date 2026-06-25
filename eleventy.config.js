@@ -4,6 +4,10 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("CNAME");
   eleventyConfig.addPassthroughCopy("assets/**/*");
   eleventyConfig.addPassthroughCopy("archive/**/*");
+  // Curl-able install scripts (served verbatim, e.g. /install/digitalocean.sh).
+  // NB: /install/index.html is a separate redirect template (install-redirect.njk)
+  // — passthrough files and that template land in the same dir without colliding.
+  eleventyConfig.addPassthroughCopy("install/**/*");
   // Favicon + webclip + PWA icons at site root
   eleventyConfig.addPassthroughCopy("*.png");
   eleventyConfig.addPassthroughCopy("site.webmanifest");
