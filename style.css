@@ -1304,7 +1304,7 @@ footer p:first-child {
 }
 
 .section .path-card-recommended {
-    border-color: rgba(74, 124, 89, 0.3);
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
     background: var(--accent-soft);
 }
 
