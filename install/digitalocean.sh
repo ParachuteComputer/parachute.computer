@@ -4,6 +4,10 @@
 #
 #   curl -fsSL https://parachute.computer/install/digitalocean.sh | bash
 #
+# Runs interactively over SSH, AND unattended as cloud-init User Data (it makes
+# no TTY/stdin assumptions, waits out apt's early-boot locks, and writes a setup
+# summary to /root/parachute-setup.txt since unattended boots have no live stdout).
+#
 # What it does, on a fresh Ubuntu 24.04 droplet (run as root, or a sudo user):
 #   1. Installs Bun (the JS runtime Parachute is built on), if not already present.
 #   2. Installs @openparachute/hub + @openparachute/vault globally via Bun.
@@ -61,17 +65,25 @@ printf "\n%sParachute — DigitalOcean / Ubuntu setup%s\n" "$BOLD" "$RESET"
 printf "%shub + vault on your own box, in one command%s\n" "$DIM" "$RESET"
 
 # ── 1. base packages (curl, unzip — Bun's installer needs unzip) ─────────────
+# apt wrapper that survives cloud-init's early boot. On first boot, cloud-init's
+# own apt run (and unattended-upgrades) often hold the dpkg/apt locks for a
+# minute or two. `DPkg::Lock::Timeout=120` makes apt WAIT for the lock instead
+# of failing instantly with "Could not get lock" — the single most common
+# unattended-install failure. DEBIAN_FRONTEND=noninteractive avoids tzdata-style
+# dialogs (there's no TTY under cloud-init). -y answers prompts automatically.
+apt_get() {
+  $SUDO env DEBIAN_FRONTEND=noninteractive apt-get -o DPkg::Lock::Timeout=120 "$@"
+}
+
 step "Checking base packages (curl, unzip)"
 NEED_PKGS=""
 command -v curl  >/dev/null 2>&1 || NEED_PKGS="$NEED_PKGS curl"
 command -v unzip >/dev/null 2>&1 || NEED_PKGS="$NEED_PKGS unzip"
 if [ -n "$NEED_PKGS" ]; then
   info "Installing:$NEED_PKGS"
-  # apt-get is the Ubuntu package manager. -y answers prompts automatically.
-  # DEBIAN_FRONTEND=noninteractive keeps apt from blocking on tzdata-style dialogs.
-  $SUDO env DEBIAN_FRONTEND=noninteractive apt-get update -qq
+  apt_get update -qq
   # shellcheck disable=SC2086  # intentional word-split: pass each package as its own arg
-  $SUDO env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $NEED_PKGS
+  apt_get install -y -qq $NEED_PKGS
   ok "Base packages installed"
 else
   ok "curl + unzip already present"
@@ -148,45 +160,92 @@ fi
 #
 # init is idempotent: a re-run on an already-set-up box just confirms + reprints
 # the URL.
+#
+# We `tee` init's output into the summary file so the canonical admin URL + the
+# one-time bootstrap token init prints are CAPTURED on disk. Under cloud-init
+# nobody sees init's live stdout — but they can `cat /root/parachute-setup.txt`
+# (or /var/log/cloud-init-output.log) over SSH and find the token there.
+SUMMARY_FILE="${PARACHUTE_SETUP_SUMMARY:-/root/parachute-setup.txt}"
+# Fall back to $HOME if /root isn't writable (e.g. non-root sudo install).
+if ! ( : > "$SUMMARY_FILE" ) 2>/dev/null; then
+  SUMMARY_FILE="$HOME/parachute-setup.txt"
+  : > "$SUMMARY_FILE" 2>/dev/null || SUMMARY_FILE="/dev/null"
+fi
+
 step "Running parachute init (hub + vault, systemd unit)"
-parachute init --no-expose-prompt --no-browser
+{
+  echo "===== parachute init output ($(date -u '+%Y-%m-%d %H:%M:%S UTC')) ====="
+  echo
+} >> "$SUMMARY_FILE" 2>/dev/null || true
+# Capture init's output (incl. the bootstrap token) AND stream it live to stdout.
+# If init fails, say so explicitly — under cloud-init the operator only has the
+# log + this summary file to go on, so a bare `set -e` abort would be opaque.
+parachute init --no-expose-prompt --no-browser 2>&1 | tee -a "$SUMMARY_FILE" || {
+  warn "parachute init failed. Full output is above and in:"
+  warn "  $SUMMARY_FILE  (and /var/log/cloud-init-output.log on an unattended boot)"
+  warn "Fix the issue and re-run this script — it's idempotent."
+  exit 1
+}
 
 # ── 5. next steps ────────────────────────────────────────────────────────────
 HUB_PORT="${PARACHUTE_HUB_PORT:-1939}"
-step "Done — hub + vault are running on this box"
-ok "Local admin URL:  ${BOLD}http://127.0.0.1:${HUB_PORT}/admin/setup${RESET}"
-info "(init printed the canonical URL + a one-time bootstrap token just above.)"
 
-cat <<EOF
+# The next-steps block is written to BOTH stdout and the summary file. Build it
+# once (plain text, no color codes — the file should stay copy-pasteable), then
+# emit it twice. Under cloud-init this file is the operator's only record.
+read -r -d '' NEXT_STEPS <<EOF || true
 
-${BOLD}Next: finish setup, then reach it from your phone & your AI${RESET}
+================================================================================
+Parachute is installed — hub + vault are running on this box as a systemd unit.
+================================================================================
 
-  ${BOLD}1. Finish the wizard${RESET} — two ways:
-       • Headless, right here:   ${DIM}parachute init --cli-wizard${RESET}
-       • From your laptop browser over SSH:
-           ${DIM}ssh -L ${HUB_PORT}:127.0.0.1:${HUB_PORT} root@<this-droplet-ip>${RESET}
-         then open ${DIM}http://127.0.0.1:${HUB_PORT}/admin/setup${RESET} on your laptop
-         and paste the bootstrap token init printed above.
+Local admin URL:  http://127.0.0.1:${HUB_PORT}/admin/setup
+(The 'parachute init' output above this line printed the canonical URL + a
+ one-time bootstrap token — find it earlier in this file / the cloud-init log.)
 
-  ${BOLD}2. Expose it (the durable, own-your-data path)${RESET}
-     Public exposure is ${BOLD}not${RESET} zero-config — it uses ${BOLD}your own${RESET} account, so the
+Next: finish setup, then reach it from your phone & your AI
+------------------------------------------------------------
+
+  1. Create your owner account (set a password)
+       Headless, right here:
+           parachute auth set-password --username <you> --password <your-password>
+       …or finish the full wizard (Account -> Vault -> Expose) in the terminal:
+           parachute init --cli-wizard
+       …or open the admin UI from your laptop over an SSH tunnel:
+           ssh -L ${HUB_PORT}:127.0.0.1:${HUB_PORT} root@<this-droplet-ip>
+         then open  http://127.0.0.1:${HUB_PORT}/admin/setup  on your laptop
+         and paste the bootstrap token from above.
+
+  2. Expose it (the durable, own-your-data path)
+     Public exposure is NOT zero-config — it uses YOUR OWN account, so the
      URL and the data stay yours. Pick one:
 
-       • ${BOLD}Cloudflare Tunnel${RESET} (clean public HTTPS — what claude.ai's
-         connector needs). Needs a domain on a Cloudflare zone (free tier is fine):
-           ${DIM}parachute expose public --cloudflare --domain vault.example.com${RESET}
+       • Cloudflare Tunnel (clean public HTTPS — what claude.ai's connector
+         needs). Needs a domain on a Cloudflare zone (free tier is fine):
+           parachute expose public --cloudflare --domain vault.example.com
 
-       • ${BOLD}Tailscale Funnel${RESET} (no domain needed; a *.ts.net URL on your tailnet).
+       • Tailscale Funnel (no domain needed; a *.ts.net URL on your tailnet).
          Set up Tailscale on the box, then:
-           ${DIM}parachute expose public${RESET}
+           parachute expose public
 
      Full walkthrough (both paths, plus the Cloudflare bot-protection gotcha
      that breaks the Claude connector):
-       ${BLUE}https://parachute.computer/deploy/digitalocean/${RESET}
+       https://parachute.computer/deploy/digitalocean/
 
-  ${BOLD}3. Connect your AI${RESET} — point any MCP client at:
-       ${DIM}<your-hub-origin>/vault/<vault-name>/mcp${RESET}
-     The done screen / admin SPA hands you a copy-paste \`claude mcp add\` command.
+  3. Connect your AI — point any MCP client at:
+       <your-hub-origin>/vault/<vault-name>/mcp
+     The done screen / admin SPA hands you a copy-paste 'claude mcp add' command.
 
-${DIM}Everything lives under ~/.parachute/ on this box. You own all of it.${RESET}
+Everything lives under ~/.parachute/ on this box. You own all of it.
+================================================================================
 EOF
+
+# Append to the summary file (for the unattended operator to read later)…
+printf '%s\n' "$NEXT_STEPS" >> "$SUMMARY_FILE" 2>/dev/null || true
+# …and print it to stdout (for the interactive operator watching live).
+step "Done — hub + vault are running on this box"
+ok "Local admin URL:  ${BOLD}http://127.0.0.1:${HUB_PORT}/admin/setup${RESET}"
+printf '%s\n' "$NEXT_STEPS"
+if [ "$SUMMARY_FILE" != "/dev/null" ]; then
+  info "Saved this summary to ${BOLD}${SUMMARY_FILE}${RESET} — SSH in and \`cat\` it if you ran this unattended (cloud-init User Data)."
+fi
