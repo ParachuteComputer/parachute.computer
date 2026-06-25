@@ -24,10 +24,49 @@ permalink: /deploy/digitalocean/
         <p><strong>Honest framing up front:</strong> standing up the box is one command. Making it reachable from your phone and from claude.ai is a <em>deliberate</em> second step that uses <strong>your own</strong> Cloudflare account + domain (or a Tailscale Funnel). That's the price of owning the URL and the bytes &mdash; it is not zero-config, and we won't pretend it is.</p>
     </section>
 
-    <section class="section" id="the-flow">
-        <h2>The flow</h2>
+    <section class="section" id="fastest">
+        <h2>Fastest: unattended install (paste into User Data)</h2>
 
-        <p>Four steps from a fresh droplet to a hub your AI can reach.</p>
+        <p>The quickest path skips the SSH-and-curl step entirely: hand DigitalOcean a <strong>cloud-init User Data</strong> script and the droplet <em>self-installs Parachute on first boot</em>. You create the droplet, wait ~2&ndash;3 minutes, and the hub + vault are already running &mdash; no shell session needed to stand it up.</p>
+
+        <h3>1. Create the droplet with User Data</h3>
+        <p>In the DigitalOcean console (<a href="https://cloud.digitalocean.com" target="_blank" rel="noopener">cloud.digitalocean.com</a>) &rarr; <strong>Create &rarr; Droplets</strong>:</p>
+        <ul>
+            <li><strong>Image:</strong> Ubuntu 24.04 (LTS) x64. <strong>Size:</strong> $6/mo (1 GB) for hub + vault. <strong>Region:</strong> nearest you.</li>
+            <li><strong>Authentication:</strong> add your SSH key (you'll still want to SSH in afterward to set your password and expose).</li>
+            <li>Expand <strong>Advanced options &rarr; Add Initialization scripts (user data)</strong> and paste this small bootstrap:</li>
+        </ul>
+        <div class="code-inline">
+            <code>#!/bin/bash<br>curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
+        </div>
+        <p>Click <strong>Create</strong>. cloud-init runs that script as root early in first boot. The install is the same one the manual path runs &mdash; it's hardened for unattended boots (no terminal needed; it waits out apt's first-boot locks; it writes a setup summary to disk since you won't see its live output). Give it <strong>~2&ndash;3 minutes</strong> after the droplet shows "Active."</p>
+
+        <h3>2. Or, with the <code>doctl</code> CLI &mdash; one line</h3>
+        <p>If you drive DigitalOcean from the command line (<a href="https://docs.digitalocean.com/reference/doctl/how-to/install/" target="_blank" rel="noopener">doctl</a>), the whole create-with-user-data is a single command &mdash; it streams the install script straight in as User Data:</p>
+        <div class="code-inline">
+            <code>doctl compute droplet create parachute \<br>&nbsp;&nbsp;--image ubuntu-24-04-x64 --size s-1vcpu-1gb --region nyc3 \<br>&nbsp;&nbsp;--ssh-keys &lt;your-key-fingerprint&gt; \<br>&nbsp;&nbsp;--user-data-file &lt;(curl -fsSL https://parachute.computer/install/digitalocean.sh) --wait</code>
+        </div>
+        <p>Find your key's fingerprint (or its numeric ID &mdash; <code>--ssh-keys</code> accepts either) with <code>doctl compute ssh-key list</code>. <code>--wait</code> blocks until the droplet is Active. (The <code>&lt;(...)</code> process substitution feeds the live script in as the user-data file &mdash; it's a bash feature, so run this from bash/zsh.)</p>
+
+        <h3>3. SSH in, set your password, expose</h3>
+        <p>Once it's had its couple of minutes, SSH in. The install left a summary on the box &mdash; it has your admin URL and the one-time bootstrap token (since you never saw the live output):</p>
+        <div class="code-inline">
+            <code>ssh root@&lt;your-droplet-ip&gt;<br>cat /root/parachute-setup.txt&nbsp;&nbsp;&nbsp;# admin URL, bootstrap token, exact next commands</code>
+        </div>
+        <p>If that file isn't there yet, cloud-init is probably still running &mdash; watch it with <code>tail -f /var/log/cloud-init-output.log</code> (the full install log lands there too). Then create your owner account by setting a password:</p>
+        <div class="code-inline">
+            <code>parachute auth set-password --username &lt;you&gt; --password &lt;your-password&gt;</code>
+        </div>
+        <p class="muted" style="font-size:0.9em;">If <code>parachute</code> isn't found, open a fresh shell (or run <code>export PATH="$HOME/.bun/bin:$PATH"</code>) so the freshly-installed binary is on your PATH.</p>
+        <p>&hellip;and <a href="#expose">expose it</a> &mdash; that's the durable bring-your-own-account step (Cloudflare or Tailscale), the same for every path on this page. Public exposure is deliberately <em>not</em> part of the unattended boot: it uses <em>your own</em> account, so the URL and the bytes stay yours.</p>
+
+        <p class="cta-secondary" style="margin-top:1.25rem;">Want to watch it install step by step instead, or read the script before it runs? The <a href="#the-flow">manual curl&nbsp;|&nbsp;bash flow</a> below is the same install, run by hand.</p>
+    </section>
+
+    <section class="section" id="the-flow">
+        <h2>Or, step by step: SSH in and run it yourself</h2>
+
+        <p>Prefer to watch it install line by line (or read the script before piping it to your shell)? Same four steps, run by hand.</p>
 
         <h3>1. Create a droplet</h3>
         <p>In the DigitalOcean console (<a href="https://cloud.digitalocean.com" target="_blank" rel="noopener">cloud.digitalocean.com</a>) &rarr; <strong>Create &rarr; Droplets</strong>:</p>
@@ -62,6 +101,11 @@ permalink: /deploy/digitalocean/
             <li><strong>Headless, right on the box:</strong> <code>parachute init --cli-wizard</code> walks Account &rarr; Vault &rarr; Expose in the terminal.</li>
             <li><strong>Browser, over an SSH tunnel:</strong> from your laptop, <code>ssh -L 1939:127.0.0.1:1939 root@&lt;droplet-ip&gt;</code>, then open <code>http://127.0.0.1:1939/admin/setup</code> in your laptop browser and paste the bootstrap token the script printed.</li>
         </ul>
+
+        <aside class="upgrade-callout">
+            <strong>A true 1-click DigitalOcean Marketplace image is on the roadmap.</strong>
+            <p>A pre-baked Marketplace droplet &mdash; pick "Parachute" from the image list, no User Data to paste &mdash; is planned. Until then, the User Data path above is the closest thing: paste one bootstrap line and the droplet self-installs on first boot.</p>
+        </aside>
     </section>
 
     <section class="section" id="expose">
@@ -105,6 +149,7 @@ permalink: /deploy/digitalocean/
         <p>Most of these you'll never hit. The Cloudflare bot-protection one above is the most common when wiring up the Claude connector.</p>
 
         <ul>
+            <li><strong>Unattended (User Data) install still running?</strong> On first boot, cloud-init runs the script after the network and apt are ready, so it can take a couple of minutes. If <code>/root/parachute-setup.txt</code> isn't there yet when you SSH in, watch <code>tail -f /var/log/cloud-init-output.log</code> &mdash; the full install output (including the bootstrap token) streams there. The script waits out apt's early-boot package locks rather than failing on them.</li>
             <li><strong>Bun 1.3+ required.</strong> The setup script installs the latest; if you had an older Bun pre-seeded, run <code>bun upgrade</code>. Run <code>parachute</code> commands in a <em>fresh</em> shell so <code>~/.bun/bin</code> is on your PATH (the script appends it to your <code>~/.bashrc</code>).</li>
             <li><strong>Non-root reboot survival needs linger.</strong> The script installs as root by default (a system unit, reboot-safe). If you installed as a non-root user instead, run <code>sudo loginctl enable-linger $USER</code> so the user unit starts at boot.</li>
             <li><strong>Ports 1939 (hub) / 1940 (vault behind it).</strong> Don't expose 1940 &mdash; clients use the hub origin + <code>/mcp</code>. With a Cloudflare Tunnel you don't open 1939 or 1940 publicly at all.</li>
@@ -142,10 +187,11 @@ permalink: /deploy/digitalocean/
 
     <section class="cta">
         <h2>Own your own for $6/mo</h2>
-        <div class="code-inline" style="margin: 1.5rem auto; max-width: 720px;">
-            <code>curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
+        <p class="cta-secondary" style="margin-bottom: 0.5rem;">Fastest &mdash; paste into a droplet's <a href="#fastest">User Data</a> and it self-installs on first boot:</p>
+        <div class="code-inline" style="margin: 0.75rem auto 1.5rem; max-width: 720px;">
+            <code>#!/bin/bash<br>curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
         </div>
-        <p class="cta-secondary">On a fresh Ubuntu 24.04 droplet. Or <a href="/start/">install locally</a> first.</p>
+        <p class="cta-secondary">Or SSH into a fresh Ubuntu 24.04 droplet and run that <code>curl &hellip; | bash</code> line by hand. Or <a href="/start/">install locally</a> first.</p>
     </section>
 
 </main>
