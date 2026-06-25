@@ -80,6 +80,8 @@ permalink: /deploy/vps/
 
         <p>DigitalOcean (<a href="https://cloud.digitalocean.com" target="_blank" rel="noopener">cloud.digitalocean.com</a>) is the most GUI-friendly option, US-centric, and slightly pricier.</p>
 
+        <p><strong>One-command shortcut:</strong> on a fresh DigitalOcean droplet, <code>curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code> does steps 3&ndash;4 for you (Bun + hub + vault + <code>init</code>). The dedicated <a href="/deploy/digitalocean/">Deploy to DigitalOcean</a> guide walks the full droplet-to-connected-AI path. The manual steps below work on any provider.</p>
+
         <ul>
             <li><strong>Droplet:</strong> Basic / Regular shared CPU. <strong>2GB / 1 vCPU / 50GB at ~$12/month</strong> is the comfortable floor (1GB at ~$6/month runs hub + vault but is tight with surface + scribe). <em>Approximate.</em></li>
             <li><strong>Region:</strong> nearest you.</li>
@@ -163,6 +165,7 @@ permalink: /deploy/vps/
         <h2>What comes next</h2>
 
         <ul>
+            <li><a href="/deploy/digitalocean/">Deploy to DigitalOcean</a> &mdash; the one-command <code>curl … | bash</code> version of this flow on a $6/mo droplet.</li>
             <li><a href="/start/">Local install</a> &mdash; the same stack on your own machine. Free, but sleeps when your laptop sleeps.</li>
             <li><a href="/deploy/render/">Deploy to Render</a> and <a href="/deploy/fly/">Deploy to Fly.io</a> &mdash; the container PaaS paths, if you'd rather click than SSH.</li>
             <li><a href="/design/2026-05-18-v06-deploy-architecture/">v0.6 deploy architecture</a> &mdash; the design note explaining <em>why</em> it's hub-as-supervisor.</li>

@@ -1,0 +1,151 @@
+---
+layout: base.njk
+title: "Deploy to DigitalOcean"
+description: "Run your own Parachute on a $6/mo DigitalOcean droplet — one command stands up hub + vault. The durable, own-your-data path: your box, your Cloudflare or Tailscale account, your bytes."
+permalink: /deploy/digitalocean/
+---
+<main>
+
+    <section class="hero">
+        <h1 class="fade-up fade-up-2">Deploy to DigitalOcean</h1>
+        <p class="tagline fade-up fade-up-3">One command on a $6/mo droplet stands up hub + vault. Own every byte.</p>
+    </section>
+
+    <section class="section">
+        <h2>Which path is this?</h2>
+
+        <p>There are two fast ways to start with Parachute. This guide is the <strong>second</strong> one &mdash; the durable, own-your-data path.</p>
+
+        <ul>
+            <li><strong>The 30-second, no-infra path</strong> is our cloud beta &mdash; sign up with an email, get a vault, connect your AI, done. Nothing to provision. That's the frictionless on-ramp, and it's not this page.</li>
+            <li><strong>This path</strong> is for the own-it-yourself crowd: a $6/mo Linux box <em>you</em> rent, running your hub + vault, with <em>your</em> Cloudflare or Tailscale account fronting it. No tenancy, no shared database, no Parachute-operated cloud between you and your data. Everything lives on your disk under <code>~/.parachute/</code>.</li>
+        </ul>
+
+        <p><strong>Honest framing up front:</strong> standing up the box is one command. Making it reachable from your phone and from claude.ai is a <em>deliberate</em> second step that uses <strong>your own</strong> Cloudflare account + domain (or a Tailscale Funnel). That's the price of owning the URL and the bytes &mdash; it is not zero-config, and we won't pretend it is.</p>
+    </section>
+
+    <section class="section" id="the-flow">
+        <h2>The flow</h2>
+
+        <p>Four steps from a fresh droplet to a hub your AI can reach.</p>
+
+        <h3>1. Create a droplet</h3>
+        <p>In the DigitalOcean console (<a href="https://cloud.digitalocean.com" target="_blank" rel="noopener">cloud.digitalocean.com</a>) &rarr; <strong>Create &rarr; Droplets</strong>:</p>
+        <ul>
+            <li><strong>Image:</strong> Ubuntu 24.04 (LTS) x64.</li>
+            <li><strong>Size:</strong> Basic / Regular shared CPU. <strong>$6/mo (1 GB / 1 vCPU)</strong> comfortably runs hub + vault &mdash; the RAM headroom matters for Bun and the vault index. Pick <strong>$12/mo (2 GB)</strong> if you'll also run Claude Code on the box, or add the scribe (transcription) module.</li>
+            <li><strong>Region:</strong> nearest you.</li>
+            <li><strong>Authentication:</strong> SSH Key (add your public key at creation &mdash; you'll SSH in next).</li>
+        </ul>
+        <p>Create &rarr; wait ~30 seconds &rarr; note the public IPv4.</p>
+
+        <h3>2. SSH in</h3>
+        <div class="code-inline">
+            <code>ssh root@&lt;your-droplet-ip&gt;</code>
+        </div>
+
+        <h3>3. Run the one-command setup</h3>
+        <div class="code-inline">
+            <code>curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
+        </div>
+        <p>That script, on a fresh droplet:</p>
+        <ul>
+            <li>Installs <strong>Bun</strong> (the runtime Parachute is built on).</li>
+            <li>Installs <code>@openparachute/hub</code> + <code>@openparachute/vault</code> globally.</li>
+            <li>Runs <code>parachute init</code> &mdash; installs and starts the hub as a <code>systemd</code> unit (survives reboots), installs the vault, and prints your local admin URL + a one-time bootstrap token.</li>
+        </ul>
+        <p>It's <strong>idempotent</strong> &mdash; safe to re-run; each step skips itself if already done. When it finishes, the hub is running on <strong>:1939</strong> and the vault behind it. (Want to read the script before piping it to your shell? It's plain text at the same URL &mdash; open it in a browser first.)</p>
+
+        <h3>4. Finish the wizard</h3>
+        <p>The script already started the hub and installed the vault; it deliberately stops before exposing your hub publicly. This step creates your admin account (using the one-time bootstrap token the script printed) and confirms the vault &mdash; either way:</p>
+        <ul>
+            <li><strong>Headless, right on the box:</strong> <code>parachute init --cli-wizard</code> walks Account &rarr; Vault &rarr; Expose in the terminal.</li>
+            <li><strong>Browser, over an SSH tunnel:</strong> from your laptop, <code>ssh -L 1939:127.0.0.1:1939 root@&lt;droplet-ip&gt;</code>, then open <code>http://127.0.0.1:1939/admin/setup</code> in your laptop browser and paste the bootstrap token the script printed.</li>
+        </ul>
+    </section>
+
+    <section class="section" id="expose">
+        <h2>Expose it &mdash; the durable, own-your-data step</h2>
+
+        <p>This is where you bring your own account. Public exposure uses <em>your</em> Cloudflare domain or <em>your</em> Tailscale tailnet, so the URL and the data stay yours &mdash; that's the whole point of self-hosting. Two ways:</p>
+
+        <h3>Cloudflare Tunnel &mdash; clean public HTTPS</h3>
+        <p>This is what claude.ai's connector needs. You need a domain on a Cloudflare zone (the free tier is fine):</p>
+        <div class="code-inline">
+            <code>parachute expose public --cloudflare --domain vault.example.com</code>
+        </div>
+        <p>The apex (<code>example.com</code>) must already be a Cloudflare zone. <strong>Expose <em>creates</em> the tunnel</strong> &mdash; don't pre-create it. Each machine gets its own per-hostname tunnel name (no account-wide collision). The <code>cloudflared</code> connector installs as its own managed unit, so the tunnel returns automatically after a reboot.</p>
+
+        <h3>Tailscale Funnel &mdash; no domain needed</h3>
+        <p>If you'd rather not own a domain, set up <a href="https://tailscale.com" target="_blank" rel="noopener">Tailscale</a> on the droplet, then:</p>
+        <div class="code-inline">
+            <code>parachute expose public</code>
+        </div>
+        <p>That gives you a <code>*.ts.net</code> URL. It's the smooth private path; the tailnet-fronted setup is the more-hardened of the two. Cloudflare public HTTPS is what works with claude.ai's connector today.</p>
+
+        <aside class="upgrade-callout">
+            <strong>Cloudflare Bot Fight Mode breaks the Claude connector.</strong>
+            <p>The symptom is sneaky: consent passes in your browser, then the integration is "rejected the credentials." Under the hood, Claude's server-to-server token exchange gets a 403. Fix it in <strong>Cloudflare &rarr; Security &rarr; Bots</strong>: turn off Bot Fight Mode / Super Bot Fight Mode / Browser Integrity Check for the zone, or add a WAF Skip rule for <code>/oauth/*</code>, <code>/.well-known/*</code>, and <code>/vault/*</code>. Also remove any Cloudflare Access policy on the host. Confirm the fix with <code>curl -A python-requests https://&lt;host&gt;/.well-known/oauth-authorization-server</code>.</p>
+        </aside>
+    </section>
+
+    <section class="section" id="connect">
+        <h2>Connect your AI</h2>
+
+        <p>Once exposed, point any MCP client at your vault:</p>
+        <div class="code-inline">
+            <code>&lt;your-hub-origin&gt;/vault/&lt;vault-name&gt;/mcp</code>
+        </div>
+        <p>The done screen (and the admin SPA's <strong>Connect</strong> toggle on each vault row) hands you a copy-paste <code>claude mcp add</code> command with a fresh token, plus the per-client steps for Claude.ai, Codex, Goose, and others. Then try the <a href="/onboarding/vault-setup/">set-up-your-vault starter prompt</a> &mdash; connect your AI and say "help me set up my parachute."</p>
+    </section>
+
+    <section class="section">
+        <h2>Pitfalls</h2>
+
+        <p>Most of these you'll never hit. The Cloudflare bot-protection one above is the most common when wiring up the Claude connector.</p>
+
+        <ul>
+            <li><strong>Bun 1.3+ required.</strong> The setup script installs the latest; if you had an older Bun pre-seeded, run <code>bun upgrade</code>. Run <code>parachute</code> commands in a <em>fresh</em> shell so <code>~/.bun/bin</code> is on your PATH (the script appends it to your <code>~/.bashrc</code>).</li>
+            <li><strong>Non-root reboot survival needs linger.</strong> The script installs as root by default (a system unit, reboot-safe). If you installed as a non-root user instead, run <code>sudo loginctl enable-linger $USER</code> so the user unit starts at boot.</li>
+            <li><strong>Ports 1939 (hub) / 1940 (vault behind it).</strong> Don't expose 1940 &mdash; clients use the hub origin + <code>/mcp</code>. With a Cloudflare Tunnel you don't open 1939 or 1940 publicly at all.</li>
+            <li><strong>RAM headroom.</strong> The $6 droplet (1 GB) is comfortable for hub + vault. Add the scribe or run Claude Code on the box and you'll want the $12 (2 GB) droplet.</li>
+            <li><strong>Keep current.</strong> <code>parachute upgrade</code> (add <code>--channel rc</code> for release candidates). DB migrations run on the first post-upgrade boot.</li>
+        </ul>
+    </section>
+
+    <section class="section">
+        <h2>Cost</h2>
+
+        <p>All figures <em>approximate</em> &mdash; check current DigitalOcean pricing.</p>
+        <ul>
+            <li><strong>Droplet:</strong> $6/mo (1 GB) for hub + vault; $12/mo (2 GB) if you'll also run Claude Code or the scribe on the box.</li>
+            <li><strong>Domain + Cloudflare:</strong> the Cloudflare zone is free; you only pay for the domain you already own. TLS is included via the tunnel. Tailscale Funnel is free for personal use and needs no domain.</li>
+        </ul>
+        <p><em>Compare:</em> the same stack on your own Mac or Linux box is free, but you give up the always-on URL and the "works from my phone, anywhere" property. The $6 droplet is that trade, owned end to end.</p>
+    </section>
+
+    <section class="section">
+        <h2>What you get</h2>
+
+        <p>One <code>systemd</code> unit running the hub on :1939 &mdash; with reboot survival and admin-UI module management &mdash; supervising your vault as a child process. The script installs <strong>hub + vault</strong>; add <a href="https://github.com/ParachuteComputer/parachute-surface" target="_blank">surface</a> (the UI host &mdash; <a href="https://github.com/ParachuteComputer/parachute-surface/tree/main/packages/notes-ui" target="_blank">Notes</a> auto-bootstraps on its first install) and <a href="https://github.com/ParachuteComputer/parachute-scribe" target="_blank">Scribe</a> (transcription) later from the admin UI, and the hub supervises them as child processes too. Everything lives under <code>~/.parachute/</code> on the droplet's own disk &mdash; you fully own it. See the <a href="/design/2026-05-18-v06-deploy-architecture/">v0.6 deploy architecture note</a> for the full shape.</p>
+    </section>
+
+    <section class="section">
+        <h2>What comes next</h2>
+        <ul>
+            <li><a href="/deploy/vps/">Deploy to any VPS</a> &mdash; the same flow on Hetzner, EC2, Linode, or a box in your closet (the manual, step-by-step version of this script).</li>
+            <li><a href="/start/">Install locally</a> &mdash; the same stack on your own machine. Free, but sleeps when your laptop sleeps.</li>
+            <li><a href="/deploy/render/">Deploy to Render</a> and <a href="/deploy/fly/">Deploy to Fly.io</a> &mdash; the container PaaS paths, if you'd rather click than SSH (their build diverges from this bun-native happy path).</li>
+            <li><a href="https://github.com/ParachuteComputer/parachute-hub/issues" target="_blank">parachute-hub issues</a> &mdash; deploy questions, bugs, friction. We read all of them.</li>
+        </ul>
+    </section>
+
+    <section class="cta">
+        <h2>Own your own for $6/mo</h2>
+        <div class="code-inline" style="margin: 1.5rem auto; max-width: 720px;">
+            <code>curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
+        </div>
+        <p class="cta-secondary">On a fresh Ubuntu 24.04 droplet. Or <a href="/start/">install locally</a> first.</p>
+    </section>
+
+</main>

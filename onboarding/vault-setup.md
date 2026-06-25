@@ -248,12 +248,14 @@ fits:
 
 2. Generate a small Bun script that uses
    `@openparachute/surface-client`'s `VaultClient` (the canonical
-   JS/TS scripting library for talking to a vault). Shape:
+   JS/TS scripting library for talking to a vault). For a token-driven
+   script, the `VaultClient.fromHub(...)` factory composes the vault
+   URL from your hub origin + vault name:
 
    ```ts
    import { VaultClient } from "@openparachute/surface-client";
 
-   const vault = new VaultClient({
+   const vault = VaultClient.fromHub({
      hubOrigin: "https://...",     // my hub URL
      vaultName: "default",          // or the name I gave
      token: process.env.PARACHUTE_TOKEN!,
