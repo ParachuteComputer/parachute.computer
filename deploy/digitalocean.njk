@@ -44,9 +44,9 @@ permalink: /deploy/digitalocean/
         <h3>2. Or, with the <code>doctl</code> CLI &mdash; one line</h3>
         <p>If you drive DigitalOcean from the command line (<a href="https://docs.digitalocean.com/reference/doctl/how-to/install/" target="_blank" rel="noopener">doctl</a>), the whole create-with-user-data is a single command &mdash; it streams the install script straight in as User Data:</p>
         <div class="code-inline">
-            <code>doctl compute droplet create parachute \<br>&nbsp;&nbsp;--image ubuntu-24-04-x64 --size s-1vcpu-1gb --region nyc3 \<br>&nbsp;&nbsp;--ssh-keys &lt;your-key-fingerprint&gt; \<br>&nbsp;&nbsp;--user-data-file &lt;(curl -fsSL https://parachute.computer/install/digitalocean.sh)</code>
+            <code>doctl compute droplet create parachute \<br>&nbsp;&nbsp;--image ubuntu-24-04-x64 --size s-1vcpu-1gb --region nyc3 \<br>&nbsp;&nbsp;--ssh-keys &lt;your-key-fingerprint&gt; \<br>&nbsp;&nbsp;--user-data-file &lt;(curl -fsSL https://parachute.computer/install/digitalocean.sh) --wait</code>
         </div>
-        <p>Find your key's fingerprint with <code>doctl compute ssh-key list</code>. (The <code>&lt;(...)</code> process substitution feeds the live script in as the user-data file &mdash; it's a bash feature, so run this from bash/zsh.)</p>
+        <p>Find your key's fingerprint (or its numeric ID &mdash; <code>--ssh-keys</code> accepts either) with <code>doctl compute ssh-key list</code>. <code>--wait</code> blocks until the droplet is Active. (The <code>&lt;(...)</code> process substitution feeds the live script in as the user-data file &mdash; it's a bash feature, so run this from bash/zsh.)</p>
 
         <h3>3. SSH in, set your password, expose</h3>
         <p>Once it's had its couple of minutes, SSH in. The install left a summary on the box &mdash; it has your admin URL and the one-time bootstrap token (since you never saw the live output):</p>
@@ -57,6 +57,7 @@ permalink: /deploy/digitalocean/
         <div class="code-inline">
             <code>parachute auth set-password --username &lt;you&gt; --password &lt;your-password&gt;</code>
         </div>
+        <p class="muted" style="font-size:0.9em;">If <code>parachute</code> isn't found, open a fresh shell (or run <code>export PATH="$HOME/.bun/bin:$PATH"</code>) so the freshly-installed binary is on your PATH.</p>
         <p>&hellip;and <a href="#expose">expose it</a> &mdash; that's the durable bring-your-own-account step (Cloudflare or Tailscale), the same for every path on this page. Public exposure is deliberately <em>not</em> part of the unattended boot: it uses <em>your own</em> account, so the URL and the bytes stay yours.</p>
 
         <p class="cta-secondary" style="margin-top:1.25rem;">Want to watch it install step by step instead, or read the script before it runs? The <a href="#the-flow">manual curl&nbsp;|&nbsp;bash flow</a> below is the same install, run by hand.</p>

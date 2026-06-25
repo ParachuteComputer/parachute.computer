@@ -32,6 +32,13 @@
 
 set -euo pipefail
 
+# cloud-init's scripts_user stage runs as root with a MINIMAL environment —
+# notably no $HOME. Default it before anything below dereferences $HOME under
+# `set -u` (the Bun install dir, the ~/.bashrc PATH line, the setup-summary
+# path) — an unset $HOME there is what aborted the first unattended run. A sudo
+# caller already has $HOME set, so this is a no-op for the interactive path.
+export HOME="${HOME:-/root}"
+
 # ── pretty output ────────────────────────────────────────────────────────────
 BOLD="$(printf '\033[1m')"; DIM="$(printf '\033[2m')"; RESET="$(printf '\033[0m')"
 GREEN="$(printf '\033[32m')"; YELLOW="$(printf '\033[33m')"; BLUE="$(printf '\033[34m')"
