@@ -66,7 +66,7 @@ permalink: /docs/
                 <a href="/design/2026-06-01-hub-as-supervisor-unification/" class="blog-post-card">
                     <h3>Hub-as-supervisor unification &mdash; serve under a process manager everywhere</h3>
                     <div class="date">2026-06-01</div>
-                    <p class="excerpt">Parachute runs one way everywhere: <code>parachute serve</code> &mdash; the hub in the foreground supervising every module as a child &mdash; kept alive by the platform's process manager (systemd on a Linux VM, launchd on a Mac, the container runtime on Render / Fly). A self-hosted EC2 or Hetzner box now gets the same always-on, reboot-surviving, manage-from-the-admin-UI behavior the hosted deploys do; <code>parachute migrate --to-supervised</code> moves a legacy detached install over. Retires the older detached-daemon model.</p>
+                    <p class="excerpt">Parachute runs one way everywhere: <code>parachute serve</code> &mdash; the hub in the foreground supervising every module as a child &mdash; kept alive by the platform's process manager (systemd on a Linux VM, launchd on a Mac, the container runtime inside a container). A self-hosted EC2, Hetzner, or DigitalOcean box gets always-on, reboot-surviving, manage-from-the-admin-UI behavior; <code>parachute migrate --to-supervised</code> moves a legacy detached install over. Retires the older detached-daemon model.</p>
                 </a>
             </li>
             <li>
@@ -94,7 +94,7 @@ permalink: /docs/
                 <a href="/design/2026-05-18-v06-deploy-architecture/" class="blog-post-card">
                     <h3>v0.6 deploy architecture &mdash; single Render container, hub-as-supervisor</h3>
                     <div class="date">2026-05-18</div>
-                    <p class="excerpt">The self-host deploy shape locked in for v0.6: one container running hub-as-supervisor, vault / notes / scribe as child processes sharing a single persistent disk, modules installed at runtime via the admin SPA. The deploy mirror of the local model. Surfaced at <a href="/deploy/render/">/deploy/render/</a> and <a href="/deploy/fly/">/deploy/fly/</a> as peer paths.</p>
+                    <p class="excerpt">The self-host deploy shape locked in for v0.6: one supervised hub with vault / notes / scribe as child processes sharing a single persistent disk, modules installed at runtime via the admin SPA. The deploy mirror of the local model.</p>
                 </a>
             </li>
             <li>

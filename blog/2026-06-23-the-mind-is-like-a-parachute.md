@@ -28,7 +28,7 @@ Since then it's grown into a real hub-and-spoke system: one hub that routes to t
 bun add -g @openparachute/hub && parachute init
 ```
 
-That brings up your hub, installs your vault, and walks you through a short setup wizard; then you [connect any AI](/start/) — Claude, ChatGPT, your own agents — by pointing it at a single URL, and your memory persists across every tool and session. The ideal home for it is a machine you own that stays awake — a small [VPS](/deploy/vps/) (Hetzner or DigitalOcean run about $5–12/month) or a Mac you leave on — rather than a laptop that sleeps. The [full walkthrough lives at parachute.computer/start](/start/).
+That brings up your hub, installs your vault, and walks you through a short setup wizard; then you [connect any AI](/start/) — Claude, ChatGPT, your own agents — by pointing it at a single URL, and your memory persists across every tool and session. The ideal home for it is a machine you own that stays awake — a small [VPS](/start/) (Hetzner or DigitalOcean run about $5–12/month) or a Mac you leave on — rather than a laptop that sleeps. The [full walkthrough lives at parachute.computer/start](/start/).
 
 It's still early and still rough in places, but it's solid enough that I now run my own unified, fully self-hosted interface for nearly all of my digital thinking on top of it — and I'm not alone in that. We'll be sharing more soon about how some of our core users are opening their parachutes.
 
