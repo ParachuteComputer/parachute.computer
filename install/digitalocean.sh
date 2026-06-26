@@ -51,10 +51,9 @@
 #   PARACHUTE_DOMAIN           public hostname (A-record → droplet IP). Omit for sslip.io.
 #   PARACHUTE_TRANSCRIBE       local | cloud | none. Default: auto by RAM.
 #   PARACHUTE_HUB_PORT         hub port (default 1939).
-#   PARACHUTE_CHANNEL          npm dist-tag: latest | rc. Default: rc during the
-#                              pre-1.0 soak — the zero-SSH Caddy stack ships on
-#                              `rc` first, so the plain one-liner just works. Set
-#                              `PARACHUTE_CHANNEL=latest` to pin the last stable.
+#   PARACHUTE_CHANNEL          npm dist-tag: latest | rc. Default: latest (the
+#                              stable release). Set `PARACHUTE_CHANNEL=rc` to
+#                              track the newest release candidates.
 #
 # ─────────────────────────────────────────────────────────────────────────────
 # Droplet sizing
@@ -201,11 +200,10 @@ link_parachute_bins() {
 # ── 3. Parachute: hub + vault ────────────────────────────────────────────────
 # `bun add -g` installs the global packages. `parachute init` (below) also
 # installs the vault — we add the vault explicitly too so a re-run stays whole.
-# CHANNEL pins the npm dist-tag (latest|rc). Default `rc` during the pre-1.0
-# soak — the zero-SSH Caddy stack ships on `rc` first, so the plain one-liner
-# works without any override; set PARACHUTE_CHANNEL=latest to pin the last
-# stable. Resolved once here and reused for the optional scribe install below.
-CHANNEL="${PARACHUTE_CHANNEL:-rc}"
+# CHANNEL pins the npm dist-tag (latest|rc). Default `latest` (the stable
+# release); set PARACHUTE_CHANNEL=rc to track the newest release candidates.
+# Resolved once here and reused for the optional scribe install below.
+CHANNEL="${PARACHUTE_CHANNEL:-latest}"
 step "Installing Parachute (hub + vault, channel: ${CHANNEL})"
 bun add -g "@openparachute/hub@${CHANNEL}" "@openparachute/vault@${CHANNEL}"
 ok "@openparachute/hub + @openparachute/vault installed (${CHANNEL})"
