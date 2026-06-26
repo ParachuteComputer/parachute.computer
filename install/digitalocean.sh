@@ -180,6 +180,24 @@ case "$BUN_VER" in
   0.*|1.0.*|1.1.*|1.2.*) warn "Bun $BUN_VER is older than 1.3 — Parachute wants 1.3+. Consider: bun upgrade" ;;
 esac
 
+# Symlink the Parachute binaries into /usr/local/bin (already on every PATH) so
+# `parachute` works in the CURRENT shell — not only after a re-login. The
+# `~/.bun/bin` line we append to .bashrc/.profile above helps FUTURE shells, but
+# the console session that just ran `curl | bash` (the web-console install flow)
+# wouldn't pick it up — leaving `parachute: command not found` right after a
+# successful install. We symlink `bun` too so the parachute shim's
+# `#!/usr/bin/env bun` shebang resolves regardless of the caller's PATH.
+# Non-fatal + idempotent (`ln -sf`); re-run after the optional scribe install.
+link_parachute_bins() {
+  local dest="/usr/local/bin" b src
+  for b in bun parachute parachute-vault parachute-scribe; do
+    src="$BUN_INSTALL/bin/$b"
+    [ -x "$src" ] || continue
+    $SUDO ln -sf "$src" "$dest/$b" 2>/dev/null \
+      || warn "Couldn't symlink $b into $dest — \`parachute\` still works after \`source ~/.bashrc\`."
+  done
+}
+
 # ── 3. Parachute: hub + vault ────────────────────────────────────────────────
 # `bun add -g` installs the global packages. `parachute init` (below) also
 # installs the vault — we add the vault explicitly too so a re-run stays whole.
@@ -191,6 +209,9 @@ CHANNEL="${PARACHUTE_CHANNEL:-rc}"
 step "Installing Parachute (hub + vault, channel: ${CHANNEL})"
 bun add -g "@openparachute/hub@${CHANNEL}" "@openparachute/vault@${CHANNEL}"
 ok "@openparachute/hub + @openparachute/vault installed (${CHANNEL})"
+# Put bun + parachute on the system PATH NOW so `parachute …` works in this very
+# console session (not just after a re-login). See link_parachute_bins above.
+link_parachute_bins
 
 if ! command -v parachute >/dev/null 2>&1; then
   echo "The 'parachute' binary isn't on PATH after install. Open a fresh shell"
@@ -500,6 +521,7 @@ fi
 install_local_scribe() {
   # Each command is guarded; a failure warns + returns 0 so the script proceeds.
   bun add -g "@openparachute/scribe@${CHANNEL:-latest}" || { warn "bun add @openparachute/scribe failed — skipping local ASR."; return 0; }
+  link_parachute_bins  # pick up parachute-scribe into /usr/local/bin too
   parachute install scribe || { warn "parachute install scribe failed — skipping local ASR."; return 0; }
   if command -v parachute-scribe >/dev/null 2>&1; then
     parachute-scribe install-backend || { warn "parachute-scribe install-backend failed — engine not installed (cloud still works)."; return 0; }
