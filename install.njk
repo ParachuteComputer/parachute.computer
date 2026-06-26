@@ -24,8 +24,7 @@ permalink: /start/
             The radios are visually hidden but keyboard-focusable; the
             <label>s carry the visible focus ring (see style.css). DO is
             checked by default. Wrapped in a <fieldset> for semantics.
-            "Running somewhere else?" is a plain link below the cards, not
-            a third path — see the DigitalOcean deep guide.
+            Two paths, no third: laptop to try, DigitalOcean to keep.
         #}
         <fieldset class="path-picker" id="pick-your-path">
             <legend class="visually-hidden">Where should Parachute run?</legend>
@@ -47,8 +46,6 @@ permalink: /start/
                     <span class="path-card-desc">A real Parachute your phone and your AIs can reach around the clock, even when your laptop's shut. Zero-SSH: open the Console, paste one line, watch it run. ~$6/mo.</span>
                 </label>
             </div>
-
-            <p class="muted path-cards-aside" style="font-size:0.92em; margin-top:0.9rem;">Running somewhere else &mdash; another VPS, your own domain, or behind a tunnel? See the <a href="/deploy/digitalocean/">full deploy guide &rarr;</a></p>
 
             <div class="path-panels">
 
@@ -127,7 +124,14 @@ curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
                         <p style="margin-top: 0.75rem;">(or open the Console and <code>cat parachute-setup.txt</code>). For a domain in this path, add <code>PARACHUTE_DOMAIN=vault.example.com</code> on its own <code>export</code> line above the <code>curl</code>.</p>
                     </details>
 
-                    <p style="margin-top: 1.25rem;"><a href="/deploy/digitalocean/">Advanced options &amp; troubleshooting &rarr;</a> &mdash; the SSH path (watch it install line by line), driving it from <code>doctl</code>, bringing your own domain, alternative ingress, and pitfalls.</p>
+                    <details style="margin-top: 0.75rem;">
+                        <summary>Change your domain later</summary>
+                        <p style="margin-top: 1rem;">Already running and want a different address (e.g. moving off the <code>sslip.io</code> name to your own domain)? First point the new domain at the box &mdash; in your DNS provider add an <strong>A record</strong> for the hostname (e.g. <code>vault.example.com</code>) &rarr; your droplet's public IPv4. Then, on the box, run one command:</p>
+                        <div class="code-inline" style="text-align:left;">
+<code>parachute hub set-origin https://vault.example.com</code>
+                        </div>
+                        <p style="margin-top: 0.75rem;">It rewrites Caddy to the new hostname, fetches a fresh Let's Encrypt cert, and restarts your modules &mdash; one command. Your data, account, and vault are untouched; only the address changes. Afterward, <strong>re-point your AI / MCP clients</strong> at the new URL (their tokens were minted for the old address).</p>
+                    </details>
                 </div>
 
             </div>
@@ -146,7 +150,7 @@ curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
 
         <ul>
             <li><strong>Account.</strong> Create your admin login (on DigitalOcean this is the browser <code>/admin/setup</code> step above &mdash; paste the bootstrap token, choose your username + password).</li>
-            <li><strong>Vault.</strong> Create your first vault &mdash; or import one from a git repo, or skip for now.</li>
+            <li><strong>Vault.</strong> Create your first vault &mdash; or import one from a git repo, or skip for now. A fresh vault opens with a <strong>Getting Started</strong> note: a short guide your AI reads to help you shape the vault around how you actually think and work.</li>
             <li><strong>Expose.</strong> Choose how (or whether) to reach your hub from outside. This step <em>auto-skips on a local laptop</em>, and <em>pre-selects public on an SSH'd server</em> so the wizard URL is reachable.</li>
             <li><strong>Done.</strong> The wizard hands you everything you need to connect your AI.</li>
         </ul>
@@ -198,7 +202,7 @@ curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
 
         <div class="starter-callout">
             <h3>Two prompts, paste-and-go &mdash; fill your vault, then shape your view</h3>
-            <p><strong>1. Fill your vault.</strong> Your vault starts mostly empty. This prompt interviews you about how you think, proposes a tag and folder structure, and imports what you already have &mdash; built on your say-so.</p>
+            <p><strong>1. Fill your vault.</strong> Your vault starts mostly empty &mdash; but it opens with a <strong>Getting Started</strong> note your AI can read to walk you through the rest. To kick that off, this prompt interviews you about how you think, proposes a tag and folder structure, and imports what you already have &mdash; built on your say-so.</p>
             <a href="/onboarding/vault-setup/" class="button">Open the fill-your-vault prompt &rarr;</a>
             <p style="margin-top: 1.5rem;"><strong>2. Shape your view.</strong> This prompt interviews you, then builds a custom UI over your vault &mdash; a static SPA on the surface SDK, hosted on your own hub or GitHub Pages.</p>
             <a href="/onboarding/surface-build/" class="button">Open the shape-your-view prompt &rarr;</a>
@@ -256,16 +260,12 @@ curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
 
         <ul>
             <li>
-                <strong>Still on your laptop?</strong> Move to an always-on home anytime &mdash; <a href="/deploy/digitalocean/">DigitalOcean &rarr;</a> (the simplest, one command), <a href="/deploy/vps/">any VPS</a> (Hetzner, EC2, or a box in your closet, same <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code> flow), or a Mac you leave on. On an SSH'd server <code>init</code> pre-selects public exposure so the wizard URL is reachable.
+                <strong>Still on your laptop?</strong> Move to an always-on home anytime &mdash; the <a href="#pick-your-path" class="switch-to-do">DigitalOcean path above</a> is the simplest (one command). Any other always-on box works the same way: a Hetzner or EC2 VPS, a machine in your closet, or a Mac you leave on, all run the same <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code> flow. On an SSH'd server <code>init</code> pre-selects public exposure so the wizard URL is reachable.
             </li>
-            <li><strong>Reach it from other devices.</strong> On a server, the simplest public HTTPS path is Caddy-direct &mdash; the <a href="/deploy/digitalocean/">DigitalOcean install</a> sets it up for you (a real Let's Encrypt cert, no tunnel). A <a href="https://tailscale.com" target="_blank">Tailnet</a> (<code>tailscale serve</code>) is the smooth private alternative &mdash; your hub, visible only to your own Tailscale devices; a Cloudflare Tunnel is another option. See <a href="/deploy/digitalocean/">Deploy to DigitalOcean</a> or <a href="/deploy/vps/">any VPS</a> for the walkthroughs.</li>
+            <li><strong>Reach it from other devices.</strong> The DigitalOcean path above sets up Caddy-direct for you &mdash; a real Let's Encrypt cert on your own HTTPS address, no tunnel. On any other box, <code>parachute expose public</code> gives you a public URL: add <code>--cloudflare --domain vault.example.com</code> for a <a href="https://www.cloudflare.com/products/tunnel/" target="_blank">Cloudflare Tunnel</a> on your own domain (the apex must already be a Cloudflare zone &mdash; the free tier is fine; <code>expose</code> <em>creates</em> the tunnel for you, so don't pre-create it, and each machine gets its own per-hostname tunnel plus a reboot-surviving connector). Drop <code>--cloudflare</code> for a domain-free <code>*.ts.net</code> public URL over <a href="https://tailscale.com" target="_blank">Tailscale</a> Funnel; or <code>tailscale serve</code> keeps the hub private to your own tailnet.</li>
             <li><strong>Back it up &amp; script it.</strong> Export your whole vault to portable, git-trackable markdown with <code>parachute-vault export &lt;dir&gt;</code> (and <code>import</code> back). Driving the vault from a script, cron job, or importer is covered in <a href="/scripting/">Scripting your vault</a>; hosting for friends and family is in the <a href="/multi-user/">multi-user operator guide</a>.</li>
             <li><strong>Stay current.</strong> <code>parachute upgrade</code> sweeps the hub and every installed service to the latest release. Add <code>--channel rc</code> to track release candidates. Vault migrations run automatically on first post-upgrade boot.</li>
         </ul>
-
-        <aside class="upgrade-callout">
-            <p><strong>Prefer a container PaaS?</strong> <a href="/deploy/render/">Deploy to Render</a> or <a href="/deploy/fly/">Fly</a> still work but aren't recommended &mdash; their container build diverges from the bun-native install above.</p>
-        </aside>
 
         <p style="margin-top: 1.5rem;"><strong>Want Parachute Cloud?</strong> A hosted version &mdash; no server to run &mdash; is on the roadmap. <a href="https://openparachute.substack.com" target="_blank">Subscribe for updates</a>.</p>
     </section>
@@ -303,7 +303,7 @@ curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
         <div class="code-inline" style="margin: 1.5rem auto 0.75rem; max-width: 640px;">
             <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>
         </div>
-        <p class="cta-secondary" style="margin-bottom: 1.5rem;">On your Mac/Linux device to try it &mdash; or <a href="/deploy/digitalocean/">stand up an always-on home on DigitalOcean</a> (recommended for most).</p>
+        <p class="cta-secondary" style="margin-bottom: 1.5rem;">On your Mac/Linux device to try it &mdash; or <a href="#pick-your-path" class="switch-to-do">stand up an always-on home on DigitalOcean</a> (recommended for most).</p>
         <a href="https://github.com/ParachuteComputer/parachute-vault" class="button" target="_blank">Parachute Vault on GitHub</a>
     </section>
 
@@ -313,15 +313,16 @@ curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
        required for the page to work. #}
     <script>
     (function () {
-        var sw = document.querySelector(".switch-to-do");
         var doRadio = document.getElementById("path-do");
-        if (sw && doRadio) {
+        if (!doRadio) return;
+        document.querySelectorAll(".switch-to-do").forEach(function (sw) {
             sw.addEventListener("click", function (e) {
                 e.preventDefault();
                 doRadio.checked = true;
-                doRadio.focus();
+                doRadio.scrollIntoView({ behavior: "smooth", block: "start" });
+                doRadio.focus({ preventScroll: true });
             });
-        }
+        });
     })();
     </script>
 

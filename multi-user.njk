@@ -14,7 +14,7 @@ permalink: /multi-user/
     <section class="section">
         <h2>What multi-user gives you</h2>
 
-        <p>You run a single Parachute hub on a <a href="/deploy/vps/">VPS or your own machine</a> (or a container host like Render or Fly, if you'd rather). You send each person an invite link (or create their account by hand). They pick a password, open Notes against their vault, and they're using their own private knowledge graph &mdash; without anyone else able to read or write it.</p>
+        <p>You run a single Parachute hub on <a href="/start/">a VPS or your own machine</a>. You send each person an invite link (or create their account by hand). They pick a password, open Notes against their vault, and they're using their own private knowledge graph &mdash; without anyone else able to read or write it.</p>
 
         <p>The current shape: <strong>one admin (you), N users, each with one or more vaults.</strong> Two ways to onboard a person: an <strong>invite link</strong> &mdash; one-time, expiring, optionally pre-configured with their username, their own new vault, or read-only/read-write access to one of your existing vaults &mdash; or creating the account yourself with a default password. No public self-service signup; you issue every invite. The point is to get you hosting your handful of people without standing up infrastructure per person.</p>
     </section>
@@ -24,11 +24,7 @@ permalink: /multi-user/
 
         <p>Your hub is the door everyone walks through. It runs as a single container, supervises vault and scribe as child processes, and issues OAuth tokens for clients. Pick the deploy that fits:</p>
 
-        <ul>
-            <li><a href="/deploy/vps/">A VPS or your own machine</a> (recommended) &mdash; a home server, EC2, or any VPS runs the same supervised hub, kept alive by a managed service (systemd / launchd) across reboots. The most control, the lowest cost. On <a href="/deploy/digitalocean/">DigitalOcean</a> it's a single <code>curl … | bash</code> command on a $6/mo droplet.</li>
-            <li><a href="/deploy/render/">Render</a> &mdash; a one-click container host alternative: persistent disk, $7/month flat.</li>
-            <li><a href="/deploy/fly/">Fly</a> &mdash; peer container host to Render, machines + volumes shape, comparable cost.</li>
-        </ul>
+        <p>A home server, EC2, or any VPS runs the same supervised hub, kept alive by a managed service (systemd / launchd) across reboots &mdash; the most control, the lowest cost. The simplest path is <a href="/start/">DigitalOcean</a>: a single <code>curl … | bash</code> command on a $6/mo droplet. The full <a href="/start/">Get started</a> guide covers every path, including running on a machine you already own.</p>
 
         <p>The wizard at <code>/admin/setup</code> walks you through creating your first vault (and setting up transcription alongside it), and exposing your hub. <strong>You</strong> become the first admin during the wizard &mdash; the username and password you pick there are yours. (On a public deploy, the wizard asks for the one-time bootstrap token <code>init</code> printed before it lets you create that admin.)</p>
 

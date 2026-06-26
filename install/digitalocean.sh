@@ -631,7 +631,7 @@ Connect your AI — point any MCP client at:
     ${PUBLIC_URL:-<your-hub-origin>}/vault/default/mcp
 The admin SPA's Connect toggle hands you a copy-paste 'claude mcp add' command.
 If the Claude connector fails right after consent, it's almost never the hub —
-see the Cloudflare/edge note at https://parachute.computer/deploy/digitalocean/
+see the Cloudflare/edge note at https://parachute.computer/start/
 
 Everything lives under ~/.parachute/ on this box. You own all of it.
 ================================================================================
