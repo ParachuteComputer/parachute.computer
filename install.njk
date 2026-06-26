@@ -17,13 +17,15 @@ permalink: /start/
         <p>Parachute is one command either way. Choose where it should live &mdash; the full steps for that path open right below. You can always start on your laptop and move to an always-on box later; nothing's locked in.</p>
 
         {#
-            CSS-only path picker. Three radios + three card labels + three
+            CSS-only path picker. Two radios + two card labels + two
             panels are all siblings inside .path-picker, so the
             `:checked ~ .path-panels > #panel-x` general-sibling selectors
             can reveal exactly the matching panel with no JavaScript.
             The radios are visually hidden but keyboard-focusable; the
             <label>s carry the visible focus ring (see style.css). DO is
             checked by default. Wrapped in a <fieldset> for semantics.
+            "Running somewhere else?" is a plain link below the cards, not
+            a third path — see the DigitalOcean deep guide.
         #}
         <fieldset class="path-picker" id="pick-your-path">
             <legend class="visually-hidden">Where should Parachute run?</legend>
@@ -32,8 +34,6 @@ permalink: /start/
                    aria-controls="panel-local">
             <input class="path-radio" type="radio" name="install-path" id="path-do"
                    aria-controls="panel-do" checked>
-            <input class="path-radio" type="radio" name="install-path" id="path-advanced"
-                   aria-controls="panel-advanced">
 
             <div class="path-cards">
                 <label class="path-card" for="path-local">
@@ -44,14 +44,11 @@ permalink: /start/
                 <label class="path-card path-card-recommended" for="path-do">
                     <span class="path-card-flag" aria-hidden="true">&#9733; Recommended</span>
                     <span class="path-card-title">DigitalOcean &mdash; always-on</span>
-                    <span class="path-card-desc">A real Parachute your phone and your AIs can reach around the clock, even when your laptop's shut. Zero-SSH: paste one block, set your password in the browser. ~$6/mo.</span>
-                </label>
-
-                <label class="path-card" for="path-advanced">
-                    <span class="path-card-title">Advanced / other</span>
-                    <span class="path-card-desc">Another VPS, your own domain, or a Cloudflare / Tailscale tunnel as alternative ingress.</span>
+                    <span class="path-card-desc">A real Parachute your phone and your AIs can reach around the clock, even when your laptop's shut. Zero-SSH: open the Console, paste one line, watch it run. ~$6/mo.</span>
                 </label>
             </div>
+
+            <p class="muted path-cards-aside" style="font-size:0.92em; margin-top:0.9rem;">Running somewhere else &mdash; another VPS, your own domain, or behind a tunnel? See the <a href="/deploy/digitalocean/">full deploy guide &rarr;</a></p>
 
             <div class="path-panels">
 
@@ -90,52 +87,47 @@ permalink: /start/
                 {# ---- PATH 2: DigitalOcean (default) ---- #}
                 <div class="path-panel" id="panel-do" role="region" aria-labelledby="path-do">
                     <h3>Stand up an always-on home on DigitalOcean</h3>
-                    <p>The <strong>zero-SSH</strong>, Render-like way to a real always-on Parachute: create a droplet, paste <strong>one block</strong> (no credentials in it), wait a couple of minutes, then copy a <strong>one-time bootstrap token</strong> from the droplet Console and set your username + password <strong>in your browser</strong>. <strong>You never SSH in.</strong> The droplet self-installs hub + vault and gets a real Let's Encrypt cert via <a href="https://caddyserver.com" target="_blank" rel="noopener">Caddy</a> on first boot.</p>
+                    <p>The simplest way to a real always-on Parachute: create a droplet, open its <strong>Console</strong> in your browser, paste <strong>one line</strong>, and watch it run. When it finishes it prints your <strong>bootstrap token</strong> and <strong>URL</strong> right there &mdash; open the URL, set your username + password <strong>in the browser</strong>, done. <strong>No SSH, no separate token hunt.</strong> The box self-installs hub + vault and gets a real Let's Encrypt cert via <a href="https://caddyserver.com" target="_blank" rel="noopener">Caddy</a>.</p>
 
-                    <h4 class="path-step">Create the droplet</h4>
-                    <p>In the DigitalOcean console (<a href="https://cloud.digitalocean.com" target="_blank" rel="noopener">cloud.digitalocean.com</a>) &rarr; <strong>Create &rarr; Droplets</strong>:</p>
-                    <ul>
-                        <li><strong>Image:</strong> Ubuntu 24.04 (LTS) x64.</li>
-                        <li><strong>Size:</strong> $6/mo (1 GB) runs hub + vault. Pick $12/mo (2 GB) for on-box transcription (Scribe) or to run Claude Code on the box.</li>
-                        <li><strong>Region:</strong> nearest you.</li>
-                        <li>Expand <strong>Advanced options &rarr; Add Initialization scripts (user data)</strong> and paste the block below as-is (optionally uncomment the domain line):</li>
-                    </ul>
-
-                    <div class="code-inline" style="text-align:left;">
-                        <code>#!/bin/bash<br>
-                        <span class="muted"># export PARACHUTE_DOMAIN="vault.example.com"&nbsp;&nbsp;# optional</span><br>
-                        <span class="muted"># export PARACHUTE_CHANNEL="rc"&nbsp;&nbsp;# optional &mdash; track release candidates</span><br>
-                        curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
-                    </div>
-
-                    <p class="muted" style="font-size:0.9em;"><strong>Why no password here?</strong> Anything in User Data persists in plain text &mdash; readable on the box, in the droplet console, and via the metadata service. So no username or password goes in here. Instead the hub mints a one-time bootstrap token on first boot, and you set your own password in the browser. Your password never touches the cloud config.</p>
-
-                    <p>Click <strong>Create</strong>. cloud-init runs that script as root early in first boot.</p>
-
-                    <h4 class="path-step">Wait ~2&ndash;3 minutes, then finish in your browser</h4>
-                    <p>Give the droplet a couple of minutes after it shows <strong>Active</strong> &mdash; cloud-init installs everything and Caddy fetches the TLS cert on the first HTTPS hit. Then, with <strong>no SSH key needed</strong>:</p>
                     <ol>
-                        <li><strong>Open the droplet Console.</strong> On your droplet's page click <strong>Access &rarr; Launch Droplet Console</strong> for a browser root shell &mdash; no SSH key required.</li>
-                        <li><strong>Read the setup file.</strong> In that console run <code>cat parachute-setup.txt</code>. Near the top it prints your <strong>bootstrap token</strong> (<code>parachute-bootstrap-&hellip;</code>) and your <strong>setup URL</strong> (<code>https://&lt;your-host&gt;/admin/setup</code>). Copy both.</li>
-                        <li><strong>Open the setup URL in your browser</strong> &mdash; with a domain, <code>https://&lt;your-domain&gt;/admin/setup</code>; without one, <code>https://&lt;droplet-ip&gt;.sslip.io/admin/setup</code> (substitute your droplet's public IPv4, dots and all, e.g. <code>https://203.0.113.5.sslip.io/admin/setup</code>).</li>
-                        <li><strong>Paste the bootstrap token, then choose your own username + password.</strong> That's it &mdash; you're the owner, and your password was set in the browser, never stored in the cloud config.</li>
+                        <li><strong>Create an Ubuntu 24.04 droplet.</strong> In the DigitalOcean console (<a href="https://cloud.digitalocean.com" target="_blank" rel="noopener">cloud.digitalocean.com</a>) &rarr; <strong>Create &rarr; Droplets</strong>: image <strong>Ubuntu 24.04 (LTS) x64</strong>, size <strong>$6/mo (1 GB)</strong> for hub + vault (pick $12/mo / 2 GB for on-box transcription or to run Claude Code on the box), region nearest you. An SSH key is optional &mdash; you won't need it.</li>
+                        <li><strong>Open the droplet's Console.</strong> On your droplet's page click <strong>Access &rarr; Launch Droplet Console</strong> &mdash; a root terminal right in your browser, no SSH needed. (If it prompts for a password, set one on that Access tab first.)</li>
+                        <li><strong>Paste this one line and run it:</strong>
+                            <div class="code-inline" style="text-align:left; margin-top:0.6rem;">
+<code>curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
+                            </div>
+                        </li>
+                        <li><strong>Wait ~2&ndash;3 minutes.</strong> When it finishes, it prints your <strong>bootstrap token</strong> (<code>parachute-bootstrap-&hellip;</code>) and your <strong>setup URL</strong> right there in the Console.</li>
+                        <li><strong>Open that URL</strong> &mdash; it lands on <code>/admin/setup</code>. Paste the token, then choose your own username + password. That's it &mdash; you're the owner.</li>
                     </ol>
 
-                    <p class="muted" style="font-size:0.9em;">The token is single-use and regenerates if the hub restarts. Re-read the current one from the droplet Console any time with <code>cat parachute-setup.txt</code>.</p>
+                    <p class="muted" style="font-size:0.9em;"><strong>Your password is set in the browser, never in the config.</strong> No username or password is ever typed into the cloud config &mdash; the hub mints a one-time bootstrap token on first boot, and you set your own password in the browser. Nothing sensitive persists in DigitalOcean. The token is single-use and regenerates if the hub restarts; re-read the current one from the Console any time with <code>cat parachute-setup.txt</code>.</p>
+
+                    <details style="margin-top: 1.25rem;">
+                        <summary>No domain needed (and how to use your own)</summary>
+                        <p style="margin-top: 1rem;"><strong>No domain needed.</strong> Run it as-is and you get a working HTTPS address at <code>https://&lt;your-droplet-ip&gt;.sslip.io</code> automatically. <a href="https://sslip.io" target="_blank" rel="noopener">sslip.io</a> is free wildcard DNS that resolves that name straight to your droplet, so the URL <em>and</em> the Let's Encrypt cert just work with zero DNS setup. Switch to a custom domain anytime.</p>
+                        <p style="margin-top: 0.75rem;"><strong>Using your own domain?</strong> First point it at the droplet &mdash; in your DNS provider add an <strong>A record</strong> for the hostname you want (e.g. <code>vault.example.com</code>) &rarr; your droplet's public IPv4 (shown in the DO dashboard). Then run it with the domain set:</p>
+                        <div class="code-inline" style="text-align:left;">
+<code>PARACHUTE_DOMAIN=vault.example.com curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
+                        </div>
+                        <p style="margin-top: 0.75rem;">(or <code>export PARACHUTE_DOMAIN=&hellip;</code> first). Caddy fetches a Let's Encrypt cert for it automatically.</p>
+                    </details>
+
+                    <details style="margin-top: 0.75rem;">
+                        <summary>Prefer unattended / Infrastructure-as-Code?</summary>
+                        <p style="margin-top: 1rem;">Paste the <em>same</em> one-liner into the droplet's <strong>User Data</strong> when you create it (Advanced options &rarr; Add Initialization scripts), prefixed with a <code>#!/bin/bash</code> line &mdash; it self-installs on first boot, no Console step:</p>
+                        <div class="code-inline" style="text-align:left;">
+<code>#!/bin/bash<br>
+curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
+                        </div>
+                        <p style="margin-top: 0.75rem;">Then grab your bootstrap token once the box is up &mdash; over SSH:</p>
+                        <div class="code-inline" style="text-align:left;">
+<code>ssh root@&lt;your-droplet-ip&gt; cat parachute-setup.txt</code>
+                        </div>
+                        <p style="margin-top: 0.75rem;">(or open the Console and <code>cat parachute-setup.txt</code>). For a domain in this path, add <code>PARACHUTE_DOMAIN=vault.example.com</code> on its own <code>export</code> line above the <code>curl</code>.</p>
+                    </details>
 
                     <p style="margin-top: 1.25rem;"><a href="/deploy/digitalocean/">Advanced options &amp; troubleshooting &rarr;</a> &mdash; the SSH path (watch it install line by line), driving it from <code>doctl</code>, bringing your own domain, alternative ingress, and pitfalls.</p>
-                </div>
-
-                {# ---- PATH 3: Advanced / other ---- #}
-                <div class="path-panel" id="panel-advanced" role="region" aria-labelledby="path-advanced">
-                    <h3>Advanced / other</h3>
-                    <p>The same bun-native flow works anywhere you have a box. Reach for these when you want something other than the happy path above.</p>
-                    <ul>
-                        <li><strong>Any other VPS.</strong> Hetzner, EC2, Linode, or a box in your closet &mdash; same <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code> flow. On an SSH'd server <code>init</code> pre-selects public exposure so the wizard URL is reachable. See <a href="/deploy/vps/">Deploy to any VPS</a>.</li>
-                        <li><strong>Bring your own domain.</strong> Point an A record at the box and set <code>PARACHUTE_DOMAIN="vault.example.com"</code> &mdash; Caddy certs your domain instead of the zero-config <code>&lt;ip&gt;.sslip.io</code> host. Sturdier for anything long-lived.</li>
-                        <li><strong>Alternative ingress.</strong> Prefer not to open ports 80/443, or want a private tailnet-only hub? A <strong>Cloudflare Tunnel</strong> (<code>parachute expose public --cloudflare --domain vault.example.com</code>) or <strong>Tailscale</strong> (<code>parachute expose public</code> &rarr; a <code>*.ts.net</code> URL) both work as alternatives to Caddy-direct.</li>
-                    </ul>
-                    <p style="margin-top: 1.25rem;">Full walkthroughs, the SSH path, cloud-init internals, and pitfalls live in the deep guide: <a href="/deploy/digitalocean/">Deploy to DigitalOcean &rarr;</a> (the same flow applies to any VPS).</p>
                 </div>
 
             </div>
