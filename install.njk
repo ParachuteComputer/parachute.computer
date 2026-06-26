@@ -25,7 +25,7 @@ permalink: /start/
             <label>s carry the visible focus ring (see style.css). DO is
             checked by default. Wrapped in a <fieldset> for semantics.
         #}
-        <fieldset class="path-picker">
+        <fieldset class="path-picker" id="pick-your-path">
             <legend class="visually-hidden">Where should Parachute run?</legend>
 
             <input class="path-radio" type="radio" name="install-path" id="path-local"
@@ -42,7 +42,7 @@ permalink: /start/
                 </label>
 
                 <label class="path-card path-card-recommended" for="path-do">
-                    <span class="path-card-flag">&#9733; Recommended</span>
+                    <span class="path-card-flag" aria-hidden="true">&#9733; Recommended</span>
                     <span class="path-card-title">DigitalOcean &mdash; always-on</span>
                     <span class="path-card-desc">A real Parachute your phone and your AIs can reach around the clock, even when your laptop's shut. Zero-SSH: paste one block, set your password in the browser. ~$6/mo.</span>
                 </label>
@@ -84,7 +84,7 @@ permalink: /start/
                         </ul>
                     </details>
 
-                    <p style="margin-top: 1.25rem;">Want it reachable from your phone and your AIs around the clock? Move to an <a href="#" class="switch-to-do">always-on DigitalOcean box</a> anytime &mdash; same stack, nothing's locked in.</p>
+                    <p style="margin-top: 1.25rem;">Want it reachable from your phone and your AIs around the clock? Move to an <a href="#pick-your-path" class="switch-to-do">always-on DigitalOcean box</a> anytime &mdash; same stack, nothing's locked in.</p>
                 </div>
 
                 {# ---- PATH 2: DigitalOcean (default) ---- #}
