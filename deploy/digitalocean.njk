@@ -1,161 +1,199 @@
 ---
 layout: base.njk
 title: "Deploy to DigitalOcean"
-description: "Run your own Parachute on a $6/mo DigitalOcean droplet — one command stands up hub + vault. The durable, own-your-data path: your box, your Cloudflare or Tailscale account, your bytes."
+description: "Render-like, zero-SSH self-host: paste one cloud-init block into a DigitalOcean droplet with your admin creds, wait ~2-3 min, open the public HTTPS URL, and log in. Caddy terminates TLS; you own every byte."
 permalink: /deploy/digitalocean/
 ---
 <main>
 
     <section class="hero">
         <h1 class="fade-up fade-up-2">Deploy to DigitalOcean</h1>
-        <p class="tagline fade-up fade-up-3">One command on a $6/mo droplet stands up hub + vault. Own every byte.</p>
+        <p class="tagline fade-up fade-up-3">Paste one block, wait, open the URL, log in. Never SSH. Own every byte.</p>
     </section>
 
     <section class="section">
-        <h2>Why this path?</h2>
+        <h2>The zero-SSH path</h2>
 
-        <p>A DigitalOcean droplet is the <strong>simplest way to a real, always-on Parachute</strong> &mdash; one your phone and your AIs can reach even when your laptop is closed. One command stands up your hub + vault; you own every byte. It's the path we point most people to once they're past kicking the tires on their laptop.</p>
+        <p>This is the <strong>Render-like</strong> way to stand up a real, always-on Parachute: create a droplet, paste <strong>one cloud-init block</strong> (with the admin login you want), wait a couple of minutes, then open the <strong>public HTTPS URL</strong> and sign in. <strong>You never SSH in.</strong> The droplet self-installs hub + vault, gets a real Let's Encrypt certificate via <a href="https://caddyserver.com" target="_blank" rel="noopener">Caddy</a>, and seeds your admin account — all on first boot.</p>
 
         <ul>
             <li><strong>Always on.</strong> A $6/mo Linux box <em>you</em> rent doesn't sleep when your laptop does &mdash; your vault stays reachable around the clock.</li>
-            <li><strong>Fully yours.</strong> Your hub + vault run on your box, fronted by <em>your</em> Cloudflare or Tailscale account. No tenancy, no shared database, no Parachute-operated cloud between you and your data. Everything lives on your disk under <code>~/.parachute/</code>.</li>
+            <li><strong>Fully yours.</strong> Hub + vault run on your box; Caddy on the same box terminates TLS. No tenancy, no shared database, no Parachute-operated cloud between you and your data. Everything lives on your disk under <code>~/.parachute/</code>.</li>
+            <li><strong>Real public HTTPS, no DNS chore.</strong> Bring a domain if you have one; otherwise the install derives a working HTTPS hostname from the droplet's IP automatically (via <code>sslip.io</code>) so Let's Encrypt just works.</li>
         </ul>
 
-        <p><strong>Honest framing up front:</strong> standing up the box is one command. Making it reachable from your phone and from claude.ai is a <em>deliberate</em> second step that uses <strong>your own</strong> Cloudflare account + domain (or a Tailscale Funnel). That's the price of owning the URL and the bytes &mdash; it is not zero-config, and we won't pretend it is.</p>
-
-        <p>Just want to try Parachute instantly? <a href="/start/">Install it on your laptop</a> first &mdash; same stack, free, but it sleeps when your machine does. Come back here when you want an always-on home.</p>
+        <p>Just want to kick the tires? <a href="/start/">Install it on your laptop</a> first &mdash; same stack, free, but it sleeps when your machine does. Come back here when you want an always-on home.</p>
     </section>
 
-    <section class="section" id="fastest">
-        <h2>Fastest: unattended install (paste into User Data)</h2>
+    <section class="section" id="zero-ssh">
+        <h2>1. Create the droplet with your creds in User Data</h2>
 
-        <p>The quickest path skips the SSH-and-curl step entirely: hand DigitalOcean a <strong>cloud-init User Data</strong> script and the droplet <em>self-installs Parachute on first boot</em>. You create the droplet, wait ~2&ndash;3 minutes, and the hub + vault are already running &mdash; no shell session needed to stand it up.</p>
-
-        <h3>1. Create the droplet with User Data</h3>
-        <p>In the DigitalOcean console (<a href="https://cloud.digitalocean.com" target="_blank" rel="noopener">cloud.digitalocean.com</a>) &rarr; <strong>Create &rarr; Droplets</strong>:</p>
-        <ul>
-            <li><strong>Image:</strong> Ubuntu 24.04 (LTS) x64. <strong>Size:</strong> $6/mo (1 GB) for hub + vault. <strong>Region:</strong> nearest you.</li>
-            <li><strong>Authentication:</strong> add your SSH key (you'll still want to SSH in afterward to set your password and expose).</li>
-            <li>Expand <strong>Advanced options &rarr; Add Initialization scripts (user data)</strong> and paste this small bootstrap:</li>
-        </ul>
-        <div class="code-inline">
-            <code>#!/bin/bash<br>curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
-        </div>
-        <p>Click <strong>Create</strong>. cloud-init runs that script as root early in first boot. The install is the same one the manual path runs &mdash; it's hardened for unattended boots (no terminal needed; it waits out apt's first-boot locks; it writes a setup summary to disk since you won't see its live output). Give it <strong>~2&ndash;3 minutes</strong> after the droplet shows "Active."</p>
-
-        <h3>2. Or, with the <code>doctl</code> CLI &mdash; one line</h3>
-        <p>If you drive DigitalOcean from the command line (<a href="https://docs.digitalocean.com/reference/doctl/how-to/install/" target="_blank" rel="noopener">doctl</a>), the whole create-with-user-data is a single command &mdash; it streams the install script straight in as User Data:</p>
-        <div class="code-inline">
-            <code>doctl compute droplet create parachute \<br>&nbsp;&nbsp;--image ubuntu-24-04-x64 --size s-1vcpu-1gb --region nyc3 \<br>&nbsp;&nbsp;--ssh-keys &lt;your-key-fingerprint&gt; \<br>&nbsp;&nbsp;--user-data-file &lt;(curl -fsSL https://parachute.computer/install/digitalocean.sh) --wait</code>
-        </div>
-        <p>Find your key's fingerprint (or its numeric ID &mdash; <code>--ssh-keys</code> accepts either) with <code>doctl compute ssh-key list</code>. <code>--wait</code> blocks until the droplet is Active. (The <code>&lt;(...)</code> process substitution feeds the live script in as the user-data file &mdash; it's a bash feature, so run this from bash/zsh.)</p>
-
-        <h3>3. SSH in, set your password, expose</h3>
-        <p>Once it's had its couple of minutes, SSH in. The install left a summary on the box &mdash; it has your admin URL and the one-time bootstrap token (since you never saw the live output):</p>
-        <div class="code-inline">
-            <code>ssh root@&lt;your-droplet-ip&gt;<br>cat /root/parachute-setup.txt&nbsp;&nbsp;&nbsp;# admin URL, bootstrap token, exact next commands</code>
-        </div>
-        <p>If that file isn't there yet, cloud-init is probably still running &mdash; watch it with <code>tail -f /var/log/cloud-init-output.log</code> (the full install log lands there too). Then create your owner account by setting a password:</p>
-        <div class="code-inline">
-            <code>parachute auth set-password --username &lt;you&gt; --password &lt;your-password&gt;</code>
-        </div>
-        <p class="muted" style="font-size:0.9em;">If <code>parachute</code> isn't found, open a fresh shell (or run <code>export PATH="$HOME/.bun/bin:$PATH"</code>) so the freshly-installed binary is on your PATH.</p>
-        <p>&hellip;and <a href="#expose">expose it</a> &mdash; that's the durable bring-your-own-account step (Cloudflare or Tailscale), the same for every path on this page. Public exposure is deliberately <em>not</em> part of the unattended boot: it uses <em>your own</em> account, so the URL and the bytes stay yours.</p>
-
-        <p class="cta-secondary" style="margin-top:1.25rem;">Want to watch it install step by step instead, or read the script before it runs? The <a href="#the-flow">manual curl&nbsp;|&nbsp;bash flow</a> below is the same install, run by hand.</p>
-    </section>
-
-    <section class="section" id="the-flow">
-        <h2>Or, step by step: SSH in and run it yourself</h2>
-
-        <p>Prefer to watch it install line by line (or read the script before piping it to your shell)? Same four steps, run by hand.</p>
-
-        <h3>1. Create a droplet</h3>
         <p>In the DigitalOcean console (<a href="https://cloud.digitalocean.com" target="_blank" rel="noopener">cloud.digitalocean.com</a>) &rarr; <strong>Create &rarr; Droplets</strong>:</p>
         <ul>
             <li><strong>Image:</strong> Ubuntu 24.04 (LTS) x64.</li>
-            <li><strong>Size:</strong> Basic / Regular shared CPU. <strong>$6/mo (1 GB / 1 vCPU)</strong> comfortably runs hub + vault &mdash; the RAM headroom matters for Bun and the vault index. Pick <strong>$12/mo (2 GB)</strong> if you'll also run Claude Code on the box, or add the scribe (transcription) module.</li>
+            <li><strong>Size:</strong> $6/mo (1 GB) for hub + vault. Pick <strong>$12/mo (2 GB)</strong> if you want on-box transcription (Scribe) or to run Claude Code on the box.</li>
             <li><strong>Region:</strong> nearest you.</li>
-            <li><strong>Authentication:</strong> SSH Key (add your public key at creation &mdash; you'll SSH in next).</li>
+            <li><strong>Authentication:</strong> add an SSH key if you like &mdash; but for this path you won't need it.</li>
+            <li>Expand <strong>Advanced options &rarr; Add Initialization scripts (user data)</strong> and paste the block below, <strong>filling in your admin username + password</strong>:</li>
         </ul>
-        <p>Create &rarr; wait ~30 seconds &rarr; note the public IPv4.</p>
 
-        <h3>2. SSH in</h3>
-        <div class="code-inline">
-            <code>ssh root@&lt;your-droplet-ip&gt;</code>
+        <div class="code-inline" style="text-align:left;">
+            <code>#!/bin/bash<br>
+            export PARACHUTE_ADMIN_USERNAME="you"<br>
+            export PARACHUTE_ADMIN_PASSWORD="choose-a-strong-one-12-chars-min"<br>
+            <span class="muted"># export PARACHUTE_DOMAIN="vault.example.com"&nbsp;&nbsp;# optional &mdash; see below</span><br>
+            curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
         </div>
 
-        <h3>3. Run the one-command setup</h3>
-        <div class="code-inline">
-            <code>curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
-        </div>
-        <p>That script, on a fresh droplet:</p>
-        <ul>
-            <li>Installs <strong>Bun</strong> (the runtime Parachute is built on).</li>
-            <li>Installs <code>@openparachute/hub</code> + <code>@openparachute/vault</code> globally.</li>
-            <li>Runs <code>parachute init</code> &mdash; installs and starts the hub as a <code>systemd</code> unit (survives reboots), installs the vault, and prints your local admin URL + a one-time bootstrap token.</li>
-        </ul>
-        <p>It's <strong>idempotent</strong> &mdash; safe to re-run; each step skips itself if already done. When it finishes, the hub is running on <strong>:1939</strong> and the vault behind it. (Want to read the script before piping it to your shell? It's plain text at the same URL &mdash; open it in a browser first.)</p>
-
-        <h3>4. Finish the wizard</h3>
-        <p>The script already started the hub and installed the vault; it deliberately stops before exposing your hub publicly. This step creates your admin account (using the one-time bootstrap token the script printed) and confirms the vault &mdash; either way:</p>
-        <ul>
-            <li><strong>Headless, right on the box:</strong> <code>parachute init --cli-wizard</code> walks Account &rarr; Vault &rarr; Expose in the terminal.</li>
-            <li><strong>Browser, over an SSH tunnel:</strong> from your laptop, <code>ssh -L 1939:127.0.0.1:1939 root@&lt;droplet-ip&gt;</code>, then open <code>http://127.0.0.1:1939/admin/setup</code> in your laptop browser and paste the bootstrap token the script printed.</li>
-        </ul>
+        <p>Click <strong>Create</strong>. cloud-init runs that script as root early in first boot.</p>
 
         <aside class="upgrade-callout">
-            <strong>A true 1-click DigitalOcean Marketplace image is on the roadmap.</strong>
-            <p>A pre-baked Marketplace droplet &mdash; pick "Parachute" from the image list, no User Data to paste &mdash; is planned. Until then, the User Data path above is the closest thing: paste one bootstrap line and the droplet self-installs on first boot.</p>
+            <strong>Why a <code>#!/bin/bash</code> block (not <code>#cloud-config</code>)?</strong>
+            <p>A plain shell script runs as <em>one</em> shell, so the <code>export</code> lines above are in scope when the install script runs &mdash; that's how your username, password, and optional domain reach it. (A <code>#cloud-config</code> <code>runcmd:</code> list runs each line as a <em>separate</em> shell, so exports there wouldn't carry over to the <code>curl | bash</code>.) Keep the <code>#!/bin/bash</code> first line exactly as shown.</p>
         </aside>
+
+        <p class="muted" style="font-size:0.9em;"><strong>Security tradeoff:</strong> your password sits in DO User Data (visible on the box and in the DO console). Use a strong, throwaway-grade one and change it after first login. Omit the admin lines entirely and you'll finish setup the old way (a one-time bootstrap token on the box) &mdash; see <a href="#no-creds">No creds in User Data</a>.</p>
     </section>
 
-    <section class="section" id="expose">
-        <h2>Expose it &mdash; the durable, own-your-data step</h2>
+    <section class="section" id="wait-and-open">
+        <h2>2. Wait ~2&ndash;3 minutes, then open the URL</h2>
 
-        <p>This is where you bring your own account. Public exposure uses <em>your</em> Cloudflare domain or <em>your</em> Tailscale tailnet, so the URL and the data stay yours &mdash; that's the whole point of self-hosting. Two ways:</p>
+        <p>Give the droplet a couple of minutes after it shows <strong>Active</strong> &mdash; cloud-init waits for the network and apt, installs everything, and Caddy fetches a TLS cert on the first HTTPS hit.</p>
 
-        <h3>Cloudflare Tunnel &mdash; clean public HTTPS</h3>
-        <p>This is what claude.ai's connector needs. You need a domain on a Cloudflare zone (the free tier is fine):</p>
+        <ul>
+            <li><strong>With a domain:</strong> open <code>https://&lt;your-domain&gt;</code>.</li>
+            <li><strong>Without a domain:</strong> open <code>https://&lt;droplet-ip&gt;.sslip.io</code> &mdash; substitute your droplet's public IPv4 (dots and all), e.g. <code>https://203.0.113.5.sslip.io</code>.</li>
+        </ul>
+
+        <p>Sign in with the username + password you put in User Data. That's it &mdash; you're in your own hub, vault running behind it. <a href="#connect">Connect your AI</a> next.</p>
+
+        <p class="muted" style="font-size:0.9em;">First load can take a few extra seconds while Let's Encrypt issues the cert. If it doesn't come up after ~5 minutes, see <a href="#pitfalls">Pitfalls</a> (or fall back to the <a href="#manual">SSH path</a> to watch the install log).</p>
+    </section>
+
+    <section class="section" id="domain">
+        <h2>Bring a domain (optional, sturdier)</h2>
+
+        <p>The zero-config default uses <code>&lt;ip&gt;.sslip.io</code> &mdash; <a href="https://sslip.io" target="_blank" rel="noopener">sslip.io</a> is wildcard DNS that resolves any <code>&lt;ip&gt;.sslip.io</code> straight to that IP, so Let's Encrypt's HTTP-01 challenge works with <strong>zero DNS setup</strong>. Perfect for getting started.</p>
+
+        <p>For anything long-lived, a domain you own is sturdier: every <code>sslip.io</code> host shares <em>one</em> Let's Encrypt registered-domain rate limit, so a busy day across all users can hit the cap. To use your own:</p>
+        <ol>
+            <li>Point an <strong>A record</strong> for your hostname (e.g. <code>vault.example.com</code>) at the droplet's public IP.</li>
+            <li>Set <code>PARACHUTE_DOMAIN="vault.example.com"</code> in the User Data block (uncomment the line).</li>
+        </ol>
+        <p>Caddy then certs your domain instead. (If DNS hasn't propagated when the script runs, just SSH in once and re-run the <code>curl &hellip; | bash</code> &mdash; it's idempotent.)</p>
+    </section>
+
+    <section class="section" id="doctl">
+        <h2>Drive it from the CLI (doctl)</h2>
+        <p>If you script DigitalOcean (<a href="https://docs.digitalocean.com/reference/doctl/how-to/install/" target="_blank" rel="noopener">doctl</a>), put the same User Data in a file and create the droplet in one command. Save the block from <a href="#zero-ssh">step 1</a> (with your creds) as <code>parachute-user-data.sh</code>, then:</p>
         <div class="code-inline">
-            <code>parachute expose public --cloudflare --domain vault.example.com</code>
+            <code>doctl compute droplet create parachute \<br>&nbsp;&nbsp;--image ubuntu-24-04-x64 --size s-1vcpu-1gb --region nyc3 \<br>&nbsp;&nbsp;--user-data-file parachute-user-data.sh --wait</code>
         </div>
-        <p>The apex (<code>example.com</code>) must already be a Cloudflare zone. <strong>Expose <em>creates</em> the tunnel</strong> &mdash; don't pre-create it. Each machine gets its own per-hostname tunnel name (no account-wide collision). The <code>cloudflared</code> connector installs as its own managed unit, so the tunnel returns automatically after a reboot.</p>
-
-        <h3>Tailscale Funnel &mdash; no domain needed</h3>
-        <p>If you'd rather not own a domain, set up <a href="https://tailscale.com" target="_blank" rel="noopener">Tailscale</a> on the droplet, then:</p>
-        <div class="code-inline">
-            <code>parachute expose public</code>
-        </div>
-        <p>That gives you a <code>*.ts.net</code> URL. It's the smooth private path; the tailnet-fronted setup is the more-hardened of the two. Cloudflare public HTTPS is what works with claude.ai's connector today.</p>
-
-        <aside class="upgrade-callout">
-            <strong>Cloudflare Bot Fight Mode breaks the Claude connector.</strong>
-            <p>The symptom is sneaky: consent passes in your browser, then the integration is "rejected the credentials." Under the hood, Claude's server-to-server token exchange gets a 403. Fix it in <strong>Cloudflare &rarr; Security &rarr; Bots</strong>: turn off Bot Fight Mode / Super Bot Fight Mode / Browser Integrity Check for the zone, or add a WAF Skip rule for <code>/oauth/*</code>, <code>/.well-known/*</code>, and <code>/vault/*</code>. Also remove any Cloudflare Access policy on the host. Confirm the fix with <code>curl -A python-requests https://&lt;host&gt;/.well-known/oauth-authorization-server</code>.</p>
-        </aside>
+        <p><code>--wait</code> blocks until the droplet is Active; give it the usual couple of minutes after that, then open your URL. (Add <code>--ssh-keys &lt;fingerprint&gt;</code> if you want SSH access too &mdash; not required.)</p>
     </section>
 
     <section class="section" id="connect">
-        <h2>Connect your AI</h2>
+        <h2>3. Connect your AI</h2>
 
-        <p>Once exposed, point any MCP client at your vault:</p>
+        <p>Point any MCP client at your vault:</p>
         <div class="code-inline">
-            <code>&lt;your-hub-origin&gt;/vault/&lt;vault-name&gt;/mcp</code>
+            <code>https://&lt;your-host&gt;/vault/default/mcp</code>
         </div>
-        <p>The done screen (and the admin SPA's <strong>Connect</strong> toggle on each vault row) hands you a copy-paste <code>claude mcp add</code> command with a fresh token, plus the per-client steps for Claude.ai, Codex, Goose, and others. Then try the two starter prompts: the <a href="/onboarding/vault-setup/">set-up-your-vault prompt</a> (connect your AI and say "help me set up my parachute") to fill your vault, then the <a href="/onboarding/surface-build/">build-a-surface prompt</a> to shape a custom view over it.</p>
+        <p>(<code>default</code> is your vault name unless you changed it; the <code>/mcp</code> suffix is required.) The admin SPA's <strong>Connect</strong> toggle on each vault row hands you a copy-paste <code>claude mcp add</code> command with a fresh token, plus per-client steps for Claude.ai, ChatGPT, Codex, Goose, and others. Then try the two starter prompts: the <a href="/onboarding/vault-setup/">set-up-your-vault prompt</a> (connect your AI and say &ldquo;help me set up my parachute&rdquo;) to fill your vault, then the <a href="/onboarding/surface-build/">build-a-surface prompt</a> to shape a custom view over it.</p>
+
+        <aside class="upgrade-callout">
+            <strong>Claude connector fails right after consent?</strong>
+            <p>If you put Cloudflare (or another edge/WAF) <em>in front</em> of your domain, its bot protection can <code>403</code> Claude's server-to-server token exchange &mdash; consent passes in your browser, then the integration "rejected the credentials." This isn't a Parachute bug. With the Caddy-direct path here there's no Cloudflare edge in the way, so you typically won't hit it. If you do front the box with Cloudflare, turn off Bot Fight Mode / Browser Integrity Check for the zone (Security &rarr; Bots), or add a WAF Skip rule for <code>/oauth/*</code>, <code>/.well-known/*</code>, and <code>/vault/*</code>. Confirm with <code>curl -A python-requests https://&lt;host&gt;/.well-known/oauth-authorization-server</code>.</p>
+        </aside>
     </section>
 
-    <section class="section">
+    <hr style="margin: 3rem 0; border: none; border-top: 1px solid var(--border);">
+
+    <section class="section" id="manual">
+        <h2>Prefer to watch it install? The SSH path</h2>
+
+        <p>Want to read the script before piping it to your shell, or watch it install line by line? Same install, run by hand &mdash; this is also the fallback if the zero-SSH boot didn't come up.</p>
+
+        <h3>1. Create a droplet (Ubuntu 24.04, add your SSH key)</h3>
+        <p>Same sizing as above. Add your SSH public key at creation, note the public IPv4, wait ~30 seconds.</p>
+
+        <h3>2. SSH in and run it (with your creds inline)</h3>
+        <div class="code-inline">
+            <code>ssh root@&lt;your-droplet-ip&gt;</code>
+        </div>
+        <p>Then run the install, passing the same env vars on the command line:</p>
+        <div class="code-inline" style="text-align:left;">
+            <code>export PARACHUTE_ADMIN_USERNAME="you"<br>
+            export PARACHUTE_ADMIN_PASSWORD="choose-a-strong-one-12-chars-min"<br>
+            <span class="muted"># export PARACHUTE_DOMAIN="vault.example.com"&nbsp;&nbsp;# optional</span><br>
+            curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
+        </div>
+        <p>The script, on a fresh droplet:</p>
+        <ul>
+            <li>Installs <strong>Bun</strong> + <code>@openparachute/hub</code> + <code>@openparachute/vault</code>.</li>
+            <li>Derives your public hostname (your domain, or <code>&lt;ip&gt;.sslip.io</code>).</li>
+            <li>Runs <code>parachute init --hub-origin https://&lt;host&gt;</code> &mdash; persists the public origin <em>before</em> modules start, installs + starts the hub as a <code>systemd</code> unit (survives reboots), installs the vault.</li>
+            <li>Seeds your admin account from the env vars (no browser/token needed).</li>
+            <li>Installs + configures <strong>Caddy</strong> to terminate Let's Encrypt TLS and reverse-proxy to the loopback hub.</li>
+            <li>Decides transcription by RAM (see <a href="#transcription">below</a>).</li>
+        </ul>
+        <p>It's <strong>idempotent</strong> &mdash; safe to re-run; each step skips itself if already done. It logs each step clearly, so a live run is easy to follow. When it finishes, open your public URL and sign in.</p>
+
+        <h3 id="no-creds">No creds in User Data? Finish over SSH</h3>
+        <p>If you omit <code>PARACHUTE_ADMIN_*</code>, the install doesn't fail &mdash; it leaves a summary at <code>/root/parachute-setup.txt</code> with the public URL and how to finish. Create your owner account by setting a password (DB-direct, no token needed):</p>
+        <div class="code-inline">
+            <code>parachute auth set-password --username &lt;you&gt; --password &lt;12+ chars&gt;</code>
+        </div>
+        <p class="muted" style="font-size:0.9em;">If <code>parachute</code> isn't found, open a fresh shell (or run <code>export PATH="$HOME/.bun/bin:$PATH"</code>) so the freshly-installed binary is on your PATH. Then open the public URL and sign in.</p>
+
+        <aside class="upgrade-callout">
+            <strong>A true 1-click DigitalOcean Marketplace image is on the roadmap.</strong>
+            <p>A pre-baked Marketplace droplet &mdash; pick "Parachute" from the image list, no User Data to paste &mdash; is planned. Until then, the cloud-init path above is the closest thing: paste one block and the droplet self-installs, certs, and seeds your admin on first boot.</p>
+        </aside>
+    </section>
+
+    <section class="section" id="transcription">
+        <h2>Transcription &mdash; decided by RAM</h2>
+        <p>The install picks a sensible default for voice transcription (Scribe) based on the box:</p>
+        <ul>
+            <li><strong>≥2 GB RAM</strong> (the $12 droplet) &mdash; it installs the <strong>local</strong> Scribe engine on-box (runs entirely on your hardware, no API key). Set <code>PARACHUTE_TRANSCRIBE=none</code> to skip it.</li>
+            <li><strong>&lt;2 GB RAM</strong> (the $6 droplet) &mdash; local ASR is too tight, so it's skipped. Add a <strong>cloud</strong> provider key (e.g. <a href="https://groq.com" target="_blank" rel="noopener">Groq</a>, ~$0.04/hr) later in the admin UI, or resize to 2 GB. Force this with <code>PARACHUTE_TRANSCRIBE=cloud</code>.</li>
+        </ul>
+        <p>Transcription setup is <strong>non-fatal</strong> &mdash; if the engine install hiccups, the rest of your hub still comes up fine; you just add transcription from the admin UI afterward.</p>
+    </section>
+
+    <section class="section" id="alt-ingress">
+        <h2>Alternative ingress (advanced)</h2>
+
+        <p>The Caddy-direct path above is the recommended ingress &mdash; clean public HTTPS, no third party in the request path. If you specifically prefer a tunnel (e.g. you don't want to open ports 80/443, or you want a private tailnet-only hub), these still work. They're not the default.</p>
+
+        <h3>Cloudflare Tunnel</h3>
+        <p>A tunnel instead of Caddy &mdash; no inbound ports open; needs a domain on a Cloudflare zone (free tier fine). SSH in and run:</p>
+        <div class="code-inline">
+            <code>parachute expose public --cloudflare --domain vault.example.com</code>
+        </div>
+        <p>The apex (<code>example.com</code>) must already be a Cloudflare zone. <strong>Expose <em>creates</em> the tunnel</strong> &mdash; don't pre-create it. Each machine gets its own per-hostname tunnel name (no account-wide collision); the <code>cloudflared</code> connector installs as its own managed unit and returns after a reboot. Note: Cloudflare's Bot Fight Mode can break the Claude connector (see the box in <a href="#connect">Connect your AI</a>).</p>
+
+        <h3>Tailscale Funnel &mdash; no domain, private-leaning</h3>
+        <p>If you'd rather not own a domain or open ports, set up <a href="https://tailscale.com" target="_blank" rel="noopener">Tailscale</a> on the droplet, then:</p>
+        <div class="code-inline">
+            <code>parachute expose public</code>
+        </div>
+        <p>That gives you a <code>*.ts.net</code> URL on your tailnet.</p>
+    </section>
+
+    <section class="section" id="pitfalls">
         <h2>Pitfalls</h2>
 
-        <p>Most of these you'll never hit. The Cloudflare bot-protection one above is the most common when wiring up the Claude connector.</p>
+        <p>Most of these you'll never hit.</p>
 
         <ul>
-            <li><strong>Unattended (User Data) install still running?</strong> On first boot, cloud-init runs the script after the network and apt are ready, so it can take a couple of minutes. If <code>/root/parachute-setup.txt</code> isn't there yet when you SSH in, watch <code>tail -f /var/log/cloud-init-output.log</code> &mdash; the full install output (including the bootstrap token) streams there. The script waits out apt's early-boot package locks rather than failing on them.</li>
-            <li><strong>Bun 1.3+ required.</strong> The setup script installs the latest; if you had an older Bun pre-seeded, run <code>bun upgrade</code>. Run <code>parachute</code> commands in a <em>fresh</em> shell so <code>~/.bun/bin</code> is on your PATH (the script appends it to your <code>~/.bashrc</code>).</li>
-            <li><strong>Non-root reboot survival needs linger.</strong> The script installs as root by default (a system unit, reboot-safe). If you installed as a non-root user instead, run <code>sudo loginctl enable-linger $USER</code> so the user unit starts at boot.</li>
-            <li><strong>Ports 1939 (hub) / 1940 (vault behind it).</strong> Don't expose 1940 &mdash; clients use the hub origin + <code>/mcp</code>. With a Cloudflare Tunnel you don't open 1939 or 1940 publicly at all.</li>
-            <li><strong>RAM headroom.</strong> The $6 droplet (1 GB) is comfortable for hub + vault. Add the scribe or run Claude Code on the box and you'll want the $12 (2 GB) droplet.</li>
+            <li><strong>URL not up after a few minutes?</strong> On first boot, cloud-init runs after the network and apt are ready, so the install can take a couple of minutes; Caddy then needs a moment to fetch the TLS cert on the first HTTPS hit. If it's still down after ~5 minutes, SSH in and check: <code>cat /root/parachute-setup.txt</code> (the install summary), <code>tail -f /var/log/cloud-init-output.log</code> (the full install log), and <code>systemctl status caddy</code> / <code>journalctl -u caddy</code> (the TLS terminator).</li>
+            <li><strong>Ports 80 + 443 must be reachable.</strong> Caddy needs them for the Let's Encrypt challenge and to serve HTTPS. DO droplets have no firewall by default &mdash; fine. If you enabled <code>ufw</code>, run <code>ufw allow 80,443/tcp</code>.</li>
+            <li><strong>Password too short.</strong> The hub requires a 12+ character password. If <code>PARACHUTE_ADMIN_PASSWORD</code> is shorter, the install skips seeding (and says so in the summary) rather than failing &mdash; set a longer one and re-run, or seed over SSH.</li>
+            <li><strong>sslip.io rate limit.</strong> If Caddy can't get a cert for an <code>&lt;ip&gt;.sslip.io</code> host, the shared Let's Encrypt rate limit may be temporarily hit &mdash; <a href="#domain">bring your own domain</a> (its own budget) and re-run.</li>
+            <li><strong>Bun 1.3+ required.</strong> The setup script installs the latest. Run <code>parachute</code> commands in a <em>fresh</em> shell so <code>~/.bun/bin</code> is on your PATH (the script appends it to <code>~/.bashrc</code>).</li>
+            <li><strong>Non-root reboot survival needs linger.</strong> The script installs as root by default (a system unit, reboot-safe). If you installed as a non-root user, run <code>sudo loginctl enable-linger $USER</code>.</li>
             <li><strong>Keep current.</strong> <code>parachute upgrade</code> (add <code>--channel rc</code> for release candidates). DB migrations run on the first post-upgrade boot.</li>
         </ul>
     </section>
@@ -165,8 +203,8 @@ permalink: /deploy/digitalocean/
 
         <p>All figures <em>approximate</em> &mdash; check current DigitalOcean pricing.</p>
         <ul>
-            <li><strong>Droplet:</strong> $6/mo (1 GB) for hub + vault; $12/mo (2 GB) if you'll also run Claude Code or the scribe on the box.</li>
-            <li><strong>Domain + Cloudflare:</strong> the Cloudflare zone is free; you only pay for the domain you already own. TLS is included via the tunnel. Tailscale Funnel is free for personal use and needs no domain.</li>
+            <li><strong>Droplet:</strong> $6/mo (1 GB) for hub + vault; $12/mo (2 GB) for on-box transcription or to run Claude Code on the box.</li>
+            <li><strong>TLS:</strong> free &mdash; Caddy provisions Let's Encrypt certs automatically. <code>sslip.io</code> hostnames are free and need no DNS setup; a domain you own is sturdier for production (and just the cost of the domain).</li>
         </ul>
         <p><em>Compare:</em> the same stack on your own Mac or Linux box is free, but you give up the always-on URL and the "works from my phone, anywhere" property. The $6 droplet is that trade, owned end to end.</p>
     </section>
@@ -174,13 +212,13 @@ permalink: /deploy/digitalocean/
     <section class="section">
         <h2>What you get</h2>
 
-        <p>One <code>systemd</code> unit running the hub on :1939 &mdash; with reboot survival and admin-UI module management &mdash; supervising your vault as a child process. The script installs <strong>hub + vault</strong>; add <a href="https://github.com/ParachuteComputer/parachute-surface" target="_blank">surface</a> (the UI host &mdash; <a href="https://github.com/ParachuteComputer/parachute-surface/tree/main/packages/notes-ui" target="_blank">Notes</a> auto-bootstraps on its first install) and <a href="https://github.com/ParachuteComputer/parachute-scribe" target="_blank">Scribe</a> (transcription) later from the admin UI, and the hub supervises them as child processes too. Everything lives under <code>~/.parachute/</code> on the droplet's own disk &mdash; you fully own it. See the <a href="/design/2026-05-18-v06-deploy-architecture/">v0.6 deploy architecture note</a> for the full shape.</p>
+        <p>One <code>systemd</code> unit running the hub on :1939 &mdash; with reboot survival and admin-UI module management &mdash; supervising your vault as a child process, with <strong>Caddy</strong> in front terminating public HTTPS. The script installs <strong>hub + vault</strong> (and optionally local transcription); add <a href="https://github.com/ParachuteComputer/parachute-surface" target="_blank">Surface</a> (the UI host &mdash; <a href="https://github.com/ParachuteComputer/parachute-surface/tree/main/packages/notes-ui" target="_blank">Notes</a> auto-bootstraps on its first install) and <a href="https://github.com/ParachuteComputer/parachute-scribe" target="_blank">Scribe</a> later from the admin UI, and the hub supervises them as child processes too. Everything lives under <code>~/.parachute/</code> on the droplet's own disk &mdash; you fully own it. See the <a href="/design/2026-05-18-v06-deploy-architecture/">v0.6 deploy architecture note</a> for the full shape.</p>
     </section>
 
     <section class="section">
         <h2>What comes next</h2>
         <ul>
-            <li><a href="/deploy/vps/">Deploy to any VPS</a> &mdash; the same flow on Hetzner, EC2, Linode, or a box in your closet (the manual, step-by-step version of this script).</li>
+            <li><a href="/deploy/vps/">Deploy to any VPS</a> &mdash; the same flow on Hetzner, EC2, Linode, or a box in your closet.</li>
             <li><a href="/start/">Install locally</a> &mdash; the same stack on your own machine. Free, but sleeps when your laptop sleeps.</li>
             <li><a href="/deploy/render/">Deploy to Render</a> and <a href="/deploy/fly/">Deploy to Fly.io</a> &mdash; the container PaaS paths, if you'd rather click than SSH (their build diverges from this bun-native happy path).</li>
             <li><a href="https://github.com/ParachuteComputer/parachute-hub/issues" target="_blank">parachute-hub issues</a> &mdash; deploy questions, bugs, friction. We read all of them.</li>
@@ -189,11 +227,14 @@ permalink: /deploy/digitalocean/
 
     <section class="cta">
         <h2>Own your own for $6/mo</h2>
-        <p class="cta-secondary" style="margin-bottom: 0.5rem;">Fastest &mdash; paste into a droplet's <a href="#fastest">User Data</a> and it self-installs on first boot:</p>
-        <div class="code-inline" style="margin: 0.75rem auto 1.5rem; max-width: 720px;">
-            <code>#!/bin/bash<br>curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
+        <p class="cta-secondary" style="margin-bottom: 0.5rem;">Paste this into a droplet's <a href="#zero-ssh">User Data</a> (with your admin login) and it self-installs, certs, and seeds your admin on first boot &mdash; then open the URL and sign in:</p>
+        <div class="code-inline" style="margin: 0.75rem auto 1.5rem; max-width: 720px; text-align:left;">
+            <code>#!/bin/bash<br>
+            export PARACHUTE_ADMIN_USERNAME="you"<br>
+            export PARACHUTE_ADMIN_PASSWORD="choose-a-strong-one-12-chars-min"<br>
+            curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
         </div>
-        <p class="cta-secondary">Or SSH into a fresh Ubuntu 24.04 droplet and run that <code>curl &hellip; | bash</code> line by hand. Or <a href="/start/">install locally</a> first.</p>
+        <p class="cta-secondary">Prefer to watch it install? Use the <a href="#manual">SSH path</a>. Or <a href="/start/">install locally</a> first.</p>
     </section>
 
 </main>
