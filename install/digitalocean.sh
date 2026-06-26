@@ -463,6 +463,12 @@ fi
 # Decide local vs cloud vs none from PARACHUTE_TRANSCRIBE + box RAM. EVERYTHING
 # here is wrapped so a failure NEVER aborts the curl|bash under `set -euo
 # pipefail` — transcription is a nice-to-have, not a setup gate.
+#
+# ORDERING INVARIANT: the bootstrap token was read in step 6, after the LAST hub
+# restart (step 5b). `parachute install scribe` below spawns scribe as a
+# supervised child and does NOT restart the hub (which would mint a fresh token
+# and stale the one we wrote to the summary). Keep it that way — if a future
+# `install` starts restarting the hub, move the token read to AFTER this step.
 TRANSCRIBE_NOTE=""
 MEM_KB="$(awk '/^MemTotal:/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)"
 # Guard against awk succeeding with empty output (no MemTotal line) — an empty
