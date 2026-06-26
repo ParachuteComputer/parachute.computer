@@ -27,16 +27,19 @@ permalink: /start/
             </div>
             <div class="path-card path-card-recommended">
                 <h3>Stand up an always-on home <span class="path-badge">simplest for most</span></h3>
-                <p>A real Parachute your phone and your AIs can reach around the clock &mdash; even when your laptop's shut. A <strong>$6/mo DigitalOcean droplet</strong> is the easiest always-on box: one command stands up hub + vault, and you own every byte.</p>
-                <p style="margin-bottom: 0.5rem;">Create the droplet, SSH in, then run one command (or skip the SSH entirely with cloud-init &mdash; see the guide):</p>
-                <div class="code-inline">
-                    <code>curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
+                <p>A real Parachute your phone and your AIs can reach around the clock &mdash; even when your laptop's shut. A <strong>$6/mo DigitalOcean droplet</strong> is the easiest always-on box. The <strong>zero-SSH</strong> way is Render-like: paste one cloud-init block (with the admin login you want), wait ~2&ndash;3 minutes, then open the public HTTPS URL and sign in. <strong>You never SSH in.</strong></p>
+                <p style="margin-bottom: 0.5rem;">Paste into the droplet's User Data, filling in your creds:</p>
+                <div class="code-inline" style="text-align:left;">
+                    <code>#!/bin/bash<br>
+                    export PARACHUTE_ADMIN_USERNAME="you"<br>
+                    export PARACHUTE_ADMIN_PASSWORD="a-strong-one-12-chars-min"<br>
+                    curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
                 </div>
-                <p style="margin-top: 0.75rem;"><a href="/deploy/digitalocean/">Deploy to DigitalOcean &rarr;</a> &mdash; run it by SSH, or fully unattended via cloud-init User Data (the droplet self-installs on first boot). Any <a href="/deploy/vps/">other VPS</a> (Hetzner, EC2) or a Mac you leave on works with the same flow.</p>
+                <p style="margin-top: 0.75rem;"><a href="/deploy/digitalocean/">Deploy to DigitalOcean &rarr;</a> &mdash; the droplet self-installs hub + vault, gets a real Let's Encrypt cert via Caddy, and seeds your admin on first boot. Prefer to watch it install? An SSH path is in the guide too. Any <a href="/deploy/vps/">other VPS</a> (Hetzner, EC2) or a Mac you leave on works with the same flow.</p>
             </div>
         </div>
 
-        <p style="margin-top: 1.5rem;">Either way, <code>parachute init</code> starts your hub, installs your vault &mdash; the place all your notes live &mdash; and opens a browser setup wizard: <strong>Account &rarr; Vault &rarr; Expose &rarr; Done</strong>. Start on your laptop and move to an always-on box anytime; nothing's locked in.</p>
+        <p style="margin-top: 1.5rem;"><strong>On your laptop</strong>, <code>parachute init</code> starts your hub, installs your vault &mdash; the place all your notes live &mdash; and opens a browser setup wizard: <strong>Account &rarr; Vault &rarr; Expose &rarr; Done</strong>. <strong>On DigitalOcean</strong>, the install script drives that same setup unattended &mdash; it certs the box with Caddy and seeds your admin from the creds you pasted, so you skip straight to signing in at your public URL. Start on your laptop and move to an always-on box anytime; nothing's locked in.</p>
 
         <details>
             <summary>On Bun 1.2.x / checking your version</summary>
@@ -181,7 +184,7 @@ permalink: /start/
             <li>
                 <strong>Still on your laptop?</strong> Move to an always-on home anytime &mdash; <a href="/deploy/digitalocean/">DigitalOcean &rarr;</a> (the simplest, one command), <a href="/deploy/vps/">any VPS</a> (Hetzner, EC2, or a box in your closet, same <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code> flow), or a Mac you leave on. On an SSH'd server <code>init</code> pre-selects public exposure so the wizard URL is reachable.
             </li>
-            <li><strong>Reach it from other devices.</strong> A <a href="https://tailscale.com" target="_blank">Tailnet</a> (<code>tailscale serve</code>) is the smooth private path &mdash; your hub, visible only to your own Tailscale devices. For public HTTPS that claude.ai can reach, a Cloudflare Tunnel gives you a clean public URL; see <a href="/deploy/vps/">Deploy to a VPS</a> for the full walkthrough.</li>
+            <li><strong>Reach it from other devices.</strong> On a server, the simplest public HTTPS path is Caddy-direct &mdash; the <a href="/deploy/digitalocean/">DigitalOcean install</a> sets it up for you (a real Let's Encrypt cert, no tunnel). A <a href="https://tailscale.com" target="_blank">Tailnet</a> (<code>tailscale serve</code>) is the smooth private alternative &mdash; your hub, visible only to your own Tailscale devices; a Cloudflare Tunnel is another option. See <a href="/deploy/digitalocean/">Deploy to DigitalOcean</a> or <a href="/deploy/vps/">any VPS</a> for the walkthroughs.</li>
             <li><strong>Back it up &amp; script it.</strong> Export your whole vault to portable, git-trackable markdown with <code>parachute-vault export &lt;dir&gt;</code> (and <code>import</code> back). Driving the vault from a script, cron job, or importer is covered in <a href="/scripting/">Scripting your vault</a>; hosting for friends and family is in the <a href="/multi-user/">multi-user operator guide</a>.</li>
             <li><strong>Stay current.</strong> <code>parachute upgrade</code> sweeps the hub and every installed service to the latest release. Add <code>--channel rc</code> to track release candidates. Vault migrations run automatically on first post-upgrade boot.</li>
         </ul>
