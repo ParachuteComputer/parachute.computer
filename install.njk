@@ -1,61 +1,145 @@
 ---
 layout: base.njk
 title: "Get started"
-description: "One command gets Parachute running. Connect your AI, finish the wizard, and watch your first note appear in the browser."
+description: "Pick where Parachute runs — your own Mac/Linux device, or an always-on DigitalOcean box — and the full steps appear right here. One page, no hopping around."
 permalink: /start/
 ---
 <main>
 
     <section class="hero">
         <h1 class="fade-up fade-up-2">Get started</h1>
-        <p class="tagline fade-up fade-up-3">One command. Then connect your AI, and see your first note.</p>
+        <p class="tagline fade-up fade-up-3">Pick where it runs. The steps appear right here.</p>
     </section>
 
     <section class="section">
-        <h2>1 &middot; Where should it live?</h2>
+        <h2>1 &middot; Pick your path</h2>
 
-        <p>Parachute is one command either way. Two good places to run it &mdash; pick the one that fits where you are:</p>
+        <p>Parachute is one command either way. Choose where it should live &mdash; the full steps for that path open right below. You can always start on your laptop and move to an always-on box later; nothing's locked in.</p>
 
-        <div class="path-cards">
-            <div class="path-card">
-                <h3>Try it instantly &mdash; on your laptop</h3>
-                <p>Perfect for kicking the tires. Free, runs in a minute. The catch: it sleeps when your laptop sleeps, so your phone and your AIs can't reach it while it's closed.</p>
-                <p>You'll need <a href="https://bun.sh" target="_blank">Bun</a> 1.3 or later, then:</p>
-                <div class="code-inline">
-                    <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>
-                </div>
+        {#
+            CSS-only path picker. Three radios + three card labels + three
+            panels are all siblings inside .path-picker, so the
+            `:checked ~ .path-panels > #panel-x` general-sibling selectors
+            can reveal exactly the matching panel with no JavaScript.
+            The radios are visually hidden but keyboard-focusable; the
+            <label>s carry the visible focus ring (see style.css). DO is
+            checked by default. Wrapped in a <fieldset> for semantics.
+        #}
+        <fieldset class="path-picker" id="pick-your-path">
+            <legend class="visually-hidden">Where should Parachute run?</legend>
+
+            <input class="path-radio" type="radio" name="install-path" id="path-local"
+                   aria-controls="panel-local">
+            <input class="path-radio" type="radio" name="install-path" id="path-do"
+                   aria-controls="panel-do" checked>
+            <input class="path-radio" type="radio" name="install-path" id="path-advanced"
+                   aria-controls="panel-advanced">
+
+            <div class="path-cards">
+                <label class="path-card" for="path-local">
+                    <span class="path-card-title">Your Mac/Linux device</span>
+                    <span class="path-card-desc">Try it in a minute &mdash; runs on your own machine, sleeps when it sleeps. Free, nothing to rent.</span>
+                </label>
+
+                <label class="path-card path-card-recommended" for="path-do">
+                    <span class="path-card-flag" aria-hidden="true">&#9733; Recommended</span>
+                    <span class="path-card-title">DigitalOcean &mdash; always-on</span>
+                    <span class="path-card-desc">A real Parachute your phone and your AIs can reach around the clock, even when your laptop's shut. Zero-SSH: paste one block, set your password in the browser. ~$6/mo.</span>
+                </label>
+
+                <label class="path-card" for="path-advanced">
+                    <span class="path-card-title">Advanced / other</span>
+                    <span class="path-card-desc">Another VPS, your own domain, or a Cloudflare / Tailscale tunnel as alternative ingress.</span>
+                </label>
             </div>
-            <div class="path-card path-card-recommended">
-                <h3>Stand up an always-on home <span class="path-badge">simplest for most</span></h3>
-                <p>A real Parachute your phone and your AIs can reach around the clock &mdash; even when your laptop's shut. A <strong>$6/mo DigitalOcean droplet</strong> is the easiest always-on box. The <strong>zero-SSH</strong> way is Render-like: paste one cloud-init block (no credentials in it), wait ~2&ndash;3 minutes, then set your username + password in the browser using a one-time bootstrap token. <strong>You never SSH in.</strong></p>
-                <p style="margin-bottom: 0.5rem;">Paste into the droplet's User Data &mdash; nothing to fill in:</p>
-                <div class="code-inline" style="text-align:left;">
-                    <code>#!/bin/bash<br>
-                    curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
+
+            <div class="path-panels">
+
+                {# ---- PATH 1: Your Mac/Linux device ---- #}
+                <div class="path-panel" id="panel-local" role="region" aria-labelledby="path-local">
+                    <h3>Run it on your Mac or Linux device</h3>
+                    <p>Perfect for kicking the tires. Free, runs in a minute. The catch: it sleeps when your machine sleeps, so your phone and your AIs can't reach it while it's closed. You'll need <a href="https://bun.sh" target="_blank" rel="noopener">Bun</a> 1.3 or later, then one command:</p>
+
+                    <div class="code-inline">
+                        <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>
+                    </div>
+
+                    <p><code>parachute init</code> starts your hub, installs your vault &mdash; the place all your notes live &mdash; and opens a browser setup wizard: <strong>Account &rarr; Vault &rarr; Expose &rarr; Done</strong>. On a laptop the Expose step auto-skips; you're signed in locally.</p>
+
+                    <details>
+                        <summary>On Bun 1.2.x / checking your version</summary>
+                        <ul style="margin-top: 1rem;">
+                            <li><strong>Check it.</strong> <code>bun --version</code> &mdash; if it's below 1.3, run <code>bun upgrade</code>.</li>
+                            <li><strong>Stuck on 1.2.x?</strong> You may see a cosmetic <code>InvalidPackageResolution</code> or <code>FileNotFound</code> warning during install &mdash; the package installs anyway. Upgrading to Bun 1.3 clears it.</li>
+                        </ul>
+                    </details>
+
+                    <details>
+                        <summary>Ports, exposing it, tokens, and re-running</summary>
+                        <ul style="margin-top: 1rem;">
+                            <li><strong>Ports.</strong> The hub answers on <code>1939</code>; the vault runs on <code>1940</code> behind it.</li>
+                            <li><strong>Going beyond your laptop.</strong> <code>init</code> offers to expose your hub publicly (a Cloudflare Tunnel is the default on a server &mdash; it'll offer to install <code>cloudflared</code> for you on macOS and Linux). If an expose attempt fails, <code>init</code> keeps going on the local URL and prints a retry hint: <code>parachute expose public --cloudflare</code>.</li>
+                            <li><strong>Bootstrap token.</strong> When the hub is exposed publicly and no admin exists yet, <code>init</code> prints a one-time bootstrap token; the wizard asks for it before it lets you create the first admin (local-only installs skip this).</li>
+                            <li><strong>Safe to re-run.</strong> <code>init</code> is idempotent. Check the stack any time with <code>parachute status</code>.</li>
+                        </ul>
+                    </details>
+
+                    <p style="margin-top: 1.25rem;">Want it reachable from your phone and your AIs around the clock? Move to an <a href="#pick-your-path" class="switch-to-do">always-on DigitalOcean box</a> anytime &mdash; same stack, nothing's locked in.</p>
                 </div>
-                <p style="margin-top: 0.75rem;"><a href="/deploy/digitalocean/">Deploy to DigitalOcean &rarr;</a> &mdash; the droplet self-installs hub + vault and gets a real Let's Encrypt cert via Caddy on first boot; you then open the droplet Console, copy the one-time bootstrap token, and set your password in the browser at <code>/admin/setup</code> &mdash; so your password never touches the cloud config. Prefer to watch it install? An SSH path is in the guide too. Any <a href="/deploy/vps/">other VPS</a> (Hetzner, EC2) or a Mac you leave on works with the same flow.</p>
+
+                {# ---- PATH 2: DigitalOcean (default) ---- #}
+                <div class="path-panel" id="panel-do" role="region" aria-labelledby="path-do">
+                    <h3>Stand up an always-on home on DigitalOcean</h3>
+                    <p>The <strong>zero-SSH</strong>, Render-like way to a real always-on Parachute: create a droplet, paste <strong>one block</strong> (no credentials in it), wait a couple of minutes, then copy a <strong>one-time bootstrap token</strong> from the droplet Console and set your username + password <strong>in your browser</strong>. <strong>You never SSH in.</strong> The droplet self-installs hub + vault and gets a real Let's Encrypt cert via <a href="https://caddyserver.com" target="_blank" rel="noopener">Caddy</a> on first boot.</p>
+
+                    <h4 class="path-step">Create the droplet</h4>
+                    <p>In the DigitalOcean console (<a href="https://cloud.digitalocean.com" target="_blank" rel="noopener">cloud.digitalocean.com</a>) &rarr; <strong>Create &rarr; Droplets</strong>:</p>
+                    <ul>
+                        <li><strong>Image:</strong> Ubuntu 24.04 (LTS) x64.</li>
+                        <li><strong>Size:</strong> $6/mo (1 GB) runs hub + vault. Pick $12/mo (2 GB) for on-box transcription (Scribe) or to run Claude Code on the box.</li>
+                        <li><strong>Region:</strong> nearest you.</li>
+                        <li>Expand <strong>Advanced options &rarr; Add Initialization scripts (user data)</strong> and paste the block below as-is (optionally uncomment the domain line):</li>
+                    </ul>
+
+                    <div class="code-inline" style="text-align:left;">
+                        <code>#!/bin/bash<br>
+                        <span class="muted"># export PARACHUTE_DOMAIN="vault.example.com"&nbsp;&nbsp;# optional</span><br>
+                        <span class="muted"># export PARACHUTE_CHANNEL="rc"&nbsp;&nbsp;# optional &mdash; track release candidates</span><br>
+                        curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
+                    </div>
+
+                    <p class="muted" style="font-size:0.9em;"><strong>Why no password here?</strong> Anything in User Data persists in plain text &mdash; readable on the box, in the droplet console, and via the metadata service. So no username or password goes in here. Instead the hub mints a one-time bootstrap token on first boot, and you set your own password in the browser. Your password never touches the cloud config.</p>
+
+                    <p>Click <strong>Create</strong>. cloud-init runs that script as root early in first boot.</p>
+
+                    <h4 class="path-step">Wait ~2&ndash;3 minutes, then finish in your browser</h4>
+                    <p>Give the droplet a couple of minutes after it shows <strong>Active</strong> &mdash; cloud-init installs everything and Caddy fetches the TLS cert on the first HTTPS hit. Then, with <strong>no SSH key needed</strong>:</p>
+                    <ol>
+                        <li><strong>Open the droplet Console.</strong> On your droplet's page click <strong>Access &rarr; Launch Droplet Console</strong> for a browser root shell &mdash; no SSH key required.</li>
+                        <li><strong>Read the setup file.</strong> In that console run <code>cat parachute-setup.txt</code>. Near the top it prints your <strong>bootstrap token</strong> (<code>parachute-bootstrap-&hellip;</code>) and your <strong>setup URL</strong> (<code>https://&lt;your-host&gt;/admin/setup</code>). Copy both.</li>
+                        <li><strong>Open the setup URL in your browser</strong> &mdash; with a domain, <code>https://&lt;your-domain&gt;/admin/setup</code>; without one, <code>https://&lt;droplet-ip&gt;.sslip.io/admin/setup</code> (substitute your droplet's public IPv4, dots and all, e.g. <code>https://203.0.113.5.sslip.io/admin/setup</code>).</li>
+                        <li><strong>Paste the bootstrap token, then choose your own username + password.</strong> That's it &mdash; you're the owner, and your password was set in the browser, never stored in the cloud config.</li>
+                    </ol>
+
+                    <p class="muted" style="font-size:0.9em;">The token is single-use and regenerates if the hub restarts. Re-read the current one from the droplet Console any time with <code>cat parachute-setup.txt</code>.</p>
+
+                    <p style="margin-top: 1.25rem;"><a href="/deploy/digitalocean/">Advanced options &amp; troubleshooting &rarr;</a> &mdash; the SSH path (watch it install line by line), driving it from <code>doctl</code>, bringing your own domain, alternative ingress, and pitfalls.</p>
+                </div>
+
+                {# ---- PATH 3: Advanced / other ---- #}
+                <div class="path-panel" id="panel-advanced" role="region" aria-labelledby="path-advanced">
+                    <h3>Advanced / other</h3>
+                    <p>The same bun-native flow works anywhere you have a box. Reach for these when you want something other than the happy path above.</p>
+                    <ul>
+                        <li><strong>Any other VPS.</strong> Hetzner, EC2, Linode, or a box in your closet &mdash; same <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code> flow. On an SSH'd server <code>init</code> pre-selects public exposure so the wizard URL is reachable. See <a href="/deploy/vps/">Deploy to any VPS</a>.</li>
+                        <li><strong>Bring your own domain.</strong> Point an A record at the box and set <code>PARACHUTE_DOMAIN="vault.example.com"</code> &mdash; Caddy certs your domain instead of the zero-config <code>&lt;ip&gt;.sslip.io</code> host. Sturdier for anything long-lived.</li>
+                        <li><strong>Alternative ingress.</strong> Prefer not to open ports 80/443, or want a private tailnet-only hub? A <strong>Cloudflare Tunnel</strong> (<code>parachute expose public --cloudflare --domain vault.example.com</code>) or <strong>Tailscale</strong> (<code>parachute expose public</code> &rarr; a <code>*.ts.net</code> URL) both work as alternatives to Caddy-direct.</li>
+                    </ul>
+                    <p style="margin-top: 1.25rem;">Full walkthroughs, the SSH path, cloud-init internals, and pitfalls live in the deep guide: <a href="/deploy/digitalocean/">Deploy to DigitalOcean &rarr;</a> (the same flow applies to any VPS).</p>
+                </div>
+
             </div>
-        </div>
-
-        <p style="margin-top: 1.5rem;"><strong>On your laptop</strong>, <code>parachute init</code> starts your hub, installs your vault &mdash; the place all your notes live &mdash; and opens a browser setup wizard: <strong>Account &rarr; Vault &rarr; Expose &rarr; Done</strong>. <strong>On DigitalOcean</strong>, the install script drives that same setup unattended &mdash; it certs the box with Caddy and leaves a one-time bootstrap token in the droplet Console, so you finish by setting your own password in the browser at your public URL (no credentials in the cloud config). Start on your laptop and move to an always-on box anytime; nothing's locked in.</p>
-
-        <details>
-            <summary>On Bun 1.2.x / checking your version</summary>
-            <ul style="margin-top: 1rem;">
-                <li><strong>Check it.</strong> <code>bun --version</code> &mdash; if it's below 1.3, run <code>bun upgrade</code>.</li>
-                <li><strong>Stuck on 1.2.x?</strong> You may see a cosmetic <code>InvalidPackageResolution</code> or <code>FileNotFound</code> warning during install &mdash; the package installs anyway. Upgrading to Bun 1.3 clears it.</li>
-            </ul>
-        </details>
-
-        <details>
-            <summary>Ports, exposing it, tokens, and re-running</summary>
-            <ul style="margin-top: 1rem;">
-                <li><strong>Ports.</strong> The hub answers on <code>1939</code>; the vault runs on <code>1940</code> behind it.</li>
-                <li><strong>Going beyond your laptop.</strong> <code>init</code> offers to expose your hub publicly (a Cloudflare Tunnel is the default on a server &mdash; it'll offer to install <code>cloudflared</code> for you on macOS and Linux). If an expose attempt fails, <code>init</code> keeps going on the local URL and prints a retry hint: <code>parachute expose public --cloudflare</code>.</li>
-                <li><strong>Bootstrap token.</strong> When the hub is exposed publicly and no admin exists yet, <code>init</code> prints a one-time bootstrap token; the wizard asks for it before it lets you create the first admin (local-only installs skip this).</li>
-                <li><strong>Safe to re-run.</strong> <code>init</code> is idempotent. Check the stack any time with <code>parachute status</code>.</li>
-            </ul>
-        </details>
+        </fieldset>
     </section>
 
     <section class="section">
@@ -69,7 +153,7 @@ permalink: /start/
         </p>
 
         <ul>
-            <li><strong>Account.</strong> Create your admin login.</li>
+            <li><strong>Account.</strong> Create your admin login (on DigitalOcean this is the browser <code>/admin/setup</code> step above &mdash; paste the bootstrap token, choose your username + password).</li>
             <li><strong>Vault.</strong> Create your first vault &mdash; or import one from a git repo, or skip for now.</li>
             <li><strong>Expose.</strong> Choose how (or whether) to reach your hub from outside. This step <em>auto-skips on a local laptop</em>, and <em>pre-selects public on an SSH'd server</em> so the wizard URL is reachable.</li>
             <li><strong>Done.</strong> The wizard hands you everything you need to connect your AI.</li>
@@ -227,8 +311,26 @@ permalink: /start/
         <div class="code-inline" style="margin: 1.5rem auto 0.75rem; max-width: 640px;">
             <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>
         </div>
-        <p class="cta-secondary" style="margin-bottom: 1.5rem;">On your laptop to try it &mdash; or <a href="/deploy/digitalocean/">stand up an always-on home on DigitalOcean</a> (simplest for most).</p>
+        <p class="cta-secondary" style="margin-bottom: 1.5rem;">On your Mac/Linux device to try it &mdash; or <a href="/deploy/digitalocean/">stand up an always-on home on DigitalOcean</a> (recommended for most).</p>
         <a href="https://github.com/ParachuteComputer/parachute-vault" class="button" target="_blank">Parachute Vault on GitHub</a>
     </section>
+
+    {# Progressive enhancement only — the CSS-only picker above is fully
+       functional without this. When a deep link or in-page anchor wants to
+       jump to a specific path, this toggles the matching radio. Never
+       required for the page to work. #}
+    <script>
+    (function () {
+        var sw = document.querySelector(".switch-to-do");
+        var doRadio = document.getElementById("path-do");
+        if (sw && doRadio) {
+            sw.addEventListener("click", function (e) {
+                e.preventDefault();
+                doRadio.checked = true;
+                doRadio.focus();
+            });
+        }
+    })();
+    </script>
 
 </main>
