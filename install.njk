@@ -27,19 +27,17 @@ permalink: /start/
             </div>
             <div class="path-card path-card-recommended">
                 <h3>Stand up an always-on home <span class="path-badge">simplest for most</span></h3>
-                <p>A real Parachute your phone and your AIs can reach around the clock &mdash; even when your laptop's shut. A <strong>$6/mo DigitalOcean droplet</strong> is the easiest always-on box. The <strong>zero-SSH</strong> way is Render-like: paste one cloud-init block (with the admin login you want), wait ~2&ndash;3 minutes, then open the public HTTPS URL and sign in. <strong>You never SSH in.</strong></p>
-                <p style="margin-bottom: 0.5rem;">Paste into the droplet's User Data, filling in your creds:</p>
+                <p>A real Parachute your phone and your AIs can reach around the clock &mdash; even when your laptop's shut. A <strong>$6/mo DigitalOcean droplet</strong> is the easiest always-on box. The <strong>zero-SSH</strong> way is Render-like: paste one cloud-init block (no credentials in it), wait ~2&ndash;3 minutes, then set your username + password in the browser using a one-time bootstrap token. <strong>You never SSH in.</strong></p>
+                <p style="margin-bottom: 0.5rem;">Paste into the droplet's User Data &mdash; nothing to fill in:</p>
                 <div class="code-inline" style="text-align:left;">
                     <code>#!/bin/bash<br>
-                    export PARACHUTE_ADMIN_USERNAME="you"<br>
-                    export PARACHUTE_ADMIN_PASSWORD="a-strong-one-12-chars-min"<br>
                     curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
                 </div>
-                <p style="margin-top: 0.75rem;"><a href="/deploy/digitalocean/">Deploy to DigitalOcean &rarr;</a> &mdash; the droplet self-installs hub + vault, gets a real Let's Encrypt cert via Caddy, and seeds your admin on first boot. Prefer to watch it install? An SSH path is in the guide too. Any <a href="/deploy/vps/">other VPS</a> (Hetzner, EC2) or a Mac you leave on works with the same flow.</p>
+                <p style="margin-top: 0.75rem;"><a href="/deploy/digitalocean/">Deploy to DigitalOcean &rarr;</a> &mdash; the droplet self-installs hub + vault and gets a real Let's Encrypt cert via Caddy on first boot; you then open the droplet Console, copy the one-time bootstrap token, and set your password in the browser at <code>/admin/setup</code> &mdash; so your password never touches the cloud config. Prefer to watch it install? An SSH path is in the guide too. Any <a href="/deploy/vps/">other VPS</a> (Hetzner, EC2) or a Mac you leave on works with the same flow.</p>
             </div>
         </div>
 
-        <p style="margin-top: 1.5rem;"><strong>On your laptop</strong>, <code>parachute init</code> starts your hub, installs your vault &mdash; the place all your notes live &mdash; and opens a browser setup wizard: <strong>Account &rarr; Vault &rarr; Expose &rarr; Done</strong>. <strong>On DigitalOcean</strong>, the install script drives that same setup unattended &mdash; it certs the box with Caddy and seeds your admin from the creds you pasted, so you skip straight to signing in at your public URL. Start on your laptop and move to an always-on box anytime; nothing's locked in.</p>
+        <p style="margin-top: 1.5rem;"><strong>On your laptop</strong>, <code>parachute init</code> starts your hub, installs your vault &mdash; the place all your notes live &mdash; and opens a browser setup wizard: <strong>Account &rarr; Vault &rarr; Expose &rarr; Done</strong>. <strong>On DigitalOcean</strong>, the install script drives that same setup unattended &mdash; it certs the box with Caddy and leaves a one-time bootstrap token in the droplet Console, so you finish by setting your own password in the browser at your public URL (no credentials in the cloud config). Start on your laptop and move to an always-on box anytime; nothing's locked in.</p>
 
         <details>
             <summary>On Bun 1.2.x / checking your version</summary>

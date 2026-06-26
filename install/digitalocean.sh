@@ -5,8 +5,8 @@
 #   curl -fsSL https://parachute.computer/install/digitalocean.sh | bash
 #
 # Render-like experience: create a droplet, paste ONE cloud-init User Data block
-# (with your admin creds, optionally your domain), wait ~2-3 min, open the public
-# HTTPS URL, and log in. You never SSH in.
+# (optionally your domain), wait ~2-3 min, then set your admin password IN THE
+# BROWSER via a one-time bootstrap token. No credentials live in the cloud config.
 #
 # What it does, on a fresh Ubuntu 24.04 droplet (run as root, or a sudo user):
 #   1. Installs Bun (the JS runtime Parachute is built on) + @openparachute/hub
@@ -17,13 +17,18 @@
 #   3. `parachute init --hub-origin https://<hostname>` — persists the canonical
 #      public origin to the hub DB BEFORE modules spawn, so vault (and scribe)
 #      come up accepting it in one pass. Starts hub + vault. No tunnel.
-#   4. Seeds your admin account WITHOUT SSH: if you passed admin creds in User
-#      Data, `parachute auth set-password` writes them straight to the hub DB.
-#   5. Installs + configures Caddy as the TLS terminator: it provisions a Let's
+#   4. Installs + configures Caddy as the TLS terminator: it provisions a Let's
 #      Encrypt cert for <hostname> and reverse-proxies HTTPS → the loopback hub.
+#      Caddy strips client-supplied trust-signal headers (defense-in-depth — it's
+#      the trusted edge now).
+#   5. Surfaces the hub's one-time BOOTSTRAP TOKEN: on a fresh box with no admin,
+#      `parachute serve` mints an in-memory `parachute-bootstrap-<rand>` token.
+#      We read it from the loopback hub and write it + the /admin/setup URL into
+#      /root/parachute-setup.txt. The operator opens /admin/setup in their
+#      browser, pastes the token, and chooses their own username + password —
+#      so the password is NEVER stored in the cloud config, console, or metadata.
 #   6. Decides transcription by RAM (non-fatal): ≥2 GB → optionally install the
 #      local Scribe engine; smaller boxes → steer to a cloud provider or none.
-#   7. Writes /root/parachute-setup.txt with the public URL + login note.
 #
 # Idempotent — safe to re-run. Each step skips itself if already done.
 #
@@ -34,19 +39,16 @@
 # list would run each line as a SEPARATE shell — exports would NOT carry over).
 #
 #   #!/bin/bash
-#   export PARACHUTE_ADMIN_USERNAME="you"
-#   export PARACHUTE_ADMIN_PASSWORD="choose-a-strong-one-12-chars-min"
 #   # export PARACHUTE_DOMAIN="vault.example.com"   # optional; else <ip>.sslip.io
 #   curl -fsSL https://parachute.computer/install/digitalocean.sh | bash
 #
-# Security tradeoff: the password sits in DO User Data (readable on the box and
-# in the DO console). Use a throwaway-strong one and change it after first login.
+# Security win: NO admin username/password in User Data. You set your password in
+# the BROWSER at /admin/setup using a one-time bootstrap token read from the box.
+# Nothing sensitive persists in DO's User Data, droplet console, or metadata.
 # ─────────────────────────────────────────────────────────────────────────────
 #
 # Recognized environment variables (all optional):
 #   PARACHUTE_DOMAIN           public hostname (A-record → droplet IP). Omit for sslip.io.
-#   PARACHUTE_ADMIN_USERNAME   (alias: PARACHUTE_ADMIN_USER) owner login to seed.
-#   PARACHUTE_ADMIN_PASSWORD   owner password (≥12 chars). Required to seed headless.
 #   PARACHUTE_TRANSCRIBE       local | cloud | none. Default: auto by RAM.
 #   PARACHUTE_HUB_PORT         hub port (default 1939).
 #   PARACHUTE_CHANNEL          npm dist-tag: latest | rc. Default: latest. Use
@@ -331,44 +333,36 @@ else
   warn "Vault isn't answering yet — after login, run 'parachute restart' or check 'parachute status'."
 fi
 
-# ── 6. seed the admin account (no SSH) ───────────────────────────────────────
-# `parachute auth set-password` writes the owner straight into the hub DB
-# (~/.parachute/hub.db) and mints the operator token — DB-direct, so it works
-# with the hub running and needs NO browser/SSH. If creds were passed in User
-# Data, we seed silently. If absent, we DON'T fail — we fall back to the
-# bootstrap-token / set-password SSH path and say so in the summary.
-ADMIN_USER="${PARACHUTE_ADMIN_USERNAME:-${PARACHUTE_ADMIN_USER:-}}"
-ADMIN_PASS="${PARACHUTE_ADMIN_PASSWORD:-}"
-ADMIN_SEEDED="no"
+# ── 6. read the one-time bootstrap token (no creds in config) ────────────────
+# A fresh box with no admin and no PARACHUTE_INITIAL_ADMIN_* makes `parachute
+# serve` enter "needs-setup" mode and mint an in-memory bootstrap token
+# (`parachute-bootstrap-<rand>`), regenerated on EVERY hub restart and never
+# persisted. The operator visits /admin/setup, pastes this token, and chooses
+# their OWN username + password there — so no password ever lands in User Data,
+# the droplet console, or DO metadata.
+#
+# We read it from the LOOPBACK hub (hub#576 hands the token to loopback callers
+# only — a public request through Caddy is NOT loopback and won't get it). This
+# runs AFTER the final `parachute restart` above, because each restart mints a
+# fresh token; reading earlier would print a stale one. Pure-bash parse (no jq).
+# Entirely non-fatal — if the read fails (or an admin already exists on a
+# re-run), the summary still tells the operator how to finish.
+BOOTSTRAP_TOKEN=""
 
-step "Seeding the admin account"
-if [ -n "$ADMIN_USER" ] && [ -n "$ADMIN_PASS" ]; then
-  # Server enforces a 12-char minimum. Pre-check so we can give a clear message
-  # instead of a cryptic rejection (and so a too-short password doesn't silently
-  # leave the box admin-less).
-  if [ "${#ADMIN_PASS}" -lt 12 ]; then
-    warn "PARACHUTE_ADMIN_PASSWORD is shorter than 12 chars — the hub requires ≥12."
-    warn "Admin NOT seeded. Set a longer password and re-run, or seed over SSH:"
-    warn "  parachute auth set-password --username <you> --password <12+ chars>"
-  else
-    # Don't echo the password. set-password is non-interactive when --password
-    # is supplied. Capture only the non-secret confirmation lines.
-    if parachute auth set-password --username "$ADMIN_USER" --password "$ADMIN_PASS" \
-         >/tmp/parachute-setpw.out 2>&1; then
-      ADMIN_SEEDED="yes"
-      ok "Owner account '${ADMIN_USER}' created — log in at the URL below with it."
-    else
-      warn "Seeding the admin failed. Output (no password shown):"
-      # The output may include the username but never the password value.
-      sed 's/--password [^ ]*/--password ***/g' /tmp/parachute-setpw.out 2>/dev/null \
-        | while IFS= read -r line; do warn "  $line"; done || true
-      warn "You can seed it over SSH: parachute auth set-password --username <you> --password <pw>"
-    fi
-    rm -f /tmp/parachute-setpw.out 2>/dev/null || true
-  fi
+step "Reading the one-time bootstrap token (set your password in the browser)"
+SETUP_JSON="$(curl -fsS -H 'Accept: application/json' \
+  "http://127.0.0.1:${HUB_PORT}/admin/setup" 2>/dev/null || true)"
+BOOTSTRAP_TOKEN="$(printf '%s' "$SETUP_JSON" \
+  | grep -oE 'parachute-bootstrap-[A-Za-z0-9_-]+' | head -1 || true)"
+
+if [ -n "$BOOTSTRAP_TOKEN" ]; then
+  ok "Bootstrap token ready — finish setup in your browser at /admin/setup."
 else
-  info "No admin creds in User Data (PARACHUTE_ADMIN_USERNAME + _PASSWORD)."
-  info "Falling back to the bootstrap-token path — see the summary for how to finish."
+  # No token: either an admin already exists (a re-run / already set up), or the
+  # loopback read didn't return one. Either way, non-fatal — the summary tells
+  # the operator how to sign in or re-read the token.
+  info "No bootstrap token returned — this box may already have an admin (a re-run)."
+  info "If so, just sign in at /login. The summary explains how to re-read it if needed."
 fi
 
 # ── 7. Caddy — public TLS terminator + reverse proxy ─────────────────────────
@@ -398,15 +392,35 @@ install_caddy() {
 
 write_caddyfile() {
   # Reverse-proxy <hostname> → the loopback hub. Caddy handles ACME/TLS itself.
+  #
+  # Caddy is the trusted edge now (it terminates public TLS in front of the
+  # loopback hub), so harden the proxy headers as defense-in-depth:
+  #   • Caddy already OVERWRITES X-Forwarded-For / -Proto / -Host with the real
+  #     connection values by default — we keep that (it's what lets the hub know
+  #     the request arrived over HTTPS, so Secure cookies work end to end).
+  #   • We additionally STRIP the Cloudflare + Tailscale headers below. The hub's
+  #     `layerOf` reads those as TRUST SIGNALS to decide how privileged a request
+  #     is — but only a REAL Cloudflare / Tailscale edge may legitimately set
+  #     them. A public client could otherwise forge e.g. `Cf-Connecting-Ip` to
+  #     impersonate a more-trusted layer through our Caddy. Since this box fronts
+  #     the hub with Caddy (not CF/Tailscale), these never have a legitimate
+  #     inbound value here, so we drop any client-supplied copy.
   local caddyfile="/etc/caddy/Caddyfile"
   $SUDO mkdir -p /etc/caddy
   $SUDO tee "$caddyfile" >/dev/null <<CADDY
 # Managed by Parachute install (install/digitalocean.sh). Re-run to refresh.
 ${HOSTNAME_PUBLIC} {
-    reverse_proxy 127.0.0.1:${HUB_PORT}
+    reverse_proxy 127.0.0.1:${HUB_PORT} {
+        # Strip client-supplied layer-spoofing trust signals — only a real
+        # Cloudflare / Tailscale edge may set these; this Caddy is the edge.
+        header_up -Cf-Ray
+        header_up -Cf-Connecting-Ip
+        header_up -Tailscale-Funnel-Request
+        header_up -Tailscale-User-Login
+    }
 }
 CADDY
-  ok "Wrote ${caddyfile} → reverse_proxy 127.0.0.1:${HUB_PORT}"
+  ok "Wrote ${caddyfile} → reverse_proxy 127.0.0.1:${HUB_PORT} (trust-signal headers stripped)"
 }
 
 if [ -n "$HOSTNAME_PUBLIC" ]; then
@@ -449,6 +463,12 @@ fi
 # Decide local vs cloud vs none from PARACHUTE_TRANSCRIBE + box RAM. EVERYTHING
 # here is wrapped so a failure NEVER aborts the curl|bash under `set -euo
 # pipefail` — transcription is a nice-to-have, not a setup gate.
+#
+# ORDERING INVARIANT: the bootstrap token was read in step 6, after the LAST hub
+# restart (step 5b). `parachute install scribe` below spawns scribe as a
+# supervised child and does NOT restart the hub (which would mint a fresh token
+# and stale the one we wrote to the summary). Keep it that way — if a future
+# `install` starts restarting the hub, move the token read to AFTER this step.
 TRANSCRIBE_NOTE=""
 MEM_KB="$(awk '/^MemTotal:/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)"
 # Guard against awk succeeding with empty output (no MemTotal line) — an empty
@@ -521,6 +541,12 @@ esac
 # ── 9. summary + done ────────────────────────────────────────────────────────
 PUBLIC_URL=""
 [ -n "$HOSTNAME_PUBLIC" ] && PUBLIC_URL="https://${HOSTNAME_PUBLIC}"
+# Where the operator finishes setup in the browser. Public if we have a hostname,
+# else the loopback admin URL (read it from the DO console on the box).
+SETUP_URL="${PUBLIC_URL:+${PUBLIC_URL}/admin/setup}"
+[ -n "$SETUP_URL" ] || SETUP_URL="http://127.0.0.1:${HUB_PORT}/admin/setup"
+LOGIN_URL="${PUBLIC_URL:+${PUBLIC_URL}/login}"
+[ -n "$LOGIN_URL" ] || LOGIN_URL="http://127.0.0.1:${HUB_PORT}/login"
 
 # Build the login / next-steps block once (plain text, no color — the summary
 # file should stay copy-pasteable), then emit it to the file and to stdout.
@@ -531,26 +557,38 @@ else
 Local URL:   http://127.0.0.1:${HUB_PORT}/admin/setup"
 fi
 
-if [ "$ADMIN_SEEDED" = "yes" ]; then
+# The one-time bootstrap-token flow: the operator sets their OWN password in the
+# browser. No credential was ever put in User Data, the console, or metadata.
+if [ -n "$BOOTSTRAP_TOKEN" ]; then
   read -r -d '' LOGIN_BLOCK <<EOF || true
-You're done — open the URL and log in.
+Finish setup IN YOUR BROWSER — set your own username + password (nothing was
+stored in your cloud config). Use the one-time bootstrap token below.
 ------------------------------------------------------------
-  1. Open  ${PUBLIC_URL:-http://127.0.0.1:${HUB_PORT}/}
+  >>> BOOTSTRAP TOKEN:  ${BOOTSTRAP_TOKEN}
+  >>> SETUP URL:        ${SETUP_URL}
+------------------------------------------------------------
+  1. Open  ${SETUP_URL}  in your browser.
      (First load may take a few seconds while Caddy fetches the TLS cert.)
-  2. Sign in as  ${ADMIN_USER}  with the password you set in User Data.
-  3. Change that password after first login (it was in User Data).
+  2. Paste the BOOTSTRAP TOKEN above, then choose your username + password.
+  3. That's it — you're the owner, and your password never touched the cloud.
+
+  The token is single-use and regenerates if the hub restarts. To re-read the
+  current one from the DO droplet Console (no SSH key needed), run on the box:
+      curl -fsS -H 'Accept: application/json' http://127.0.0.1:${HUB_PORT}/admin/setup \\
+        | grep -oE 'parachute-bootstrap-[A-Za-z0-9_-]+' | head -1
 EOF
 else
   read -r -d '' LOGIN_BLOCK <<EOF || true
-Finish setup — create your owner account (no creds were passed in User Data).
+Already set up — this box appears to have an owner account already.
 ------------------------------------------------------------
-  Easiest (no SSH needed if you have console access): set it from the DO
-  console, or SSH in once and run:
-      parachute auth set-password --username <you> --password <12+ chars>
-  Then open  ${PUBLIC_URL:-http://127.0.0.1:${HUB_PORT}/}  and sign in.
+  Sign in at  ${LOGIN_URL}
 
-  (If you exposed publicly with no admin yet, 'parachute init' above printed a
-   one-time bootstrap token — find it earlier in this file / the cloud-init log.)
+  If you actually still need to create the first owner, the hub mints a one-time
+  bootstrap token when no admin exists. Read the current one from the box
+  (DO droplet Console — no SSH key needed):
+      curl -fsS -H 'Accept: application/json' http://127.0.0.1:${HUB_PORT}/admin/setup \\
+        | grep -oE 'parachute-bootstrap-[A-Za-z0-9_-]+' | head -1
+  then open  ${SETUP_URL}  and paste it.
 EOF
 fi
 
@@ -584,6 +622,12 @@ if [ -n "$PUBLIC_URL" ]; then
   ok "Public URL:  ${BOLD}${PUBLIC_URL}${RESET}"
 else
   ok "Local admin URL:  ${BOLD}http://127.0.0.1:${HUB_PORT}/admin/setup${RESET}"
+fi
+# Surface the bootstrap token + setup URL prominently up top, before the long
+# NEXT_STEPS block — it's the one thing the operator needs to finish setup.
+if [ -n "$BOOTSTRAP_TOKEN" ]; then
+  ok "Setup URL:   ${BOLD}${SETUP_URL}${RESET}"
+  ok "Bootstrap token (paste it there): ${BOLD}${BOOTSTRAP_TOKEN}${RESET}"
 fi
 printf '%s\n' "$NEXT_STEPS"
 if [ "$SUMMARY_FILE" != "/dev/null" ]; then
