@@ -295,6 +295,42 @@ parachute init "${INIT_ARGS[@]}" 2>&1 | tee -a "$SUMMARY_FILE" || {
 
 HUB_PORT="${PARACHUTE_HUB_PORT:-1939}"
 
+# ── 5b. Ensure modules are actually running under the supervisor ──────────────
+# Two fresh-box realities of `parachute init` this works around (both are hub
+# bugs tracked upstream; this is the operator-facing belt-and-suspenders so the
+# box is usable after ONE unattended boot — fully non-fatal):
+#   1. init installs the vault module at @latest regardless of the channel we
+#      installed above — so on `rc` it DOWNGRADES vault below the hub. Re-assert
+#      the chosen channel so vault matches the hub.
+#   2. init can start the hub supervisor BEFORE the vault entry is seeded into
+#      services.json (a timing race lost on slow boxes) — leaving vault
+#      registered but never spawned (502 at /vault/*). A restart makes the
+#      supervisor re-scan and spawn it.
+if [ "${CHANNEL}" != "latest" ]; then
+  info "Re-asserting vault @ ${CHANNEL} (init installs modules at @latest)…"
+  bun add -g "@openparachute/vault@${CHANNEL}" >/dev/null 2>&1 \
+    || warn "Could not re-assert vault@${CHANNEL}; continuing with the installed version."
+fi
+step "Starting all modules under the supervisor"
+parachute restart >/dev/null 2>&1 \
+  || warn "parachute restart returned non-zero — check 'parachute status' after login."
+# Verify vault answers through the hub proxy (give the child a moment to bind).
+# 200 = open health; 401/403 = reachable but auth-gated (vault IS up); 502/000 = down.
+vault_up=""
+for _ in 1 2 3 4 5 6; do
+  vcode="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 5 \
+    "http://127.0.0.1:${HUB_PORT}/vault/default/health" 2>/dev/null || echo 000)"
+  case "$vcode" in
+    200 | 401 | 403) vault_up="yes"; break ;;
+  esac
+  sleep 3
+done
+if [ -n "$vault_up" ]; then
+  ok "Vault is running under the supervisor."
+else
+  warn "Vault isn't answering yet — after login, run 'parachute restart' or check 'parachute status'."
+fi
+
 # ── 6. seed the admin account (no SSH) ───────────────────────────────────────
 # `parachute auth set-password` writes the owner straight into the hub DB
 # (~/.parachute/hub.db) and mints the operator token — DB-direct, so it works
@@ -375,8 +411,20 @@ CADDY
 
 if [ -n "$HOSTNAME_PUBLIC" ]; then
   step "Installing + configuring Caddy (public HTTPS)"
-  install_caddy
-  write_caddyfile
+  # Guarded: a Caddy apt-repo/network failure must NOT abort the script under
+  # `set -e` (hub + admin are already up by now). Degrade to loopback-only +
+  # tell the operator how to finish, rather than leaving a half-install with no
+  # summary. Clearing HOSTNAME_PUBLIC routes the summary to the loopback path.
+  if ! install_caddy; then
+    warn "Caddy install failed — hub is running but public HTTPS is NOT configured."
+    warn "Re-run this script once the Caddy apt repo is reachable, or install Caddy by hand."
+    HOSTNAME_PUBLIC=""
+  elif ! write_caddyfile; then
+    warn "Could not write /etc/caddy/Caddyfile — check permissions on /etc/caddy/."
+    HOSTNAME_PUBLIC=""
+  fi
+fi
+if [ -n "$HOSTNAME_PUBLIC" ]; then
   # Enable + start (or reload if already running). Caddy ships a systemd unit.
   $SUDO systemctl enable caddy >/dev/null 2>&1 || true
   if $SUDO systemctl is-active --quiet caddy 2>/dev/null; then
@@ -406,7 +454,14 @@ MEM_KB="$(awk '/^MemTotal:/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)"
 # Guard against awk succeeding with empty output (no MemTotal line) — an empty
 # MEM_KB would make the arithmetic below fail under `set -e`.
 [ -n "$MEM_KB" ] || MEM_KB=0
-MEM_GB=$(( MEM_KB / 1024 / 1024 ))
+MEM_MB=$(( MEM_KB / 1024 ))
+# Human-readable RAM for messages: show MB under 1 GB (so a ~1 GB box doesn't
+# print a misleading "0 GB" from integer division), one-decimal GB at/above 1 GB.
+if [ "$MEM_MB" -ge 1024 ]; then
+  MEM_HUMAN="$(awk -v kb="$MEM_KB" 'BEGIN{printf "%.1f GB", kb/1024/1024}')"
+else
+  MEM_HUMAN="${MEM_MB} MB"
+fi
 # ~2 GB floor for local ASR; use KB so we don't round a 2 GB box down to 1.
 TRANSCRIBE_MIN_KB=$(( 2 * 1024 * 1024 ))
 
@@ -435,11 +490,11 @@ install_local_scribe() {
   return 0
 }
 
-step "Transcription (${MEM_GB} GB RAM detected → ${TRANSCRIBE_CHOICE})"
+step "Transcription (${MEM_HUMAN} RAM detected → ${TRANSCRIBE_CHOICE})"
 case "$TRANSCRIBE_CHOICE" in
   local)
     if [ "$MEM_KB" -lt "$TRANSCRIBE_MIN_KB" ]; then
-      warn "Local transcription wants ~2 GB RAM; this box has ${MEM_GB} GB."
+      warn "Local transcription wants ~2 GB RAM; this box has ${MEM_HUMAN}."
       warn "Installing anyway because PARACHUTE_TRANSCRIBE=local was set — it may be tight."
     fi
     info "Installing the local Scribe engine (this can take a minute; non-fatal if it fails)…"
@@ -453,7 +508,7 @@ case "$TRANSCRIBE_CHOICE" in
     ;;
   none|*)
     if [ "$MEM_KB" -lt "$TRANSCRIBE_MIN_KB" ] && [ "${PARACHUTE_TRANSCRIBE:-auto}" = "auto" ]; then
-      info "Skipping local transcription — ${MEM_GB} GB RAM is below the ~2 GB floor."
+      info "Skipping local transcription — ${MEM_HUMAN} RAM is below the ~2 GB floor."
       info "Use a cloud provider (Groq, ~\$0.04/hr) instead, or pick a 2 GB droplet."
       TRANSCRIBE_NOTE="Transcription: skipped (RAM < 2 GB). Add a cloud provider (Groq) in the admin UI, or resize to 2 GB for on-box ASR."
     else
