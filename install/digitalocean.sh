@@ -49,6 +49,10 @@
 #   PARACHUTE_ADMIN_PASSWORD   owner password (≥12 chars). Required to seed headless.
 #   PARACHUTE_TRANSCRIBE       local | cloud | none. Default: auto by RAM.
 #   PARACHUTE_HUB_PORT         hub port (default 1939).
+#   PARACHUTE_CHANNEL          npm dist-tag: latest | rc. Default: latest. Use
+#                              `rc` to install the newest release-candidate
+#                              builds (the zero-SSH Caddy flow ships on `rc`
+#                              first, then graduates to `latest`).
 #
 # ─────────────────────────────────────────────────────────────────────────────
 # Droplet sizing
@@ -177,9 +181,13 @@ esac
 # ── 3. Parachute: hub + vault ────────────────────────────────────────────────
 # `bun add -g` installs the global packages. `parachute init` (below) also
 # installs the vault — we add the vault explicitly too so a re-run stays whole.
-step "Installing Parachute (hub + vault)"
-bun add -g @openparachute/hub @openparachute/vault
-ok "@openparachute/hub + @openparachute/vault installed"
+# CHANNEL pins the npm dist-tag (latest|rc); the zero-SSH Caddy flow ships on
+# `rc` first, then graduates to `latest`. Resolved once here and reused for the
+# optional scribe install below.
+CHANNEL="${PARACHUTE_CHANNEL:-latest}"
+step "Installing Parachute (hub + vault, channel: ${CHANNEL})"
+bun add -g "@openparachute/hub@${CHANNEL}" "@openparachute/vault@${CHANNEL}"
+ok "@openparachute/hub + @openparachute/vault installed (${CHANNEL})"
 
 if ! command -v parachute >/dev/null 2>&1; then
   echo "The 'parachute' binary isn't on PATH after install. Open a fresh shell"
@@ -415,7 +423,7 @@ fi
 # here may propagate a non-zero exit to the parent shell.
 install_local_scribe() {
   # Each command is guarded; a failure warns + returns 0 so the script proceeds.
-  bun add -g @openparachute/scribe || { warn "bun add @openparachute/scribe failed — skipping local ASR."; return 0; }
+  bun add -g "@openparachute/scribe@${CHANNEL:-latest}" || { warn "bun add @openparachute/scribe failed — skipping local ASR."; return 0; }
   parachute install scribe || { warn "parachute install scribe failed — skipping local ASR."; return 0; }
   if command -v parachute-scribe >/dev/null 2>&1; then
     parachute-scribe install-backend || { warn "parachute-scribe install-backend failed — engine not installed (cloud still works)."; return 0; }
