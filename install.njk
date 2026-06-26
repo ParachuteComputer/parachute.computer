@@ -188,25 +188,14 @@ curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
     <section class="section">
         <h2>&#9733; 4 &middot; See your first note</h2>
 
-        <p>Here's the payoff. Ask your AI to jot a quick note (&ldquo;jot down that I'm trying Parachute today&rdquo;), then open it in a browser &mdash; two ways:</p>
+        <p>Here's the payoff. Ask your AI to jot a quick note (&ldquo;jot down that I'm trying Parachute today&rdquo;), then open it in a browser:</p>
 
-        <p><strong>Fastest &mdash; nothing to install.</strong> Open <a href="https://notes.parachute.computer" target="_blank">notes.parachute.computer</a>, the hosted Notes app. Enter your hub's vault URL (<code>&lt;hub-origin&gt;/vault/&lt;name&gt;</code>) and sign in. The app runs in your browser; your notes never leave your hub. There's the note you just made.</p>
-
-        <p><strong>Host it on your own hub.</strong> Install <strong>Surface</strong> &mdash; the module that serves your UIs from your own hub &mdash; and it brings up Notes automatically:</p>
-
-        <div class="code-inline">
-            <code>parachute install surface</code>
-        </div>
-
-        <p>Open <a href="http://localhost:1939/surface/notes/" target="_blank"><code>localhost:1939/surface/notes/</code></a>, click the vault popover, and hit <strong>Connect</strong>. The same Notes, now served from your own hub &mdash; plus search, tag views, a visual map of how your notes link together, voice capture, and a markdown editor. One install covers every vault on your hub. Notes is the first surface; you can also build your own (below).</p>
+        <p><strong>Want a quick look right now? Nothing to install.</strong> Open <a href="https://notes.parachute.computer" target="_blank">notes.parachute.computer</a>, the hosted Notes app. Enter your hub's vault URL (<code>&lt;hub-origin&gt;/vault/&lt;name&gt;</code>) and sign in. The app runs in your browser; your notes never leave your hub. There's the note you just made &mdash; a zero-install peek while you build a surface of your own (below).</p>
 
         <div class="starter-callout">
-            <h3>Two prompts, paste-and-go &mdash; fill your vault, then shape your view</h3>
-            <p><strong>1. Fill your vault.</strong> Your vault starts mostly empty &mdash; but it opens with a <strong>Getting Started</strong> note your AI can read to walk you through the rest. To kick that off, this prompt interviews you about how you think, proposes a tag and folder structure, and imports what you already have &mdash; built on your say-so.</p>
-            <a href="/onboarding/vault-setup/" class="button">Open the fill-your-vault prompt &rarr;</a>
-            <p style="margin-top: 1.5rem;"><strong>2. Shape your view.</strong> This prompt interviews you, then builds a custom UI over your vault &mdash; a static SPA on the surface SDK, hosted on your own hub or GitHub Pages.</p>
-            <a href="/onboarding/surface-build/" class="button">Open the shape-your-view prompt &rarr;</a>
-            <p class="starter-adjacent">Do them in order: structure what's in the vault first, then build how you see it. (Power users: you can also <a href="/scripting/">script your vault</a> from bash, Python, or JS for imports, cron jobs, and CI.)</p>
+            <h3>Fill your vault &mdash; let your AI walk you through it</h3>
+            <p>Your vault starts mostly empty &mdash; but it opens with a <strong>Getting Started</strong> note your AI reads to do the rest. Just ask your connected AI something like <em>&ldquo;read the Getting Started note and help me set up my parachute.&rdquo;</em> It interviews you about how you think, proposes a tag and folder structure, and imports what you already have &mdash; all on your say-so. The same note points your AI at building a surface when you're ready.</p>
+            <p class="starter-adjacent">(Power users: you can also <a href="/scripting/">script your vault</a> from bash, Python, or JS for imports, cron jobs, and CI.)</p>
         </div>
     </section>
 
@@ -241,7 +230,7 @@ curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
     <section class="section">
         <h2>Make it yours &mdash; build a custom surface</h2>
 
-        <p>Notes is just the first surface. Everything lives in an open vault your AI can read and write, so you can build a UI shaped to <em>your</em> brain &mdash; a dashboard, a daily journal, a garden &mdash; and host it on the same hub. <a href="https://www.npmjs.com/package/@openparachute/surface-client" target="_blank"><code>@openparachute/surface-client</code></a> gives you auth + the vault API, and <a href="https://www.npmjs.com/package/@openparachute/surface-render" target="_blank"><code>surface-render</code></a> renders your notes &mdash; a working surface in a few lines.</p>
+        <p>Everything lives in an open vault your AI can read and write, so you build a UI shaped to <em>your</em> brain &mdash; a dashboard, a daily journal, a garden &mdash; in your own codebase, no Parachute install needed. <a href="https://www.npmjs.com/package/@openparachute/surface-client" target="_blank"><code>@openparachute/surface-client</code></a> gives you OAuth sign-in + the vault API, and <a href="https://www.npmjs.com/package/@openparachute/surface-render" target="_blank"><code>surface-render</code></a> renders your notes &mdash; a working surface in a few lines. It's a static SPA, so you <strong>host it free on GitHub Pages</strong> (or any static host); it talks straight to your hub over HTTPS.</p>
 
         <figure style="margin: 0;">
             <div class="surface-shot-frame">
@@ -250,7 +239,7 @@ curl -fsSL https://parachute.computer/install/digitalocean.sh | bash</code>
             <figcaption class="surface-shot-cap">My personal surface &mdash; &ldquo;a quiet garden for the mind&rdquo;: a custom surface built on top of my own vault.</figcaption>
         </figure>
 
-        <p style="margin-top: 1.5rem;">The <a href="/onboarding/surface-build/">shape-your-view prompt</a> above walks your AI through this end to end &mdash; give it your hub URL and a description of what you look at most.</p>
+        <p style="margin-top: 1.5rem;">Your vault's <strong>Getting Started</strong> note (and the <strong>Surface Starter</strong> note it links to) walks your AI through this end to end &mdash; scaffolding the SPA on the SDK and deploying it to GitHub Pages. Open it in Claude Code or your editor, give it your hub URL and a description of what you look at most, and build.</p>
     </section>
 
     <section class="section">
