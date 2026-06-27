@@ -108,7 +108,7 @@ else
 fi
 
 printf "\n%sParachute — DigitalOcean / Ubuntu zero-SSH setup%s\n" "$BOLD" "$RESET"
-printf "%shub + vault + public HTTPS (Caddy), in one command%s\n" "$DIM" "$RESET"
+printf "%shub + public HTTPS (Caddy), in one command%s\n" "$DIM" "$RESET"
 
 # ── 1. base packages (curl, unzip — Bun's installer needs unzip) ─────────────
 # apt wrapper that survives cloud-init's early boot. On first boot, cloud-init's
@@ -359,8 +359,10 @@ fi
 #
 # We read it from the LOOPBACK hub (hub#576 hands the token to loopback callers
 # only — a public request through Caddy is NOT loopback and won't get it). This
-# runs AFTER the final `parachute restart` above, because each restart mints a
-# fresh token; reading earlier would print a stale one. Pure-bash parse (no jq).
+# runs after the hub has settled (confirmed reachable in step 5b above), so the
+# token read is current. The hub mints a fresh bootstrap token on each (re)start;
+# there's no restart in this flow anymore, so the token from hub start is the one
+# we read here. Pure-bash parse (no jq).
 # Entirely non-fatal — if the read fails (or an admin already exists on a
 # re-run), the summary still tells the operator how to finish.
 BOOTSTRAP_TOKEN=""
@@ -480,11 +482,13 @@ fi
 # here is wrapped so a failure NEVER aborts the curl|bash under `set -euo
 # pipefail` — transcription is a nice-to-have, not a setup gate.
 #
-# ORDERING INVARIANT: the bootstrap token was read in step 6, after the LAST hub
-# restart (step 5b). `parachute install scribe` below spawns scribe as a
-# supervised child and does NOT restart the hub (which would mint a fresh token
-# and stale the one we wrote to the summary). Keep it that way — if a future
-# `install` starts restarting the hub, move the token read to AFTER this step.
+# ORDERING INVARIANT: the bootstrap token was read in step 6, after the hub had
+# settled (confirmed reachable in step 5b) — there's no hub restart in this flow,
+# so the token from hub start is the live one. `parachute install scribe` below
+# spawns scribe as a supervised child and does NOT restart the hub (which would
+# mint a fresh token and stale the one we wrote to the summary). Keep it that way
+# — if a future `install` starts restarting the hub, move the token read to AFTER
+# this step.
 TRANSCRIBE_NOTE=""
 MEM_KB="$(awk '/^MemTotal:/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)"
 # Guard against awk succeeding with empty output (no MemTotal line) — an empty
