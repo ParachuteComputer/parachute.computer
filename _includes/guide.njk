@@ -1,0 +1,13 @@
+---
+layout: base.njk
+---
+<main>
+    <section class="hero">
+        <h1 class="fade-up fade-up-2">{{ title }}</h1>
+        {% if tagline %}<p class="tagline fade-up fade-up-3">{{ tagline }}</p>{% endif %}
+    </section>
+
+    <div class="post-content fade-up fade-up-4">
+        {{ content | safe }}
+    </div>
+</main>
