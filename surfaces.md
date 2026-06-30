@@ -11,6 +11,38 @@ A **surface** is a custom UI over a Parachute vault — a dashboard, a notes app
 
 *(Newer vaults ship this same guide as a `Surface Starter` note inside the vault — ask your connected AI to read it. This page is the public copy, for any vault.)*
 
+## Start here — paste this to your AI
+
+Open your editor (or Claude Code) in a fresh folder and paste this. Fill in your hub origin + vault name (your connected AI can read them from `vault-info`):
+
+```text
+I want to build a custom surface — a web UI over my Parachute vault. Help me
+scaffold and build it.
+
+My vault: hub origin https://YOUR-HUB , vault name "default".
+(If you have my vault connected over MCP, read vault-info for the exact name +
+the tags/schemas the UI should be shaped around.)
+
+Please:
+1. Scaffold a Vite + React + TypeScript app.
+2. Use the published packages — do NOT hand-roll OAuth, the vault API, or note
+   rendering:
+   - @openparachute/surface-client — createVaultSurface({ clientName, hubUrl,
+     vaultName }) for sign-in + a typed vault client (queryNotes, createNote, …).
+   - @openparachute/surface-render — <NoteRenderer> for note content (Markdown,
+     wikilinks, embeds).
+3. Build in this order: (a) auth + data — get sign-in + a queryNotes round-trip
+   working first; (b) rendering with <NoteRenderer>; (c) UX last.
+4. Run it on a local dev server (vite / bun dev). I'll sign in through the
+   browser — OAuth needs a real redirect, so it can't run from a chat session.
+5. Shape the UI around my vault's actual tags + schemas: query the tags that
+   matter, surface the fields I filter on.
+
+Reference: https://parachute.computer/surfaces/
+```
+
+The rest of this page is the same guidance, expanded — read on if you want to understand each piece.
+
 ## Build a surface in your editor, not from a chat session
 
 A surface runs **in a browser**: it needs a real OAuth round-trip (a redirect to your hub's consent screen and back), a dev server to serve the app, and a CORS origin the hub trusts. An MCP/chat session has none of that — no browser, no redirect, no dev server. So **don't try to "run" a surface from a vault chat session.** Build it in your editor (or Claude Code) against a local dev server (`vite` / `bun dev`), sign in through the browser there, and iterate. From a vault session you design the structure the surface will consume and write the code; you exercise the OAuth/render loop in the browser.
