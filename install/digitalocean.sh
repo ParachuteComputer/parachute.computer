@@ -15,8 +15,10 @@
 #        • PARACHUTE_DOMAIN if you set one (point an A-record at the droplet IP),
 #        • else <droplet-ip>.sslip.io (wildcard DNS → the IP — zero config).
 #   3. `parachute init --hub-origin https://<hostname>` — persists the canonical
-#      public origin to the hub DB BEFORE modules spawn, so vault (and scribe)
-#      come up accepting it in one pass. Starts hub + vault. No tunnel.
+#      public origin to the hub DB and starts the hub as a reboot-survivable
+#      systemd unit. No tunnel. Vault is NOT auto-created here; the operator
+#      creates and names their first vault in the browser wizard (/admin/setup)
+#      or headlessly via `parachute init --vault-name <name>`.
 #   4. Installs + configures Caddy as the TLS terminator: it provisions a Let's
 #      Encrypt cert for <hostname> and reverse-proxies HTTPS → the loopback hub.
 #      Caddy strips client-supplied trust-signal headers (defense-in-depth — it's
@@ -106,7 +108,7 @@ else
 fi
 
 printf "\n%sParachute — DigitalOcean / Ubuntu zero-SSH setup%s\n" "$BOLD" "$RESET"
-printf "%shub + vault + public HTTPS (Caddy), in one command%s\n" "$DIM" "$RESET"
+printf "%shub + public HTTPS (Caddy), in one command%s\n" "$DIM" "$RESET"
 
 # ── 1. base packages (curl, unzip — Bun's installer needs unzip) ─────────────
 # apt wrapper that survives cloud-init's early boot. On first boot, cloud-init's
@@ -292,7 +294,7 @@ if ! ( : > "$SUMMARY_FILE" ) 2>/dev/null; then
   : > "$SUMMARY_FILE" 2>/dev/null || SUMMARY_FILE="/dev/null"
 fi
 
-step "Running parachute init (hub + vault, systemd unit)"
+step "Running parachute init (hub-only, systemd unit)"
 {
   echo "===== parachute init output ($(date -u '+%Y-%m-%d %H:%M:%S UTC')) ====="
   echo
@@ -317,40 +319,34 @@ parachute init "${INIT_ARGS[@]}" 2>&1 | tee -a "$SUMMARY_FILE" || {
 
 HUB_PORT="${PARACHUTE_HUB_PORT:-1939}"
 
-# ── 5b. Ensure modules are actually running under the supervisor ──────────────
-# Two fresh-box realities of `parachute init` this works around (both are hub
-# bugs tracked upstream; this is the operator-facing belt-and-suspenders so the
-# box is usable after ONE unattended boot — fully non-fatal):
-#   1. init installs the vault module at @latest regardless of the channel we
-#      installed above — so on `rc` it DOWNGRADES vault below the hub. Re-assert
-#      the chosen channel so vault matches the hub.
-#   2. init can start the hub supervisor BEFORE the vault entry is seeded into
-#      services.json (a timing race lost on slow boxes) — leaving vault
-#      registered but never spawned (502 at /vault/*). A restart makes the
-#      supervisor re-scan and spawn it.
+# ── 5b. Settle the hub + ensure the vault package is at the right channel ──────
+# init installs the vault module at @latest regardless of the channel we chose
+# above — so on `rc` it would DOWNGRADE vault below the hub. Re-assert the
+# chosen channel so the right vault version is on PATH when the operator creates
+# their first vault in the wizard. Vault is NOT started here: vault creation is
+# always explicit (browser wizard or `parachute init --vault-name <name>`).
 if [ "${CHANNEL}" != "latest" ]; then
   info "Re-asserting vault @ ${CHANNEL} (init installs modules at @latest)…"
   bun add -g "@openparachute/vault@${CHANNEL}" >/dev/null 2>&1 \
     || warn "Could not re-assert vault@${CHANNEL}; continuing with the installed version."
 fi
-step "Starting all modules under the supervisor"
-parachute restart >/dev/null 2>&1 \
-  || warn "parachute restart returned non-zero — check 'parachute status' after login."
-# Verify vault answers through the hub proxy (give the child a moment to bind).
-# 200 = open health; 401/403 = reachable but auth-gated (vault IS up); 502/000 = down.
-vault_up=""
+# Probe hub readiness via /admin/setup — the wizard entry point. Returns 200 in
+# needs-setup mode (fresh box) and after admin creation. 401/403 means the hub is
+# up but already configured. 000/5xx means the hub isn't answering yet.
+step "Verifying hub is up"
+hub_up=""
 for _ in 1 2 3 4 5 6; do
-  vcode="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 5 \
-    "http://127.0.0.1:${HUB_PORT}/vault/default/health" 2>/dev/null || echo 000)"
-  case "$vcode" in
-    200 | 401 | 403) vault_up="yes"; break ;;
+  hcode="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 5 \
+    "http://127.0.0.1:${HUB_PORT}/admin/setup" 2>/dev/null || echo 000)"
+  case "$hcode" in
+    200 | 401 | 403) hub_up="yes"; break ;;
   esac
   sleep 3
 done
-if [ -n "$vault_up" ]; then
-  ok "Vault is running under the supervisor."
+if [ -n "$hub_up" ]; then
+  ok "Hub is up — finish setup (including creating your first vault) in the admin wizard."
 else
-  warn "Vault isn't answering yet — after login, run 'parachute restart' or check 'parachute status'."
+  warn "Hub isn't answering yet — after login, check 'parachute status'."
 fi
 
 # ── 6. read the one-time bootstrap token (no creds in config) ────────────────
@@ -363,8 +359,10 @@ fi
 #
 # We read it from the LOOPBACK hub (hub#576 hands the token to loopback callers
 # only — a public request through Caddy is NOT loopback and won't get it). This
-# runs AFTER the final `parachute restart` above, because each restart mints a
-# fresh token; reading earlier would print a stale one. Pure-bash parse (no jq).
+# runs after the hub has settled (confirmed reachable in step 5b above), so the
+# token read is current. The hub mints a fresh bootstrap token on each (re)start;
+# there's no restart in this flow anymore, so the token from hub start is the one
+# we read here. Pure-bash parse (no jq).
 # Entirely non-fatal — if the read fails (or an admin already exists on a
 # re-run), the summary still tells the operator how to finish.
 BOOTSTRAP_TOKEN=""
@@ -484,11 +482,13 @@ fi
 # here is wrapped so a failure NEVER aborts the curl|bash under `set -euo
 # pipefail` — transcription is a nice-to-have, not a setup gate.
 #
-# ORDERING INVARIANT: the bootstrap token was read in step 6, after the LAST hub
-# restart (step 5b). `parachute install scribe` below spawns scribe as a
-# supervised child and does NOT restart the hub (which would mint a fresh token
-# and stale the one we wrote to the summary). Keep it that way — if a future
-# `install` starts restarting the hub, move the token read to AFTER this step.
+# ORDERING INVARIANT: the bootstrap token was read in step 6, after the hub had
+# settled (confirmed reachable in step 5b) — there's no hub restart in this flow,
+# so the token from hub start is the live one. `parachute install scribe` below
+# spawns scribe as a supervised child and does NOT restart the hub (which would
+# mint a fresh token and stale the one we wrote to the summary). Keep it that way
+# — if a future `install` starts restarting the hub, move the token read to AFTER
+# this step.
 TRANSCRIBE_NOTE=""
 MEM_KB="$(awk '/^MemTotal:/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)"
 # Guard against awk succeeding with empty output (no MemTotal line) — an empty
@@ -616,7 +616,7 @@ fi
 read -r -d '' NEXT_STEPS <<EOF || true
 
 ================================================================================
-Parachute is installed — hub + vault running as a systemd unit${HOSTNAME_PUBLIC:+, behind Caddy (public HTTPS)}.
+Parachute is installed — hub running as a systemd unit${HOSTNAME_PUBLIC:+, behind Caddy (public HTTPS)}.
 ================================================================================
 
 ${URL_LINE}
@@ -625,8 +625,9 @@ ${LOGIN_BLOCK}
 
 ${TRANSCRIBE_NOTE}
 
-Connect your AI — point any MCP client at:
-    ${PUBLIC_URL:-<your-hub-origin>}/vault/default/mcp
+Connect your AI — after you create your first vault in the wizard, point any
+MCP client at:
+    ${PUBLIC_URL:-<your-hub-origin>}/vault/<your-vault-name>/mcp
 The admin SPA's Connect toggle hands you a copy-paste 'claude mcp add' command.
 If the Claude connector fails right after consent, it's almost never the hub —
 see the Cloudflare/edge note at https://parachute.computer/start/
