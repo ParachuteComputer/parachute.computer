@@ -8,7 +8,7 @@ A surface should be **developed, lives, and serves entirely inside the parachute
 
 Four layers, each doing what it's best at:
 
-> **Vault *declares*** (a `#surface` note — mount, mode, source, scopes; low-churn metadata) · **Git *transports*** (versioned, content-addressed, delta-efficient movement) · **Hub *authenticates*** (issues + validates a `surface:<name>:push` scope; runs the authenticated git endpoint) · **surface-host *serves*** (receives the push event, builds/serves in its own trust boundary).
+> **Vault *declares*** (a `#surface` note — mount, mode, source, scopes; low-churn metadata) · **Git *transports*** (versioned, content-addressed, delta-efficient movement) · **Hub *authenticates*** (issues + validates a `surface:<name>:write` scope; runs the authenticated git endpoint) · **surface-host *serves*** (receives the push event, builds/serves in its own trust boundary).
 
 This resolves every constraint that the alternatives traded off (see §2), and it positions **git-as-transport as a reusable hub substrate primitive** — surfaces are the first consumer, but "hub-authenticated git" generalizes to any module that wants versioned, authenticated, file-shaped content movement.
 
@@ -67,15 +67,15 @@ Two genuinely different capabilities hide under "push to a surface." **State bot
 
 ```
    author (agent / human / standalone Claude Code)
-        │  git push  (Authorization: Bearer <hub JWT, scope surface:<name>:push>)
+        │  git push  (Authorization: Bearer <hub JWT, scope surface:<name>:write>)
         ▼
    ┌─────────────────────────────────────────────────────────┐
    │ HUB  (substrate: identity + transport)                   │
    │  • /git/<name>/* smart-HTTP endpoint  (git http-backend) │
-   │  • validate bearer + surface:<name>:push  (scope-guard)  │
+   │  • validate bearer + surface:<name>:write  (scope-guard) │
    │  • bare repos (transport store)                          │
    │  • surface→remote registry (name → repo)                 │
-   │  • issues surface:<name>:push tokens                     │
+   │  • issues surface:<name>:write tokens                    │
    └─────────────────────────────────────────────────────────┘
         │  post-receive → notify over HTTP + hub JWT (NOT shell-out)
         ▼
@@ -100,7 +100,7 @@ Git's HTTP auth is "whatever the front enforces"; nothing exotic. (Grounded in t
 1. **Two requests, service name = read/write.** Discovery `GET /git/<name>.git/info/refs?service=git-receive-pack` (push) or `…upload-pack` (fetch); transfer `POST /git/<name>.git/git-receive-pack`. **read = `upload-pack`, write = `receive-pack`** — scope enforcement keys *purely off the path/service*, no pack parsing.
 2. **The 401 dance (load-bearing).** Git first tries anonymously; the hub returns **`401` + `WWW-Authenticate: Bearer`**; git invokes the credential helper and **retries with `Authorization`**. *Push is gated at the info/refs GET, before any pack is sent.* Without the `WWW-Authenticate` header some git versions won't retry — must include it.
 3. **Bearer or Basic.** git ≥2.46 sends native `Authorization: Bearer <jwt>` (helper emits `authtype=Bearer`+`credential=<jwt>`); older git uses Basic with **`x-access-token`:`<jwt>`** (GitHub's compat trick). Support both.
-4. **The gate.** The hub validates the JWT (signature → JWKS; `iss` ∈ `buildHubBoundOrigins` multi-origin set; `aud`; revocation — the existing scope-guard path) and checks `surface:<name>:push`. On success, proxy (streaming/chunked-safe) to a **`git http-backend`** subprocess with CGI env (`GIT_PROJECT_ROOT`, `PATH_INFO`, `REMOTE_USER=<subject>`, `GIT_HTTP_EXPORT_ALL=1`, `GIT_PROTOCOL`). Enforce at **both** info/refs GET and the POST.
+4. **The gate.** The hub validates the JWT (signature → JWKS; `iss` ∈ `buildHubBoundOrigins` multi-origin set; `aud`; revocation — the existing scope-guard path) and checks `surface:<name>:write`. On success, proxy (streaming/chunked-safe) to a **`git http-backend`** subprocess with CGI env (`GIT_PROJECT_ROOT`, `PATH_INFO`, `REMOTE_USER=<subject>`, `GIT_HTTP_EXPORT_ALL=1`, `GIT_PROTOCOL`). Enforce at **both** info/refs GET and the POST.
 5. **Deploy hand-off — no shell-out.** `post-receive` does **not** run a build as the git user (that's RCE — §7). It **notifies surface-host over HTTP + a hub JWT** (the settled "service-to-service via HTTP, not shell-out" + hub-module-boundary patterns). surface-host pulls the new ref and serves.
 
 ---
@@ -112,16 +112,16 @@ The whole point: **`git push` becomes just another hub-scoped capability**, iden
 ### 6a. Internal agents (in the parachute framework) — the grant flow
 The agent-connectors subsystem already implements request→approve→mint→inject for `vault`/`service`/`mcp` grant kinds; **`surface` is a 4th kind that extends the machinery almost mechanically.** Invariant preserved: **a vault note can only REQUEST, never GRANT.**
 
-1. **Declare:** a `#agent/role` note carries `wants: surface:<name>:push` (parsed by `parseOneWant`, `grants.ts`; honored only on a `#agent/role`, never a plain content note — the role security gate).
+1. **Declare:** a `#agent/role` note carries `wants: surface:<name>:write` (parsed by `parseOneWant`, `grants.ts`; honored only on a `#agent/role`, never a plain content note — the role security gate).
 2. **Request (auto, on def load):** the module `PUT <hub>/admin/grants {agent, connection}` → hub writes a `status:"pending"` row to `agent-grants.json` (0600). A note can only ever sit pending.
-3. **Approve (human governs):** operator-cookie-gated `POST /admin/grants/<id>/approve` (the module *never* approves). Mints/stores the push credential (lowest-effort precedent: the operator-pasted `service`-token path; cleanest: a hub-minted `surface:<name>:push` JWT).
+3. **Approve (human governs):** operator-cookie-gated `POST /admin/grants/<id>/approve` (the module *never* approves). Mints/stores the push credential (lowest-effort precedent: the operator-pasted `service`-token path; cleanest: a hub-minted `surface:<name>:write` JWT).
 4. **Inject at spawn (the one genuinely new runtime piece):** material is fetched fresh per turn (revocation = next turn). Today injection is MCP-entry or env-var — **neither authenticates `git push`** (no credential helper exists anywhere in the repo). Add a **third injection channel: a per-spawn 0600 `GIT_ASKPASS` script** in the private workspace that echoes the token, with `GIT_TERMINAL_PROMPT=0` (token never lands in `.git/config`). *Recommended over URL-embedding.*
    - Adjacent: **egress** — under `network:"restricted"`, auto-allow the granted surface's git host (least-privilege link, derived from the grant). **Filesystem** — the repo must be in the turn's cwd (clone-per-turn vs a mounted checkout — §11).
 
 ### 6b. External / standalone Claude Code session (on or off machine)
 Same hub OAuth, no framework needed:
 1. **DCR** (`POST /oauth/register`) — loopback redirect URIs (`http://127.0.0.1:<port>/cb`) are accepted, so a native CLI works. *First registration is `pending` until operator approval* — the headless flow must account for this.
-2. **OAuth** auth-code + PKCE (S256) → a `surface:<name>:push` token.
+2. **OAuth** auth-code + PKCE (S256) → a `surface:<name>:write` token.
 3. **`git-credential-parachute`** — a near-verbatim copy of `git-credential-oauth`: loopback-PKCE for desktops, **device-flow for headless**, emits `authtype=Bearer`/`x-access-token`, caches + refreshes. `git config credential.helper parachute` and any `git push` to a hub surface remote authenticates transparently.
    - **GAP to resolve:** the hub today has **no device-flow (RFC 8628) / client_credentials**. A browserless box completes the flow only via the loopback-browser native pattern. *Decision (§11): ship the helper with loopback + token-cache now, or build a device-authorization grant.*
 
@@ -135,7 +135,7 @@ Phase 3a takes the **simplest** cut of 6b: skip the browser/OAuth/device-flow (t
 # push access (default; --read for clone-only). 90d TTL by default (--ttl 30d / --expires-in <s>, cap 365d).
 parachute surface token mint <name> --write          # → the token on stdout, setup guidance on stderr
 parachute surface token list  [<name>]               # jti · surface · access · status (active/revoked/expired)
-parachute surface token revoke <jti>                  # kill a leaked one (git endpoint rejects it within ~60s)
+parachute surface token revoke <jti>                  # kill a leaked one (rejected on the next push, effective immediately)
 ```
 
 The token is a **registered, revocable** `surface:<name>:<read|write>` JWT (`created_via: surface_token`, so it lists as a distinct class from agent grants). It's scoped to ONE surface + one verb — a deploy-key, not a master key (design §7). `mint`/`list`/`revoke` require the operator token to carry `parachute:host:auth` (same gate as `auth mint-token`).
@@ -161,14 +161,14 @@ git push                                             # authenticated, no prompt
 **Still to come:** 3b/3c add the interactive loopback-PKCE (desktop) + device-flow (headless) helper modes for *humans* who'd rather log in than paste a secret. The `git-credential-parachute` static path is the seam those extend.
 
 ### 6c. Local human (on the box)
-Operator token (carries `parachute:host:auth`) → `parachute auth mint-token --scope surface:<name>:push` → use as the git credential (or a `parachute surface push` sugar that wraps it). Validated via the iss-set-tolerant operator path (survives loopback↔public origin skew after `expose`).
+Operator token (carries `parachute:host:auth`) → `parachute auth mint-token --scope surface:<name>:write` → use as the git credential (or a `parachute surface push` sugar that wraps it). Validated via the iss-set-tolerant operator path (survives loopback↔public origin skew after `expose`).
 
 ---
 
 ## 7. Security & trust
 
 - **Write-scope on the git endpoint = RCE *iff* something builds the pushed tree as a privileged user.** Mitigations, in order: **(1) push pre-built dist → the server only static-serves (no build, no exec)** — the recommended default; (2) if building, do it in a *sandboxed* worker that is **not** the git/hub user, the same trust posture as untrusted CI; (3) post-receive *notifies a module* over HTTP+JWT — exec authority stays inside the module's boundary, never the substrate.
-- **Human governs grants, always.** Approve/revoke are operator-cookie + first-admin only; the module can only register-pending / fetch-approved-material / reconcile-prune. Worst case from a malicious note: a pending row that sits forever. Consider **step-up PIN** for `surface:push` approval (it's an external *write* capability — strictly more dangerous than a read vault grant), and prefer **least-privilege per-surface tokens** over broad ones.
+- **Human governs grants, always.** Approve/revoke are operator-cookie + first-admin only; the module can only register-pending / fetch-approved-material / reconcile-prune. Worst case from a malicious note: a pending row that sits forever. Consider **step-up PIN** for `surface:write` approval (it's an external *write* capability — strictly more dangerous than a read vault grant), and prefer **least-privilege per-surface tokens** over broad ones.
 - **Secret discipline:** credentials live only in the hub's 0600 `agent-grants.json` and, at spawn, an ephemeral 0600 `GIT_ASKPASS`/child-env — **never** in a vault note. The child-env scrub already prevents a grant from setting the Claude-auth trio.
 - **Mechanism gotchas:** the `401` must carry `WWW-Authenticate`; auth is checked twice (info/refs + POST); stream/chunked-safe proxy with raised body limits (`http.postBuffer` default 1 MiB → chunked); **never persist the loopback origin** into a token/config (the known origin-pinned-staleness class); force-push/ff is enforced below HTTP (hooks/`receive.denyNonFastForwards`, not the proxy); **Git LFS is a separate auth surface** — declare it out of scope for v1.
 
@@ -176,10 +176,10 @@ Operator token (carries `parachute:host:auth`) → `parachute auth mint-token --
 
 ## 8. The scope model
 
-- **Declare `surface:push`** in surface-host's `.parachute/module.json` `scopes.defines` (joining the existing `surface:read` / `surface:admin`). The hub's 3-segment→2-segment collapse means declaring `surface:push` makes *every* `surface:<name>:push` validate — exactly the mechanism per-vault scopes use. No enumeration.
-- **Add a `surface:push` entry to `SCOPE_EXPLANATIONS`** for an honest consent-screen label (else it renders raw).
+- **Declare `surface:write`** in surface-host's `.parachute/module.json` `scopes.defines` (joining the existing `surface:read` / `surface:admin`). The hub's 3-segment→2-segment collapse means declaring `surface:write` makes *every* `surface:<name>:write` validate — exactly the mechanism per-vault scopes use. No enumeration.
+- **Add a `surface:write` entry to `SCOPE_EXPLANATIONS`** for an honest consent-screen label (else it renders raw).
 - **Leave it requestable** (out of `NON_REQUESTABLE_SCOPES`) so it's OAuth-requestable *and* mintable by `parachute auth mint-token` (via `canGrant` from a `parachute:host:auth` bearer).
-- **Gaps to decide (§11):** `capScopesToUserAuthority` caps only *vault* named scopes today — `surface:<name>:push` passes **uncapped** (no per-surface ownership cap). `inferAudience` resolves `surface:<name>:*` to `surface` (no per-surface `aud` pin) unless we add a branch. And `push` is outside the read/write/admin ladder → **exact-match** (`surface:admin` does *not* imply push unless we add it).
+- **Gaps to decide (§11):** `capScopesToUserAuthority` caps only *vault* named scopes today — `surface:<name>:write` passes **uncapped** (no per-surface ownership cap). `inferAudience` resolves `surface:<name>:*` to `surface` (no per-surface `aud` pin) unless we add a branch. And whether `surface:admin` implies `surface:write` is unsettled — treat as **exact-match** (`surface:admin` does *not* imply `surface:write` unless we add it).
 
 ---
 
@@ -207,7 +207,7 @@ surface-host **discovers surfaces from `#surface` notes** (mirroring the agent's
 ## 10. Lifecycle
 
 1. **Create** — write a `#surface` note (an agent via MCP, or a human). surface-host sees it; the hub provisions a **bare repo** + registers `name → repo` in the surface registry.
-2. **Grant** — `wants: surface:<name>:push` on an agent role (→ operator approves), or a human/external client gets a `surface:<name>:push` token.
+2. **Grant** — `wants: surface:<name>:write` on an agent role (→ operator approves), or a human/external client gets a `surface:<name>:write` token.
 3. **Push** — `git push <hub>/git/<name>` (authenticated). Pre-built dist on a branch (recommended) or source (if we choose build-on-receive).
 4. **Serve** — post-receive notifies surface-host → it pulls the ref → serves under `/surface/<name>`.
 5. **Iterate** — just push again. Deltas only (no churn).
@@ -225,14 +225,14 @@ surface-host **discovers surfaces from `#surface` notes** (mirroring the agent's
 5. **Push vs pull** — push (immediate, agent-driven) vs pull (surface-host polls; survives agent offline). *Could do both; push is the better dev loop.*
 6. **Agent cwd** — clone-per-turn (needs read creds too) vs a mounted checkout (`spec.mounts`).
 7. **Scope semantics** — does `surface:<name>:admin` imply push? Add a per-surface *ownership* cap to `capScopesToUserAuthority`? Per-surface `aud` pin in `inferAudience`?
-8. **Trust gating** — step-up PIN for `surface:push` approval? Least-privilege per-surface tokens?
+8. **Trust gating** — step-up PIN for `surface:write` approval? Least-privilege per-surface tokens?
 
 ---
 
 ## 12. Phased build plan
 
-- **Phase 0 — feel it (thinnest slice):** hub runs one authenticated `git http-backend` endpoint; `git push` a dist with a hand-minted `surface:<name>:push` token; post-receive notifies surface-host; it serves. *Proves the spine end-to-end on one machine.*
-- **Phase 1 — scope + declaration:** `surface:push` in module.json + consent label; the `#surface` note schema + surface-host discovery; the hub surface→remote registry; `parachute surface push` (local-human sugar).
+- **Phase 0 — feel it (thinnest slice):** hub runs one authenticated `git http-backend` endpoint; `git push` a dist with a hand-minted `surface:<name>:write` token; post-receive notifies surface-host; it serves. *Proves the spine end-to-end on one machine.*
+- **Phase 1 — scope + declaration:** `surface:write` in module.json + consent label; the `#surface` note schema + surface-host discovery; the hub surface→remote registry; `parachute surface push` (local-human sugar).
 - **Phase 2 — internal-agent grants:** the `surface` grant kind (both repos' `ConnectionSpec` + `parseOneWant` + both `connectionKey` impls, spec-not-key reconcile); the `surface` approve path; the **`GIT_ASKPASS` injection channel** + egress auto-allow.
 - **Phase 3 — external clients:**
   - **3a (SHIPPED 2026-07-01):** the static **deploy token** — `parachute surface token mint|list|revoke` (a scoped, registered, revocable `surface:<name>:<verb>` PAT-equivalent) + the static `git-credential-parachute` helper (env-var token → Basic `x-access-token`). The simplest "add a secret, git just works" for a remote `claude -p` agent / any box. See §6b Phase-3a. No new auth primitive — reuses the Phase-0a mint + Phase-2 credential mechanism.
