@@ -1,6 +1,6 @@
 # Surface Git Transport — vault-declared, git-transported, hub-authenticated surfaces
 
-*Design doc — 2026-06-30. Status: DRAFT for review. Author: uni/session (with Aaron).*
+*Design doc — 2026-06-30. Status: **SHIPPED** (2026-07-01) through Phase 3a — hub 0.7.5 (git transport substrate, registry, `surface` grant kind, deploy tokens), surface-host 0.3.8+ (build-on-push + kernel sandbox), agent 0.2.4 (`GIT_ASKPASS` injection). Phases 3b/3c/4 deferred; propagation tracked in [`parachute-patterns/migrations/2026-07-01-surface-git-transport.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/migrations/2026-07-01-surface-git-transport.md). Author: uni/session (with Aaron).*
 
 ## TL;DR
 
