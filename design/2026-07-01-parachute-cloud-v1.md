@@ -1,6 +1,6 @@
 # Parachute Cloud v1 — pay us money, get a vault
 
-*Design doc — 2026-07-01. Status: **DIRECTION** (D4 ratified by Aaron 2026-07-01: data-only v1, control plane around hub, harvest-not-revive parachute-cloud). Author: uni/session (with Aaron). Builds on the 2026-06-28 cloud product plan (team vault `Strategy/2026-06-28-parachute-cloud-plan`); supersedes `2026-04-20-cloud-offering-sketch.md`, `2026-05-26-fly-migration-path.md`'s runtime substrate, and the v0.6 doc's "single container" framing for cloud purposes.*
+*Design doc — 2026-07-01. Status: **DIRECTION** (D4 ratified by Aaron 2026-07-01: data-only v1, control plane around hub, harvest-not-revive parachute-cloud). **Substrate addendum:** see [`2026-07-02-cloud-substrate-deliberation.md`](./2026-07-02-cloud-substrate-deliberation.md) — corrects this doc's process-model assumption (one multi-vault process per box, not process-per-vault), replaces gate 9's density measurement with the concurrent-heavy-op ceiling, and adds the DO fit spike + tripwires. Author: uni/session (with Aaron). Builds on the 2026-06-28 cloud product plan (team vault `Strategy/2026-06-28-parachute-cloud-plan`); supersedes `2026-04-20-cloud-offering-sketch.md`, `2026-05-26-fly-migration-path.md`'s runtime substrate, and the v0.6 doc's "single container" framing for cloud purposes.*
 
 ## 1. The product, in Aaron's words
 
