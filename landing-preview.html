@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Parachute — a soft place for your thoughts to land</title>
-<meta name="description" content="One vault for everything on your mind — that any AI you use can read, connect, and remember. Open, self-hosted, and truly yours.">
+<meta name="description" content="All your notes in one vault. Any AI can read it. It stays yours. Open source, self-hostable, or hosted for you.">
 <meta name="theme-color" content="#fdfaf4">
 <meta property="og:title" content="Parachute — a soft place for your thoughts to land">
-<meta property="og:description" content="One vault for everything on your mind — that any AI you use can read, connect, and remember. Truly yours.">
+<meta property="og:description" content="All your notes in one vault. Any AI can read it. It stays yours.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://parachute.computer/v2/">
 <!--
@@ -302,13 +302,10 @@ header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-b
    ============================================================ */
 .layers-sec{background:linear-gradient(180deg,transparent,var(--sky) 20%,var(--sky) 80%,transparent)}
 .layers{display:grid;gap:1rem;margin-top:2rem}
-.layer{display:grid;grid-template-columns:auto 1fr auto;gap:1.1rem;align-items:center;
+/* no numbers, no traffic light (Neil: "lose the 1,2,3") — the Today/Soon
+   pills carry the sequence; coral marks "today" only */
+.layer{display:grid;grid-template-columns:1fr auto;gap:1.1rem;align-items:center;
   background:var(--card);border:1px solid var(--line);border-radius:20px;padding:1.2rem 1.4rem;box-shadow:var(--shadow-soft)}
-/* one accent, not a traffic light: coral marks "today" (L1); the rest stay quiet */
-.layer .num{font-family:var(--font-round);font-weight:700;font-size:1.35rem;width:2.6rem;height:2.6rem;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;color:var(--ink);
-  background:var(--paper-2);border:1.5px solid var(--line-2);flex:none}
-.layer.l1 .num{background:var(--coral-btn);border-color:var(--coral-btn);color:#fff}
 .layer h3{font-family:var(--font-round);font-weight:700;font-size:1.15rem;color:var(--ink);margin-bottom:.15rem}
 .layer p{color:var(--ink-soft);font-size:.92rem;margin:0}
 .layer .when{font-family:var(--font-round);font-weight:600;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;
@@ -316,8 +313,8 @@ header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-b
 .layer.l1 .when{background:var(--coral-soft);color:var(--coral-ink)}
 .layer.l1{outline:2px solid var(--coral-soft)}
 @media (max-width:620px){
-  .layer{grid-template-columns:auto 1fr;gap:.8rem 1rem}
-  .layer .when{grid-column:2;justify-self:start}
+  .layer{grid-template-columns:1fr;gap:.8rem}
+  .layer .when{justify-self:start}
 }
 
 /* ============================================================
@@ -438,7 +435,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
   <svg class="hero-mark" aria-hidden="true"><use href="#pchute"/></svg>
   <p class="eyebrow">Open source · yours forever</p>
   <h1 class="round">A soft place for your thoughts to <span class="warm">land.</span></h1>
-  <p class="hero-sub">One vault for everything on your mind — that any AI you use can read, connect, and remember. Truly yours.</p>
+  <p class="hero-sub">All your notes in one vault. Any AI can read it. It stays yours.</p>
   <div class="hero-cta">
     <a class="btn btn-primary" href="#join">Get early access →</a>
     <a class="link-quiet" href="https://cloud.parachute.computer">or try the beta now →</a>
@@ -452,7 +449,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
     <div class="vault-head reveal">
       <p class="eyebrow">Play with it</p>
       <h2 class="big round">Drop a few thoughts in.<br>Watch them connect.</h2>
-      <p class="lede" style="margin:.6rem auto 0;text-align:center">A vault isn't a folder. Your notes find each other — and your AI reads the whole web.</p>
+      <p class="lede" style="margin:.6rem auto 0;text-align:center">A vault isn't a folder. Notes find each other here.</p>
     </div>
 
     <div class="vaultgame reveal" data-vaultgame>
@@ -502,7 +499,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
 
         <div class="vg-recall" data-recall hidden>
           <p class="vg-recall-head round">Now ask your AI</p>
-          <p class="vg-recall-sub">It answers from what you've connected — not from a blank slate. Try:</p>
+          <p class="vg-recall-sub">It answers from your notes. Try:</p>
           <div class="vg-chips" data-chips>
             <button class="vg-chip" data-ask="write" aria-pressed="false">what did I want to write about?</button>
             <button class="vg-chip" data-ask="mom" aria-pressed="false">when should I call Mom?</button>
@@ -531,7 +528,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
     <div class="moment"><div class="scene">☕</div><p class="said">“Follow up with Sam.”</p><p class="cap">mid-meeting, half-listening</p></div>
     <div class="moment"><div class="scene">🌙</div><p class="said">“Remember this dream.”</p><p class="cap">half-asleep, 2am</p></div>
   </div>
-  <p class="devices reveal">Speak it or type it — from your phone, your laptop, the middle of a walk. It all lands in the same vault.</p>
+  <p class="devices reveal">Phone, laptop, mid-walk — it all lands in the same vault.</p>
 
   <div class="reveal" style="text-align:center;max-width:40rem;margin:3.5rem auto 0">
     <p class="eyebrow">What lives in a vault?</p>
@@ -551,22 +548,19 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
     <div class="reveal" style="text-align:center;max-width:40rem;margin:0 auto">
       <p class="eyebrow">Start simple</p>
       <h2 class="big round">It grows with you.</h2>
-      <p class="lede" style="margin:.6rem auto 0">Begin with a vault today. The rest is there when you want it — never before.</p>
+      <p class="lede" style="margin:.6rem auto 0">Start with a vault. The rest can wait.</p>
     </div>
     <div class="layers reveal">
       <div class="layer l1">
-        <div class="num">1</div>
-        <div><h3>A vault, your notes, your AI.</h3><p>Capture anything. Any AI reads and writes the same memory. This is the whole magic — and it works today.</p></div>
+        <div><h3>A vault, your notes, your AI.</h3><p>Write things down. Your AI remembers them. This works today.</p></div>
         <span class="when">Today</span>
       </div>
       <div class="layer l2">
-        <div class="num">2</div>
-        <div><h3>A surface shaped to you.</h3><p>Notes, a journal, a dashboard — pick or build the view that fits how you think.</p></div>
+        <div><h3>A surface shaped to you.</h3><p>Notes, a journal, a dashboard — a view that fits how you think.</p></div>
         <span class="when">Soon</span>
       </div>
       <div class="layer l3">
-        <div class="num">3</div>
-        <div><h3>Agents that work from your context.</h3><p>Helpers that already know you — because they read the vault you built. The bet we're making.</p></div>
+        <div><h3>Agents that work from your context.</h3><p>Helpers that already know you, because they read your vault.</p></div>
         <span class="when">The bet</span>
       </div>
     </div>
@@ -578,21 +572,21 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
   <div class="reveal" style="text-align:center;max-width:40rem;margin:0 auto">
     <p class="eyebrow">Simple pricing</p>
     <h2 class="big round">Two ways in.</h2>
-    <p class="lede" style="margin:.6rem auto 0">Run it yourself for free, or let us host it. Either way, the vault is yours to export, anytime.</p>
+    <p class="lede" style="margin:.6rem auto 0">Run it yourself, or let us host it. Either way you can take your vault and leave, anytime.</p>
   </div>
   <div class="price-grid reveal">
     <div class="price self">
       <span class="kicker">Run it yourself</span>
       <h3>Self-host</h3>
       <div class="amt">Free <small>· open source</small></div>
-      <p>One command on your own machine. Yours completely, forever. For the tinkerers.</p>
+      <p>One command on your own machine. For the tinkerers.</p>
       <a class="btn btn-ghost" href="/start/">See how →</a>
     </div>
     <div class="price feature">
       <span class="kicker">We run it, it stays yours</span>
       <h3>Cloud vault</h3>
       <div class="amt">$2–5<small>/mo</small></div>
-      <p>A vault of your own in about a minute. No setup, no server — just start.</p>
+      <p>A vault of your own in about a minute. No setup.</p>
       <a class="btn btn-primary" href="#join">Get a vault →</a>
       <p class="beta">Eager? <a href="https://cloud.parachute.computer">Try the beta now →</a></p>
     </div>
@@ -604,7 +598,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
   <div class="join-card reveal">
     <svg class="mark" aria-hidden="true"><use href="#pchute"/></svg>
     <h2 class="round">Get your vault.</h2>
-    <p class="lede" style="text-align:center">Join the list and we'll bring you in as cloud vaults roll out — gently, no spam.</p>
+    <p class="lede" style="text-align:center">We'll email you when your vault is ready.</p>
     <!--
       Wired to the LIVE subscribe Worker (Cloudflare + D1). Native cross-origin
       form POST → 303 redirect to /subscribe/thanks/ (success) or
