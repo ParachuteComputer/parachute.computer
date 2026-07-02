@@ -58,17 +58,17 @@ Being able to *technically* host strangers and being *ready to charge them* are 
 
 | Tier | What | Price | When |
 |---|---|---|---|
-| **Simple Vault** | vault + notes app + AI connect + backup, 1GB cap, shared box | **~$5/mo** (beta) | M1 |
+| **Simple Vault** | vault + notes app + AI connect + backup, 1GB cap — ~~shared box~~ *on a real per-tenant boundary (DO-per-vault or process/OS-user isolation — [addendum §2a](./2026-07-02-cloud-substrate-deliberation.md); the rung-0 shared pool never takes paying strangers)* | **~$3-5/mo** | ~~M1~~ M2, gated on the boundary |
 | **Bigger caps** | 5GB / 10GB steps | +$3-5/step | M2 |
-| **Dedicated** | own box, own origin, privacy posture, all caps off | **~$25/mo** | M1 (manual), M3 (self-serve) |
-| **$1-2 entry** | shared box at real density | aspirational | M3, gated on the measured number |
+| **Dedicated** | own box, own origin, privacy posture, all caps off | **~$25/mo** | **M1** (manual) — the beta tier, per §2a |
+| **$1-2 entry** | isolated cheap tier at real density | aspirational | M3, gated on the DO spike + measurements |
 
 Rationale: $5 clears worst-case shared-box COGS *before* density is measured (and Stripe's fee — 2.9% + $0.30 — is ~$0.45 ≈ 9% of $5, vs ~$0.36 ≈ 18% of $2). The $1-2 vision is the destination — it becomes real when density is a measurement, not an assumption. **Trial-not-free**: a 14-day card-on-file trial instead of a free tier (a free tier on shared boxes is an abuse magnet and a COGS leak before ceilings exist). Scribe/transcription is **not** in v1 tiers (it's the one real per-use COGS; BYO-key or a metered add-on later).
 
 ## 5. The landing sequence
 
 - **M0 — the gates that are pure engineering (start now):** cap enforcement · backup-default + restore drill · account self-serve completions · the density load test · the written trust-posture page (gate 4 — a doc, not code) · one waitlist mechanism on the site (D1 worker + `cloud` flag; retire the substack fork). All of this is valuable for self-host + friends even if cloud slipped.
-- **M1 — private beta, real money (~5-15 people):** one **fresh** cloud box (not the friends box — clean blast radius), waitlist/friendlies invited, Stripe payment links (no self-serve billing code yet), provisioning via a control-plane CLI driving hub seams. $5 Simple Vault / $25 dedicated-by-hand. The goal is *learning + the first honest dollars*, not automation.
+- **M1 — private beta, real money (~5-15 people):** ~~$5 Simple Vault on a shared box~~ *(superseded by [addendum §2a](./2026-07-02-cloud-substrate-deliberation.md): no paying stranger on the rung-0 pool)* — **dedicated-by-hand at ~$25/tenant**: fresh droplets off the standard installer, waitlist/friendlies, Stripe payment links, provisioning via a control-plane CLI driving hub seams. The goal is *learning + the first honest dollars*, not automation. The cheap tier follows at M2 on a real boundary.
 - **M2 — self-serve:** signup → verify → pay (Stripe Checkout) → vault provisioned → welcome email with coordinates + first-hour guide. Subdomain-per-tenant. Public CTA lands with the Layer-0 site rework (which has its own pending context from Aaron).
 - **M3 — density + cheap tiers:** second box, fleet reconciler, measured pooled pricing, dedicated self-serve, pooled→dedicated migrator.
 
