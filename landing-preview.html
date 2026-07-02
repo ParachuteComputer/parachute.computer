@@ -4,21 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Parachute — a soft place for your thoughts to land</title>
-<meta name="description" content="One cozy vault for your notes — that any AI you use can read, connect, and remember. Open, self-hosted, and truly yours.">
+<meta name="description" content="One vault for everything on your mind — that any AI you use can read, connect, and remember. Open, self-hosted, and truly yours.">
 <meta name="theme-color" content="#fdfaf4">
 <meta property="og:title" content="Parachute — a soft place for your thoughts to land">
-<meta property="og:description" content="One cozy vault for your notes — that any AI you use can read, connect, and remember. Truly yours.">
+<meta property="og:description" content="One vault for everything on your mind — that any AI you use can read, connect, and remember. Truly yours.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://parachute.computer/v2/">
 <!--
-  Parachute landing — team-direction candidate (2026-07-02).
+  Parachute landing — team-direction candidate, round 2 (2026-07-02).
   Self-contained: no external CDN / fonts / JS / images. Everything inline.
-  Fonts are a system rounded stack (SF Pro Rounded on Apple via ui-rounded,
-  graceful fallbacks elsewhere) — no webfont download.
+  Tone target (Aaron): the MIDDLE between "we are very smart" (serif-
+  editorial) and "fun toddler" (all-rounded, emoji-heavy) — serif display
+  headlines over the warm palette; playfulness lives in the demo, not in
+  decoration. Fonts are system stacks (ui-serif / New York for display,
+  ui-rounded for UI accents) — no webfont download.
   Brandmark is a custom hand-drawn open SVG parachute (authored here — NOT
   Apple's copyrighted glyph, NOT the old network-graph logo).
-  Interactive vault demo is vanilla JS; degrades to a static picture with
-  no JS, and honors prefers-reduced-motion.
+  Interactive vault demo is vanilla JS: notes descend under tiny parachutes,
+  land, thread into a connected web (cross-cluster links — family touches
+  writing touches work), links draw in, the graph gently breathes at idle.
+  Degrades to a static picture with no JS; honors prefers-reduced-motion.
 -->
 <style>
 /* ============================================================
@@ -48,6 +53,7 @@
   --grass-soft:#dcefe0;
   --grass-ink:#245c39;
   --font-round:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold","Hiragino Maru Gothic ProN",Quicksand,system-ui,sans-serif;
+  --font-serif:ui-serif,"New York","Iowan Old Style",Georgia,"Times New Roman",serif;
   --font-body:-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --shadow-soft:0 10px 30px rgba(60,45,30,.08);
   --shadow-lift:0 18px 44px rgba(60,45,30,.12);
@@ -115,8 +121,8 @@ section{padding:clamp(3.5rem,8vw,6rem) 0}
   display:inline-block;margin-bottom:1rem;
 }
 h2.big{
-  font-family:var(--font-round);font-weight:600;
-  font-size:clamp(1.9rem,4.6vw,3rem);line-height:1.06;letter-spacing:-.01em;
+  font-family:var(--font-serif);font-weight:600;
+  font-size:clamp(1.9rem,4.6vw,2.9rem);line-height:1.12;letter-spacing:-.005em;
   color:var(--ink);margin-bottom:.5rem;
 }
 .lede{font-size:clamp(1.05rem,2vw,1.2rem);color:var(--ink-soft);max-width:34rem}
@@ -144,11 +150,11 @@ header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-b
 .hero{padding-top:clamp(2.5rem,7vw,5rem);text-align:center}
 .hero-mark{width:96px;height:92px;margin:0 auto .4rem;display:block}
 .hero h1{
-  font-family:var(--font-round);font-weight:700;
-  font-size:clamp(2.5rem,7.5vw,4.6rem);line-height:1.02;letter-spacing:-.02em;
-  color:var(--ink);max-width:16ch;margin:.2rem auto .9rem;
+  font-family:var(--font-serif);font-weight:600;
+  font-size:clamp(2.4rem,7vw,4.3rem);line-height:1.08;letter-spacing:-.012em;
+  color:var(--ink);max-width:17ch;margin:.2rem auto .9rem;
 }
-.hero h1 .warm{color:var(--coral)}
+.hero h1 .warm{color:var(--coral);font-style:italic}
 .hero-sub{font-size:clamp(1.1rem,2.4vw,1.4rem);color:var(--ink-soft);max-width:33rem;margin:0 auto 1.9rem}
 .hero-cta{display:flex;flex-wrap:wrap;gap:.9rem 1.2rem;align-items:center;justify-content:center}
 .hero-trust{margin-top:1.7rem;display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;justify-content:center;
@@ -156,10 +162,10 @@ header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-b
 .hero-trust span{display:inline-flex;align-items:center;gap:.45rem}
 .hero-trust span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--grass);flex:none}
 
-/* floaty parachute idle bob */
+/* floaty parachute idle bob — slow and slight, a drift not a bounce */
 @media (prefers-reduced-motion:no-preference){
-  .hero-mark{animation:bob 5s ease-in-out infinite}
-  @keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-9px) rotate(2deg)}}
+  .hero-mark{animation:bob 6.5s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-7px) rotate(1.5deg)}}
 }
 
 /* ============================================================
@@ -206,23 +212,42 @@ header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-b
 .vg-vault.drag-over{border-color:var(--coral);box-shadow:0 0 0 3px var(--coral-soft),var(--shadow-soft)}
 .vg-links{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .vg-links line{stroke:var(--coral);stroke-width:2;opacity:0;transition:opacity .55s ease;stroke-linecap:round}
-.vg-links line.on{opacity:.55}
+.vg-links line.on{opacity:.5}
+.vg-links line.hot{opacity:.9;stroke-width:2.5}
 .vg-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   color:var(--ink-soft);font-family:var(--font-round);font-weight:600;font-size:1.05rem;text-align:center;padding:1rem}
-.vg-node{
-  position:absolute;transform:translate(-50%,-50%) scale(1);
+
+/* A placed note = positioned wrapper (.vg-node) > pendulum rig (.rig) >
+   canopy (.chute, only visible while descending) + the chip itself (.body).
+   The wrapper owns left/top (drop = transition on top; idle drift = per-frame
+   left/top), so rig/body transforms never fight the positioning. */
+.vg-node{position:absolute;transform:translate(-50%,-50%)}
+.vg-node .rig{position:relative;display:inline-block;transform-origin:50% -26px}
+.vg-node .body{
   display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap;
   font-size:.86rem;font-weight:600;color:var(--ink);
   background:var(--card);border:1.5px solid var(--c,var(--line-2));
   border-radius:12px;padding:.4rem .6rem;box-shadow:0 4px 12px rgba(60,45,30,.12);
+  transition:border-color .25s ease,box-shadow .25s ease;
 }
 .vg-node .em{font-size:.95rem}
-.vg-node.pop{animation:pop .4s cubic-bezier(.3,1.4,.5,1) both}
-@keyframes pop{from{transform:translate(-50%,-50%) scale(.4);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
-.vg-node.glow{box-shadow:0 0 0 3px var(--sun),0 8px 20px rgba(60,45,30,.18);border-color:var(--sun)}
+.vg-node .chute{
+  position:absolute;left:50%;bottom:calc(100% + 3px);transform:translateX(-50%);
+  width:38px;height:36px;opacity:0;pointer-events:none;transition:opacity .45s ease;
+}
+.vg-node .chute svg{width:100%;height:100%;display:block}
+.vg-node.dropping .chute{opacity:.95}
 @media (prefers-reduced-motion:no-preference){
-  .vg-node.glow{animation:pulse 1.1s ease 2}
-  @keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.12)}}
+  .vg-node.dropping .rig{animation:sway 1.6s ease-in-out both}
+  @keyframes sway{0%{transform:rotate(0)}28%{transform:rotate(-5deg)}58%{transform:rotate(4deg)}82%{transform:rotate(-1.5deg)}100%{transform:rotate(0)}}
+  .vg-node.landed .rig{animation:settle .4s ease-out both}
+  @keyframes settle{0%{transform:scale(1)}35%{transform:scale(1.05,.94)}70%{transform:scale(.99,1.02)}100%{transform:scale(1)}}
+}
+.vg-node.glow .body{box-shadow:0 0 0 3px var(--sun),0 8px 20px rgba(60,45,30,.18);border-color:var(--sun)}
+.vg-node.kin .body{border-color:var(--coral);box-shadow:0 6px 16px rgba(60,45,30,.16)}
+@media (prefers-reduced-motion:no-preference){
+  .vg-node.glow .rig{animation:pulse 1.1s ease 2}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 }
 /* cluster colors */
 .c-family{--c:var(--coral)}
@@ -231,7 +256,8 @@ header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-b
 /* narrow screens: taller vault + smaller node chips so the graph breathes */
 @media (max-width:560px){
   .vg-vault{aspect-ratio:auto;min-height:400px}
-  .vg-node{font-size:.76rem;padding:.34rem .5rem}
+  .vg-node .body{font-size:.72rem;padding:.34rem .5rem}
+  .vg-node .chute{width:30px;height:28px}
   .vg-note{font-size:.88rem}
 }
 
@@ -246,7 +272,8 @@ header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-b
 .vg-chip:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
 .vg-chip[aria-pressed="true"]{background:var(--link);color:#fff}
 .vg-answer{min-height:2.6rem;font-size:1.05rem;line-height:1.55;color:var(--ink);
-  background:var(--sun-soft);border-radius:14px;padding:.9rem 1.05rem;border:1px solid #f0e2ad}
+  background:var(--paper);border-radius:0 14px 14px 0;padding:.9rem 1.05rem;
+  border:1px solid var(--line);border-left:3px solid var(--coral)}
 .vg-answer:empty{display:none}
 .vg-answer strong{color:var(--coral-ink)}
 .vg-answer .cursor{display:inline-block;width:.5ch;color:var(--coral);animation:blink 1s steps(1) infinite}
@@ -258,16 +285,15 @@ header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-b
    ============================================================ */
 .moments{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0 1.4rem}
 .moment{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:1.2rem;text-align:center;box-shadow:var(--shadow-soft)}
-.moment .scene{font-size:2rem;line-height:1;margin-bottom:.7rem}
+.moment .scene{font-size:1.5rem;line-height:1;margin-bottom:.7rem;opacity:.85}
 .moment .said{font-family:var(--font-round);font-weight:600;color:var(--ink);font-size:1.02rem;margin-bottom:.3rem}
 .moment .cap{color:var(--ink-soft);font-size:.86rem}
-.devices{text-align:center;color:var(--ink-soft);font-size:1rem;font-family:var(--font-round);font-weight:600}
-.devices .d{font-size:1.5rem;vertical-align:middle;margin:0 .15rem}
+.devices{text-align:center;color:var(--ink-soft);font-size:1.02rem;font-family:var(--font-serif);font-style:italic;max-width:36rem;margin:0 auto}
 
 .vaults-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:2rem}
 .vcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:1.2rem;box-shadow:var(--shadow-soft);
   transition:transform .18s ease,box-shadow .18s ease}
-.vcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift)}
+.vcard:hover{transform:translateY(-2px);box-shadow:var(--shadow-lift)}
 .vcard h3{font-family:var(--font-round);font-weight:700;font-size:1.05rem;color:var(--ink);margin-bottom:.75rem;display:flex;align-items:center;gap:.45rem}
 .vcard .tag{font-size:1.25rem}
 .vcard ul{list-style:none;display:grid;gap:.4rem}
@@ -324,7 +350,7 @@ header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-b
 .join-card{max-width:560px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:26px;
   padding:clamp(1.6rem,4vw,2.6rem);box-shadow:var(--shadow-lift)}
 .join-card .mark{width:56px;height:54px;margin:0 auto .6rem;display:block}
-.join-card h2{font-family:var(--font-round);font-weight:700;font-size:clamp(1.6rem,4vw,2.2rem);color:var(--ink);margin-bottom:.4rem}
+.join-card h2{font-family:var(--font-serif);font-weight:600;font-size:clamp(1.6rem,4vw,2.2rem);color:var(--ink);margin-bottom:.4rem}
 .join-card .lede{margin:0 auto 1.4rem}
 .signup{display:grid;gap:1rem;text-align:left}
 .field label{display:block;font-family:var(--font-round);font-weight:600;font-size:.92rem;color:var(--ink);margin-bottom:.4rem}
@@ -416,7 +442,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
   <svg class="hero-mark" aria-hidden="true"><use href="#pchute"/></svg>
   <p class="eyebrow">Open source · yours forever</p>
   <h1 class="round">A soft place for your thoughts to <span class="warm">land.</span></h1>
-  <p class="hero-sub">One cozy vault for your notes — that any AI you use can read, connect, and remember. Truly yours.</p>
+  <p class="hero-sub">One vault for everything on your mind — that any AI you use can read, connect, and remember. Truly yours.</p>
   <div class="hero-cta">
     <a class="btn btn-primary" href="#join">Get early access →</a>
     <a class="link-quiet" href="https://cloud.parachute.computer">or try the beta now →</a>
@@ -436,7 +462,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
     <div class="vaultgame reveal" data-vaultgame>
       <!-- STATIC fallback (shown when JS is off) -->
       <figure class="vg-static" data-static>
-        <svg viewBox="0 0 720 360" role="img" aria-label="A vault of six connected notes — Call Mom links to Mom's birthday Sept 3; a parachutes blog idea links to why I love them; a meeting with Jon links to Jon's phone number. With them connected, the AI answers: you wanted to write about parachutes.">
+        <svg viewBox="0 0 720 360" role="img" aria-label="A vault of six notes woven into one web — Call Mom and her birthday on Sept 3 connect to a note about a first parachute jump with Mom, which connects to a blog idea about parachutes, which connects to the meeting with Jon where it came up, which connects to Jon's phone number.">
           <defs>
             <style>
               .sn{fill:#fff;stroke:#e2d9c8;stroke-width:1.5}
@@ -445,40 +471,42 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
             </style>
           </defs>
           <rect x="0" y="0" width="720" height="360" rx="20" fill="#f7fbfd"/>
-          <line class="sl" x1="150" y1="95" x2="140" y2="215"/>
-          <line class="sl" x1="540" y1="80" x2="600" y2="170"/>
-          <line class="sl" x1="380" y1="285" x2="540" y2="270"/>
-          <g><rect class="sn" x="70" y="72" width="160" height="46" rx="12"/><text class="st" x="86" y="100">📞 Call Mom</text></g>
-          <g><rect class="sn" x="60" y="192" width="210" height="46" rx="12"/><text class="st" x="76" y="220">🎂 Mom's b'day — Sept 3</text></g>
-          <g><rect class="sn" x="460" y="57" width="205" height="46" rx="12"/><text class="st" x="476" y="85">🪂 Blog idea: parachutes</text></g>
-          <g><rect class="sn" x="505" y="147" width="200" height="46" rx="12"/><text class="st" x="521" y="175">✍️ Why I love them</text></g>
-          <g><rect class="sn" x="290" y="262" width="190" height="46" rx="12"/><text class="st" x="306" y="290">🤝 Meeting w/ Jon</text></g>
-          <g><rect class="sn" x="500" y="247" width="205" height="46" rx="12"/><text class="st" x="516" y="275">📱 Jon — 555-0142</text></g>
+          <line class="sl" x1="144" y1="108" x2="216" y2="223"/>
+          <line class="sl" x1="374" y1="144" x2="144" y2="108"/>
+          <line class="sl" x1="374" y1="144" x2="533" y2="79"/>
+          <line class="sl" x1="533" y1="79" x2="331" y2="288"/>
+          <line class="sl" x1="331" y1="288" x2="547" y2="238"/>
+          <g><rect class="sn" x="69" y="85" width="150" height="46" rx="12"/><text class="st" x="85" y="113">📞 Call Mom</text></g>
+          <g><rect class="sn" x="101" y="200" width="230" height="46" rx="12"/><text class="st" x="117" y="228">🎂 Mom's birthday — Sept 3</text></g>
+          <g><rect class="sn" x="249" y="121" width="250" height="46" rx="12"/><text class="st" x="265" y="149">✍️ That first jump — with Mom</text></g>
+          <g><rect class="sn" x="428" y="56" width="210" height="46" rx="12"/><text class="st" x="444" y="84">🪂 Blog idea: parachutes</text></g>
+          <g><rect class="sn" x="231" y="265" width="200" height="46" rx="12"/><text class="st" x="247" y="293">🤝 Meeting notes — Jon</text></g>
+          <g><rect class="sn" x="459" y="215" width="175" height="46" rx="12"/><text class="st" x="475" y="243">📱 Jon — 555-0142</text></g>
         </svg>
-        <figcaption>✨ Connected, your AI can answer “what did I want to write about?” — it sees the parachutes idea <em>and</em> why you love them.</figcaption>
+        <figcaption>Connected, your AI can answer “what did I want to write about?” — the blog idea, the jump with Mom, and the meeting where it came up.</figcaption>
       </figure>
 
       <!-- LIVE widget (revealed by JS) -->
       <div class="vg-live" data-live hidden>
         <div class="vg-tray" role="group" aria-label="Sample notes. Activate one to drop it into your vault.">
           <button class="vg-note" data-note="call-mom" draggable="true" style="--tilt:-2deg"><span class="em">📞</span>Call Mom</button>
-          <button class="vg-note" data-note="mom-bday" draggable="true" style="--tilt:1.5deg"><span class="em">🎂</span>Mom's b'day — Sept 3</button>
+          <button class="vg-note" data-note="mom-bday" draggable="true" style="--tilt:1.5deg"><span class="em">🎂</span>Mom's birthday — Sept 3</button>
           <button class="vg-note" data-note="blog" draggable="true" style="--tilt:-1deg"><span class="em">🪂</span>Blog idea: parachutes</button>
-          <button class="vg-note" data-note="why" draggable="true" style="--tilt:2deg"><span class="em">✍️</span>Why I love them</button>
-          <button class="vg-note" data-note="jon" draggable="true" style="--tilt:-1.5deg"><span class="em">🤝</span>Meeting w/ Jon</button>
+          <button class="vg-note" data-note="why" draggable="true" style="--tilt:2deg"><span class="em">✍️</span>That first jump — with Mom</button>
+          <button class="vg-note" data-note="jon" draggable="true" style="--tilt:-1.5deg"><span class="em">🤝</span>Meeting notes — Jon</button>
           <button class="vg-note" data-note="jon-num" draggable="true" style="--tilt:1deg"><span class="em">📱</span>Jon — 555-0142</button>
-          <button class="vg-fill" data-fill>drop them all in →</button>
+          <button class="vg-fill" data-fill>let them all land →</button>
         </div>
 
         <div class="vg-vault" data-vault>
           <svg class="vg-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
           <div class="vg-nodes" data-nodes></div>
-          <p class="vg-empty" data-empty>Your vault's empty.<br>Tap a note above to drop it in ↑</p>
+          <p class="vg-empty" data-empty>Your vault is empty.<br>Tap a note above — watch it land.</p>
         </div>
 
         <div class="vg-recall" data-recall hidden>
-          <p class="vg-recall-head round">✨ Now your AI gets it</p>
-          <p class="vg-recall-sub">It answers from the notes you connected — not a blank slate. Ask it:</p>
+          <p class="vg-recall-head round">Now ask your AI</p>
+          <p class="vg-recall-sub">It answers from what you've connected — not from a blank slate. Try:</p>
           <div class="vg-chips" data-chips>
             <button class="vg-chip" data-ask="write" aria-pressed="false">what did I want to write about?</button>
             <button class="vg-chip" data-ask="mom" aria-pressed="false">when should I call Mom?</button>
@@ -507,7 +535,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
     <div class="moment"><div class="scene">☕</div><p class="said">“Follow up with Sam.”</p><p class="cap">mid-meeting, half-listening</p></div>
     <div class="moment"><div class="scene">🌙</div><p class="said">“Remember this dream.”</p><p class="cap">half-asleep, 2am</p></div>
   </div>
-  <p class="devices reveal">Speak it or type it → it's in your vault, everywhere <span class="d">💻</span><span class="d">📱</span><span class="d">⌚</span></p>
+  <p class="devices reveal">Speak it or type it — from your phone, your laptop, the middle of a walk. It all lands in the same vault.</p>
 
   <div class="reveal" style="text-align:center;max-width:40rem;margin:3.5rem auto 0">
     <p class="eyebrow">What lives in a vault?</p>
@@ -672,21 +700,41 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
   staticEl.hidden=true;
   liveEl.hidden=false;
 
-  // note model: slot position (0-100 space), cluster class, emoji, short label, links
-  // x/y are 0-100 in the SVG's coordinate space; the wide-label nodes sit
-  // away from the edges so they don't clip on a narrow (mobile) vault.
+  // The constellation. x/y are 0-100 in the vault's coordinate space; wide
+  // labels sit away from the edges so they don't clip on a narrow vault.
+  // Deliberately a WEB, not pairs: "why" bridges family ↔ writing and "blog"
+  // bridges writing ↔ work, so the recall answers get richer as more of the
+  // web is in place — which is the actual product point.
   var NOTES={
-    "call-mom":{x:26,y:30,cls:"c-family",em:"📞",label:"Call Mom",links:["mom-bday"]},
-    "mom-bday":{x:38,y:64,cls:"c-family",em:"🎂",label:"Mom's b'day — Sept 3",links:["call-mom"]},
-    "blog":    {x:66,y:24,cls:"c-write", em:"🪂",label:"Blog idea: parachutes",links:["why"]},
-    "why":     {x:80,y:52,cls:"c-write", em:"✍️",label:"Why I love them",links:["blog"]},
-    "jon":     {x:40,y:82,cls:"c-work",  em:"🤝",label:"Meeting w/ Jon",links:["jon-num"]},
-    "jon-num": {x:66,y:74,cls:"c-work",  em:"📱",label:"Jon — 555-0142",links:["jon"]}
+    "call-mom":{x:20,y:28,cls:"c-family",em:"📞",label:"Call Mom"},
+    "mom-bday":{x:30,y:60,cls:"c-family",em:"🎂",label:"Mom's birthday — Sept 3"},
+    "why":     {x:52,y:40,cls:"c-write", em:"✍️",label:"That first jump — with Mom"},
+    "blog":    {x:74,y:22,cls:"c-write", em:"🪂",label:"Blog idea: parachutes"},
+    "jon":     {x:46,y:80,cls:"c-work",  em:"🤝",label:"Meeting notes — Jon"},
+    "jon-num": {x:76,y:66,cls:"c-work",  em:"📱",label:"Jon — 555-0142"}
   };
+  var LINKS=[
+    ["call-mom","mom-bday"],
+    ["why","call-mom"],      // Mom threads into the writing cluster
+    ["why","blog"],
+    ["blog","jon"],          // the idea came up in the meeting
+    ["jon","jon-num"]
+  ];
+  // Answers assemble from the web: a base (the two required notes) plus a
+  // bonus clause when the cross-linked note has landed too.
   var ANSWERS={
-    write:{need:["blog","why"],html:"You've been circling <strong>parachutes</strong> ✍️ — a blog idea, plus a note on why you love them. Want me to draft it from both?"},
-    mom:  {need:["call-mom","mom-bday"],html:"Her birthday's <strong>Sept 3</strong> 🎂 — worth calling before then. Want a nudge?"},
-    jon:  {need:["jon","jon-num"],html:"<strong>555-0142</strong> 📱 — pulled straight from your meeting note with Jon."}
+    write:{need:["blog","why"],
+      base:"You've been circling <strong>parachutes</strong> — a blog idea, and that first jump with Mom.",
+      extra:{id:"jon",html:" It came up with Jon too — three threads, one piece."},
+      close:" Want a draft that starts there?"},
+    mom:{need:["call-mom","mom-bday"],
+      base:"Her birthday is <strong>Sept 3</strong> — worth calling before then.",
+      extra:{id:"why",html:" You could tell her the parachute piece is finally happening — she's in it."},
+      close:""},
+    jon:{need:["jon","jon-num"],
+      base:"<strong>555-0142</strong> — straight from your meeting note.",
+      extra:{id:"blog",html:" He sparked the parachute blog, if you want a reason to call."},
+      close:""}
   };
 
   var vault=game.querySelector("[data-vault]");
@@ -696,44 +744,148 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
   var recall=game.querySelector("[data-recall]");
   var answerEl=game.querySelector("[data-answer]");
   var answerSr=game.querySelector("[data-answer-sr]");
-  var placed={};      // id -> node element
+  var SVGNS="http://www.w3.org/2000/svg";
+  var DROP_MS=1500;
+  var placed={};      // id -> {el, cur:{x,y}, landed, p1, p2}
+  var lines=[];       // {a, b, el}
   var typeTimer=null;
 
   function plainText(html){ var d=document.createElement("div"); d.innerHTML=html; return d.textContent||""; }
+  function curPos(id){ var p=placed[id]; return p&&p.cur?p.cur:{x:NOTES[id].x,y:NOTES[id].y}; }
+  function setLineCoords(l){
+    var a=curPos(l.a),b=curPos(l.b);
+    l.el.setAttribute("x1",a.x);l.el.setAttribute("y1",a.y);
+    l.el.setAttribute("x2",b.x);l.el.setAttribute("y2",b.y);
+  }
 
   function drawLink(a,b){
-    var na=NOTES[a], nb=NOTES[b];
-    var ln=document.createElementNS("http://www.w3.org/2000/svg","line");
-    ln.setAttribute("x1",na.x);ln.setAttribute("y1",na.y);
-    ln.setAttribute("x2",nb.x);ln.setAttribute("y2",nb.y);
+    if(!(placed[a]&&placed[b]&&placed[a].landed&&placed[b].landed)) return;
+    for(var i=0;i<lines.length;i++){var l=lines[i];if((l.a===a&&l.b===b)||(l.a===b&&l.b===a))return;}
+    var ln=document.createElementNS(SVGNS,"line");
     ln.setAttribute("vector-effect","non-scaling-stroke");
-    ln.setAttribute("data-a",a);ln.setAttribute("data-b",b);
+    var entry={a:a,b:b,el:ln};
+    setLineCoords(entry);
     linksSvg.appendChild(ln);
-    if(REDUCE){ ln.classList.add("on"); }
-    else{ requestAnimationFrame(function(){requestAnimationFrame(function(){ln.classList.add("on");});}); }
+    lines.push(entry);
+    if(REDUCE){ ln.classList.add("on"); return; }
+    // the thread draws itself from a to b (dash lengths live in the 0-100
+    // viewBox space; the stretch under preserveAspectRatio=none is fine
+    // because the dash is cleared as soon as the draw-in completes)
+    var pa=curPos(a),pb=curPos(b);
+    var len=Math.hypot(pb.x-pa.x,pb.y-pa.y);
+    ln.style.strokeDasharray=len;
+    ln.style.strokeDashoffset=len;
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      ln.classList.add("on");
+      ln.style.transition="stroke-dashoffset .9s ease";
+      ln.style.strokeDashoffset="0";
+    });});
+    setTimeout(function(){ ln.style.strokeDasharray="none"; ln.style.transition=""; },1000);
+  }
+
+  /* gentle idle drift: the web breathes. Runs only while the vault is on
+     screen, the tab is visible, and reduced-motion is off. Nodes mid-drop
+     are skipped (their `top` is owned by the drop transition). */
+  var driftOn=false, rafId=null, inView=true;
+  function anyLanded(){ for(var k in placed){ if(placed[k].landed) return true; } return false; }
+  function driftFrame(now){
+    rafId=null;
+    if(!driftOn) return;
+    var t=now/1000;
+    for(var id in placed){
+      var p=placed[id]; if(!p.landed) continue;
+      var n=NOTES[id];
+      p.cur.x=n.x+Math.sin(t*.42+p.p1)*.7;
+      p.cur.y=n.y+Math.cos(t*.31+p.p2)*.9;
+      p.el.style.left=p.cur.x+"%";
+      p.el.style.top=p.cur.y+"%";
+    }
+    for(var i=0;i<lines.length;i++) setLineCoords(lines[i]);
+    rafId=requestAnimationFrame(driftFrame);
+  }
+  function refreshDrift(){
+    driftOn=!REDUCE && inView && !document.hidden && anyLanded();
+    if(driftOn && rafId===null) rafId=requestAnimationFrame(driftFrame);
+  }
+  if("IntersectionObserver" in window){
+    new IntersectionObserver(function(es){
+      es.forEach(function(en){ inView=en.isIntersecting; });
+      refreshDrift();
+    },{threshold:.05}).observe(vault);
+  }
+  document.addEventListener("visibilitychange",refreshDrift);
+
+  function maybeRecall(){
+    if(Object.keys(placed).length>=2 && recall.hidden){
+      recall.hidden=false;
+      if(!REDUCE) recall.classList.add("reveal","in");
+    }
   }
 
   function addNote(id){
     if(placed[id]) return;
     var n=NOTES[id]; if(!n) return;
     var el=document.createElement("div");
-    el.className="vg-node "+n.cls+(REDUCE?"":" pop");
-    el.style.left=n.x+"%"; el.style.top=n.y+"%";
-    el.innerHTML='<span class="em">'+n.em+'</span>'+n.label;
-    nodesLayer.appendChild(el);
-    placed[id]=el;
-    // mark tray button used
+    el.className="vg-node "+n.cls;
+    el.setAttribute("data-id",id);
+    el.innerHTML='<span class="rig">'
+      +'<span class="chute" aria-hidden="true"><svg viewBox="0 0 64 60"><use href="#pchute"/></svg></span>'
+      +'<span class="body"><span class="em">'+n.em+'</span>'+n.label+'</span>'
+      +'</span>';
+    el.style.left=n.x+"%";
+    var entry={el:el,cur:{x:n.x,y:n.y},landed:false,p1:Math.random()*6.283,p2:Math.random()*6.283};
+    placed[id]=entry;
     var btn=game.querySelector('.vg-note[data-note="'+id+'"]');
     if(btn) btn.setAttribute("data-used","1");
-    // links to any already-placed related note
-    n.links.forEach(function(other){ if(placed[other]) drawLink(id,other); });
-    // empty + recall state
     if(emptyMsg) emptyMsg.style.display="none";
-    if(Object.keys(placed).length>=2 && recall.hidden){
-      recall.hidden=false;
-      if(!REDUCE) recall.classList.add("reveal","in");
+
+    function land(){
+      if(entry.landed) return;
+      entry.landed=true;
+      el.classList.remove("dropping");
+      el.classList.add("landed");
+      el.style.transition="";
+      LINKS.forEach(function(pr){ if(pr[0]===id||pr[1]===id) drawLink(pr[0],pr[1]); });
+      maybeRecall();
+      refreshDrift();
+    }
+
+    if(REDUCE){
+      el.style.top=n.y+"%";
+      nodesLayer.appendChild(el);
+      land();
+    }else{
+      // float down under a little parachute: start above the vault (clipped
+      // by overflow:hidden), descend on a slow ease, sway on the way.
+      el.style.top="-16%";
+      el.classList.add("dropping");
+      nodesLayer.appendChild(el);
+      requestAnimationFrame(function(){requestAnimationFrame(function(){
+        el.style.transition="top "+DROP_MS+"ms cubic-bezier(.5,.05,.32,1)";
+        el.style.top=n.y+"%";
+      });});
+      setTimeout(land,DROP_MS+80);
     }
   }
+
+  /* hover a landed note → its threads and neighbors light up */
+  function setHot(id,on){
+    if(!id) return;
+    lines.forEach(function(l){
+      if(l.a!==id&&l.b!==id) return;
+      l.el.classList.toggle("hot",on);
+      var other=l.a===id?l.b:l.a;
+      if(placed[other]) placed[other].el.classList.toggle("kin",on);
+    });
+  }
+  nodesLayer.addEventListener("mouseover",function(ev){
+    var nd=ev.target.closest?ev.target.closest(".vg-node"):null;
+    if(nd) setHot(nd.getAttribute("data-id"),true);
+  });
+  nodesLayer.addEventListener("mouseout",function(ev){
+    var nd=ev.target.closest?ev.target.closest(".vg-node"):null;
+    if(nd) setHot(nd.getAttribute("data-id"),false);
+  });
 
   function typeAnswer(html){
     if(typeTimer){clearTimeout(typeTimer);typeTimer=null;}
@@ -768,22 +920,31 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
     return out;
   }
 
+  function composeAnswer(a){
+    var html=a.base;
+    if(a.extra && placed[a.extra.id] && placed[a.extra.id].landed) html+=a.extra.html;
+    return html+(a.close||"");
+  }
+
   function ask(key,chip){
     var a=ANSWERS[key]; if(!a) return;
     game.querySelectorAll(".vg-chip").forEach(function(c){c.setAttribute("aria-pressed","false");});
     chip.setAttribute("aria-pressed","true");
     // clear glow
     game.querySelectorAll(".vg-node.glow").forEach(function(n){n.classList.remove("glow");});
-    var have=a.need.every(function(id){return placed[id];});
+    var have=a.need.every(function(id){return placed[id]&&placed[id].landed;});
     if(!have){
-      var nudge="Drop those notes in first ↑ — then I can connect them.";
+      var nudge="Drop those notes in first — then I can connect them.";
       if(answerSr) answerSr.textContent=nudge;   // announce once, not per-frame
       typeAnswer(nudge);
       return;
     }
-    a.need.forEach(function(id){ if(placed[id]) placed[id].classList.add("glow"); });
-    if(answerSr) answerSr.textContent=plainText(a.html);   // announce once
-    typeAnswer(a.html);
+    var ids=a.need.slice();
+    if(a.extra && placed[a.extra.id] && placed[a.extra.id].landed) ids.push(a.extra.id);
+    ids.forEach(function(id){ placed[id].el.classList.add("glow"); });
+    var html=composeAnswer(a);
+    if(answerSr) answerSr.textContent=plainText(html);   // announce once
+    typeAnswer(html);
   }
 
   // wire tray: click / keyboard (buttons) + drag
@@ -797,8 +958,9 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
 
   var fill=game.querySelector("[data-fill]");
   if(fill) fill.addEventListener("click",function(){
+    // staggered drops read as a little flock of parachutes coming down
     var ids=Object.keys(NOTES).filter(function(id){return !placed[id];});
-    ids.forEach(function(id,i){ setTimeout(function(){addNote(id);}, REDUCE?0:i*160); });
+    ids.forEach(function(id,i){ setTimeout(function(){addNote(id);}, REDUCE?0:i*280); });
   });
 
   game.querySelectorAll(".vg-chip").forEach(function(chip){
