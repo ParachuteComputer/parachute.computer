@@ -20,6 +20,14 @@ How it fits together:
 The interim D1 store is intentionally dumb — no de-dup, no confirmation
 email, no admin UI. The data will later be synced into a Parachute vault.
 
+**Optional `notes_app` field (added 2026-07-02).** The landing page form
+also asks "what do you take notes in today?" (Apple Notes / Notion /
+Obsidian / Paper / Nothing) as a user-research signal. That answer POSTs as
+`notes_app` and is stored in a new nullable column. To turn it on in prod:
+apply migration `0002_notes_app.sql` **then** redeploy the Worker (standard
+order below). Until you do, the live Worker keeps capturing email as before
+and silently ignores the extra field — no breakage either way.
+
 ---
 
 ## What's left for Aaron (Cloudflare)

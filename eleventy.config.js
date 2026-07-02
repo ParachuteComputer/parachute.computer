@@ -11,6 +11,12 @@ module.exports = function (eleventyConfig) {
   // Favicon + webclip + PWA icons at site root
   eleventyConfig.addPassthroughCopy("*.png");
   eleventyConfig.addPassthroughCopy("site.webmanifest");
+  // New landing-page candidate (team-direction). ONE self-contained file
+  // (all CSS/JS/SVG inlined) serves two purposes: a repo-root artifact you
+  // can open directly, and the /v2/ candidate route deployed alongside the
+  // live homepage. Not templated (templateFormats is njk/md only) — copied
+  // verbatim. Promote to homepage later by moving it to index.njk.
+  eleventyConfig.addPassthroughCopy({ "landing-preview.html": "v2/index.html" });
 
   // Ignore non-content files
   eleventyConfig.ignores.add("CLAUDE.md");
