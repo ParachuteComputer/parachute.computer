@@ -33,7 +33,7 @@ What v1 deliberately is **not**: custom surface code (Layer 2), native agents (L
 
 - **The control plane** is a new, small bun+SQLite service (reborn in the `parachute-cloud` repo, bun-native — the Worker/D1/Fly runtime is discarded; the billing lifecycle design — dunning state machine, accounts schema, `ProviderClient` seam, Stripe signature-verify + event dedup — is harvested, ~30-40% logic reuse). It owns exactly what a tenant's hub never should: accounts, Stripe, DNS, fleet state, provisioning orchestration.
 - **Boxes are stock Parachute.** Every box runs published `@latest` packages installed by the same `digitalocean.sh` a self-hoster runs. The control plane drives hubs only through their existing public seams: invite redemption, `provisionVault`, `setVaultCap`, usage read, and first-admin bootstrap — preferring the same browser bootstrap-token flow self-host operators exercise (`digitalocean.sh` deliberately avoids env-var admin seeding; the `PARACHUTE_INITIAL_ADMIN_*` env path exists but is the less-tested route, so the control plane automates the token handshake rather than diverging onto it). **The no-drift invariant: if the control plane needs a hub change, the change ships in hub for everyone, or it doesn't ship.** (To be codified as `parachute-patterns/patterns/cloud-no-drift.md` with the ratification migration file.)
-- **Two substrates, one product.** A vault lives on a **shared box** (many isolated vault processes, separate SQLite DBs, per-vault OAuth + `aud`-binding — the friends model, hardened) or a **dedicated box** (the premium/privacy tier: one tenant, one VM). The customer buys a vault either way; the substrate is a tier attribute. Lossless export/import is the migration mechanism between them.
+- **Two substrates, one product.** A vault lives on a **shared box** (separate SQLite DBs served by one multi-vault process today — see the [substrate addendum](./2026-07-02-cloud-substrate-deliberation.md) §2a: that rung-0 shape is for trusted circles only; the paying-stranger cheap tier requires a real per-tenant boundary) or a **dedicated box** (one tenant, one VM — the strongest boundary we own). The customer buys a vault either way; the substrate is a tier attribute. Lossless export/import is the migration mechanism between them.
 
 ## 3. Secure and solid — the gates, honestly
 
@@ -52,7 +52,7 @@ Being able to *technically* host strangers and being *ready to charge them* are 
 8. **Fleet operability** — minimal `sshExec` upgrade script across boxes + uptime/disk alerting + an incident runbook. (friends stranded on an old rc for weeks is the proof this can't be manual.)
 
 **Before cheap tiers (M3 gate):**
-9. **Measured density** — RAM-per-vault-process on a loaded box (the many-vaults load test that has never been run). Every sub-$5 price is fiction until this number exists.
+9. **Measured density** — ~~RAM-per-vault-process~~ *(superseded by the [substrate addendum](./2026-07-02-cloud-substrate-deliberation.md): production is one multi-vault process, RAM is ~1–3MB/warm vault and not the constraint)* — the real measurements are the concurrent-heavy-op ceiling per box and single-tenant export peak RSS; and per §2a the cheap tier additionally requires a real per-tenant isolation boundary before any stranger lands on it.
 
 ## 4. Pricing — honest now, cheap later
 
