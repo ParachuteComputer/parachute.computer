@@ -105,8 +105,6 @@ a:hover{text-decoration:underline;text-underline-offset:3px}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(191,74,42,.34);color:#fff}
 .btn-ghost{background:var(--card);color:var(--ink);border-color:var(--line-2);box-shadow:var(--shadow-soft)}
 .btn-ghost:hover{transform:translateY(-2px);color:var(--ink)}
-.btn-green{background:var(--grass-btn);color:#fff}
-.btn-green:hover{transform:translateY(-2px);color:#fff}
 @media (prefers-reduced-motion:reduce){.btn:hover{transform:none}}
 
 .link-quiet{font-family:var(--font-round);font-weight:600;color:var(--link)}
@@ -160,7 +158,7 @@ header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-b
 .hero-trust{margin-top:1.7rem;display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;justify-content:center;
   font-size:.88rem;color:var(--ink-soft)}
 .hero-trust span{display:inline-flex;align-items:center;gap:.45rem}
-.hero-trust span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--grass);flex:none}
+.hero-trust span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--coral);opacity:.75;flex:none}
 
 /* floaty parachute idle bob — slow and slight, a drift not a bounce */
 @media (prefers-reduced-motion:no-preference){
@@ -306,18 +304,16 @@ header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-b
 .layers{display:grid;gap:1rem;margin-top:2rem}
 .layer{display:grid;grid-template-columns:auto 1fr auto;gap:1.1rem;align-items:center;
   background:var(--card);border:1px solid var(--line);border-radius:20px;padding:1.2rem 1.4rem;box-shadow:var(--shadow-soft)}
-.layer .num{font-family:var(--font-round);font-weight:700;font-size:1.5rem;width:2.6rem;height:2.6rem;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;color:#fff;flex:none}
-.layer.l1 .num{background:var(--coral-btn)}
-.layer.l2 .num{background:var(--link)}
-.layer.l3 .num{background:var(--grass-btn)}
+/* one accent, not a traffic light: coral marks "today" (L1); the rest stay quiet */
+.layer .num{font-family:var(--font-round);font-weight:700;font-size:1.35rem;width:2.6rem;height:2.6rem;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;color:var(--ink);
+  background:var(--paper-2);border:1.5px solid var(--line-2);flex:none}
+.layer.l1 .num{background:var(--coral-btn);border-color:var(--coral-btn);color:#fff}
 .layer h3{font-family:var(--font-round);font-weight:700;font-size:1.15rem;color:var(--ink);margin-bottom:.15rem}
 .layer p{color:var(--ink-soft);font-size:.92rem;margin:0}
 .layer .when{font-family:var(--font-round);font-weight:600;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;
-  padding:.3rem .7rem;border-radius:999px;white-space:nowrap}
+  padding:.3rem .7rem;border-radius:999px;white-space:nowrap;background:var(--paper-2);color:var(--ink-soft)}
 .layer.l1 .when{background:var(--coral-soft);color:var(--coral-ink)}
-.layer.l2 .when{background:var(--blue-soft);color:var(--blue-ink)}
-.layer.l3 .when{background:var(--grass-soft);color:var(--grass-ink)}
 .layer.l1{outline:2px solid var(--coral-soft)}
 @media (max-width:620px){
   .layer{grid-template-columns:auto 1fr;gap:.8rem 1rem}
@@ -334,7 +330,7 @@ header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-b
 .price .kicker{font-family:var(--font-round);font-weight:600;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
 .price h3{font-family:var(--font-round);font-weight:700;font-size:1.4rem;color:var(--ink)}
 .price .amt{font-family:var(--font-round);font-weight:700;font-size:2.2rem;color:var(--coral);line-height:1;margin:.2rem 0}
-.price.self .amt{color:var(--grass)}
+.price.self .amt{color:var(--ink)}
 .price .amt small{font-size:1rem;color:var(--ink-soft);font-weight:600}
 .price p{color:var(--ink-soft);font-size:.95rem;margin-bottom:.4rem}
 .price .btn{margin-top:auto;align-self:flex-start}
@@ -542,10 +538,10 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
     <h2 class="big round">Whatever you do.</h2>
   </div>
   <div class="vaults-grid reveal">
-    <div class="vcard"><h3><span class="tag">✍️</span>Creative</h3><ul><li>a melody idea</li><li>story seeds</li><li>why I love parachutes</li></ul></div>
-    <div class="vcard"><h3><span class="tag">🗒️</span>Everyday</h3><ul><li>milk, eggs, coffee</li><li>wifi password</li><li>dentist — Tue 3pm</li></ul></div>
-    <div class="vcard"><h3><span class="tag">💼</span>Work</h3><ul><li>Q3 plan</li><li>Jon's number</li><li>follow up w/ Sam</li></ul></div>
-    <div class="vcard"><h3><span class="tag">🌙</span>Journal</h3><ul><li>grateful for…</li><li>a dream about flying</li><li>note to self</li></ul></div>
+    <div class="vcard"><h3><span class="tag">✍️</span>Creative</h3><ul><li>a melody that woke me at 6am</li><li>ch. 3 — the reveal comes early</li><li>why I love parachutes</li></ul></div>
+    <div class="vcard"><h3><span class="tag">🗒️</span>Everyday</h3><ul><li>passport renewal — before Aug</li><li>wifi: BlueHouse42</li><li>dentist — Tue 3pm</li></ul></div>
+    <div class="vcard"><h3><span class="tag">💼</span>Work</h3><ul><li>Q3 plan, draft 2 — cut scope</li><li>Jon — 555-0142</li><li>follow up w/ Sam re: the pilot</li></ul></div>
+    <div class="vcard"><h3><span class="tag">🌙</span>Journal</h3><ul><li>grateful for the morning fog</li><li>a dream about flying — again</li><li>note to self: go slower</li></ul></div>
   </div>
 </section>
 
