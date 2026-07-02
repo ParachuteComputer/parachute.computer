@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parachute — a soft place for your thoughts to land</title>
+<meta name="description" content="One cozy vault for your notes — that any AI you use can read, connect, and remember. Open, self-hosted, and truly yours.">
+<meta name="theme-color" content="#fdfaf4">
+<meta property="og:title" content="Parachute — a soft place for your thoughts to land">
+<meta property="og:description" content="One cozy vault for your notes — that any AI you use can read, connect, and remember. Truly yours.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://parachute.computer/v2/">
+<!--
+  Parachute landing — team-direction candidate (2026-07-02).
+  Self-contained: no external CDN / fonts / JS / images. Everything inline.
+  Fonts are a system rounded stack (SF Pro Rounded on Apple via ui-rounded,
+  graceful fallbacks elsewhere) — no webfont download.
+  Brandmark is a custom hand-drawn open SVG parachute (authored here — NOT
+  Apple's copyrighted glyph, NOT the old network-graph logo).
+  Interactive vault demo is vanilla JS; degrades to a static picture with
+  no JS, and honors prefers-reduced-motion.
+-->
+<style>
+/* ============================================================
+   TOKENS  — warm, airy, "open sky". Contrast-checked for WCAG AA.
+   ============================================================ */
+:root{
+  --paper:#fdfaf4;        /* warm off-white page */
+  --paper-2:#f7f1e6;      /* soft warm band */
+  --sky:#eef5f9;          /* cool sky band */
+  --card:#ffffff;
+  --ink:#2a2521;          /* body text — 14.5:1 on paper */
+  --ink-soft:#6b6459;     /* muted text — 5.6:1 on paper */
+  --line:#ece5d8;         /* hairline borders (non-text) */
+  --line-2:#e2d9c8;
+  --coral:#e05d3c;        /* display accent (large text only) */
+  --coral-btn:#bf4a2a;    /* button bg + white text — 4.97:1 */
+  --coral-soft:#fbe4d9;
+  --coral-ink:#8f3417;    /* coral-family text on soft bg */
+  --link:#2f6f96;         /* links / secondary text — 5.26:1 */
+  --blue-soft:#dcebf3;
+  --blue-ink:#245570;
+  --sun:#f4c020;          /* playful highlight; ink text on it 9:1 */
+  --sun-soft:#fdf1c9;
+  --sun-ink:#6b5200;
+  --grass:#3f8a58;        /* grow-with-you green (large accent) */
+  --grass-btn:#2f7647;
+  --grass-soft:#dcefe0;
+  --grass-ink:#245c39;
+  --font-round:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold","Hiragino Maru Gothic ProN",Quicksand,system-ui,sans-serif;
+  --font-body:-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --shadow-soft:0 10px 30px rgba(60,45,30,.08);
+  --shadow-lift:0 18px 44px rgba(60,45,30,.12);
+  --wrap:1080px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+/* keep the [hidden] attribute authoritative even when a class sets display
+   (author display:grid on .vg-live would otherwise beat the UA [hidden] rule
+   at equal specificity, leaking the live widget through with JS off). */
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+body{
+  font-family:var(--font-body);
+  color:var(--ink);
+  background:var(--paper);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+/* soft sky wash at the very top */
+body::before{
+  content:"";position:fixed;inset:0 0 auto 0;height:70vh;z-index:-1;pointer-events:none;
+  background:linear-gradient(180deg,#eaf3f8 0%,#f4f6f2 32%,var(--paper) 70%);
+}
+
+a{color:var(--link);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 clamp(1.1rem,4vw,2.5rem)}
+.round{font-family:var(--font-round)}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn{
+  display:inline-flex;align-items:center;gap:.5rem;
+  font-family:var(--font-round);font-weight:600;font-size:1.02rem;
+  padding:.85rem 1.5rem;border-radius:999px;border:2px solid transparent;
+  cursor:pointer;text-decoration:none;line-height:1;
+  transition:transform .16s ease,box-shadow .16s ease,background .16s ease;
+}
+.btn:hover{text-decoration:none}
+.btn-primary{background:var(--coral-btn);color:#fff;box-shadow:0 6px 18px rgba(191,74,42,.28)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(191,74,42,.34);color:#fff}
+.btn-ghost{background:var(--card);color:var(--ink);border-color:var(--line-2);box-shadow:var(--shadow-soft)}
+.btn-ghost:hover{transform:translateY(-2px);color:var(--ink)}
+.btn-green{background:var(--grass-btn);color:#fff}
+.btn-green:hover{transform:translateY(-2px);color:#fff}
+@media (prefers-reduced-motion:reduce){.btn:hover{transform:none}}
+
+.link-quiet{font-family:var(--font-round);font-weight:600;color:var(--link)}
+
+/* section rhythm */
+section{padding:clamp(3.5rem,8vw,6rem) 0}
+/* in-page anchors clear the sticky nav */
+#top,#join{scroll-margin-top:80px}
+.eyebrow{
+  font-family:var(--font-round);font-weight:600;font-size:.82rem;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--coral-ink);
+  display:inline-block;margin-bottom:1rem;
+}
+h2.big{
+  font-family:var(--font-round);font-weight:600;
+  font-size:clamp(1.9rem,4.6vw,3rem);line-height:1.06;letter-spacing:-.01em;
+  color:var(--ink);margin-bottom:.5rem;
+}
+.lede{font-size:clamp(1.05rem,2vw,1.2rem);color:var(--ink-soft);max-width:34rem}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  background:rgba(253,250,244,.72);border-bottom:1px solid rgba(236,229,216,.7)}
+.nav-in{max-width:var(--wrap);margin:0 auto;padding:.7rem clamp(1.1rem,4vw,2.5rem);
+  display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.brand{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font-round);
+  font-weight:700;font-size:1.18rem;color:var(--ink)}
+.brand:hover{text-decoration:none}
+.brand .mark{width:28px;height:26px;flex:none}
+.nav-right{display:flex;align-items:center;gap:1.1rem}
+.nav-right .selfhost{font-family:var(--font-round);font-weight:600;color:var(--ink-soft);font-size:.95rem}
+.nav-right .selfhost:hover{color:var(--ink)}
+.nav-right .btn{padding:.55rem 1.05rem;font-size:.92rem}
+@media (max-width:560px){.nav-right .selfhost{display:none}}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{padding-top:clamp(2.5rem,7vw,5rem);text-align:center}
+.hero-mark{width:96px;height:92px;margin:0 auto .4rem;display:block}
+.hero h1{
+  font-family:var(--font-round);font-weight:700;
+  font-size:clamp(2.5rem,7.5vw,4.6rem);line-height:1.02;letter-spacing:-.02em;
+  color:var(--ink);max-width:16ch;margin:.2rem auto .9rem;
+}
+.hero h1 .warm{color:var(--coral)}
+.hero-sub{font-size:clamp(1.1rem,2.4vw,1.4rem);color:var(--ink-soft);max-width:33rem;margin:0 auto 1.9rem}
+.hero-cta{display:flex;flex-wrap:wrap;gap:.9rem 1.2rem;align-items:center;justify-content:center}
+.hero-trust{margin-top:1.7rem;display:flex;flex-wrap:wrap;gap:.4rem 1.1rem;justify-content:center;
+  font-size:.88rem;color:var(--ink-soft)}
+.hero-trust span{display:inline-flex;align-items:center;gap:.45rem}
+.hero-trust span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--grass);flex:none}
+
+/* floaty parachute idle bob */
+@media (prefers-reduced-motion:no-preference){
+  .hero-mark{animation:bob 5s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-9px) rotate(2deg)}}
+}
+
+/* ============================================================
+   INTERACTIVE VAULT  (the star)
+   ============================================================ */
+.vault-sec{background:linear-gradient(180deg,transparent,var(--paper-2) 22%,var(--paper-2) 78%,transparent)}
+.vault-head{text-align:center;margin-bottom:2rem}
+.vaultgame{max-width:920px;margin:0 auto}
+
+/* static (no-JS) fallback */
+.vg-static{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:1.5rem;box-shadow:var(--shadow-soft)}
+.vg-static svg{width:100%;height:auto;display:block}
+.vg-static figcaption{text-align:center;color:var(--ink-soft);font-size:.92rem;margin-top:.9rem}
+
+/* live widget */
+.vg-live{display:grid;gap:1.1rem}
+.vg-tray{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;align-items:center}
+.vg-note{
+  font-family:var(--font-body);font-size:.95rem;font-weight:500;color:var(--ink);
+  background:var(--card);border:1.5px solid var(--line-2);border-radius:14px;
+  padding:.6rem .85rem;cursor:grab;box-shadow:0 3px 10px rgba(60,45,30,.06);
+  transition:transform .15s ease,box-shadow .15s ease,opacity .2s ease,border-color .15s ease;
+  transform:rotate(var(--tilt,0deg));
+}
+.vg-note:hover{transform:translateY(-3px) rotate(0deg);box-shadow:var(--shadow-soft);border-color:var(--coral-soft)}
+.vg-note:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.vg-note[data-used]{opacity:.32;pointer-events:none;filter:grayscale(.3)}
+.vg-note .em{margin-right:.3rem}
+.vg-fill{
+  font-family:var(--font-round);font-weight:600;color:var(--link);background:transparent;
+  border:none;cursor:pointer;font-size:.92rem;padding:.5rem .4rem;
+}
+.vg-fill:hover{text-decoration:underline;text-underline-offset:3px}
+.vg-fill:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:6px}
+
+.vg-vault{
+  position:relative;width:100%;aspect-ratio:16/10;min-height:280px;
+  border-radius:24px;overflow:hidden;
+  background:
+    radial-gradient(120% 90% at 50% 0%,#eaf3f8 0%,transparent 55%),
+    var(--card);
+  border:1px solid var(--line);box-shadow:inset 0 0 0 1px rgba(255,255,255,.5),var(--shadow-soft);
+}
+.vg-vault.drag-over{border-color:var(--coral);box-shadow:0 0 0 3px var(--coral-soft),var(--shadow-soft)}
+.vg-links{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.vg-links line{stroke:var(--coral);stroke-width:2;opacity:0;transition:opacity .55s ease;stroke-linecap:round}
+.vg-links line.on{opacity:.55}
+.vg-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--ink-soft);font-family:var(--font-round);font-weight:600;font-size:1.05rem;text-align:center;padding:1rem}
+.vg-node{
+  position:absolute;transform:translate(-50%,-50%) scale(1);
+  display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap;
+  font-size:.86rem;font-weight:600;color:var(--ink);
+  background:var(--card);border:1.5px solid var(--c,var(--line-2));
+  border-radius:12px;padding:.4rem .6rem;box-shadow:0 4px 12px rgba(60,45,30,.12);
+}
+.vg-node .em{font-size:.95rem}
+.vg-node.pop{animation:pop .4s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes pop{from{transform:translate(-50%,-50%) scale(.4);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.vg-node.glow{box-shadow:0 0 0 3px var(--sun),0 8px 20px rgba(60,45,30,.18);border-color:var(--sun)}
+@media (prefers-reduced-motion:no-preference){
+  .vg-node.glow{animation:pulse 1.1s ease 2}
+  @keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.12)}}
+}
+/* cluster colors */
+.c-family{--c:var(--coral)}
+.c-write{--c:var(--sun)}
+.c-work{--c:var(--link)}
+/* narrow screens: taller vault + smaller node chips so the graph breathes */
+@media (max-width:560px){
+  .vg-vault{aspect-ratio:auto;min-height:400px}
+  .vg-node{font-size:.76rem;padding:.34rem .5rem}
+  .vg-note{font-size:.88rem}
+}
+
+.vg-recall{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:1.3rem 1.3rem 1.5rem;box-shadow:var(--shadow-soft)}
+.vg-recall-head{font-family:var(--font-round);font-weight:700;font-size:1.15rem;color:var(--ink);margin-bottom:.2rem}
+.vg-recall-sub{color:var(--ink-soft);font-size:.92rem;margin-bottom:1rem}
+.vg-chips{display:flex;flex-wrap:wrap;gap:.55rem;margin-bottom:1rem}
+.vg-chip{font-family:var(--font-body);font-size:.9rem;font-weight:500;color:var(--blue-ink);
+  background:var(--blue-soft);border:1.5px solid transparent;border-radius:999px;padding:.5rem .95rem;cursor:pointer;
+  transition:transform .14s ease,border-color .14s ease}
+.vg-chip:hover{transform:translateY(-2px);border-color:var(--link)}
+.vg-chip:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.vg-chip[aria-pressed="true"]{background:var(--link);color:#fff}
+.vg-answer{min-height:2.6rem;font-size:1.05rem;line-height:1.55;color:var(--ink);
+  background:var(--sun-soft);border-radius:14px;padding:.9rem 1.05rem;border:1px solid #f0e2ad}
+.vg-answer:empty{display:none}
+.vg-answer strong{color:var(--coral-ink)}
+.vg-answer .cursor{display:inline-block;width:.5ch;color:var(--coral);animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.vg-answer .cursor{display:none}}
+
+/* ============================================================
+   USE CASES + DEVICES + EXAMPLE VAULTS
+   ============================================================ */
+.moments{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0 1.4rem}
+.moment{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:1.2rem;text-align:center;box-shadow:var(--shadow-soft)}
+.moment .scene{font-size:2rem;line-height:1;margin-bottom:.7rem}
+.moment .said{font-family:var(--font-round);font-weight:600;color:var(--ink);font-size:1.02rem;margin-bottom:.3rem}
+.moment .cap{color:var(--ink-soft);font-size:.86rem}
+.devices{text-align:center;color:var(--ink-soft);font-size:1rem;font-family:var(--font-round);font-weight:600}
+.devices .d{font-size:1.5rem;vertical-align:middle;margin:0 .15rem}
+
+.vaults-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:2rem}
+.vcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:1.2rem;box-shadow:var(--shadow-soft);
+  transition:transform .18s ease,box-shadow .18s ease}
+.vcard:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift)}
+.vcard h3{font-family:var(--font-round);font-weight:700;font-size:1.05rem;color:var(--ink);margin-bottom:.75rem;display:flex;align-items:center;gap:.45rem}
+.vcard .tag{font-size:1.25rem}
+.vcard ul{list-style:none;display:grid;gap:.4rem}
+.vcard li{font-size:.85rem;color:var(--ink);background:var(--paper-2);border-radius:9px;padding:.35rem .55rem}
+
+/* ============================================================
+   LAYERS
+   ============================================================ */
+.layers-sec{background:linear-gradient(180deg,transparent,var(--sky) 20%,var(--sky) 80%,transparent)}
+.layers{display:grid;gap:1rem;margin-top:2rem}
+.layer{display:grid;grid-template-columns:auto 1fr auto;gap:1.1rem;align-items:center;
+  background:var(--card);border:1px solid var(--line);border-radius:20px;padding:1.2rem 1.4rem;box-shadow:var(--shadow-soft)}
+.layer .num{font-family:var(--font-round);font-weight:700;font-size:1.5rem;width:2.6rem;height:2.6rem;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;color:#fff;flex:none}
+.layer.l1 .num{background:var(--coral-btn)}
+.layer.l2 .num{background:var(--link)}
+.layer.l3 .num{background:var(--grass-btn)}
+.layer h3{font-family:var(--font-round);font-weight:700;font-size:1.15rem;color:var(--ink);margin-bottom:.15rem}
+.layer p{color:var(--ink-soft);font-size:.92rem;margin:0}
+.layer .when{font-family:var(--font-round);font-weight:600;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;
+  padding:.3rem .7rem;border-radius:999px;white-space:nowrap}
+.layer.l1 .when{background:var(--coral-soft);color:var(--coral-ink)}
+.layer.l2 .when{background:var(--blue-soft);color:var(--blue-ink)}
+.layer.l3 .when{background:var(--grass-soft);color:var(--grass-ink)}
+.layer.l1{outline:2px solid var(--coral-soft)}
+@media (max-width:620px){
+  .layer{grid-template-columns:auto 1fr;gap:.8rem 1rem}
+  .layer .when{grid-column:2;justify-self:start}
+}
+
+/* ============================================================
+   PRICING / TWO DOORS
+   ============================================================ */
+.price-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem;margin-top:2rem}
+.price{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:1.8rem;box-shadow:var(--shadow-soft);
+  display:flex;flex-direction:column;gap:.5rem}
+.price.feature{border:2px solid var(--coral-soft);box-shadow:var(--shadow-lift)}
+.price .kicker{font-family:var(--font-round);font-weight:600;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+.price h3{font-family:var(--font-round);font-weight:700;font-size:1.4rem;color:var(--ink)}
+.price .amt{font-family:var(--font-round);font-weight:700;font-size:2.2rem;color:var(--coral);line-height:1;margin:.2rem 0}
+.price.self .amt{color:var(--grass)}
+.price .amt small{font-size:1rem;color:var(--ink-soft);font-weight:600}
+.price p{color:var(--ink-soft);font-size:.95rem;margin-bottom:.4rem}
+.price .btn{margin-top:auto;align-self:flex-start}
+.price .beta{font-size:.85rem;color:var(--ink-soft);margin-top:.6rem}
+@media (max-width:640px){.price-grid,.moments,.vaults-grid{grid-template-columns:1fr}
+  .moments{grid-template-columns:repeat(3,1fr)}
+  .vaults-grid{grid-template-columns:1fr 1fr}}
+
+/* ============================================================
+   JOIN  (primary capture)
+   ============================================================ */
+.join-sec{text-align:center}
+.join-card{max-width:560px;margin:0 auto;background:var(--card);border:1px solid var(--line);border-radius:26px;
+  padding:clamp(1.6rem,4vw,2.6rem);box-shadow:var(--shadow-lift)}
+.join-card .mark{width:56px;height:54px;margin:0 auto .6rem;display:block}
+.join-card h2{font-family:var(--font-round);font-weight:700;font-size:clamp(1.6rem,4vw,2.2rem);color:var(--ink);margin-bottom:.4rem}
+.join-card .lede{margin:0 auto 1.4rem}
+.signup{display:grid;gap:1rem;text-align:left}
+.field label{display:block;font-family:var(--font-round);font-weight:600;font-size:.92rem;color:var(--ink);margin-bottom:.4rem}
+.signup input[type=email]{width:100%;font-family:var(--font-body);font-size:1rem;color:var(--ink);
+  padding:.85rem 1rem;border:1.5px solid var(--line-2);border-radius:13px;background:var(--paper)}
+.signup input[type=email]:focus{outline:none;border-color:var(--coral);box-shadow:0 0 0 3px var(--coral-soft)}
+.chipset{display:flex;flex-wrap:wrap;gap:.5rem}
+.chipset .opt{position:relative}
+.chipset input{position:absolute;opacity:0;width:1px;height:1px}
+.chipset label{margin:0;font-weight:500;font-family:var(--font-body);cursor:pointer;
+  border:1.5px solid var(--line-2);border-radius:999px;padding:.45rem .85rem;font-size:.88rem;color:var(--ink-soft);background:var(--paper);transition:all .14s ease}
+.chipset input:checked + label{background:var(--coral-soft);border-color:var(--coral);color:var(--coral-ink)}
+.chipset input:focus-visible + label{outline:3px solid var(--sun);outline-offset:2px}
+.signup button{justify-self:stretch;justify-content:center;font-size:1.05rem;padding:.95rem}
+.join-note{font-size:.83rem;color:var(--ink-soft);margin-top:.9rem}
+.join-error{display:none;background:#fbe4e0;color:#8f2c1c;border-radius:12px;padding:.7rem .9rem;font-size:.9rem;text-align:left}
+.join-error.show{display:block}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;color:var(--ink-soft)}
+.foot-brand{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font-round);font-weight:700;font-size:1.1rem;color:var(--ink);margin-bottom:.4rem}
+.foot-brand .mark{width:24px;height:23px}
+.foot-tag{font-family:var(--font-round);color:var(--ink-soft);margin-bottom:1.1rem}
+.foot-links{display:flex;flex-wrap:wrap;gap:.4rem 1.3rem;justify-content:center;font-family:var(--font-round);font-weight:600;font-size:.95rem;margin-bottom:1rem}
+.foot-links a{color:var(--ink-soft)}
+.foot-links a:hover{color:var(--ink)}
+.foot-fine{font-size:.82rem;color:var(--ink-soft);max-width:34rem;margin:0 auto}
+
+/* reveal on scroll (progressive; visible by default) */
+.reveal{opacity:1;transform:none}
+@media (prefers-reduced-motion:no-preference){
+  .js .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
+  .js .reveal.in{opacity:1;transform:none}
+}
+
+/* parachute mark colors */
+.pc-canopy{fill:var(--coral)}
+.pc-gore{fill:none;stroke:var(--coral-btn);stroke-width:1.4;stroke-linecap:round;opacity:.7}
+.pc-string{fill:none;stroke:var(--ink-soft);stroke-width:1;stroke-linecap:round;opacity:.6}
+.pc-load{fill:var(--sun)}
+.pc-load-ring{fill:none;stroke:var(--sun-ink);stroke-width:.8;opacity:.4}
+</style>
+</head>
+<body>
+
+<!-- ===== custom open parachute mark (reused via <use>) ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="pchute" viewBox="0 0 64 60">
+    <path class="pc-canopy" d="M4 28 A28 28 0 0 1 60 28 Q54 37 46 28 Q39 37 32 28 Q25 37 18 28 Q10 37 4 28 Z"/>
+    <g class="pc-gore">
+      <path d="M32 2.2 Q31.5 15 32 27.6"/>
+      <path d="M32 3 Q20 14 18 27.6"/>
+      <path d="M32 3 Q44 14 46 27.6"/>
+      <path d="M32 4 Q9.5 15 4.4 27.6"/>
+      <path d="M32 4 Q54.5 15 59.6 27.6"/>
+    </g>
+    <g class="pc-string">
+      <path d="M5 28 L31 47"/>
+      <path d="M18 30 L31 47"/>
+      <path d="M32 30 L32 47"/>
+      <path d="M46 30 L33 47"/>
+      <path d="M59 28 L33 47"/>
+    </g>
+    <rect class="pc-load" x="26.5" y="46.5" width="11" height="10" rx="3.5"/>
+    <rect class="pc-load-ring" x="28.6" y="48.6" width="6.8" height="5.8" rx="2"/>
+  </symbol>
+</svg>
+
+<!-- ===================== NAV ===================== -->
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="#top" aria-label="Parachute — home">
+      <svg class="mark" aria-hidden="true"><use href="#pchute"/></svg>
+      <span>Parachute</span>
+    </a>
+    <nav class="nav-right">
+      <a class="selfhost" href="/start/">Self-host</a>
+      <a class="btn btn-primary" href="#join">Get a vault</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ===================== HERO ===================== -->
+<section class="hero wrap">
+  <svg class="hero-mark" aria-hidden="true"><use href="#pchute"/></svg>
+  <p class="eyebrow">Open source · yours forever</p>
+  <h1 class="round">A soft place for your thoughts to <span class="warm">land.</span></h1>
+  <p class="hero-sub">One cozy vault for your notes — that any AI you use can read, connect, and remember. Truly yours.</p>
+  <div class="hero-cta">
+    <a class="btn btn-primary" href="#join">Get early access →</a>
+    <a class="link-quiet" href="https://cloud.parachute.computer">or try the beta now →</a>
+  </div>
+  <p class="hero-trust"><span>Local-first</span><span>Open standard (MCP)</span><span>Export anytime</span></p>
+</section>
+
+<!-- ============== INTERACTIVE VAULT (the star) ============== -->
+<section class="vault-sec">
+  <div class="wrap">
+    <div class="vault-head reveal">
+      <p class="eyebrow">Play with it</p>
+      <h2 class="big round">Drop a few thoughts in.<br>Watch them connect.</h2>
+      <p class="lede" style="margin:.6rem auto 0;text-align:center">A vault isn't a folder. Your notes find each other — and your AI reads the whole web.</p>
+    </div>
+
+    <div class="vaultgame reveal" data-vaultgame>
+      <!-- STATIC fallback (shown when JS is off) -->
+      <figure class="vg-static" data-static>
+        <svg viewBox="0 0 720 360" role="img" aria-label="A vault of six connected notes — Call Mom links to Mom's birthday Sept 3; a parachutes blog idea links to why I love them; a meeting with Jon links to Jon's phone number. With them connected, the AI answers: you wanted to write about parachutes.">
+          <defs>
+            <style>
+              .sn{fill:#fff;stroke:#e2d9c8;stroke-width:1.5}
+              .st{font:600 15px ui-rounded,system-ui,sans-serif;fill:#2a2521}
+              .sl{stroke:#e05d3c;stroke-width:2;opacity:.5}
+            </style>
+          </defs>
+          <rect x="0" y="0" width="720" height="360" rx="20" fill="#f7fbfd"/>
+          <line class="sl" x1="150" y1="95" x2="140" y2="215"/>
+          <line class="sl" x1="540" y1="80" x2="600" y2="170"/>
+          <line class="sl" x1="380" y1="285" x2="540" y2="270"/>
+          <g><rect class="sn" x="70" y="72" width="160" height="46" rx="12"/><text class="st" x="86" y="100">📞 Call Mom</text></g>
+          <g><rect class="sn" x="60" y="192" width="210" height="46" rx="12"/><text class="st" x="76" y="220">🎂 Mom's b'day — Sept 3</text></g>
+          <g><rect class="sn" x="460" y="57" width="205" height="46" rx="12"/><text class="st" x="476" y="85">🪂 Blog idea: parachutes</text></g>
+          <g><rect class="sn" x="505" y="147" width="200" height="46" rx="12"/><text class="st" x="521" y="175">✍️ Why I love them</text></g>
+          <g><rect class="sn" x="290" y="262" width="190" height="46" rx="12"/><text class="st" x="306" y="290">🤝 Meeting w/ Jon</text></g>
+          <g><rect class="sn" x="500" y="247" width="205" height="46" rx="12"/><text class="st" x="516" y="275">📱 Jon — 555-0142</text></g>
+        </svg>
+        <figcaption>✨ Connected, your AI can answer “what did I want to write about?” — it sees the parachutes idea <em>and</em> why you love them.</figcaption>
+      </figure>
+
+      <!-- LIVE widget (revealed by JS) -->
+      <div class="vg-live" data-live hidden>
+        <div class="vg-tray" role="group" aria-label="Sample notes. Activate one to drop it into your vault.">
+          <button class="vg-note" data-note="call-mom" draggable="true" style="--tilt:-2deg"><span class="em">📞</span>Call Mom</button>
+          <button class="vg-note" data-note="mom-bday" draggable="true" style="--tilt:1.5deg"><span class="em">🎂</span>Mom's b'day — Sept 3</button>
+          <button class="vg-note" data-note="blog" draggable="true" style="--tilt:-1deg"><span class="em">🪂</span>Blog idea: parachutes</button>
+          <button class="vg-note" data-note="why" draggable="true" style="--tilt:2deg"><span class="em">✍️</span>Why I love them</button>
+          <button class="vg-note" data-note="jon" draggable="true" style="--tilt:-1.5deg"><span class="em">🤝</span>Meeting w/ Jon</button>
+          <button class="vg-note" data-note="jon-num" draggable="true" style="--tilt:1deg"><span class="em">📱</span>Jon — 555-0142</button>
+          <button class="vg-fill" data-fill>drop them all in →</button>
+        </div>
+
+        <div class="vg-vault" data-vault>
+          <svg class="vg-links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <div class="vg-nodes" data-nodes></div>
+          <p class="vg-empty" data-empty>Your vault's empty.<br>Tap a note above to drop it in ↑</p>
+        </div>
+
+        <div class="vg-recall" data-recall hidden>
+          <p class="vg-recall-head round">✨ Now your AI gets it</p>
+          <p class="vg-recall-sub">It answers from the notes you connected — not a blank slate. Ask it:</p>
+          <div class="vg-chips" data-chips>
+            <button class="vg-chip" data-ask="write" aria-pressed="false">what did I want to write about?</button>
+            <button class="vg-chip" data-ask="mom" aria-pressed="false">when should I call Mom?</button>
+            <button class="vg-chip" data-ask="jon" aria-pressed="false">how do I reach Jon?</button>
+          </div>
+          <div class="vg-answer" data-answer aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== USE CASES + DEVICES + EXAMPLE VAULTS ============== -->
+<section class="wrap">
+  <div class="reveal" style="text-align:center;max-width:40rem;margin:0 auto">
+    <p class="eyebrow">Wherever a thought strikes</p>
+    <h2 class="big round">Catch it before it's gone.</h2>
+  </div>
+  <div class="moments reveal">
+    <div class="moment"><div class="scene">🥾</div><p class="said">“I've got a blog idea…”</p><p class="cap">on a trail, out of breath</p></div>
+    <div class="moment"><div class="scene">☕</div><p class="said">“Follow up with Sam.”</p><p class="cap">mid-meeting, half-listening</p></div>
+    <div class="moment"><div class="scene">🌙</div><p class="said">“Remember this dream.”</p><p class="cap">half-asleep, 2am</p></div>
+  </div>
+  <p class="devices reveal">Speak it or type it → it's in your vault, everywhere <span class="d">💻</span><span class="d">📱</span><span class="d">⌚</span></p>
+
+  <div class="reveal" style="text-align:center;max-width:40rem;margin:3.5rem auto 0">
+    <p class="eyebrow">What lives in a vault?</p>
+    <h2 class="big round">Whatever you do.</h2>
+  </div>
+  <div class="vaults-grid reveal">
+    <div class="vcard"><h3><span class="tag">✍️</span>Creative</h3><ul><li>a melody idea</li><li>story seeds</li><li>why I love parachutes</li></ul></div>
+    <div class="vcard"><h3><span class="tag">🗒️</span>Everyday</h3><ul><li>milk, eggs, coffee</li><li>wifi password</li><li>dentist — Tue 3pm</li></ul></div>
+    <div class="vcard"><h3><span class="tag">💼</span>Work</h3><ul><li>Q3 plan</li><li>Jon's number</li><li>follow up w/ Sam</li></ul></div>
+    <div class="vcard"><h3><span class="tag">🌙</span>Journal</h3><ul><li>grateful for…</li><li>a dream about flying</li><li>note to self</li></ul></div>
+  </div>
+</section>
+
+<!-- ===================== LAYERS ===================== -->
+<section class="layers-sec">
+  <div class="wrap">
+    <div class="reveal" style="text-align:center;max-width:40rem;margin:0 auto">
+      <p class="eyebrow">Start simple</p>
+      <h2 class="big round">It grows with you.</h2>
+      <p class="lede" style="margin:.6rem auto 0">Begin with a vault today. The rest is there when you want it — never before.</p>
+    </div>
+    <div class="layers reveal">
+      <div class="layer l1">
+        <div class="num">1</div>
+        <div><h3>A vault, your notes, your AI.</h3><p>Capture anything. Any AI reads and writes the same memory. This is the whole magic — and it works today.</p></div>
+        <span class="when">Today</span>
+      </div>
+      <div class="layer l2">
+        <div class="num">2</div>
+        <div><h3>A surface shaped to you.</h3><p>Notes, a journal, a dashboard — pick or build the view that fits how you think.</p></div>
+        <span class="when">Soon</span>
+      </div>
+      <div class="layer l3">
+        <div class="num">3</div>
+        <div><h3>Agents that work from your context.</h3><p>Helpers that already know you — because they read the vault you built. The bet we're making.</p></div>
+        <span class="when">The bet</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PRICING / TWO DOORS ===================== -->
+<section class="wrap">
+  <div class="reveal" style="text-align:center;max-width:40rem;margin:0 auto">
+    <p class="eyebrow">Simple pricing</p>
+    <h2 class="big round">Two ways in.</h2>
+    <p class="lede" style="margin:.6rem auto 0">Run it yourself for free, or let us host it. Either way, the vault is yours to export, anytime.</p>
+  </div>
+  <div class="price-grid reveal">
+    <div class="price self">
+      <span class="kicker">Run it yourself</span>
+      <h3>Self-host</h3>
+      <div class="amt">Free <small>· open source</small></div>
+      <p>One command on your own machine. Yours completely, forever. For the tinkerers.</p>
+      <a class="btn btn-ghost" href="/start/">See how →</a>
+    </div>
+    <div class="price feature">
+      <span class="kicker">We run it, it stays yours</span>
+      <h3>Cloud vault</h3>
+      <div class="amt">$2–5<small>/mo</small></div>
+      <p>A vault of your own in about a minute. No setup, no server — just start.</p>
+      <a class="btn btn-primary" href="#join">Get a vault →</a>
+      <p class="beta">Eager? <a href="https://cloud.parachute.computer">Try the beta now →</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== JOIN (primary capture) ===================== -->
+<section class="join-sec wrap" id="join">
+  <div class="join-card reveal">
+    <svg class="mark" aria-hidden="true"><use href="#pchute"/></svg>
+    <h2 class="round">Get your vault.</h2>
+    <p class="lede" style="text-align:center">Join the list and we'll bring you in as cloud vaults roll out — gently, no spam.</p>
+    <!--
+      Wired to the LIVE subscribe Worker (Cloudflare + D1). Native cross-origin
+      form POST → 303 redirect to /subscribe/thanks/ (success) or
+      /?subscribe_error=1 (failure). No CORS, no JS needed for the happy path.
+      NOTE: the "notes_app" answer is POSTed too, but the currently-deployed
+      Worker only persists `email` until Aaron redeploys the updated worker +
+      applies migration 0002 (adds the notes_app column). See DEPLOY-subscribe.md.
+    -->
+    <form class="signup" method="post" action="https://parachute-subscribe.unforced.workers.dev/">
+      <div class="field">
+        <label for="join-email">Your email</label>
+        <input id="join-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com" aria-label="Your email address">
+      </div>
+      <div class="field">
+        <label id="notes-q">What do you take notes in today? <span style="color:var(--ink-soft);font-weight:400">(optional)</span></label>
+        <div class="chipset" role="radiogroup" aria-labelledby="notes-q">
+          <span class="opt"><input type="radio" id="na-apple" name="notes_app" value="apple-notes"><label for="na-apple">Apple Notes</label></span>
+          <span class="opt"><input type="radio" id="na-notion" name="notes_app" value="notion"><label for="na-notion">Notion</label></span>
+          <span class="opt"><input type="radio" id="na-obsidian" name="notes_app" value="obsidian"><label for="na-obsidian">Obsidian</label></span>
+          <span class="opt"><input type="radio" id="na-paper" name="notes_app" value="paper"><label for="na-paper">Paper</label></span>
+          <span class="opt"><input type="radio" id="na-nothing" name="notes_app" value="nothing"><label for="na-nothing">Nothing yet</label></span>
+        </div>
+      </div>
+      <p class="join-error" data-join-error>That didn't go through — check the email and try again.</p>
+      <button class="btn btn-primary" type="submit">Get early access →</button>
+    </form>
+    <p class="join-note">No spam, unsubscribe anytime. Or just <a href="mailto:hello@parachute.computer">say hello</a>.</p>
+  </div>
+</section>
+
+</main>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <div class="foot-brand"><svg class="mark" aria-hidden="true"><use href="#pchute"/></svg><span>Parachute</span></div>
+  <p class="foot-tag">A soft place for your thoughts to land.</p>
+  <nav class="foot-links">
+    <a href="#join">Get a vault</a>
+    <a href="/start/">Self-host</a>
+    <a href="https://cloud.parachute.computer">Beta</a>
+    <a href="https://github.com/ParachuteComputer">GitHub</a>
+  </nav>
+  <p class="foot-fine">© 2026 Open Parachute, PBC — a Colorado Public Benefit Corporation building open tools for thinking.</p>
+</footer>
+
+<script>
+/* ============================================================
+   Progressive enhancement. With JS off, the static vault picture
+   and a fully usable form stand on their own.
+   ============================================================ */
+(function(){
+  "use strict";
+  document.documentElement.classList.add("js");
+  var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+  /* ---- subscribe error banner (Worker bounced us back) ---- */
+  try{
+    if(new URLSearchParams(location.search).get("subscribe_error")==="1"){
+      var e=document.querySelector("[data-join-error]");
+      if(e){e.classList.add("show");location.hash="#join";}
+    }
+  }catch(_){}
+
+  /* ---- scroll reveal (purely additive; never gates visibility) ---- */
+  var reveals=[].slice.call(document.querySelectorAll(".reveal"));
+  function showAll(){ reveals.forEach(function(el){el.classList.add("in");}); }
+  if(!REDUCE && "IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(en){ if(en.isIntersecting){en.target.classList.add("in");io.unobserve(en.target);} });
+    },{threshold:.1});
+    reveals.forEach(function(el){io.observe(el);});
+    // Failsafe: guarantee everything is visible shortly after load even if
+    // the observer never fires for a section (content must never be stuck
+    // hidden behind a nice-to-have animation).
+    window.addEventListener("load",function(){setTimeout(showAll,2200);});
+  }else{
+    showAll();
+  }
+
+  /* ---- interactive vault ---- */
+  var game=document.querySelector("[data-vaultgame]");
+  if(!game) return;
+  var staticEl=game.querySelector("[data-static]");
+  var liveEl=game.querySelector("[data-live]");
+  if(!liveEl) return;
+  staticEl.hidden=true;
+  liveEl.hidden=false;
+
+  // note model: slot position (0-100 space), cluster class, emoji, short label, links
+  // x/y are 0-100 in the SVG's coordinate space; the wide-label nodes sit
+  // away from the edges so they don't clip on a narrow (mobile) vault.
+  var NOTES={
+    "call-mom":{x:26,y:30,cls:"c-family",em:"📞",label:"Call Mom",links:["mom-bday"]},
+    "mom-bday":{x:38,y:64,cls:"c-family",em:"🎂",label:"Mom's b'day — Sept 3",links:["call-mom"]},
+    "blog":    {x:66,y:24,cls:"c-write", em:"🪂",label:"Blog idea: parachutes",links:["why"]},
+    "why":     {x:80,y:52,cls:"c-write", em:"✍️",label:"Why I love them",links:["blog"]},
+    "jon":     {x:40,y:82,cls:"c-work",  em:"🤝",label:"Meeting w/ Jon",links:["jon-num"]},
+    "jon-num": {x:66,y:74,cls:"c-work",  em:"📱",label:"Jon — 555-0142",links:["jon"]}
+  };
+  var ANSWERS={
+    write:{need:["blog","why"],html:"You've been circling <strong>parachutes</strong> ✍️ — a blog idea, plus a note on why you love them. Want me to draft it from both?"},
+    mom:  {need:["call-mom","mom-bday"],html:"Her birthday's <strong>Sept 3</strong> 🎂 — worth calling before then. Want a nudge?"},
+    jon:  {need:["jon","jon-num"],html:"<strong>555-0142</strong> 📱 — pulled straight from your meeting note with Jon."}
+  };
+
+  var vault=game.querySelector("[data-vault]");
+  var nodesLayer=game.querySelector("[data-nodes]");
+  var linksSvg=game.querySelector(".vg-links");
+  var emptyMsg=game.querySelector("[data-empty]");
+  var recall=game.querySelector("[data-recall]");
+  var answerEl=game.querySelector("[data-answer]");
+  var placed={};      // id -> node element
+  var typeTimer=null;
+
+  function drawLink(a,b){
+    var na=NOTES[a], nb=NOTES[b];
+    var ln=document.createElementNS("http://www.w3.org/2000/svg","line");
+    ln.setAttribute("x1",na.x);ln.setAttribute("y1",na.y);
+    ln.setAttribute("x2",nb.x);ln.setAttribute("y2",nb.y);
+    ln.setAttribute("vector-effect","non-scaling-stroke");
+    ln.setAttribute("data-a",a);ln.setAttribute("data-b",b);
+    linksSvg.appendChild(ln);
+    if(REDUCE){ ln.classList.add("on"); }
+    else{ requestAnimationFrame(function(){requestAnimationFrame(function(){ln.classList.add("on");});}); }
+  }
+
+  function addNote(id){
+    if(placed[id]) return;
+    var n=NOTES[id]; if(!n) return;
+    var el=document.createElement("div");
+    el.className="vg-node "+n.cls+(REDUCE?"":" pop");
+    el.style.left=n.x+"%"; el.style.top=n.y+"%";
+    el.innerHTML='<span class="em">'+n.em+'</span>'+n.label;
+    nodesLayer.appendChild(el);
+    placed[id]=el;
+    // mark tray button used
+    var btn=game.querySelector('.vg-note[data-note="'+id+'"]');
+    if(btn) btn.setAttribute("data-used","1");
+    // links to any already-placed related note
+    n.links.forEach(function(other){ if(placed[other]) drawLink(id,other); });
+    // empty + recall state
+    if(emptyMsg) emptyMsg.style.display="none";
+    if(Object.keys(placed).length>=2 && recall.hidden){
+      recall.hidden=false;
+      if(!REDUCE) recall.classList.add("reveal","in");
+    }
+  }
+
+  function typeAnswer(html){
+    if(typeTimer){clearTimeout(typeTimer);typeTimer=null;}
+    if(REDUCE){ answerEl.innerHTML=html; return; }
+    // reveal by walking the plain text while keeping markup: simplest robust
+    // approach — set full html, then clip characters via a measuring pass.
+    var tmp=document.createElement("div"); tmp.innerHTML=html;
+    var full=tmp.textContent||""; var i=0;
+    answerEl.innerHTML="";
+    var cursor='<span class="cursor">▍</span>';
+    (function tick(){
+      i++;
+      // build partial plain text, then bold-wrap is lost — so instead reveal
+      // the full html but hide the tail with a running substring of textContent
+      answerEl.innerHTML=partial(html,i)+cursor;
+      if(i<full.length){ typeTimer=setTimeout(tick,16); }
+      else{ answerEl.innerHTML=html; }
+    })();
+  }
+  // Return the html truncated to the first n visible characters, preserving tags.
+  function partial(html,n){
+    var out="",count=0,i=0;
+    while(i<html.length && count<n){
+      if(html[i]==="<"){ var j=html.indexOf(">",i); if(j<0){break;} out+=html.slice(i,j+1); i=j+1; }
+      else if(html[i]==="&"){ var k=html.indexOf(";",i); if(k>=0 && k-i<=8){ out+=html.slice(i,k+1); i=k+1; count++; } else { out+=html[i]; i++; count++; } }
+      else{ out+=html[i]; i++; count++; }
+    }
+    // close any open tag we truncated mid-content (bold) — simple safety
+    return out;
+  }
+
+  function ask(key,chip){
+    var a=ANSWERS[key]; if(!a) return;
+    game.querySelectorAll(".vg-chip").forEach(function(c){c.setAttribute("aria-pressed","false");});
+    chip.setAttribute("aria-pressed","true");
+    // clear glow
+    game.querySelectorAll(".vg-node.glow").forEach(function(n){n.classList.remove("glow");});
+    var have=a.need.every(function(id){return placed[id];});
+    if(!have){
+      typeAnswer("Drop those notes in first ↑ — then I can connect them.");
+      return;
+    }
+    a.need.forEach(function(id){ if(placed[id]) placed[id].classList.add("glow"); });
+    typeAnswer(a.html);
+  }
+
+  // wire tray: click / keyboard (buttons) + drag
+  game.querySelectorAll(".vg-note").forEach(function(btn){
+    btn.addEventListener("click",function(){addNote(btn.getAttribute("data-note"));});
+    btn.addEventListener("dragstart",function(ev){ ev.dataTransfer.setData("text/plain",btn.getAttribute("data-note")); ev.dataTransfer.effectAllowed="move"; });
+  });
+  vault.addEventListener("dragover",function(ev){ ev.preventDefault(); vault.classList.add("drag-over"); });
+  vault.addEventListener("dragleave",function(){ vault.classList.remove("drag-over"); });
+  vault.addEventListener("drop",function(ev){ ev.preventDefault(); vault.classList.remove("drag-over"); var id=ev.dataTransfer.getData("text/plain"); if(id) addNote(id); });
+
+  var fill=game.querySelector("[data-fill]");
+  if(fill) fill.addEventListener("click",function(){
+    var ids=Object.keys(NOTES).filter(function(id){return !placed[id];});
+    ids.forEach(function(id,i){ setTimeout(function(){addNote(id);}, REDUCE?0:i*160); });
+  });
+
+  game.querySelectorAll(".vg-chip").forEach(function(chip){
+    chip.addEventListener("click",function(){ask(chip.getAttribute("data-ask"),chip);});
+  });
+})();
+</script>
+</body>
+</html>

@@ -63,29 +63,58 @@ function sourcePathFromReferer(referer: string | null): string | null {
   }
 }
 
-async function readEmail(request: Request): Promise<string> {
+// Optional "what do you take notes in today?" answer from the landing form.
+// Whitelisted to a known set so the column stays clean; anything unexpected
+// is dropped to NULL rather than stored as junk.
+const NOTES_APP_VALUES = new Set([
+  "apple-notes",
+  "notion",
+  "obsidian",
+  "paper",
+  "nothing",
+]);
+
+interface Submission {
+  email: string;
+  notesApp: string | null;
+}
+
+async function readSubmission(request: Request): Promise<Submission> {
   // Accept both standard form-encoded posts (default browser form
   // behavior, no JS required) and JSON in case anyone POSTs from a
-  // script. Keep this simple — one input field.
+  // script. The body can only be read once, so pull every field here.
   const contentType = request.headers.get("Content-Type") || "";
+  let email = "";
+  let notesAppRaw = "";
   if (contentType.includes("application/json")) {
-    const body = (await request.json().catch(() => ({}))) as { email?: unknown };
-    return typeof body.email === "string" ? body.email : "";
+    const body = (await request.json().catch(() => ({}))) as {
+      email?: unknown;
+      notes_app?: unknown;
+    };
+    email = typeof body.email === "string" ? body.email : "";
+    notesAppRaw = typeof body.notes_app === "string" ? body.notes_app : "";
+  } else {
+    const form = await request.formData();
+    const e = form.get("email");
+    const n = form.get("notes_app");
+    email = typeof e === "string" ? e : "";
+    notesAppRaw = typeof n === "string" ? n : "";
   }
-  const form = await request.formData();
-  const value = form.get("email");
-  return typeof value === "string" ? value : "";
+  const notesApp = NOTES_APP_VALUES.has(notesAppRaw.trim().toLowerCase())
+    ? notesAppRaw.trim().toLowerCase()
+    : null;
+  return { email, notesApp };
 }
 
 async function handleSubscribe(request: Request, env: Env): Promise<Response> {
-  let raw: string;
+  let submission: Submission;
   try {
-    raw = await readEmail(request);
+    submission = await readSubmission(request);
   } catch {
     return redirect(REDIRECT_ERROR);
   }
 
-  const email = raw.trim().toLowerCase();
+  const email = submission.email.trim().toLowerCase();
   if (!email || email.length > MAX_EMAIL_LEN || !EMAIL_RE.test(email)) {
     return redirect(REDIRECT_ERROR);
   }
@@ -94,9 +123,9 @@ async function handleSubscribe(request: Request, env: Env): Promise<Response> {
 
   try {
     await env.DB.prepare(
-      "INSERT INTO interests (email, source_path) VALUES (?, ?)"
+      "INSERT INTO interests (email, source_path, notes_app) VALUES (?, ?, ?)"
     )
-      .bind(email, sourcePath)
+      .bind(email, sourcePath, submission.notesApp)
       .run();
   } catch (err) {
     // Log to Cloudflare logs but don't surface DB internals to the user.
