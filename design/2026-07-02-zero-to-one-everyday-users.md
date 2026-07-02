@@ -1,12 +1,16 @@
 # Zero to One for Everyday Users — the first five minutes
 
-**Date:** 2026-07-02 · **Status:** proposal (Aaron to ratify sequencing; steps 1–4 shipped/in-PR same day) · **Layer:** L0→L1
+**Date:** 2026-07-02 · **Author:** Uni (Aaron + Claude) · **Status:** proposal (Aaron to ratify sequencing; steps 1–2 shipped, 3–4 in progress same day) · **Layer:** L0→L1
 
 ## The problem, stated plainly
 
 We now have every piece of the everyday-user story running in production-shaped form:
 
-- **parachute.computer/v2** — the landing page that gives a taste (interactive vault) and opens three doors.
+- **parachute.computer/v2** — the landing-page *candidate* that gives a taste (interactive vault)
+  and opens three doors. Caveat, twice over: it's a side route (the canonical homepage is still the
+  old page until Aaron + Neil promote it), and on /v2 itself the primary CTA is register-interest —
+  the live cloud is the *secondary* "try the beta →" link until this arc makes the promise honest
+  (gap item 7).
 - **cloud.parachute.computer** — self-serve signup (magic link, passwordless), vault creation, ownership-enforced OAuth.
 - **u.parachute.computer/vault/&lt;name&gt;** — a real vault (DO-per-vault), same wire contract as self-hosted.
 - **notes.parachute.computer** — the Notes PWA as a standalone static deploy, able to connect to *any* vault via OAuth (unblocked 2026-07-02 by cloud#34's CORS fix).
@@ -63,8 +67,8 @@ Success metric for L1 first-contact: **time-to-first-note < 2 minutes** from lan
 |---|---|---|---|
 | 1 | CORS on issuer token/register endpoints (browser PKCE) | parachute-cloud | ✅ shipped (#34) |
 | 2 | E2E proof of the whole chain in a real browser | — | ✅ passed (above) |
-| 3 | Console post-create: **"Open your notes"** primary door → `notes.parachute.computer/?add=<vault-url>`; demote the CLI command to the "Connect your AI" card; token response carries the vault name (hub parity); fix the vault-name input pattern | parachute-cloud | in PR |
-| 4 | Notes PWA: accept `?add=<url>` → auto-begin OAuth; Add-Vault copy for both audiences; derive the `vault=` consent hint from a pasted `/vault/<name>` URL (no re-typing); surface `error_description` on OAuth failures | parachute-surface (notes-ui) | in PR |
+| 3 | Console post-create: **"Open your notes"** primary door → `notes.parachute.computer/?add=<vault-url>`; demote the CLI command to the "Connect your AI" card; token response carries the vault name (hub parity); fix the vault-name input pattern | parachute-cloud | in progress (PR opening today) |
+| 4 | Notes PWA: accept `?add=<url>` → auto-begin OAuth; Add-Vault copy for both audiences; derive the `vault=` consent hint from a pasted `/vault/<name>` URL (no re-typing); surface `error_description` on OAuth failures. Must reconcile with the **existing `?url=` deep-link** (hub /account "Import notes" flow, notes#63) — one mechanism, not two | parachute-surface (notes-ui) | in progress (PR opening today) |
 | 5 | Seed a welcome note 🪂 at vault creation (teaches write/link/ask; deletable). Leaning a tiny three-note web so the graph isn't empty and the /v2 demo promise carries into the product | parachute-cloud (vault DO init) | proposed |
 | 6 | Console "Connect your AI" card: per-client instructions (Claude custom connector first, MCP URL front and center; the CLI command as the nerd footnote) | parachute-cloud | proposed |
 | 7 | Landing page: once 3+4 are live, "try the beta" can honestly promise notes-in-two-minutes | parachute.computer | copy |
@@ -74,6 +78,9 @@ custom surfaces, per-vault subdomains (Enterprise-gated wildcard DNS), native ap
 
 ## Open questions for Aaron
 
+- **Promote /v2 to the homepage?** The funnel thesis depends on where real traffic lands; today
+  that's still the old page. Once you + Neil have done the design read (and items 3–4 are live),
+  is promotion part of this arc?
 - **Vault picker vs. paste**: after OAuth against cloud, Notes could list the vaults you own
   (the issuer knows) instead of asking for a URL at all. Bigger seam (new issuer endpoint) — worth
   it as arc 2? The `?add=` param makes it moot for the console-originated path.
