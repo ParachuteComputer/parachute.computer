@@ -1,6 +1,6 @@
 # Parachute Cloud v1 — pay us money, get a vault
 
-*Design doc — 2026-07-01. Status: **DIRECTION** (D4 ratified by Aaron 2026-07-01: data-only v1, control plane around hub, harvest-not-revive parachute-cloud). Author: uni/session (with Aaron). Builds on the 2026-06-28 cloud product plan (team vault `Strategy/2026-06-28-parachute-cloud-plan`); supersedes `2026-04-20-cloud-offering-sketch.md`, `2026-05-26-fly-migration-path.md`'s runtime substrate, and the v0.6 doc's "single container" framing for cloud purposes.*
+*Design doc — 2026-07-01. Status: **DIRECTION** (D4 ratified by Aaron 2026-07-01: data-only v1, control plane around hub, harvest-not-revive parachute-cloud). **Substrate addendum:** see [`2026-07-02-cloud-substrate-deliberation.md`](./2026-07-02-cloud-substrate-deliberation.md) — corrects this doc's process-model assumption (one multi-vault process per box, not process-per-vault), replaces gate 9's density measurement with the concurrent-heavy-op ceiling, and adds the DO fit spike + tripwires. Author: uni/session (with Aaron). Builds on the 2026-06-28 cloud product plan (team vault `Strategy/2026-06-28-parachute-cloud-plan`); supersedes `2026-04-20-cloud-offering-sketch.md`, `2026-05-26-fly-migration-path.md`'s runtime substrate, and the v0.6 doc's "single container" framing for cloud purposes.*
 
 ## 1. The product, in Aaron's words
 
@@ -33,7 +33,7 @@ What v1 deliberately is **not**: custom surface code (Layer 2), native agents (L
 
 - **The control plane** is a new, small bun+SQLite service (reborn in the `parachute-cloud` repo, bun-native — the Worker/D1/Fly runtime is discarded; the billing lifecycle design — dunning state machine, accounts schema, `ProviderClient` seam, Stripe signature-verify + event dedup — is harvested, ~30-40% logic reuse). It owns exactly what a tenant's hub never should: accounts, Stripe, DNS, fleet state, provisioning orchestration.
 - **Boxes are stock Parachute.** Every box runs published `@latest` packages installed by the same `digitalocean.sh` a self-hoster runs. The control plane drives hubs only through their existing public seams: invite redemption, `provisionVault`, `setVaultCap`, usage read, and first-admin bootstrap — preferring the same browser bootstrap-token flow self-host operators exercise (`digitalocean.sh` deliberately avoids env-var admin seeding; the `PARACHUTE_INITIAL_ADMIN_*` env path exists but is the less-tested route, so the control plane automates the token handshake rather than diverging onto it). **The no-drift invariant: if the control plane needs a hub change, the change ships in hub for everyone, or it doesn't ship.** (To be codified as `parachute-patterns/patterns/cloud-no-drift.md` with the ratification migration file.)
-- **Two substrates, one product.** A vault lives on a **shared box** (many isolated vault processes, separate SQLite DBs, per-vault OAuth + `aud`-binding — the friends model, hardened) or a **dedicated box** (the premium/privacy tier: one tenant, one VM). The customer buys a vault either way; the substrate is a tier attribute. Lossless export/import is the migration mechanism between them.
+- **Two substrates, one product.** A vault lives on a **shared box** (separate SQLite DBs served by one multi-vault process today — see the [substrate addendum](./2026-07-02-cloud-substrate-deliberation.md) §2a: that rung-0 shape is for trusted circles only; the paying-stranger cheap tier requires a real per-tenant boundary) or a **dedicated box** (one tenant, one VM — the strongest boundary we own). The customer buys a vault either way; the substrate is a tier attribute. Lossless export/import is the migration mechanism between them.
 
 ## 3. Secure and solid — the gates, honestly
 
@@ -52,23 +52,23 @@ Being able to *technically* host strangers and being *ready to charge them* are 
 8. **Fleet operability** — minimal `sshExec` upgrade script across boxes + uptime/disk alerting + an incident runbook. (friends stranded on an old rc for weeks is the proof this can't be manual.)
 
 **Before cheap tiers (M3 gate):**
-9. **Measured density** — RAM-per-vault-process on a loaded box (the many-vaults load test that has never been run). Every sub-$5 price is fiction until this number exists.
+9. **Measured density** — ~~RAM-per-vault-process~~ *(superseded by the [substrate addendum](./2026-07-02-cloud-substrate-deliberation.md): production is one multi-vault process, RAM is ~1–3MB/warm vault and not the constraint)* — the real measurements are the concurrent-heavy-op ceiling per box and single-tenant export peak RSS; and per §2a the cheap tier additionally requires a real per-tenant isolation boundary before any stranger lands on it.
 
 ## 4. Pricing — honest now, cheap later
 
 | Tier | What | Price | When |
 |---|---|---|---|
-| **Simple Vault** | vault + notes app + AI connect + backup, 1GB cap, shared box | **~$5/mo** (beta) | M1 |
+| **Simple Vault** | vault + notes app + AI connect + backup, 1GB cap — ~~shared box~~ *on a real per-tenant boundary (DO-per-vault or process/OS-user isolation — [addendum §2a](./2026-07-02-cloud-substrate-deliberation.md); the rung-0 shared pool never takes paying strangers)* | **~$3-5/mo** | ~~M1~~ M2, gated on the boundary |
 | **Bigger caps** | 5GB / 10GB steps | +$3-5/step | M2 |
-| **Dedicated** | own box, own origin, privacy posture, all caps off | **~$25/mo** | M1 (manual), M3 (self-serve) |
-| **$1-2 entry** | shared box at real density | aspirational | M3, gated on the measured number |
+| **Dedicated** | own box, own origin, privacy posture, all caps off | **~$25/mo** | **M1** (manual) — the beta tier, per §2a |
+| **$1-2 entry** | isolated cheap tier at real density | aspirational | M3, gated on the DO spike + measurements |
 
 Rationale: $5 clears worst-case shared-box COGS *before* density is measured (and Stripe's fee — 2.9% + $0.30 — is ~$0.45 ≈ 9% of $5, vs ~$0.36 ≈ 18% of $2). The $1-2 vision is the destination — it becomes real when density is a measurement, not an assumption. **Trial-not-free**: a 14-day card-on-file trial instead of a free tier (a free tier on shared boxes is an abuse magnet and a COGS leak before ceilings exist). Scribe/transcription is **not** in v1 tiers (it's the one real per-use COGS; BYO-key or a metered add-on later).
 
 ## 5. The landing sequence
 
 - **M0 — the gates that are pure engineering (start now):** cap enforcement · backup-default + restore drill · account self-serve completions · the density load test · the written trust-posture page (gate 4 — a doc, not code) · one waitlist mechanism on the site (D1 worker + `cloud` flag; retire the substack fork). All of this is valuable for self-host + friends even if cloud slipped.
-- **M1 — private beta, real money (~5-15 people):** one **fresh** cloud box (not the friends box — clean blast radius), waitlist/friendlies invited, Stripe payment links (no self-serve billing code yet), provisioning via a control-plane CLI driving hub seams. $5 Simple Vault / $25 dedicated-by-hand. The goal is *learning + the first honest dollars*, not automation.
+- **M1 — private beta, real money (~5-15 people):** ~~$5 Simple Vault on a shared box~~ *(superseded by [addendum §2a](./2026-07-02-cloud-substrate-deliberation.md): no paying stranger on the rung-0 pool)* — **dedicated-by-hand at ~$25/tenant**: fresh droplets off the standard installer, waitlist/friendlies, Stripe payment links, provisioning via a control-plane CLI driving hub seams. The goal is *learning + the first honest dollars*, not automation. The cheap tier follows at M2 on a real boundary.
 - **M2 — self-serve:** signup → verify → pay (Stripe Checkout) → vault provisioned → welcome email with coordinates + first-hour guide. Subdomain-per-tenant. Public CTA lands with the Layer-0 site rework (which has its own pending context from Aaron).
 - **M3 — density + cheap tiers:** second box, fleet reconciler, measured pooled pricing, dedicated self-serve, pooled→dedicated migrator.
 
