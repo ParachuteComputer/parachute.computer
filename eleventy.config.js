@@ -8,6 +8,11 @@ module.exports = function (eleventyConfig) {
   // NB: /install/index.html is a separate redirect template (install-redirect.njk)
   // — passthrough files and that template land in the same dir without colliding.
   eleventyConfig.addPassthroughCopy("install/**/*");
+  // Provider-neutral alias: /install/server.sh is the SAME source file as
+  // digitalocean.sh, copied to a second name at build time (single source of
+  // truth, byte-identical, never drifts). /start presents server.sh as the
+  // one-liner; digitalocean.sh stays served so circulated links don't break.
+  eleventyConfig.addPassthroughCopy({ "install/digitalocean.sh": "install/server.sh" });
   // Favicon + webclip + PWA icons at site root
   eleventyConfig.addPassthroughCopy("*.png");
   eleventyConfig.addPassthroughCopy("site.webmanifest");
