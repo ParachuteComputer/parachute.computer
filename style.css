@@ -1,9 +1,16 @@
 /* ============================================
    Parachute Computer — parachute.computer
-   Natural. Balanced. Open sky.
-   ============================================ */
+   Warm. Open sky. Shares the homepage's design system.
 
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
+   The homepage (landing-preview.html → /index.html) is a self-contained
+   file with its own inline tokens. THIS stylesheet mirrors that same warm
+   system so every base.njk page (blog, docs, roadmap, /start, terms …)
+   belongs to the same family. Palette + fonts + shadows below are ported
+   from the landing's :root; the old semantic token names (--bg, --fg,
+   --accent, --serif …) are kept as ALIASES onto the warm palette so the
+   many existing rules downstream reskin automatically.
+   Fonts are system stacks — no webfont download (Google Fonts retired).
+   ============================================ */
 
 * {
     margin: 0;
@@ -12,38 +19,89 @@
 }
 
 :root {
-    --bg: #faf8f4;
-    --bg-soft: #f3f0ea;
-    --fg: #2c2a26;
-    --fg-muted: #6b6860;
-    --fg-dim: #9a9690;
-    --accent: #4a7c59;
-    --accent-soft: rgba(74, 124, 89, 0.08);
-    --accent-hover: #3d6849;
-    --accent-light: #6a9b77;
-    --sky: #5b8fa8;
+    /* --- warm palette (source of truth, ported from the landing) --- */
+    --paper: #fdfaf4;        /* warm off-white page */
+    --paper-2: #f7f1e6;      /* soft warm band */
+    --sky-band: #eef5f9;     /* cool sky band */
+    --card: #ffffff;
+    --ink: #2a2521;          /* body text — 14.5:1 on paper */
+    --ink-soft: #6b6459;     /* muted text — 5.6:1 on paper */
+    --line: #ece5d8;         /* hairline (lighter) */
+    --line-2: #e2d9c8;       /* hairline (more visible) */
+    --coral: #e05d3c;        /* display accent (large text only) */
+    --coral-btn: #bf4a2a;    /* button bg + white text — 4.97:1 */
+    --coral-soft: #fbe4d9;
+    --coral-ink: #8f3417;    /* coral-family text on light bg (AA) */
+    --link: #2f6f96;         /* links / interactive text — 5.26:1 */
+    --link-hover: #245570;   /* blue-ink */
+    --link-light: #7ba7c1;   /* soft blue for borders / bullets / dots */
+    --blue-soft: #dcebf3;
+    --sun: #f4c020;
+    --sun-soft: #fdf1c9;
+    --sun-ink: #6b5200;
+    --grass: #3f8a58;
+    --shadow-soft: 0 10px 30px rgba(60, 45, 30, .08);
+    --shadow-lift: 0 18px 44px rgba(60, 45, 30, .12);
+
+    --font-round: ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", "Hiragino Maru Gothic ProN", Quicksand, system-ui, sans-serif;
+    --font-serif: ui-serif, "New York", "Iowan Old Style", Georgia, "Times New Roman", serif;
+    --font-body: -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    /* --- back-compat aliases: old semantic names → warm palette --- */
+    --bg: var(--paper);
+    --bg-soft: var(--paper-2);
+    --fg: var(--ink);
+    --fg-muted: var(--ink-soft);
+    --fg-dim: #9a9184;                       /* warm dim */
+    --accent: var(--link);                   /* inline links / small UI = accessible blue */
+    --accent-soft: rgba(47, 111, 150, 0.08);
+    --accent-hover: var(--link-hover);
+    --accent-light: var(--link-light);
+    --display-accent: var(--coral-ink);      /* warm coral for display sub-heads / taglines */
+    --sky: #5b8fa8;                          /* "active" status hue (kept) */
     --sky-soft: rgba(91, 143, 168, 0.08);
-    --border: #e4e0d8;
-    --border-light: #ece9e2;
-    --card-bg: #ffffff;
-    --card-hover: #fefdfb;
-    --serif: 'Instrument Serif', Georgia, serif;
-    --sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    --mono: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
-    --max-width: 960px;
+    --border: var(--line-2);
+    --border-light: var(--line);
+    --card-bg: var(--card);
+    --card-hover: #fffdf9;
+    --serif: var(--font-serif);
+    --sans: var(--font-body);
+    --round: var(--font-round);
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Monaco, "Cascadia Code", monospace;
+    --max-width: 960px;                      /* content reading measure (unchanged) */
     --content-width: 680px;
 }
 
+/* parachute mark colors (the inline #pchute symbol injected in base.njk).
+   Mirrors the landing so the nav + footer mark render in warm coral. */
+.pc-canopy { fill: var(--coral); }
+.pc-gore { fill: none; stroke: var(--coral-btn); stroke-width: 1.4; stroke-linecap: round; opacity: .7; }
+.pc-string { fill: none; stroke: var(--ink-soft); stroke-width: 1; stroke-linecap: round; opacity: .6; }
+.pc-load { fill: var(--sun); }
+.pc-load-ring { fill: none; stroke: var(--sun-ink); stroke-width: .8; opacity: .4; }
+
 body {
     font-family: var(--sans);
-    background: var(--bg);
-    color: var(--fg);
+    background: var(--paper);
+    color: var(--ink);
     line-height: 1.65;
     min-height: 100vh;
     font-weight: 400;
     font-size: 16px;
+    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+/* soft sky wash at the very top — the landing's "open sky" (subtle, fixed) */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: 60vh;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(180deg, #eaf3f8 0%, #f4f6f2 34%, var(--paper) 72%);
 }
 
 a {
@@ -91,90 +149,105 @@ a:hover {
 }
 
 /* ============================================
-   Navigation — clean, grounded
+   Shared pill buttons (mirror the landing's .btn family)
    ============================================ */
 
-header {
-    border-bottom: 1px solid var(--border);
-    padding: 1.25rem 2rem;
-    background: rgba(250, 248, 244, 0.9);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--round);
+    font-weight: 600;
+    font-size: 1.02rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    line-height: 1;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease;
+}
+
+.btn:hover { text-decoration: none; }
+
+.btn-primary {
+    background: var(--coral-btn);
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(191, 74, 42, 0.28);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(191, 74, 42, 0.34);
+    color: #fff;
+}
+
+.btn-ghost {
+    background: var(--card);
+    color: var(--ink);
+    border-color: var(--line-2);
+    box-shadow: var(--shadow-soft);
+}
+
+.btn-ghost:hover { transform: translateY(-2px); color: var(--ink); }
+
+@media (prefers-reduced-motion: reduce) { .btn:hover { transform: none; } }
+
+/* ============================================
+   Navigation — warm, sticky, blurred (mirrors the landing)
+   ============================================ */
+
+header.site-nav {
     position: sticky;
     top: 0;
     z-index: 100;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(253, 250, 244, 0.72);
+    border-bottom: 1px solid rgba(236, 229, 216, 0.7);
 }
 
-nav {
+.site-nav .nav-in {
     max-width: var(--max-width);
     margin: 0 auto;
+    padding: 0.7rem clamp(1.1rem, 4vw, 2.5rem);
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
 }
 
-.logo {
+.brand {
     display: inline-flex;
     align-items: center;
-    gap: 0.75rem;
-    font-family: var(--serif);
-    font-size: 1.25rem;
-    color: var(--fg);
-    text-decoration: none;
-    letter-spacing: -0.01em;
-    transition: color 0.2s ease;
+    gap: 0.5rem;
+    font-family: var(--round);
+    font-weight: 700;
+    font-size: 1.18rem;
+    color: var(--ink);
     line-height: 1;
 }
 
-.logo-mark {
-    width: 1.7rem;
-    height: 1.7rem;
-    display: block;
-    flex: none;
-}
+.brand:hover { text-decoration: none; color: var(--ink); }
+.brand .mark { width: 28px; height: 26px; flex: none; }
 
-.logo-text {
-    display: block;
-    transform: translateY(-0.01em);
-}
-
-.logo:hover {
-    color: var(--accent);
-}
-
-.nav-links {
+.nav-right {
     display: flex;
-    gap: 2rem;
+    align-items: center;
+    gap: 1.1rem;
 }
 
-.nav-links a {
-    color: var(--fg-muted);
-    text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 400;
-    letter-spacing: 0.01em;
+.nav-right a {
+    font-family: var(--round);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
     transition: color 0.2s ease;
-    position: relative;
 }
 
-.nav-links a:hover {
-    color: var(--fg);
-}
-
-.nav-links a::after {
-    content: "";
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: var(--accent);
-    transition: width 0.3s ease;
-}
-
-.nav-links a:hover::after {
-    width: 100%;
-}
+.nav-right a:hover { color: var(--ink); text-decoration: none; }
+.nav-right .btn { padding: 0.55rem 1.05rem; font-size: 0.92rem; color: #fff; }
+.nav-right .btn:hover { color: #fff; }
 
 /* ============================================
    Main content
@@ -220,7 +293,7 @@ main {
 .hero h1 {
     font-family: var(--serif);
     font-size: 4.5rem;
-    font-weight: 400;
+    font-weight: 600;
     letter-spacing: -0.03em;
     line-height: 1.05;
     margin-bottom: 1rem;
@@ -231,7 +304,7 @@ main {
     font-family: var(--serif);
     font-style: italic;
     font-size: 1.5rem;
-    color: var(--accent);
+    color: var(--display-accent);
     margin-bottom: 0.5rem;
 }
 
@@ -279,7 +352,7 @@ main {
 .section h2 {
     font-family: var(--serif);
     font-size: 1.75rem;
-    font-weight: 400;
+    font-weight: 600;
     margin-bottom: 1.25rem;
     padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--border);
@@ -290,10 +363,10 @@ main {
 .section h3 {
     font-family: var(--serif);
     font-size: 1.2rem;
-    font-weight: 400;
+    font-weight: 600;
     margin-top: 2rem;
     margin-bottom: 0.75rem;
-    color: var(--accent);
+    color: var(--display-accent);
 }
 
 .section p {
@@ -436,7 +509,7 @@ main {
     display: inline-block;
     font-size: 0.75rem;
     color: var(--accent);
-    border: 1px solid rgba(74, 124, 89, 0.25);
+    border: 1px solid rgba(47, 111, 150, 0.25);
     border-radius: 4px;
     padding: 0.2rem 0.65rem;
     letter-spacing: 0.03em;
@@ -481,7 +554,7 @@ main {
     text-align: center;
     padding: 4.5rem 3rem;
     background: var(--accent-soft);
-    border: 1px solid rgba(74, 124, 89, 0.12);
+    border: 1px solid rgba(47, 111, 150, 0.12);
     border-radius: 12px;
     position: relative;
 }
@@ -489,7 +562,7 @@ main {
 .cta h2 {
     font-family: var(--serif);
     font-size: 1.75rem;
-    font-weight: 400;
+    font-weight: 600;
     margin-bottom: 1rem;
     border-bottom: none;
     padding-bottom: 0;
@@ -522,25 +595,30 @@ main {
    ============================================ */
 
 .button {
-    display: inline-block;
-    background: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--coral-btn);
     color: #fff;
-    padding: 0.85rem 2.5rem;
-    border-radius: 8px;
+    padding: 0.85rem 1.9rem;
+    border-radius: 999px;
     text-decoration: none;
-    font-weight: 500;
-    font-size: 0.9rem;
-    letter-spacing: 0.01em;
+    font-family: var(--round);
+    font-weight: 600;
+    font-size: 0.98rem;
+    letter-spacing: 0;
     transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-    box-shadow: 0 1px 4px rgba(74, 124, 89, 0.15);
+    box-shadow: 0 6px 18px rgba(191, 74, 42, 0.28);
 }
 
 .button:hover {
-    background: var(--accent-hover);
+    background: #a83f22;
     color: #fff;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(74, 124, 89, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(191, 74, 42, 0.34);
 }
+
+@media (prefers-reduced-motion: reduce) { .button:hover { transform: none; } }
 
 /* ============================================
    Code blocks — grounded, technical
@@ -590,34 +668,59 @@ code {
 }
 
 /* ============================================
-   Footer
+   Footer — warm, centered, with the parachute mark (mirrors the landing)
    ============================================ */
 
-footer {
-    border-top: 1px solid var(--border);
-    padding: 3rem 2rem;
+footer.site-footer {
+    padding: 3rem 2rem 3.5rem;
+    border-top: 1px solid var(--line);
     text-align: center;
-    color: var(--fg-dim);
-    font-size: 0.85rem;
+    color: var(--ink-soft);
 }
 
-footer a {
-    color: var(--fg-dim);
-    transition: color 0.2s ease;
+.foot-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--round);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--ink);
+    margin-bottom: 0.4rem;
 }
 
-footer a:hover {
-    color: var(--accent);
+.foot-brand .mark { width: 24px; height: 23px; }
+
+.foot-tag {
+    font-family: var(--round);
+    color: var(--ink-soft);
+    margin-bottom: 1.1rem;
 }
 
-footer p {
-    margin-bottom: 0.5rem;
+.foot-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.3rem;
+    justify-content: center;
+    font-family: var(--round);
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
 }
 
-footer p:first-child {
-    color: var(--fg-muted);
-    margin-bottom: 0.75rem;
+.foot-links a { color: var(--ink-soft); }
+.foot-links a:hover { color: var(--ink); }
+
+.foot-fine {
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    max-width: 34rem;
+    margin: 0 auto;
 }
+
+.foot-fine a { color: var(--ink-soft); }
+.foot-fine a:hover { color: var(--ink); }
+.foot-fine + .foot-fine { margin-top: 0.5rem; }
 
 /* ============================================
    Roadmap page
@@ -630,7 +733,7 @@ footer p:first-child {
 .roadmap-header h1 {
     font-family: var(--serif);
     font-size: 3rem;
-    font-weight: 400;
+    font-weight: 600;
     margin-bottom: 0.5rem;
     letter-spacing: -0.02em;
 }
@@ -752,8 +855,8 @@ footer p:first-child {
 }
 
 .status-done {
-    background: rgba(74, 124, 89, 0.1);
-    color: var(--accent);
+    background: rgba(63, 138, 88, 0.12);   /* grass — "shipped" reads distinct from the sky "active" */
+    color: #245c39;
 }
 
 .status-active {
@@ -861,7 +964,7 @@ footer p:first-child {
 .post-header h1 {
     font-family: var(--serif);
     font-size: 3rem;
-    font-weight: 400;
+    font-weight: 600;
     margin-bottom: 0.75rem;
     line-height: 1.15;
     letter-spacing: -0.02em;
@@ -871,7 +974,7 @@ footer p:first-child {
     font-family: var(--serif);
     font-style: italic;
     font-size: 1.2rem;
-    color: var(--accent);
+    color: var(--display-accent);
     margin-bottom: 1rem;
 }
 
@@ -896,7 +999,7 @@ footer p:first-child {
 .post-content h2 {
     font-family: var(--serif);
     font-size: 1.65rem;
-    font-weight: 400;
+    font-weight: 600;
     margin-top: 3rem;
     margin-bottom: 1.25rem;
     padding-bottom: 0.5rem;
@@ -907,10 +1010,10 @@ footer p:first-child {
 .post-content h3 {
     font-family: var(--serif);
     font-size: 1.2rem;
-    font-weight: 400;
+    font-weight: 600;
     margin-top: 2.5rem;
     margin-bottom: 0.75rem;
-    color: var(--accent);
+    color: var(--display-accent);
 }
 
 .post-content strong {
@@ -921,7 +1024,7 @@ footer p:first-child {
 .post-content a {
     color: var(--accent);
     text-decoration: underline;
-    text-decoration-color: rgba(74, 124, 89, 0.3);
+    text-decoration-color: rgba(47, 111, 150, 0.3);
     text-underline-offset: 3px;
     transition: text-decoration-color 0.2s ease;
 }
@@ -1022,8 +1125,8 @@ footer p:first-child {
     line-height: 0.8;
     padding-right: 0.15em;
     padding-top: 0.08em;
-    color: var(--accent);
-    font-weight: 400;
+    color: var(--display-accent);
+    font-weight: 600;
 }
 
 /* ============================================
@@ -1117,32 +1220,15 @@ footer p:first-child {
         margin-top: 1.5rem;
     }
 
-    /* Let the header wrap on narrow screens so the nav links don't run
-       off-screen (Roadmap/GitHub were getting truncated at phone width).
-       Logo stays on the first row; nav links wrap onto the next, and the
-       links themselves wrap if needed — no JS / hamburger needed. */
-    nav {
-        flex-wrap: wrap;
-        row-gap: 0.6rem;
+    /* Narrow-screen nav: the secondary text links collapse into the
+       footer (which carries the full set), leaving the brand + the one
+       "Get a vault" CTA on a single row — the landing's own behavior. */
+    .nav-right {
+        gap: 0.9rem;
     }
 
-    .nav-links {
-        flex-wrap: wrap;
-        gap: 0.55rem 1.1rem;
-    }
-
-    .logo {
-        gap: 0.6rem;
-        font-size: 1.15rem;
-    }
-
-    .logo-mark {
-        width: 1.45rem;
-        height: 1.45rem;
-    }
-
-    header {
-        padding: 1rem 1.25rem;
+    .brand {
+        font-size: 1.12rem;
     }
 
     .hero {
@@ -1154,6 +1240,11 @@ footer p:first-child {
         margin-bottom: 3rem;
     }
 }
+
+/* Blog/Docs/GitHub drop into the footer first; Self-host holds a little
+   longer, then it too collapses to the footer, matching the landing. */
+@media (max-width: 620px) { .nav-right .nav-drop { display: none; } }
+@media (max-width: 560px) { .nav-right .selfhost { display: none; } }
 
 .alpha-tag {
     display: inline-block;
@@ -1249,7 +1340,7 @@ footer p:first-child {
 /* Prominent starter-prompt callout on the install page. */
 .section .starter-callout {
     background: var(--accent-soft);
-    border: 1px solid rgba(74, 124, 89, 0.18);
+    border: 1px solid rgba(47, 111, 150, 0.18);
     border-radius: 12px;
     padding: 2rem 2.25rem;
     margin: 1.5rem 0;
@@ -1376,7 +1467,7 @@ footer p:first-child {
 .path-card-title {
     font-family: var(--serif);
     font-size: 1.2rem;
-    color: var(--accent);
+    color: var(--display-accent);
     line-height: 1.2;
 }
 
@@ -1390,7 +1481,7 @@ footer p:first-child {
 #path-local:checked    ~ .path-cards .path-card:nth-of-type(1),
 #path-do:checked       ~ .path-cards .path-card:nth-of-type(2) {
     border-color: var(--accent);
-    box-shadow: 0 0 0 2px var(--accent-soft), 0 6px 18px rgba(74, 124, 89, 0.12);
+    box-shadow: 0 0 0 2px var(--accent-soft), 0 6px 18px rgba(47, 111, 150, 0.12);
     background: var(--card-bg);
 }
 

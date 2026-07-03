@@ -5,21 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}{% if title %} | {% endif %}Parachute Computer</title>
     <meta name="description" content="{{ description or 'You and AI, thinking together. An open, self-hosted memory you and any AI can read and write — on your machine, yours to keep and export anytime.' }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    {# Fonts are system stacks (see style.css :root) — no webfont download. #}
     <link rel="stylesheet" href="/style.css">
     <link rel="icon" href="/assets/parachute-logo.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
     <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
-    <meta name="theme-color" content="#4a7c59">
+    <meta name="theme-color" content="#fdfaf4">
 
     {# Open Graph / share-preview metadata. Posts can override via
        frontmatter: og_title, og_description, og_image, og_type. #}
     {% set _ogTitle = og_title or title %}
     {% set _ogDescription = og_description or description or "You and AI, thinking together. An open, self-hosted memory you and any AI can read and write — on your machine, yours to keep and export anytime." %}
-    {% set _ogImage = og_image or "/assets/og-default.jpg" %}
+    {% set _ogImage = og_image or "/og.png" %}
     {% set _ogType = og_type or "website" %}
     {% set _canonicalUrl = "https://parachute.computer" + (page.url or "/") %}
 
@@ -31,37 +30,72 @@
     <meta property="og:image" content="https://parachute.computer{{ _ogImage }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="A parachute descending over open plains at dawn, its canopy woven with a luminous knowledge graph.">
+    <meta property="og:image:alt" content="A hand-drawn parachute over the words: Parachute — a soft place for your thoughts to land.">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ _ogTitle }}{% if _ogTitle %} | {% endif %}Parachute Computer">
     <meta name="twitter:description" content="{{ _ogDescription }}">
     <meta name="twitter:image" content="https://parachute.computer{{ _ogImage }}">
-    <meta name="twitter:image:alt" content="A parachute descending over open plains at dawn, its canopy woven with a luminous knowledge graph.">
+    <meta name="twitter:image:alt" content="A hand-drawn parachute over the words: Parachute — a soft place for your thoughts to land.">
 
     <link rel="canonical" href="{{ _canonicalUrl }}">
 </head>
 <body>
-    <header>
-        <nav>
-            <a href="/" class="logo">
-                <img src="/assets/parachute-logo.svg" alt="" class="logo-mark" aria-hidden="true">
-                <span class="logo-text">Parachute Computer</span>
+    {# Custom open parachute mark — reused via <use> in the nav + footer.
+       Same hand-drawn glyph as the homepage; colored by the .pc-* rules in
+       style.css. NOT Apple's copyrighted parachute, NOT the old graph logo. #}
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+      <symbol id="pchute" viewBox="0 0 64 60">
+        <path class="pc-canopy" d="M4 28 A28 28 0 0 1 60 28 Q54 37 46 28 Q39 37 32 28 Q25 37 18 28 Q10 37 4 28 Z"/>
+        <g class="pc-gore">
+          <path d="M32 2.2 Q31.5 15 32 27.6"/>
+          <path d="M32 3 Q20 14 18 27.6"/>
+          <path d="M32 3 Q44 14 46 27.6"/>
+          <path d="M32 4 Q9.5 15 4.4 27.6"/>
+          <path d="M32 4 Q54.5 15 59.6 27.6"/>
+        </g>
+        <g class="pc-string">
+          <path d="M5 28 L31 47"/>
+          <path d="M18 30 L31 47"/>
+          <path d="M32 30 L32 47"/>
+          <path d="M46 30 L33 47"/>
+          <path d="M59 28 L33 47"/>
+        </g>
+        <rect class="pc-load" x="26.5" y="46.5" width="11" height="10" rx="3.5"/>
+        <rect class="pc-load-ring" x="28.6" y="48.6" width="6.8" height="5.8" rx="2"/>
+      </symbol>
+    </svg>
+
+    <header class="site-nav">
+        <div class="nav-in">
+            <a class="brand" href="/" aria-label="Parachute — home">
+                <svg class="mark" aria-hidden="true"><use href="#pchute"/></svg>
+                <span>Parachute</span>
             </a>
-            <div class="nav-links">
-                <a href="/start/">Start</a>
-                <a href="/modules/">Modules</a>
-                <a href="/blog/">Blog</a>
-                <a href="https://github.com/ParachuteComputer" target="_blank">GitHub</a>
-            </div>
-        </nav>
+            <nav class="nav-right">
+                <a class="nav-drop" href="/blog/">Blog</a>
+                <a class="nav-drop" href="/docs/">Docs</a>
+                <a class="nav-drop" href="https://github.com/ParachuteComputer" target="_blank" rel="noopener">GitHub</a>
+                <a class="selfhost" href="/start/">Self-host</a>
+                <a class="btn btn-primary" href="https://cloud.parachute.computer/signup">Get a vault</a>
+            </nav>
+        </div>
     </header>
 
     {{ content | safe }}
 
-    <footer>
-        <p style="margin-bottom: 0.75rem;"><a href="/start/">Start</a> &middot; <a href="/modules/">Modules</a> &middot; <a href="/blog/">Blog</a> &middot; <a href="https://github.com/ParachuteComputer" target="_blank">GitHub</a> &middot; <a href="/terms/">Terms</a> &middot; <a href="/privacy/">Privacy</a></p>
-        <p>&copy; 2026 Open Parachute, PBC &mdash; a Colorado Public Benefit Corporation building open tools for thinking.</p>
+    <footer class="site-footer">
+        <div class="foot-brand"><svg class="mark" aria-hidden="true"><use href="#pchute"/></svg><span>Parachute</span></div>
+        <p class="foot-tag">Your digital life needs a safe place to land.</p>
+        <nav class="foot-links">
+            <a href="https://cloud.parachute.computer/signup">Get a vault</a>
+            <a href="/start/">Self-host</a>
+            <a href="/blog/">Blog</a>
+            <a href="/docs/">Docs</a>
+            <a href="https://github.com/ParachuteComputer" target="_blank" rel="noopener">GitHub</a>
+        </nav>
+        <p class="foot-fine">&copy; 2026 Open Parachute, PBC &mdash; a Colorado Public Benefit Corporation building open tools for thinking.</p>
+        <p class="foot-fine"><a href="/terms/">Terms</a> &middot; <a href="/privacy/">Privacy</a></p>
     </footer>
 
     {# Copy-to-clipboard — progressive enhancement. With JS off, no button
