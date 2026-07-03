@@ -59,7 +59,7 @@ One person, start to finish. Every wave below serves a moment in this story:
 1. **Plan column + wiring:** add `plan` to identity D1 (`vaults`/`users`); on plan change, the issuer pushes `cap_bytes` into the vault DO's existing config seam. Vault-count cap enforced at `createVault` (trivial — ownership table exists).
 2. **Metering rollup:** a scheduled worker enumerates the `vaults` table, pulls `databaseSize + r2_bytes` per DO, writes a daily D1 `usage` row. Powers admin, cap warnings, and billing sanity.
 3. **Plans (proposal):**
-   - **Free** — 1 vault, 1 GiB (today's cap, unchanged — no grandfathering needed, honest tier, storage costs us ~2¢/GB-mo).
+   - **Free** — 1 vault, 100 MB (ratified value — supersedes the 1 GiB draft figure; motivates the paid step and caps free-tier COGS structurally, storage costs us ~2¢/GB-mo).
    - **Parachute — $3/mo or $30/yr** — 5 vaults, 10 GiB total, **nightly snapshot history with 30-day restore**, priority support.
    - One paid tier at launch. A bigger tier only when real users ask for it.
 4. **Cap behavior:** warn banner + email at 100%, writes stop at 120% (413s already shaped), **reads and export never stop**. Downgrades never delete — over-cap vaults go write-limited with a long, kind runway.
@@ -104,7 +104,7 @@ Waves 1+2 in parallel; 3 after 2; 4 after 3 — **onboarding before monetization
 
 ## Part IV — Decisions I need from you (the review)
 
-1. **Pricing:** Free = 1 vault / 1 GiB (today's cap, unchanged). Paid = $3/mo or $30/yr, 5 vaults / 10 GiB + snapshot history. Yes / adjust numbers?
+1. **Pricing:** Free = 1 vault / 1 GiB (today's cap, unchanged). Paid = $3/mo or $30/yr, 5 vaults / 10 GiB + snapshot history. Yes / adjust numbers? *[Answered: adjusted — free tier is **100 MB**; see the execution plan's locked decisions.]*
 2. **One paid tier at launch** — no Plus until users ask. Yes?
 3. **History = paid snapshot feature, fixed retention, never metered into quota.** Yes?
 4. **Homepage promotion after the FUBU session** — schedule the team hour. Yes?
