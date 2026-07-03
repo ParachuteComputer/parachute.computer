@@ -24,7 +24,7 @@ permalink: /multi-user/
 
         <p>Your hub is the door everyone walks through. It runs as a single container, supervises vault and scribe as child processes, and issues OAuth tokens for clients. Pick the deploy that fits:</p>
 
-        <p>A home server, EC2, or any VPS runs the same supervised hub, kept alive by a managed service (systemd / launchd) across reboots &mdash; the most control, the lowest cost. The simplest path is <a href="/start/">DigitalOcean</a>: a single <code>curl … | bash</code> command on a $6/mo droplet. The full <a href="/start/">Get started</a> guide covers every path, including running on a machine you already own.</p>
+        <p>A home server, EC2, or any VPS runs the same supervised hub, kept alive by a managed service (systemd / launchd) across reboots &mdash; the most control, the lowest cost. Any fresh Ubuntu or Debian box works the same way &mdash; Hetzner, EC2, DigitalOcean, or a machine in your closet &mdash; via a single <code>curl … | bash</code> server install. The full <a href="/start/">Get started</a> guide covers every path, including running on a machine you already own.</p>
 
         <p>The wizard at <code>/admin/setup</code> walks you through creating your first vault (and setting up transcription alongside it), and exposing your hub. <strong>You</strong> become the first admin during the wizard &mdash; the username and password you pick there are yours. (On a public deploy, the wizard asks for the one-time bootstrap token <code>init</code> printed before it lets you create that admin.)</p>
 

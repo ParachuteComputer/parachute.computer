@@ -1,0 +1,114 @@
+---
+layout: base.njk
+title: "Vault — your memory graph"
+description: "A Parachute vault is a memory graph you and any AI can share — notes, tags, wikilinks in one store behind an HTTP API and MCP. Capture anything and it connects; any AI can read it, and it stays yours. The foundation everything else is built on."
+permalink: /vault/
+---
+<main>
+
+    <section class="hero">
+        <h1 class="fade-up fade-up-2">Vault</h1>
+        <p class="tagline fade-up fade-up-3">A memory you and any AI can share &mdash; and it stays yours.</p>
+    </section>
+
+    {# The ladder rail — Vault is rung one. #}
+    <nav class="ladder-rail fade-up fade-up-3" aria-label="The Parachute ladder">
+        <span class="rung is-current" aria-current="page">
+            <span class="rung-level">L1 &middot; you are here</span>
+            <span class="rung-name">Vault</span>
+            <span class="rung-sub">your memory</span>
+        </span>
+        <span class="rung-join" aria-hidden="true">&rarr;</span>
+        <a class="rung" href="/surfaces/">
+            <span class="rung-level">L2</span>
+            <span class="rung-name">Surface</span>
+            <span class="rung-sub">a UI over it</span>
+        </a>
+        <span class="rung-join" aria-hidden="true">&rarr;</span>
+        <a class="rung" href="/agents/">
+            <span class="rung-level">L3</span>
+            <span class="rung-name">Agent</span>
+            <span class="rung-sub">it acts for you</span>
+        </a>
+    </nav>
+
+    {# ============ WHAT IT IS ============ #}
+    <section class="section fade-up fade-up-4">
+        <h2>What a vault is</h2>
+
+        <p>Your vault is a <strong>memory graph</strong>: every note you drop in, every tag, every <code>[[wikilink]]</code> between them, in one store your AI can read and write directly. It's a knowledge graph behind a plain HTTP API and <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener">MCP</a> &mdash; the open standard AI assistants speak &mdash; so connecting is one URL, not an integration project.</p>
+
+        <p>Jot &ldquo;call the dentist&rdquo; one day and &ldquo;Maya's birthday is in June&rdquo; the next. The vault holds both, and the links between them, so the next thing you ask your AI lands <em>in context</em> instead of on a blank page. You capture; the graph connects; your AI remembers.</p>
+    </section>
+
+    {# ============ WHY IT'S THE FOUNDATION ============ #}
+    <section class="section fade-up fade-up-4">
+        <h2>Why it's the foundation</h2>
+
+        <p>Everything else in Parachute is built on the vault. Get this one thing and the rest of the ladder is just ways to reach it.</p>
+
+        <ul>
+            <li><strong>Capture anything, it connects.</strong> Notes, tags, links, voice memos turned to text &mdash; one graph, full-text searchable, that grows more useful the more you put in it.</li>
+            <li><strong>Any AI can read it.</strong> Point Claude, ChatGPT, Claude Code, Cursor, or your own agent at one MCP URL. They all read and write the same source of truth &mdash; no more re-explaining yourself to a fresh chat.</li>
+            <li><strong>It stays yours.</strong> The vault lives on a box you control, in the open. Nothing round-trips through us. Export the whole thing to portable, git-trackable markdown with one command &mdash; leaving is never a migration project.</li>
+            <li><strong>It outlives the tool.</strong> Chats end, apps come and go. Your memory shouldn't. The vault is the layer that stays put underneath all of them.</li>
+        </ul>
+    </section>
+
+    {# ============ WHEN YOU WANT ONE ============ #}
+    <section class="section fade-up fade-up-4">
+        <h2>When you want one</h2>
+
+        <p>The moment you notice you're <em>re-explaining yourself</em> to your AI &mdash; the same context, the same background, again &mdash; that's the moment for a vault. The same goes for the thought you had last week that's already gone, or the notes scattered across three apps that never talk to each other. A vault is where all of that lands and stays connected.</p>
+
+        <p class="muted">Not sure yet? That's fine. A vault is worth having the instant your thinking is worth keeping &mdash; you don't need a plan for it first. Start empty and let it fill.</p>
+    </section>
+
+    {# ============ SET UP YOUR VAULT (matches the hub's vault-setup on-ramp) ============ #}
+    <section class="section fade-up fade-up-5">
+        <h2>Set up your vault</h2>
+
+        <p>Once your vault is connected to your AI, you don't have to design it alone. Paste this prompt and let your AI interview you &mdash; it asks where your notes live now and proposes a tag-and-path structure that fits how <em>you</em> actually think.</p>
+
+        <div class="code-inline" style="text-align: left;">
+<code>I just set up a Parachute vault &mdash; a memory graph you can read and write<br>
+over MCP. Before I start filling it, interview me:<br>
+<br>
+&nbsp;&nbsp;&bull; Ask where my notes and thinking live right now (apps, docs, my head).<br>
+&nbsp;&nbsp;&bull; Ask what you should remember about me and the work I do.<br>
+&nbsp;&nbsp;&bull; Then propose a tag + folder structure that fits how I think, and<br>
+&nbsp;&nbsp;&nbsp;&nbsp;create a few starter notes so the graph isn't empty.<br>
+<br>
+Keep it a conversation &mdash; one or two questions at a time.</code>
+        </div>
+
+        <p class="muted">New here? A fresh vault opens with a <strong>Getting Started</strong> note your AI can read to help shape it. Connecting your AI is one MCP URL &mdash; the <a href="/start/">Get started</a> guide walks it.</p>
+    </section>
+
+    {# ============ DOWN THE LADDER ============ #}
+    <section class="section fade-up fade-up-5">
+        <h2>Grow from the vault</h2>
+        <p>The vault is rung one, and for a long while it's all you need. When you want a view shaped to your own brain, you climb: a <strong>surface</strong> is a custom UI over the vault, and an <strong>agent</strong> acts on it for you.</p>
+
+        <nav class="ladder-next" aria-label="Next on the ladder">
+            <a href="/surfaces/">
+                <span class="ln-dir">Next &middot; L2 &darr;</span>
+                <span class="ln-title">Surfaces</span>
+                <span class="ln-desc">A custom UI over your vault &mdash; Notes is the reference one, or build your own.</span>
+            </a>
+            <a href="/modules/">
+                <span class="ln-dir">See also</span>
+                <span class="ln-title">The modules</span>
+                <span class="ln-desc">How Vault, Surface, Scribe, and Hub compose into one system.</span>
+            </a>
+        </nav>
+    </section>
+
+    <section class="cta fade-up fade-up-6">
+        <h2>Get a vault</h2>
+        <p>Hosted in a click, or self-hosted on a box you own. Same vault, same stack, your choice &mdash; and you can move between them anytime.</p>
+        <a href="https://cloud.parachute.computer/signup" class="button">Get a vault</a>
+        <p class="cta-secondary">Rather run it yourself? <a href="/start/">Self-host in one command &rarr;</a></p>
+    </section>
+
+</main>

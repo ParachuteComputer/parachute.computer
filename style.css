@@ -1409,3 +1409,172 @@ footer.site-footer {
 .section details[open] > summary {
     margin-bottom: 0.5rem;
 }
+
+/* ============================================
+   The ladder rail — shared spine across the three
+   concept pages: Vault (L1) → Surface (L2) → Agent (L3).
+   Shows where you are and links the rungs. Wraps to a
+   stack on narrow viewports; never overflows.
+   ============================================ */
+
+.ladder-rail {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 0.5rem;
+    max-width: var(--content-width);
+    margin: 0 auto 3rem;
+}
+
+.ladder-rail .rung {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.7rem 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    background: var(--card-bg);
+    text-decoration: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.16s ease;
+}
+
+.ladder-rail a.rung:hover {
+    border-color: var(--accent-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+    text-decoration: none;
+}
+
+.ladder-rail .rung-level {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+}
+
+.ladder-rail .rung-name {
+    font-family: var(--round);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--fg);
+    line-height: 1.15;
+}
+
+.ladder-rail .rung-sub {
+    font-size: 0.78rem;
+    color: var(--fg-muted);
+    line-height: 1.3;
+}
+
+.ladder-rail .rung.is-current {
+    border-color: var(--coral);
+    background: var(--coral-soft);
+    cursor: default;
+}
+
+.ladder-rail .rung.is-current .rung-level,
+.ladder-rail .rung.is-current .rung-name { color: var(--coral-ink); }
+.ladder-rail .rung.is-current .rung-sub { color: var(--coral-ink); opacity: 0.82; }
+
+.ladder-rail .rung-join {
+    align-self: center;
+    flex: none;
+    color: var(--accent-light);
+    font-size: 1rem;
+}
+
+@media (max-width: 560px) {
+    .ladder-rail .rung-join { display: none; }
+    .ladder-rail .rung { flex-basis: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ladder-rail a.rung:hover { transform: none; }
+}
+
+/* Prev / next rung cards at the foot of a concept page. */
+.ladder-next {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    max-width: var(--content-width);
+    margin: 3rem auto 0;
+}
+
+.ladder-next a {
+    flex: 1 1 260px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--card-bg);
+    padding: 1.1rem 1.35rem;
+    text-decoration: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.16s ease;
+}
+
+.ladder-next a:hover {
+    border-color: var(--accent-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+    text-decoration: none;
+}
+
+.ladder-next .ln-dir {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    margin-bottom: 0.25rem;
+}
+
+.ladder-next .ln-title {
+    display: block;
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    color: var(--fg);
+    margin-bottom: 0.2rem;
+}
+
+.ladder-next .ln-desc {
+    font-size: 0.88rem;
+    color: var(--fg-muted);
+    line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ladder-next a:hover { transform: none; }
+}
+
+/* Experimental-preview banner — used at the top of /agents/. Mirrors the
+   modules page's "preview" hue (sky), distinct from the coral/blue rest. */
+.preview-banner {
+    max-width: var(--content-width);
+    margin: 0 auto 2.5rem;
+    border: 1px solid rgba(91, 143, 168, 0.28);
+    border-left: 3px solid var(--sky);
+    background: var(--sky-soft);
+    border-radius: 12px;
+    padding: 1.1rem 1.4rem;
+}
+
+.preview-banner .pb-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sky);
+    margin-bottom: 0.4rem;
+}
+
+.preview-banner p {
+    margin: 0;
+    color: var(--fg-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-width: none;
+}
