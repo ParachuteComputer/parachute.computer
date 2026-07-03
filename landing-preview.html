@@ -300,22 +300,9 @@ header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-b
 /* ============================================================
    LAYERS
    ============================================================ */
+/* the grows-with-you section is a single breath now (Neil: trim down) —
+   the ladder cards moved out; two lines carry it */
 .layers-sec{background:linear-gradient(180deg,transparent,var(--sky) 20%,var(--sky) 80%,transparent)}
-.layers{display:grid;gap:1rem;margin-top:2rem}
-/* no numbers, no traffic light (Neil: "lose the 1,2,3") — the Today/Soon
-   pills carry the sequence; coral marks "today" only */
-.layer{display:grid;grid-template-columns:1fr auto;gap:1.1rem;align-items:center;
-  background:var(--card);border:1px solid var(--line);border-radius:20px;padding:1.2rem 1.4rem;box-shadow:var(--shadow-soft)}
-.layer h3{font-family:var(--font-round);font-weight:700;font-size:1.15rem;color:var(--ink);margin-bottom:.15rem}
-.layer p{color:var(--ink-soft);font-size:.92rem;margin:0}
-.layer .when{font-family:var(--font-round);font-weight:600;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;
-  padding:.3rem .7rem;border-radius:999px;white-space:nowrap;background:var(--paper-2);color:var(--ink-soft)}
-.layer.l1 .when{background:var(--coral-soft);color:var(--coral-ink)}
-.layer.l1{outline:2px solid var(--coral-soft)}
-@media (max-width:620px){
-  .layer{grid-template-columns:1fr;gap:.8rem}
-  .layer .when{justify-self:start}
-}
 
 /* ============================================================
    PRICING / TWO DOORS
@@ -423,7 +410,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
     </a>
     <nav class="nav-right">
       <a class="selfhost" href="/start/">Self-host</a>
-      <a class="btn btn-primary" href="#join">Get a vault</a>
+      <a class="btn btn-primary" href="https://cloud.parachute.computer/signup">Get a vault</a>
     </nav>
   </div>
 </header>
@@ -437,8 +424,8 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
   <h1 class="round">A soft place for your thoughts to <span class="warm">land.</span></h1>
   <p class="hero-sub">All your notes in one vault. Any AI can read it. It stays yours.</p>
   <div class="hero-cta">
-    <a class="btn btn-primary" href="#join">Get early access →</a>
-    <a class="link-quiet" href="https://cloud.parachute.computer">or try the beta now →</a>
+    <a class="btn btn-primary" href="https://cloud.parachute.computer/signup">Get a vault →</a>
+    <a class="link-quiet" href="#join">or just leave your email →</a>
   </div>
   <p class="hero-trust"><span>Local-first</span><span>Open standard (MCP)</span><span>Export anytime</span></p>
 </section>
@@ -530,11 +517,8 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
   </div>
   <p class="devices reveal">Phone, laptop, mid-walk — it all lands in the same vault.</p>
 
-  <div class="reveal" style="text-align:center;max-width:40rem;margin:3.5rem auto 0">
-    <p class="eyebrow">What lives in a vault?</p>
-    <h2 class="big round">Whatever you do.</h2>
-  </div>
-  <div class="vaults-grid reveal">
+  <p class="devices reveal" style="margin-top:3.5rem">What ends up in there? Whatever you do.</p>
+  <div class="vaults-grid reveal" style="margin-top:1.4rem">
     <div class="vcard"><h3><span class="tag">✍️</span>Creative</h3><ul><li>a melody that woke me at 6am</li><li>ch. 3 — the reveal comes early</li><li>why I love parachutes</li></ul></div>
     <div class="vcard"><h3><span class="tag">🗒️</span>Everyday</h3><ul><li>passport renewal — before Aug</li><li>wifi: BlueHouse42</li><li>dentist — Tue 3pm</li></ul></div>
     <div class="vcard"><h3><span class="tag">💼</span>Work</h3><ul><li>Q3 plan, draft 2 — cut scope</li><li>Jon — 555-0142</li><li>follow up w/ Sam re: the pilot</li></ul></div>
@@ -548,21 +532,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
     <div class="reveal" style="text-align:center;max-width:40rem;margin:0 auto">
       <p class="eyebrow">Start simple</p>
       <h2 class="big round">It grows with you.</h2>
-      <p class="lede" style="margin:.6rem auto 0">Start with a vault. The rest can wait.</p>
-    </div>
-    <div class="layers reveal">
-      <div class="layer l1">
-        <div><h3>A vault, your notes, your AI.</h3><p>Write things down. Your AI remembers them. This works today.</p></div>
-        <span class="when">Today</span>
-      </div>
-      <div class="layer l2">
-        <div><h3>A surface shaped to you.</h3><p>Notes, a journal, a dashboard — a view that fits how you think.</p></div>
-        <span class="when">Soon</span>
-      </div>
-      <div class="layer l3">
-        <div><h3>Agents that work from your context.</h3><p>Helpers that already know you, because they read your vault.</p></div>
-        <span class="when">The bet</span>
-      </div>
+      <p class="lede" style="margin:.6rem auto 0">Start with a vault. Custom views and agents come later, when you want them.</p>
     </div>
   </div>
 </section>
@@ -587,8 +557,8 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
       <h3>Cloud vault</h3>
       <div class="amt">$2–5<small>/mo</small></div>
       <p>A vault of your own in about a minute. No setup.</p>
-      <a class="btn btn-primary" href="#join">Get a vault →</a>
-      <p class="beta">Eager? <a href="https://cloud.parachute.computer">Try the beta now →</a></p>
+      <a class="btn btn-primary" href="https://cloud.parachute.computer/signup">Get a vault →</a>
+      <p class="beta">Rather wait? <a href="#join">Join the list →</a></p>
     </div>
   </div>
 </section>
@@ -597,8 +567,8 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
 <section class="join-sec wrap" id="join">
   <div class="join-card reveal">
     <svg class="mark" aria-hidden="true"><use href="#pchute"/></svg>
-    <h2 class="round">Get your vault.</h2>
-    <p class="lede" style="text-align:center">We'll email you when your vault is ready.</p>
+    <h2 class="round">Not ready yet?</h2>
+    <p class="lede" style="text-align:center">Leave your email and watch us build. We'll nudge you when it's even easier to start.</p>
     <!--
       Wired to the LIVE subscribe Worker (Cloudflare + D1). Native cross-origin
       form POST → 303 redirect to /subscribe/thanks/ (success) or
@@ -626,7 +596,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
         </div>
       </div>
       <p class="join-error" data-join-error>That didn't go through — check the email and try again.</p>
-      <button class="btn btn-primary" type="submit">Get early access →</button>
+      <button class="btn btn-primary" type="submit">Keep me posted →</button>
     </form>
     <p class="join-note">No spam, unsubscribe anytime. Or just <a href="mailto:hello@parachute.computer">say hello</a>.</p>
   </div>
@@ -639,9 +609,9 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
   <div class="foot-brand"><svg class="mark" aria-hidden="true"><use href="#pchute"/></svg><span>Parachute</span></div>
   <p class="foot-tag">A soft place for your thoughts to land.</p>
   <nav class="foot-links">
-    <a href="#join">Get a vault</a>
+    <a href="https://cloud.parachute.computer/signup">Get a vault</a>
+    <a href="#join">Join the list</a>
     <a href="/start/">Self-host</a>
-    <a href="https://cloud.parachute.computer">Beta</a>
     <a href="https://github.com/ParachuteComputer">GitHub</a>
   </nav>
   <p class="foot-fine">© 2026 Open Parachute, PBC — a Colorado Public Benefit Corporation building open tools for thinking.</p>
