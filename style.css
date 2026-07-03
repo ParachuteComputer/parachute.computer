@@ -249,6 +249,76 @@ header.site-nav {
 .nav-right .btn { padding: 0.55rem 1.05rem; font-size: 0.92rem; color: #fff; }
 .nav-right .btn:hover { color: #fff; }
 
+/* "How it works" — the ladder menu. Native <details> disclosure, so it
+   opens with JS off; styled to sit in the warm nav and drop a small card. */
+.nav-menu { position: relative; }
+.nav-menu > summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.34rem;
+    font-family: var(--round);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    cursor: pointer;
+    list-style: none;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+}
+.nav-menu > summary::-webkit-details-marker { display: none; }
+.nav-menu > summary::after {
+    content: "";
+    width: 0.4rem;
+    height: 0.4rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg) translateY(-1px);
+    opacity: 0.55;
+    transition: transform 0.2s ease;
+}
+.nav-menu > summary:hover,
+.nav-menu[open] > summary { color: var(--ink); }
+.nav-menu[open] > summary::after { transform: rotate(-135deg) translateY(1px); }
+
+.nav-menu-panel {
+    position: absolute;
+    top: calc(100% + 0.55rem);
+    right: 0;
+    min-width: 13rem;
+    max-width: calc(100vw - 2rem);
+    display: flex;
+    flex-direction: column;
+    padding: 0.4rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.09);
+    z-index: 200;
+}
+.nav-menu-panel a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.08rem;
+    padding: 0.5rem 0.7rem;
+    border-radius: 9px;
+}
+.nav-menu-panel a:hover { background: var(--coral-soft); text-decoration: none; }
+.nav-menu-panel .nm-name {
+    font-family: var(--round);
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--ink);
+    line-height: 1.15;
+}
+.nav-menu-panel a:hover .nm-name { color: var(--coral-ink); }
+.nav-menu-panel .nm-sub {
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+}
+
 /* ============================================
    Main content
    ============================================ */
@@ -1242,9 +1312,18 @@ footer.site-footer {
 }
 
 /* Blog/Docs/GitHub drop into the footer first; Self-host holds a little
-   longer, then it too collapses to the footer, matching the landing. */
+   longer, then it too collapses to the footer, matching the landing.
+   "How it works" is deliberately NOT collapsed — it stays as the
+   mobile-discoverable path to the ladder. */
 @media (max-width: 620px) { .nav-right .nav-drop { display: none; } }
-@media (max-width: 560px) { .nav-right .selfhost { display: none; } }
+@media (max-width: 560px) {
+    .nav-right .selfhost { display: none; }
+    /* With only [How it works] + [Get a vault] left, tighten so both fit
+       alongside the brand down to the narrowest phones without overflow. */
+    .site-nav .nav-in { gap: 0.6rem; padding-left: 1rem; padding-right: 1rem; }
+    .nav-right { gap: 0.7rem; }
+    .nav-right .btn { padding: 0.5rem 0.85rem; }
+}
 
 .alpha-tag {
     display: inline-block;
