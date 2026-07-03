@@ -1372,12 +1372,7 @@ footer.site-footer {
 }
 
 /* ============================================
-   Path picker — CSS-only "pick where it runs"
-   on /start. Hidden radios + <label> cards +
-   :checked ~ panels (no JavaScript). The radios
-   carry keyboard focus; the label cards show the
-   focus ring via :focus-visible-within emulation
-   (.path-radio:focus-visible + .path-cards label).
+   Small shared utilities (used across pages).
    ============================================ */
 
 /* Visually-hidden but available to screen readers + keyboard. */
@@ -1395,132 +1390,6 @@ footer.site-footer {
 
 .muted {
     color: var(--fg-dim);
-}
-
-.path-picker {
-    border: 0;
-    padding: 0;
-    margin: 1.5rem 0;
-    max-width: 880px;
-}
-
-/* The radios drive everything; keep them out of layout but focusable. */
-.path-radio {
-    position: absolute;
-    opacity: 0;
-    width: 1px;
-    height: 1px;
-    pointer-events: none;
-}
-
-.section .path-cards {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.1rem;
-    margin: 0;
-    align-items: stretch;
-}
-
-@media (max-width: 720px) {
-    .section .path-cards {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Card is a <label> — clicking it checks the matching radio. */
-.section .path-card {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.4rem 1.5rem;
-    background: var(--bg);
-    cursor: pointer;
-    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
-}
-
-.section .path-card:hover {
-    border-color: var(--accent-light);
-    background: var(--card-hover);
-}
-
-.section .path-card-recommended {
-    border-color: color-mix(in srgb, var(--accent) 35%, transparent);
-    background: var(--accent-soft);
-}
-
-.path-card-flag {
-    display: inline-block;
-    align-self: flex-start;
-    margin-bottom: 0.1rem;
-    padding: 0.12rem 0.55rem;
-    border-radius: 999px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 0.68rem;
-    font-weight: 500;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-
-.path-card-title {
-    font-family: var(--serif);
-    font-size: 1.2rem;
-    color: var(--display-accent);
-    line-height: 1.2;
-}
-
-.path-card-desc {
-    color: var(--fg-muted);
-    font-size: 0.93rem;
-    line-height: 1.55;
-}
-
-/* Selected card — pair each radio to its card by source order. */
-#path-local:checked    ~ .path-cards .path-card:nth-of-type(1),
-#path-do:checked       ~ .path-cards .path-card:nth-of-type(2) {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px var(--accent-soft), 0 6px 18px rgba(47, 111, 150, 0.12);
-    background: var(--card-bg);
-}
-
-#path-do:checked ~ .path-cards .path-card:nth-of-type(2) {
-    background: var(--accent-soft);
-}
-
-/* Keyboard focus ring lands on the card the focused radio controls. */
-#path-local:focus-visible    ~ .path-cards .path-card:nth-of-type(1),
-#path-do:focus-visible       ~ .path-cards .path-card:nth-of-type(2) {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-}
-
-/* Panels — hidden by default, revealed for the checked radio. */
-.path-panels {
-    margin-top: 1.6rem;
-}
-
-.path-panel {
-    display: none;
-}
-
-#path-local:checked    ~ .path-panels #panel-local,
-#path-do:checked       ~ .path-panels #panel-do {
-    display: block;
-    animation: fadeUp 0.4s ease-out both;
-}
-
-.path-panel h3 {
-    margin-top: 0;
-}
-
-.path-panel h4.path-step {
-    font-family: var(--serif);
-    font-size: 1.05rem;
-    font-weight: 400;
-    color: var(--fg);
-    margin: 1.75rem 0 0.6rem;
 }
 
 /* Collapsible detail (troubleshooting on the install page). */
