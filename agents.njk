@@ -1,0 +1,100 @@
+---
+layout: base.njk
+title: "Agents — vault-native agents that work from your context"
+description: "An experimental preview: vault-native agents. You define an agent as a note, a message becomes a sandboxed Claude Code turn, and the reply lands back in your vault. The top of the ladder — named honestly as the bet it is, not a finished module."
+permalink: /agents/
+---
+<main>
+
+    <section class="hero">
+        <h1 class="fade-up fade-up-2">Agents</h1>
+        <p class="tagline fade-up fade-up-3">The top of the ladder &mdash; something that works from your context, not just remembers it.</p>
+    </section>
+
+    {# The ladder rail — Agent is rung three. #}
+    <nav class="ladder-rail fade-up fade-up-3" aria-label="The Parachute ladder">
+        <a class="rung" href="/vault/">
+            <span class="rung-level">L1</span>
+            <span class="rung-name">Vault</span>
+            <span class="rung-sub">your memory</span>
+        </a>
+        <span class="rung-join" aria-hidden="true">&rarr;</span>
+        <a class="rung" href="/surfaces/">
+            <span class="rung-level">L2</span>
+            <span class="rung-name">Surface</span>
+            <span class="rung-sub">a UI over it</span>
+        </a>
+        <span class="rung-join" aria-hidden="true">&rarr;</span>
+        <span class="rung is-current" aria-current="page">
+            <span class="rung-level">L3 &middot; you are here</span>
+            <span class="rung-name">Agent</span>
+            <span class="rung-sub">it acts for you</span>
+        </span>
+    </nav>
+
+    {# ============ THE HONEST FRAME, UP FRONT ============ #}
+    <aside class="preview-banner fade-up fade-up-3">
+        <span class="pb-tag">Experimental preview</span>
+        <p>Agents are the one rung we call experimental. This is <strong>not</strong> one of the four committed-core modules &mdash; the shape is still moving, the surface is thin, and we're shipping it early on purpose. Read this as a look at where vault-native agents are heading, not a finished product. If you want stable ground, live in <a href="/vault/">L1</a> and <a href="/surfaces/">L2</a> for now.</p>
+    </aside>
+
+    {# ============ WHAT IT IS ============ #}
+    <section class="section fade-up fade-up-4">
+        <h2>What an agent is</h2>
+
+        <p>An agent is a <strong>note</strong>. You write an agent definition &mdash; its instructions and its config, kept in your vault like everything else &mdash; and then a message to it becomes a <em>turn</em>: the daemon runs a sandboxed <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a> turn with your vault in reach, and writes the reply back into the vault as a note.</p>
+
+        <p>Because the whole loop is just notes, it composes with everything else. Reach an agent from chat (Telegram today); and since every message <em>is</em> a note, other agents and automations can talk to it the same way. The vault you built in L1 is the context it works from &mdash; nothing to wire up separately.</p>
+    </section>
+
+    {# ============ WHY IT'S THE TOP OF THE LADDER ============ #}
+    <section class="section fade-up fade-up-4">
+        <h2>Why it's the top of the ladder</h2>
+
+        <p>L1 gave your AI a memory. L2 gave you a way to see and shape it. An agent closes the loop: instead of you asking and reading, it <em>acts</em> on the vault for you &mdash; triaging captures, drafting the follow-up, keeping a thread moving &mdash; from the same shared context everything else already lives in.</p>
+
+        <p>That's the whole reason it sits on top of the vault rather than off to the side. An agent with no shared memory is just another chatbot. An agent rooted in your vault knows what you know.</p>
+    </section>
+
+    {# ============ THE BET, NAMED AS THE BET ============ #}
+    <section class="section fade-up fade-up-5">
+        <h2>The bet, named as the bet</h2>
+
+        <p>We think the natural end of &ldquo;a memory you and any AI share&rdquo; is agents that work from inside that memory &mdash; vault-native, not bolted on. That's the bet. It's early, and we'd rather show you the real edge than a polished demo:</p>
+
+        <ul>
+            <li><strong>What works today.</strong> Define an agent as a note, message it, get a real Claude Code turn back in your vault, over a chat gateway.</li>
+            <li><strong>What's still moving.</strong> The definition format, the capability and approval model, and how agents delegate to each other are all actively changing &mdash; expect the shape to shift under you.</li>
+            <li><strong>How to run it.</strong> It ships as an experimental preview rather than committed-core; day to day it runs from the source checkout. It's for the curious, not yet the cautious.</li>
+        </ul>
+
+        <p class="muted">If that sounds like your kind of edge, the code is open and the direction is public.</p>
+    </section>
+
+    {# ============ UP THE LADDER ============ #}
+    <section class="section fade-up fade-up-5">
+        <h2>Where this sits</h2>
+        <p>Agents are rung three &mdash; and they only make sense once rungs one and two are under you. Start with a vault, grow a surface, then reach for this.</p>
+
+        <nav class="ladder-next" aria-label="Elsewhere on the ladder">
+            <a href="/surfaces/">
+                <span class="ln-dir">Back &middot; L2 &uarr;</span>
+                <span class="ln-title">Surfaces</span>
+                <span class="ln-desc">A custom UI over your vault &mdash; the rung most people reach before this one.</span>
+            </a>
+            <a href="https://github.com/ParachuteComputer/parachute-agent" target="_blank" rel="noopener">
+                <span class="ln-dir">See the edge</span>
+                <span class="ln-title">parachute-agent on GitHub</span>
+                <span class="ln-desc">The repo, the definition format, and where the thinking is headed.</span>
+            </a>
+        </nav>
+    </section>
+
+    <section class="cta fade-up fade-up-6">
+        <h2>Start at the bottom of the ladder</h2>
+        <p>Agents are the experiment on top. The foundation &mdash; the part everyone gets &mdash; is a vault. That's where to begin.</p>
+        <a href="/vault/" class="button">Start with a vault</a>
+        <p class="cta-secondary">Or see how the pieces compose in the <a href="/modules/">modules overview &rarr;</a></p>
+    </section>
+
+</main>

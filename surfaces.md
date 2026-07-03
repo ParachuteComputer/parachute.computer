@@ -7,6 +7,28 @@ permalink: /surfaces/
 templateEngineOverride: md
 ---
 
+<nav class="ladder-rail" aria-label="The Parachute ladder">
+<a class="rung" href="/vault/">
+<span class="rung-level">L1</span>
+<span class="rung-name">Vault</span>
+<span class="rung-sub">your memory</span>
+</a>
+<span class="rung-join" aria-hidden="true">&rarr;</span>
+<span class="rung is-current" aria-current="page">
+<span class="rung-level">L2 &middot; you are here</span>
+<span class="rung-name">Surface</span>
+<span class="rung-sub">a UI over it</span>
+</span>
+<span class="rung-join" aria-hidden="true">&rarr;</span>
+<a class="rung" href="/agents/">
+<span class="rung-level">L3</span>
+<span class="rung-name">Agent</span>
+<span class="rung-sub">it acts for you</span>
+</a>
+</nav>
+
+**You're on rung two.** A surface is a custom UI over the vault you started with in [L1](/vault/) — Notes is the reference one, and you can build your own. There's no rush to climb here: plenty of people live happily in their vault and the Notes app for a good while first. Reach for a surface when you want a view shaped to *your* brain — a dashboard, a daily journal, a garden.
+
 A **surface** is a custom UI over a Parachute vault — a dashboard, a notes app, a single-purpose tool. Your vault is a queryable knowledge graph behind an HTTP API + OAuth; a surface is just a web app that signs in and reads/writes it. The bundled **Notes** app is one surface; this guide is for building your own.
 
 *(Newer vaults ship this same guide as a `Surface Starter` note inside the vault — ask your connected AI to read it. This page is the public copy, for any vault.)*
@@ -122,3 +144,16 @@ A good surface is shaped by the vault's tags + schemas. Query by the tags that m
 ## Keep a record in the vault
 
 When you build a surface, drop a note in the vault recording it — what it's for, the stack, how to run it, the queries it depends on — so the next session (yours or an AI's) can pick it up. Newer vaults seed a `Surface Starter` note for exactly this.
+
+<nav class="ladder-next" aria-label="Elsewhere on the ladder">
+<a href="/vault/">
+<span class="ln-dir">Back &middot; L1 &uarr;</span>
+<span class="ln-title">Vault</span>
+<span class="ln-desc">The memory graph a surface is built over — the foundation everyone starts with.</span>
+</a>
+<a href="/agents/">
+<span class="ln-dir">Next &middot; L3 &darr;</span>
+<span class="ln-title">Agents</span>
+<span class="ln-desc">Vault-native agents that act on your vault for you. An experimental preview.</span>
+</a>
+</nav>
