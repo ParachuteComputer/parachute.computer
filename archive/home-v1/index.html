@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parachute Computer</title>
+    <meta name="description" content="Parachute is an open, self-hosted home for your notes that every AI you use — Claude, ChatGPT, your own agents — can read and write. On your machine, yours to keep and export anytime.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="/assets/parachute-logo.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#4a7c59">
+
+    
+    
+    
+    
+    
+    
+
+    <meta property="og:site_name" content="Parachute Computer">
+    <meta property="og:title" content="Parachute Computer">
+    <meta property="og:description" content="Parachute is an open, self-hosted home for your notes that every AI you use — Claude, ChatGPT, your own agents — can read and write. On your machine, yours to keep and export anytime.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://parachute.computer/">
+    <meta property="og:image" content="https://parachute.computer/assets/og-default.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="A parachute descending over open plains at dawn, its canopy woven with a luminous knowledge graph.">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Parachute Computer">
+    <meta name="twitter:description" content="Parachute is an open, self-hosted home for your notes that every AI you use — Claude, ChatGPT, your own agents — can read and write. On your machine, yours to keep and export anytime.">
+    <meta name="twitter:image" content="https://parachute.computer/assets/og-default.jpg">
+    <meta name="twitter:image:alt" content="A parachute descending over open plains at dawn, its canopy woven with a luminous knowledge graph.">
+
+    <link rel="canonical" href="https://parachute.computer/">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="logo">
+                <img src="/assets/parachute-logo.svg" alt="" class="logo-mark" aria-hidden="true">
+                <span class="logo-text">Parachute Computer</span>
+            </a>
+            <div class="nav-links">
+                <a href="/start/">Start</a>
+                <a href="/modules/">Modules</a>
+                <a href="/blog/">Blog</a>
+                <a href="https://github.com/ParachuteComputer" target="_blank">GitHub</a>
+            </div>
+        </nav>
+    </header>
+
+    <style>
+/* Home — single-scroll minimalist. Reuses the shared design tokens in
+   style.css; only the per-screen layout lives here. */
+
+.home {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* Screen 1 — above the fold */
+.home-hero {
+    min-height: calc(100vh - 8rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem 0 5rem;
+}
+.home-hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.6rem, 6vw, 4.25rem);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    color: var(--fg);
+    margin-bottom: 1.25rem;
+}
+.home-sub {
+    font-size: clamp(1.05rem, 2vw, 1.25rem);
+    line-height: 1.55;
+    color: var(--fg-muted);
+    max-width: 36rem;
+    margin-bottom: 2.25rem;
+}
+.home-cta-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.25rem 1.75rem;
+    margin-bottom: 1.75rem;
+}
+.home-cta {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    padding: 0.9rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    box-shadow: 0 1px 4px rgba(74, 124, 89, 0.15);
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+.home-cta:hover {
+    background: var(--accent-hover);
+    color: #fff;
+}
+.home-cta-note {
+    font-size: 0.85rem;
+    color: var(--fg-dim);
+}
+.home-cta-quiet {
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+}
+.home-trust {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.9rem;
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    letter-spacing: 0.01em;
+}
+.home-trust span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+.home-trust span::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    flex: none;
+}
+.home-trust a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.home-trust a:hover { color: var(--accent); }
+.home-latest {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--fg-dim);
+}
+.home-latest a {
+    color: var(--fg-muted);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.home-latest a:hover { color: var(--accent); }
+
+/* Section rhythm for screens 2–5 */
+.home-screen {
+    padding: 4.5rem 0;
+    border-top: 1px solid var(--border);
+}
+.home-eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    font-weight: 500;
+    margin-bottom: 1.4rem;
+}
+
+/* Screen 2 — proof image (fills the content column) */
+.home-shot {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--bg-soft);
+    box-shadow: 0 12px 40px rgba(44, 42, 38, 0.06);
+}
+/* Graceful degrade: if the PNG is missing, the alt text shows on a
+   styled, aspect-reserved panel instead of a broken-image icon. */
+.home-shot-frame {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background:
+        radial-gradient(120% 120% at 50% 0%, rgba(74, 124, 89, 0.05), transparent 60%),
+        var(--bg-soft);
+    box-shadow: 0 12px 40px rgba(44, 42, 38, 0.06);
+    overflow: hidden;
+}
+.home-shot-frame .home-shot {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 14px;
+    box-shadow: none;
+}
+.home-caption {
+    font-size: 0.9rem;
+    color: var(--fg-dim);
+    text-align: center;
+    margin-top: 1rem;
+}
+
+/* Screen 3 — the problem */
+.home-lines {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: 38rem;
+}
+.home-lines li {
+    font-family: var(--serif);
+    font-size: clamp(1.35rem, 2.6vw, 1.75rem);
+    line-height: 1.35;
+    color: var(--fg-muted);
+    padding: 0.85rem 0;
+}
+.home-lines li:last-child {
+    color: var(--fg);
+}
+
+/* Screen 4 — how it works */
+.home-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: step;
+    display: grid;
+    gap: 1.75rem;
+}
+.home-steps li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 1.25rem;
+    align-items: baseline;
+}
+.home-steps li::before {
+    content: counter(step);
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    color: var(--accent);
+    line-height: 1;
+}
+.home-steps strong {
+    color: var(--fg);
+    font-weight: 500;
+}
+.home-steps p {
+    color: var(--fg-muted);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Screen 5 — closing CTA */
+.home-close {
+    text-align: center;
+    padding: 5rem 0 4rem;
+    border-top: 1px solid var(--border);
+}
+.home-close h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+    margin-bottom: 1.75rem;
+}
+.home-close .home-cta {
+    margin-bottom: 1rem;
+}
+.home-close-note {
+    font-size: 0.85rem;
+    color: var(--fg-dim);
+    margin-bottom: 2rem;
+}
+.home-thin-footer {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    font-size: 0.9rem;
+}
+.home-thin-footer a { color: var(--fg-muted); }
+.home-thin-footer a:hover { color: var(--accent); }
+
+@media (prefers-reduced-motion: no-preference) {
+    .home-shot,
+    .home-shot-frame {
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .home-proof:hover .home-shot,
+    .home-proof:hover .home-shot-frame {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 50px rgba(44, 42, 38, 0.09);
+    }
+}
+
+@media (max-width: 640px) {
+    .home { padding: 0 1.25rem; }
+    .home-hero { min-height: auto; padding: 2.5rem 0 3.5rem; }
+    .home-screen { padding: 3.5rem 0; }
+    .home-steps li { grid-template-columns: 1.75rem 1fr; gap: 0.9rem; }
+}
+
+/* Closing — quiet "stay in the loop" interest list, below the final CTA */
+.home-subscribe {
+    max-width: 30rem;
+    margin: 2.5rem auto 0;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    text-align: left;
+}
+.home-subscribe-eyebrow {
+    font-size: 0.72rem;
+    color: var(--fg-dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 0.6rem;
+    text-align: center;
+}
+.home-subscribe-lead {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    line-height: 1.35;
+    color: var(--fg-muted);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+.home-subscribe-form {
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+    flex-wrap: wrap;
+    margin: 0;
+}
+.home-subscribe-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.72rem 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--fg);
+    background: #fff;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.home-subscribe-input::placeholder { color: var(--fg-dim); }
+.home-subscribe-input:focus {
+    outline: none;
+    border-color: var(--accent-light);
+    box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.12);
+}
+.home-subscribe-form .home-cta {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    margin: 0;
+    padding: 0.72rem 1.4rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+.home-subscribe-error {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: #b04848;
+    line-height: 1.5;
+    text-align: center;
+}
+.home-subscribe-note {
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--fg-dim);
+    line-height: 1.5;
+    text-align: center;
+}
+.home-subscribe-note a { color: var(--fg-muted); text-decoration: underline; text-underline-offset: 2px; }
+.home-subscribe-note a:hover { color: var(--accent); }
+</style>
+
+<main class="home">
+    <section class="home-hero fade-up fade-up-1">
+        <h1>You and AI, thinking together.</h1>
+        <p class="home-sub">A memory that's <strong>truly yours</strong> &mdash; AI-native and human-first. Open and self-hosted, it's a home for your context that you and any AI (Claude, ChatGPT, your own agents) build together &mdash; reading and writing the same notes you do, so your thinking carries across every tool and session. Yours to export anytime.</p>
+        <div class="home-cta-row">
+            <a href="/start/" class="home-cta">Get started &rarr;</a>
+            <span class="home-cta-note">~2 minutes, one command</span>
+            <a href="https://github.com/ParachuteComputer" class="home-cta-quiet" target="_blank">GitHub</a>
+        </div>
+        <p class="home-trust"><span>Local-first</span><span><a href="https://modelcontextprotocol.io" target="_blank">Open standard (MCP)</a></span><span>Open source (AGPL)</span><span>Your data, exportable anytime</span></p>
+        <p class="home-latest">Latest from the blog: <a href="/blog/the-mind-is-like-a-parachute/">The mind is like a parachute</a> &rarr;</p>
+    </section>
+
+    <section class="home-screen home-proof fade-up fade-up-2">
+        <p class="home-eyebrow">See it</p>
+        <div class="home-shot-frame">
+            <img class="home-shot" src="/assets/home/hero.png" alt="A Parachute surface over a personal vault, with the quick-capture panel (Text / Voice) open" loading="lazy" width="1600" height="1000">
+        </div>
+        <p class="home-caption">A real Parachute surface in use &mdash; capturing a thought into your vault. Notes ships built-in; this one's a custom surface on the same vault.</p>
+    </section>
+
+    <section class="home-screen">
+        <p class="home-eyebrow">The problem</p>
+        <ul class="home-lines">
+            <li>Your thinking is scattered across a dozen tools.</li>
+            <li>Every AI forgets you the moment the chat ends.</li>
+            <li>You do all the remembering &mdash; and own none of it.</li>
+            <li>Parachute is the memory you and your AI keep together.</li>
+        </ul>
+    </section>
+
+    <section class="home-screen">
+        <p class="home-eyebrow">How it works</p>
+        <ol class="home-steps">
+            <li>
+                <p><strong>You capture.</strong> A thought, a voice note, a doc &mdash; straight into your vault.</p>
+            </li>
+            <li>
+                <p><strong>Your AI works from the same memory.</strong> Every AI you use reads and writes the same vault &mdash; connecting across everything you've kept, instead of starting blank each chat.</p>
+            </li>
+            <li>
+                <p><strong>It stays yours.</strong> Your memory carries across every tool and session &mdash; on your machine, yours to shape and export anytime.</p>
+            </li>
+        </ol>
+    </section>
+
+    <section class="home-screen">
+        <p class="home-eyebrow">Why Parachute</p>
+        <ul class="home-lines">
+            <li><strong>Notes apps</strong> keep your data yours &mdash; but your AI can't use it.</li>
+            <li><strong>AI memory</strong> lets your AI use it &mdash; but locks it to one vendor.</li>
+            <li><strong>Parachute is both:</strong> truly yours, and AI-usable &mdash; open, portable, and model-agnostic.</li>
+        </ul>
+    </section>
+
+    <section class="home-screen">
+        <p class="home-eyebrow">Where this goes</p>
+        <p class="home-sub">We're building the foundation for a new era of <strong>co-intelligence</strong> &mdash; for individuals, organizations, and society.</p>
+    </section>
+
+    <section class="home-close">
+        <h2>Start thinking together.</h2>
+        <a href="/start/" class="home-cta">Get started &rarr;</a>
+        <p class="home-close-note">~2 minutes, one command</p>
+
+        
+        <div class="home-subscribe">
+            <p class="home-subscribe-eyebrow">Stay in the loop</p>
+            <p class="home-subscribe-lead">Updates as Parachute opens up &mdash; thoughtful and infrequent.</p>
+            <form class="home-subscribe-form" method="post" action="https://parachute-subscribe.unforced.workers.dev/">
+                <input
+                    type="email"
+                    name="email"
+                    required
+                    autocomplete="email"
+                    placeholder="you@example.com"
+                    aria-label="Email address"
+                    class="home-subscribe-input"
+                />
+                <button type="submit" class="home-cta">Subscribe</button>
+            </form>
+            <p class="home-subscribe-error" id="home-subscribe-error" hidden>That didn't go through &mdash; check the email and try again.</p>
+            <p class="home-subscribe-note">No spam, unsubscribe any time. Or just <a href="mailto:hello@parachute.computer">say hello</a>.</p>
+        </div>
+        <script>
+            // Surface a subtle error if the Worker bounced us back with
+            // ?subscribe_error=1. No JS dependency for the happy path —
+            // the form is a plain browser POST → 303 redirect.
+            (function () {
+                var params = new URLSearchParams(window.location.search);
+                if (params.get('subscribe_error') === '1') {
+                    var el = document.getElementById('home-subscribe-error');
+                    if (el) el.hidden = false;
+                }
+            })();
+        </script>
+
+        <nav class="home-thin-footer">
+            <a href="/start/">Start</a>
+            <a href="/modules/">Modules</a>
+            <a href="/blog/">Blog</a>
+            <a href="https://github.com/ParachuteComputer" target="_blank">GitHub</a>
+        </nav>
+    </section>
+</main>
+
+
+    <footer>
+        <p style="margin-bottom: 0.75rem;"><a href="/start/">Start</a> &middot; <a href="/modules/">Modules</a> &middot; <a href="/blog/">Blog</a> &middot; <a href="https://github.com/ParachuteComputer" target="_blank">GitHub</a></p>
+        <p>&copy; 2026 Open Parachute, PBC &mdash; a Colorado Public Benefit Corporation building open tools for thinking.</p>
+    </footer>
+
+    
+    <script>
+    (function () {
+        if (!navigator.clipboard) return;
+
+        function addButton(el, label) {
+            if (el.dataset.copyReady) return;
+            el.dataset.copyReady = "1";
+            el.classList.add("copy-wrap");
+
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "copy-btn";
+            btn.textContent = label;
+            var resetLabel = label;
+            var timer;
+
+            btn.addEventListener("click", function () {
+                // Copy the code text only, never the button label.
+                var source = el.querySelector("code") || el;
+                var text = source === el
+                    ? Array.prototype.filter
+                        .call(el.childNodes, function (n) { return n !== btn; })
+                        .map(function (n) { return n.textContent; })
+                        .join("")
+                    : source.textContent;
+                navigator.clipboard.writeText(text.trim()).then(function () {
+                    btn.textContent = "Copied";
+                    btn.classList.add("copied");
+                    clearTimeout(timer);
+                    timer = setTimeout(function () {
+                        btn.textContent = resetLabel;
+                        btn.classList.remove("copied");
+                    }, 1600);
+                });
+            });
+
+            el.appendChild(btn);
+        }
+
+        // Command blocks on install / docs pages.
+        document.querySelectorAll(".code-inline:not([data-no-copy])").forEach(function (el) {
+            addButton(el, "Copy");
+        });
+
+        // Rendered fenced-code prompt blocks on the onboarding pages
+        // (and any other markdown post). "Copy prompt" reads right for
+        // the big starter-prompt blocks and is harmless elsewhere.
+        document.querySelectorAll(".post-content pre:not([data-no-copy])").forEach(function (el) {
+            addButton(el, "Copy prompt");
+        });
+    })();
+    </script>
+</body>
+</html>

@@ -9,9 +9,17 @@
 <meta property="og:title" content="Parachute — a soft place for your thoughts to land">
 <meta property="og:description" content="All your notes in one vault. Any AI can read it. It stays yours.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://parachute.computer/v2/">
+<meta property="og:url" content="https://parachute.computer/">
+<meta property="og:image" content="https://parachute.computer/og.png">
+<meta property="og:image:alt" content="A hand-drawn parachute over the words: Parachute — a soft place for your thoughts to land.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/assets/parachute-logo.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
 <!--
-  Parachute landing — team-direction candidate, round 2 (2026-07-02).
+  Parachute landing — THE homepage (promoted from /v2/ 2026-07-02).
   Self-contained: no external CDN / fonts / JS / images. Everything inline.
   Tone target (Aaron): the MIDDLE between "we are very smart" (serif-
   editorial) and "fun toddler" (all-rounded, emoji-heavy) — serif display
@@ -436,7 +444,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
     <div class="vault-head reveal">
       <p class="eyebrow">Play with it</p>
       <h2 class="big round">Drop a few thoughts in.<br>Watch them connect.</h2>
-      <p class="lede" style="margin:.6rem auto 0;text-align:center">A vault isn't a folder. Notes find each other here.</p>
+      <p class="lede" style="margin:.6rem auto 0;text-align:center">Storage is easy. Connection is everything.</p>
     </div>
 
     <div class="vaultgame reveal" data-vaultgame>
@@ -576,9 +584,9 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
       NOTE: the "notes_app" answer is POSTed too, but the currently-deployed
       Worker only persists `email` until Aaron redeploys the updated worker +
       applies migration 0002 (adds the notes_app column). See DEPLOY-subscribe.md.
-      The endpoint is hardcoded because this file is deliberately non-templated;
-      when promoting to index.njk, swap it for action="{{ site.subscribeEndpoint }}"
-      so it tracks _data/site.json (e.g. a future subscribe.parachute.computer).
+      The endpoint is hardcoded because this file is deliberately non-templated
+      (passthrough-copied to /index.html). If it ever becomes a template, swap
+      for action="{{ site.subscribeEndpoint }}" so it tracks _data/site.json.
     -->
     <form class="signup" method="post" action="https://parachute-subscribe.unforced.workers.dev/">
       <div class="field">
@@ -607,11 +615,13 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
 <!-- ===================== FOOTER ===================== -->
 <footer>
   <div class="foot-brand"><svg class="mark" aria-hidden="true"><use href="#pchute"/></svg><span>Parachute</span></div>
-  <p class="foot-tag">A soft place for your thoughts to land.</p>
+  <p class="foot-tag">Your digital life needs a safe place to land.</p>
   <nav class="foot-links">
     <a href="https://cloud.parachute.computer/signup">Get a vault</a>
     <a href="#join">Join the list</a>
     <a href="/start/">Self-host</a>
+    <a href="/blog/">Blog</a>
+    <a href="/docs/">Docs</a>
     <a href="https://github.com/ParachuteComputer">GitHub</a>
   </nav>
   <p class="foot-fine">© 2026 Open Parachute, PBC — a Colorado Public Benefit Corporation building open tools for thinking.</p>
