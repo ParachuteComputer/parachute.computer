@@ -17,9 +17,9 @@ Somewhere along the way, we handed our memory over.
 
 Your notes live in someone's box. Your conversations with AI live in someone else's box. Your voice memos, your meeting transcripts, the half-formed ideas you trusted to an app at 2am — scattered across services that rent your own mind back to you, on terms that change whenever the box-maker's incentives do. Prices go up. Features get removed. APIs close. The export button, when it exists, produces something you can't actually use anywhere else.
 
-None of us signed up for that, exactly. It happened one convenient choice at a time. And each choice was genuinely convenient! That's what makes it hard to see: this isn't a story about villains, it's a story about architecture. **When your memory lives in a closed box, dependence isn't a bug — it's the business model.**
+None of us signed up for that, exactly. It happened one convenient choice at a time. And each choice was genuinely convenient! That's what makes it hard to see: this isn't a story about villains, it's a story about architecture. When your memory lives in a closed box, dependence isn't a bug — it's the business model.
 
-Independence, in this specific sense, just means: *your memory belongs to you.* Not as a slogan — as a property of the system. Your notes in a database you control, in a format you can read, with an export that always works and imports cleanly somewhere else. Whether you run it yourself or someone hosts it for you, the deal is the same: **you can always leave, so you never have to.**
+Independence, in this specific sense, just means: *your memory belongs to you.* Not as a slogan — as a property of the system. Your notes in a database you control, in a format you can read, with an export that always works and imports cleanly somewhere else. Whether you run it yourself or someone hosts it for you, the deal is the same: you can always leave, so you never have to.
 
 That's what [Parachute](/) is. A vault for your knowledge — notes, voice, captures, the whole growing pile — that any AI can read and write, that you can host on your own machine with one command or have hosted for you, and that exports completely, always.
 
@@ -56,7 +56,7 @@ And because the whole point is what independence is *for* — code **INTERDEPEND
 
 [**Get your vault →**](https://cloud.parachute.computer/signup)
 
-Redeem the code in your account page once you're in. If the hundred are gone by the time you arrive — the free tier is real, the self-hosted version is free forever, and your data is yours either way.
+Redeem the code in your console once you're in. If the hundred are gone by the time you arrive — the free tier is real, the self-hosted version is free forever, and your data is yours either way.
 
 Happy Independence Day. Here's to choosing our connections.
 
