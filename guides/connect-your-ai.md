@@ -19,7 +19,7 @@ Once you're connected, try:
 
 Your AI sees what you see — the same notes, links, and tags — and what it
 writes lands here, as notes you can read, edit, or delete. There's even a note
-in this vault written for it: **Getting Started**, the vault-design brief your
+in this vault written for it: [Getting Started](/guides/getting-started/), the vault-design brief your
 AI reads so you don't have to.
 
 One memory, shared with every AI you choose to connect. That's the point.
