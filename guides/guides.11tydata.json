@@ -1,0 +1,4 @@
+{
+    "templateEngineOverride": "md",
+    "layout": "vault-guide.njk"
+}

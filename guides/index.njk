@@ -1,0 +1,29 @@
+---
+# guides.11tydata.json sets templateEngineOverride: md + layout: vault-guide.njk
+# for the markdown guides in this dir. This listing overrides both back to the
+# base layout as a Nunjucks template (mirrors blog/index.njk).
+layout: base.njk
+templateEngineOverride: njk
+title: Guides
+description: "Five short starter guides that ship inside every new Parachute vault as ordinary notes."
+permalink: /guides/
+---
+<main>
+    <div class="roadmap-header fade-up fade-up-1">
+        <h1>Guides</h1>
+        <p class="dates">Five short guides ship inside every new Parachute vault as ordinary notes, tagged #guide. Here they are on the open web.</p>
+    </div>
+
+    <section class="section fade-up fade-up-2">
+        <ul class="blog-list">
+            {%- for guide in collections.guides %}
+            <li>
+                <a href="{{ guide.url }}" class="blog-post-card">
+                    <h3>{{ guide.data.title }}</h3>
+                    {% if guide.data.description %}<p class="excerpt">{{ guide.data.description }}</p>{% endif %}
+                </a>
+            </li>
+            {%- endfor %}
+        </ul>
+    </section>
+</main>

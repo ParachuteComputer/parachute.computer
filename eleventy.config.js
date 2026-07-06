@@ -56,6 +56,13 @@ module.exports = function (eleventyConfig) {
       .sort((a, b) => b.date - a.date);
   });
 
+  // Guides collection: the five starter guides that ship in every vault,
+  // in reading order (frontmatter `order`, 1–5).
+  eleventyConfig.addCollection("guides", (api) =>
+    api
+      .getFilteredByGlob("guides/*.md")
+      .sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99)));
+
   return {
     dir: {
       input: ".",
