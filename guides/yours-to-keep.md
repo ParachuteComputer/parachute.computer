@@ -27,4 +27,4 @@ Back to [Welcome to your vault 🪂](/guides/welcome-to-your-vault/).
 
 <!-- site-only -->
 
-More on why we build it this way: [Independent, together](/blog/independent-together/) — the case for a memory you can always walk away from.
+More on why we build it this way: [the blog](/blog/) has the case for a memory you can always walk away from.
