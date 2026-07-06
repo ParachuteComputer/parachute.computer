@@ -1,0 +1,18 @@
+---
+layout: base.njk
+---
+{# Guides carry their own H1 in the markdown body so the page stays
+   byte-identical to the #guide note it mirrors in the vault (vault_path is
+   the drift checker's join key). Unlike guide.njk, this layout renders NO
+   title of its own — the body's H1 is the heading. The footer frame below
+   lives in the LAYOUT, keeping the markdown body canonical. #}
+<main>
+    <article class="post-content fade-up fade-up-2">
+        {{ content | safe }}
+
+        <div class="post-nav fade-up fade-up-3">
+            <p class="guide-frame">This guide ships inside every new Parachute vault as a note tagged <code>#guide</code> &mdash; yours to edit.</p>
+            <a href="/guides/">All guides &rarr;</a>
+        </div>
+    </article>
+</main>
