@@ -145,9 +145,10 @@ header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-b
 .brand:hover{text-decoration:none}
 .brand .mark{width:28px;height:26px;flex:none}
 .nav-right{display:flex;align-items:center;gap:1.1rem}
-.nav-right .selfhost{font-family:var(--font-round);font-weight:600;color:var(--ink-soft);font-size:.95rem}
-.nav-right .selfhost:hover{color:var(--ink)}
+.nav-right .selfhost,.nav-right .navlink{font-family:var(--font-round);font-weight:600;color:var(--ink-soft);font-size:.95rem}
+.nav-right .selfhost:hover,.nav-right .navlink:hover{color:var(--ink)}
 .nav-right .btn{padding:.55rem 1.05rem;font-size:.92rem}
+@media (max-width:760px){.nav-right .navlink{display:none}}
 @media (max-width:560px){.nav-right .selfhost{display:none}}
 
 /* ============================================================
@@ -420,6 +421,9 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
       <span>Parachute</span>
     </a>
     <nav class="nav-right">
+      <a class="navlink" href="/pricing/">Pricing</a>
+      <a class="navlink" href="/guides/">Guides</a>
+      <a class="navlink" href="/docs/">Docs</a>
       <a class="selfhost" href="/start/">Self-host</a>
       <a class="btn btn-primary" href="https://cloud.parachute.computer/signup">Get a vault</a>
     </nav>
@@ -595,16 +599,6 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
       <div class="field">
         <label for="join-email">Your email</label>
         <input id="join-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com" aria-label="Your email address">
-      </div>
-      <div class="field">
-        <label id="notes-q">What do you take notes in today? <span style="color:var(--ink-soft);font-weight:400">(optional)</span></label>
-        <div class="chipset" role="radiogroup" aria-labelledby="notes-q">
-          <span class="opt"><input type="radio" id="na-apple" name="notes_app" value="apple-notes"><label for="na-apple">Apple Notes</label></span>
-          <span class="opt"><input type="radio" id="na-notion" name="notes_app" value="notion"><label for="na-notion">Notion</label></span>
-          <span class="opt"><input type="radio" id="na-obsidian" name="notes_app" value="obsidian"><label for="na-obsidian">Obsidian</label></span>
-          <span class="opt"><input type="radio" id="na-paper" name="notes_app" value="paper"><label for="na-paper">Paper</label></span>
-          <span class="opt"><input type="radio" id="na-nothing" name="notes_app" value="nothing"><label for="na-nothing">Nothing yet</label></span>
-        </div>
       </div>
       <p class="join-error" data-join-error>That didn't go through — check the email and try again.</p>
       <button class="btn btn-primary" type="submit">Keep me posted →</button>
