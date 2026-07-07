@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}{% if title %} | {% endif %}Parachute Computer</title>
     <meta name="description" content="{{ description or 'You and AI, thinking together. An open, self-hosted memory you and any AI can read and write — on your machine, yours to keep and export anytime.' }}">
+    {# Internal design notes (design/*.md set noindex) stay reachable via deep links
+       but are kept out of search results — they're working material, not polished docs. #}
+    {% if noindex %}<meta name="robots" content="noindex">{% endif %}
     {# Fonts are system stacks (see style.css :root) — no webfont download. #}
     <link rel="stylesheet" href="/style.css">
     <link rel="icon" href="/assets/parachute-favicon.svg" type="image/svg+xml">
@@ -72,28 +75,16 @@
                 <svg class="mark" aria-hidden="true"><use href="#pchute"/></svg>
                 <span>Parachute</span>
             </a>
+            {# One canonical, flat nav — identical to the homepage (landing-preview.html).
+               Kept lean on purpose: Pricing (the paid door), Blog (news), Self-host
+               (the free door), GitHub (open source), and the primary CTA. The product
+               ladder (Vault/Surfaces/Agents/Modules), Guides, and Docs live in the
+               footer — the header is for the few things a first-time visitor needs. #}
             <nav class="nav-right">
-                {# "How it works" surfaces the Vault→Surface→Agent ladder + the
-                   parts list. Native <details> disclosure — zero-JS, works on
-                   desktop and mobile; a small progressive-enhancement script
-                   below just closes it on outside-click / Escape. Stays visible
-                   at every width (it's the mobile-discoverable ladder), unlike
-                   the .nav-drop links which collapse into the footer. #}
-                <details class="nav-menu">
-                    <summary>How it works</summary>
-                    <div class="nav-menu-panel">
-                        <a href="/vault/"><span class="nm-name">Vault</span><span class="nm-sub">L1 &middot; your memory</span></a>
-                        <a href="/surfaces/"><span class="nm-name">Surfaces</span><span class="nm-sub">L2 &middot; a UI over it</span></a>
-                        <a href="/agents/"><span class="nm-name">Agents</span><span class="nm-sub">L3 &middot; it acts for you</span></a>
-                        <a href="/modules/"><span class="nm-name">Modules</span><span class="nm-sub">what&rsquo;s inside</span></a>
-                    </div>
-                </details>
                 <a class="nav-drop" href="/pricing/">Pricing</a>
-                <a class="nav-drop" href="/guides/">Guides</a>
                 <a class="nav-drop" href="/blog/">Blog</a>
-                <a class="nav-drop" href="/docs/">Docs</a>
-                <a class="nav-drop" href="https://github.com/ParachuteComputer" target="_blank" rel="noopener">GitHub</a>
                 <a class="selfhost" href="/start/">Self-host</a>
+                <a class="nav-drop" href="https://github.com/ParachuteComputer" target="_blank" rel="noopener">GitHub</a>
                 <a class="btn btn-primary" href="https://cloud.parachute.computer/signup">Get a vault</a>
             </nav>
         </div>
@@ -108,6 +99,10 @@
             <a href="https://cloud.parachute.computer/signup">Get a vault</a>
             <a href="/pricing/">Pricing</a>
             <a href="/start/">Self-host</a>
+            <a href="/vault/">Vault</a>
+            <a href="/surfaces/">Surfaces</a>
+            <a href="/agents/">Agents</a>
+            <a href="/modules/">Modules</a>
             <a href="/guides/">Guides</a>
             <a href="/blog/">Blog</a>
             <a href="/docs/">Docs</a>
@@ -174,20 +169,5 @@
     })();
     </script>
 
-    {# Nav "How it works" menu — progressive enhancement only. The <details>
-       element opens/closes on its own with JS off; this just adds the
-       niceties: close it when you click away or press Escape. #}
-    <script>
-    (function () {
-        var menu = document.querySelector(".nav-menu");
-        if (!menu) return;
-        document.addEventListener("click", function (e) {
-            if (menu.open && !menu.contains(e.target)) menu.open = false;
-        });
-        document.addEventListener("keydown", function (e) {
-            if (e.key === "Escape" && menu.open) menu.open = false;
-        });
-    })();
-    </script>
 </body>
 </html>

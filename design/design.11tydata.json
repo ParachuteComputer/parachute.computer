@@ -1,4 +1,6 @@
 {
     "layout": "base.njk",
-    "templateEngineOverride": "md"
+    "templateEngineOverride": "md",
+    "noindex": true,
+    "eleventyExcludeFromCollections": true
 }

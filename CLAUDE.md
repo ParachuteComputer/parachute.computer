@@ -75,7 +75,7 @@ The `_site/` output is gitignored. GitHub Pages deployment should build from the
 
 All pages use `_includes/base.njk` for nav and footer. Blog posts additionally use `_includes/post.njk`.
 
-**Nav**: `Blog | Docs | Roadmap | GitHub`
+**Nav** (one canonical flat nav, identical on the homepage `landing-preview.html` and every `base.njk` page): `Pricing | Blog | Self-host | GitHub | [Get a vault]`. Guides, Docs, and the product pages (Vault/Surfaces/Agents/Modules) live in the footer, not the header. Keep the two headers in lockstep when editing.
 **Logo**: "Parachute Computer" (links to `/`)
 **Footer**: Copyright + same four links
 

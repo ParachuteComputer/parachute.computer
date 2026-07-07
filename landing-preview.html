@@ -148,7 +148,7 @@ header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-b
 .nav-right .selfhost,.nav-right .navlink{font-family:var(--font-round);font-weight:600;color:var(--ink-soft);font-size:.95rem}
 .nav-right .selfhost:hover,.nav-right .navlink:hover{color:var(--ink)}
 .nav-right .btn{padding:.55rem 1.05rem;font-size:.92rem}
-@media (max-width:760px){.nav-right .navlink{display:none}}
+@media (max-width:620px){.nav-right .navlink{display:none}}
 @media (max-width:560px){.nav-right .selfhost{display:none}}
 
 /* ============================================================
@@ -416,15 +416,15 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
 <!-- ===================== NAV ===================== -->
 <header class="nav">
   <div class="nav-in">
-    <a class="brand" href="#top" aria-label="Parachute — home">
+    <a class="brand" href="/" aria-label="Parachute — home">
       <svg class="mark" aria-hidden="true"><use href="#pchute"/></svg>
       <span>Parachute</span>
     </a>
     <nav class="nav-right">
       <a class="navlink" href="/pricing/">Pricing</a>
-      <a class="navlink" href="/guides/">Guides</a>
-      <a class="navlink" href="/docs/">Docs</a>
+      <a class="navlink" href="/blog/">Blog</a>
       <a class="selfhost" href="/start/">Self-host</a>
+      <a class="navlink" href="https://github.com/ParachuteComputer" target="_blank" rel="noopener">GitHub</a>
       <a class="btn btn-primary" href="https://cloud.parachute.computer/signup">Get a vault</a>
     </nav>
   </div>
@@ -440,7 +440,6 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
   <p class="hero-sub">All your notes in one vault. Any AI can read it. It stays yours.</p>
   <div class="hero-cta">
     <a class="btn btn-primary" href="https://cloud.parachute.computer/signup">Get a vault →</a>
-    <a class="link-quiet" href="#join">or just leave your email →</a>
   </div>
   <p class="hero-trust"><span>Local-first</span><span>Open standard (MCP)</span><span>Export anytime</span></p>
 </section>
@@ -570,8 +569,8 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
     <div class="price feature">
       <span class="kicker">We run it, it stays yours</span>
       <h3>Cloud vault</h3>
-      <div class="amt">$2–5<small>/mo</small></div>
-      <p>A vault of your own in about a minute. No setup.</p>
+      <div class="amt">From $1<small>/mo</small></div>
+      <p>A vault of your own in about a minute. No setup. <a href="/pricing/">See plans →</a></p>
       <a class="btn btn-primary" href="https://cloud.parachute.computer/signup">Get a vault →</a>
       <p class="beta">Rather wait? <a href="#join">Join the list →</a></p>
     </div>
@@ -615,13 +614,16 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
   <p class="foot-tag">Your digital life needs a safe place to land.</p>
   <nav class="foot-links">
     <a href="https://cloud.parachute.computer/signup">Get a vault</a>
-    <a href="#join">Join the list</a>
-    <a href="/start/">Self-host</a>
     <a href="/pricing/">Pricing</a>
+    <a href="/start/">Self-host</a>
+    <a href="/vault/">Vault</a>
+    <a href="/surfaces/">Surfaces</a>
+    <a href="/agents/">Agents</a>
+    <a href="/modules/">Modules</a>
     <a href="/guides/">Guides</a>
-<a href="/blog/">Blog</a>
+    <a href="/blog/">Blog</a>
     <a href="/docs/">Docs</a>
-    <a href="https://github.com/ParachuteComputer">GitHub</a>
+    <a href="https://github.com/ParachuteComputer" target="_blank" rel="noopener">GitHub</a>
   </nav>
   <p class="foot-fine">© 2026 Open Parachute, PBC — a Colorado Public Benefit Corporation building open tools for thinking.</p>
   <p class="foot-fine"><a href="/terms/">Terms</a> · <a href="/privacy/">Privacy</a></p>
