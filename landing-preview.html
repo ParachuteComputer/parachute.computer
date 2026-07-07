@@ -13,7 +13,7 @@
 <meta property="og:image" content="https://parachute.computer/og.png">
 <meta property="og:image:alt" content="A hand-drawn parachute over the words: Parachute — a soft place for your thoughts to land.">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="/assets/parachute-logo.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/parachute-favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -145,9 +145,10 @@ header.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);-webkit-b
 .brand:hover{text-decoration:none}
 .brand .mark{width:28px;height:26px;flex:none}
 .nav-right{display:flex;align-items:center;gap:1.1rem}
-.nav-right .selfhost{font-family:var(--font-round);font-weight:600;color:var(--ink-soft);font-size:.95rem}
-.nav-right .selfhost:hover{color:var(--ink)}
+.nav-right .selfhost,.nav-right .navlink{font-family:var(--font-round);font-weight:600;color:var(--ink-soft);font-size:.95rem}
+.nav-right .selfhost:hover,.nav-right .navlink:hover{color:var(--ink)}
 .nav-right .btn{padding:.55rem 1.05rem;font-size:.92rem}
+@media (max-width:760px){.nav-right .navlink{display:none}}
 @media (max-width:560px){.nav-right .selfhost{display:none}}
 
 /* ============================================================
@@ -420,6 +421,9 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
       <span>Parachute</span>
     </a>
     <nav class="nav-right">
+      <a class="navlink" href="/pricing/">Pricing</a>
+      <a class="navlink" href="/guides/">Guides</a>
+      <a class="navlink" href="/docs/">Docs</a>
       <a class="selfhost" href="/start/">Self-host</a>
       <a class="btn btn-primary" href="https://cloud.parachute.computer/signup">Get a vault</a>
     </nav>
@@ -595,16 +599,6 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
       <div class="field">
         <label for="join-email">Your email</label>
         <input id="join-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com" aria-label="Your email address">
-      </div>
-      <div class="field">
-        <label id="notes-q">What do you take notes in today? <span style="color:var(--ink-soft);font-weight:400">(optional)</span></label>
-        <div class="chipset" role="radiogroup" aria-labelledby="notes-q">
-          <span class="opt"><input type="radio" id="na-apple" name="notes_app" value="apple-notes"><label for="na-apple">Apple Notes</label></span>
-          <span class="opt"><input type="radio" id="na-notion" name="notes_app" value="notion"><label for="na-notion">Notion</label></span>
-          <span class="opt"><input type="radio" id="na-obsidian" name="notes_app" value="obsidian"><label for="na-obsidian">Obsidian</label></span>
-          <span class="opt"><input type="radio" id="na-paper" name="notes_app" value="paper"><label for="na-paper">Paper</label></span>
-          <span class="opt"><input type="radio" id="na-nothing" name="notes_app" value="nothing"><label for="na-nothing">Nothing yet</label></span>
-        </div>
       </div>
       <p class="join-error" data-join-error>That didn't go through — check the email and try again.</p>
       <button class="btn btn-primary" type="submit">Keep me posted →</button>
@@ -942,6 +936,34 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);text-align:center;
   game.querySelectorAll(".vg-chip").forEach(function(chip){
     chip.addEventListener("click",function(){ask(chip.getAttribute("data-ask"),chip);});
   });
+
+  /* Auto-play once the vault scrolls into view: the notes float down on their
+     own — in a build order (family → writing → work) so each one after the
+     first threads into the web already there, and it grows link by link. Once
+     they've settled it asks itself the richest question and answers from what
+     it just built. No clicking required; the tray + chips stay live for
+     replay. Skipped if the visitor already dropped a note by hand; instant
+     under reduced-motion. */
+  var PLAY_ORDER=["call-mom","mom-bday","why","blog","jon","jon-num"];
+  var played=false;
+  function autoPlay(){
+    if(played) return;
+    played=true;
+    if(Object.keys(placed).length) return;   // visitor got there first — leave it be
+    var lead=REDUCE?0:500, step=REDUCE?0:340;
+    PLAY_ORDER.forEach(function(id,i){ setTimeout(function(){addNote(id);}, lead+i*step); });
+    var settleAt=REDUCE?0:(lead+(PLAY_ORDER.length-1)*step+DROP_MS+650);
+    setTimeout(function(){
+      var chip=game.querySelector('.vg-chip[data-ask="write"]');
+      if(chip) ask("write",chip);
+    },settleAt);
+  }
+  if("IntersectionObserver" in window){
+    var apObs=new IntersectionObserver(function(es){
+      for(var i=0;i<es.length;i++){ if(es[i].isIntersecting){ apObs.disconnect(); autoPlay(); break; } }
+    },{threshold:0,rootMargin:"-20% 0px -20% 0px"});
+    apObs.observe(game);
+  }else{ autoPlay(); }
 })();
 </script>
 </body>
