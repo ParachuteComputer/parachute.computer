@@ -13,7 +13,7 @@ For a while, using Parachute meant being a little technical. You'd spin up your 
 
 ![Notes, a voice memo, and a stray thought drifting down beneath a small warm-canopied parachute into an open, glowing vault.](/assets/blog/parachute-cloud-open.png)
 
-Today that changes. Parachute Cloud is open. You can have a vault of your own in about a minute, with no server and no terminal. Just enter your email and you're in. (And if you ever decide you want to self-host, moving in either direction is easy. Your data is always yours to carry.)
+Today that changes. Parachute Cloud is open. You can have a vault of your own in about a minute, with no server and no terminal. Just enter your email and you're in. (And if you ever decide you want to [self-host](/start/), moving in either direction is easy. Your data is always yours to carry.)
 
 Parachute is a lot of things, and where we're headed is bigger still. The long-term vision is a home for all of your thinking, a place where you talk to your AI and where custom views and little agents do work on your behalf. Some of that is already alive for our team. But one part of Parachute is ready right now, and it happens to be the part most of us need most. It's a memory layer for you and your AI.
 
@@ -25,12 +25,14 @@ That's the whole idea. A memory built for a world where most of our thinking is 
 
 Starting is simple:
 
-1. Enter your email. You get a month free, no credit card.
+1. [Sign up with your email](https://cloud.parachute.computer/signup). You get a month free, no credit card.
 2. Make a vault and open it in your browser or on your phone.
 3. Paste your vault's link into ChatGPT or Claude and say "help me use my parachute."
 
-If you decide to stick around after the month, it can cost as little as a dollar a month, or a bit more if you want the fancier stuff like automatic voice transcription and keeping your voice notes around to play back later.
+If you decide to stick around after the month, it can cost as little as a dollar a month, or a bit more for the fancier stuff like automatic voice transcription and keeping your voice notes around to play back later. ([Here are the plans.](/pricing/))
 
-We're early. This is a beta, and you're going to find rough edges. But I'd love for you to be one of the first people actually living in this with us. Give it a try, and then tell me what works and what doesn't. Leave a comment, or just email me directly at aaron@parachute.computer. I read everything.
+**[Get a vault →](https://cloud.parachute.computer/signup)**
+
+We're early. This is a beta, and you're going to find rough edges. But I'd love for you to be one of the first people actually living in this with us. Give it a try, and tell me what works and what doesn't. Email me directly at aaron@parachute.computer, and I read everything.
 
 Welcome to the parachute.
