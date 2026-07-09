@@ -300,6 +300,30 @@ Highest-impact swaps:
 
 ---
 
+## 5b. Console-minted proposals (2026-07-09, cloud#109)
+
+The cloud console's brand pass (parachute-cloud#109) needed fill-role tokens this doc had no
+answer for. Its reviewer verified all of them AA-clean where they carry text, but per this doc's
+own discipline they are **PROPOSED** values minted downstream, not observed brand — recorded here
+so the design session can ratify, rename, or replace them:
+
+| Console token | Hex | Role |
+|---|---|---|
+| `--field` | `#fdfbf5` | input background |
+| `--fill` | `#f3ecdd` | soft utility fill (chips, copy buttons) |
+| `--fill-hover` | `#ece3d1` | fill hover state |
+| `--code-bg` | `#f5efe2` | code/snippet background |
+| `--accent-strong` | `#a5401f` | button hover (darker coral, 6.26:1 w/ white) |
+| `--accent-soft-line` | `#f2ccbc` | border on coral-soft surfaces |
+| `--dot-off` | `#cdbfa8` | inactive status dot |
+| `--mark-line` | `#d8ccb6` | decorative mark strokes |
+
+**Open question for the design session — link color.** This doc's §1 carries `--pc-link #2f6f96`
+(blue) as the link/secondary-interactive token, observed from the landing + inner pages. The
+console pass deliberately styled its anchors coral (`#bf4a2a`, AA-clean) for a one-accent surface.
+Both are defensible; neither should ratify by default. Decide: blue links everywhere (landing
+convention) or coral links on app surfaces (console convention).
+
 ## 6. Proposed home
 
 Two real options, one clear near-term pick.
