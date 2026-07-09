@@ -25,6 +25,12 @@ module.exports = function (eleventyConfig) {
   // + source), per the archive convention.
   eleventyConfig.addPassthroughCopy({ "landing-preview.html": "index.html" });
 
+  // Unlisted business plan. Self-contained HTML (all CSS inlined), copied
+  // verbatim to /business-plan/ — not templated, not in any nav, and carries
+  // <meta robots noindex> in its own <head>. Shared by direct link only
+  // (friends-and-family round), same passthrough pattern as the homepage.
+  eleventyConfig.addPassthroughCopy({ "business-plan.html": "business-plan/index.html" });
+
   // Ignore non-content files
   eleventyConfig.ignores.add("CLAUDE.md");
   eleventyConfig.ignores.add("DEPLOY-subscribe.md");

@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Parachute business plan — confidential, shared for the friends-and-family round.">
+  <meta name="theme-color" content="#F6F7F9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#14161B" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <title>Parachute — Business Plan</title>
+<style>
+  :root {
+    --bg: #F6F7F9;
+    --surface: #FFFFFF;
+    --ink: #1B1E24;
+    --body: #333842;
+    --muted: #626875;
+    --line: #E2E5EA;
+    --line-strong: #CDD2DA;
+    --accent: #216E63;
+    --accent-ink: #1A5A50;
+    --accent-soft: #E7F0ED;
+    --good: #2F7D4F;
+    --warn: #B26B1E;
+    --serif: Charter, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+    --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161B;
+      --surface: #1B1E25;
+      --ink: #F1F2F5;
+      --body: #C6CBD3;
+      --muted: #888F9C;
+      --line: #2A2E37;
+      --line-strong: #3A3F4A;
+      --accent: #63B7A8;
+      --accent-ink: #7FC7BA;
+      --accent-soft: #1D2928;
+      --good: #6FB98A;
+      --warn: #D69A57;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #F6F7F9; --surface: #FFFFFF; --ink: #1B1E24; --body: #333842;
+    --muted: #626875; --line: #E2E5EA; --line-strong: #CDD2DA;
+    --accent: #216E63; --accent-ink: #1A5A50; --accent-soft: #E7F0ED;
+    --good: #2F7D4F; --warn: #B26B1E;
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161B; --surface: #1B1E25; --ink: #F1F2F5; --body: #C6CBD3;
+    --muted: #888F9C; --line: #2A2E37; --line-strong: #3A3F4A;
+    --accent: #63B7A8; --accent-ink: #7FC7BA; --accent-soft: #1D2928;
+    --good: #6FB98A; --warn: #D69A57;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--body);
+    font-family: var(--serif);
+    font-size: 1.0625rem;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .page {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 5rem) clamp(1.15rem, 5vw, 2.75rem) 6rem;
+  }
+
+  /* ---- Masthead ---- */
+  .masthead { margin-bottom: 2.5rem; }
+  .eyebrow {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 1rem;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(2.4rem, 7vw, 3.4rem);
+    line-height: 1.02;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    margin: 0 0 0.5rem;
+    text-wrap: balance;
+  }
+  .dek {
+    font-size: 1.15rem;
+    color: var(--muted);
+    margin: 0 0 1.5rem;
+    font-style: italic;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.1rem;
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--muted);
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--line);
+  }
+  .meta span { white-space: nowrap; }
+  .meta b { color: var(--body); font-weight: 600; }
+
+  /* ---- Lead / thesis ---- */
+  .lead {
+    font-size: 1.12rem;
+    line-height: 1.6;
+    color: var(--ink);
+    margin: 0 0 1.75rem;
+  }
+  blockquote.thesis {
+    margin: 0 0 3.25rem;
+    padding: 1.4rem 1.5rem;
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    color: var(--ink);
+    font-size: 1.08rem;
+    line-height: 1.55;
+  }
+  blockquote.thesis p { margin: 0; }
+  blockquote.thesis strong { color: var(--accent-ink); }
+
+  /* ---- Sections ---- */
+  section { margin-bottom: 2.75rem; }
+  h2 {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin: 0 0 1.1rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid var(--line-strong);
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    text-wrap: balance;
+  }
+  h2 .num {
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    flex: none;
+    transform: translateY(-0.1em);
+  }
+  h3 {
+    font-family: var(--sans);
+    font-weight: 650;
+    font-size: 0.95rem;
+    letter-spacing: 0.01em;
+    color: var(--ink);
+    margin: 1.5rem 0 0.5rem;
+  }
+  p { margin: 0 0 0.9rem; }
+  strong { color: var(--ink); font-weight: 650; }
+  a { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 2px; }
+
+  ul, ol { margin: 0 0 0.9rem; padding-left: 1.3rem; }
+  li { margin: 0 0 0.5rem; padding-left: 0.2rem; }
+  li::marker { color: var(--accent); }
+  ol li::marker { color: var(--accent); font-family: var(--sans); font-weight: 600; }
+
+  /* ---- Tables ---- */
+  .table-wrap { overflow-x: auto; margin: 0.4rem 0 1rem; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.94rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  caption {
+    caption-side: top;
+    text-align: left;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 0 0.6rem;
+  }
+  thead th {
+    font-family: var(--sans);
+    font-size: 0.74rem;
+    font-weight: 650;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.7rem 0.85rem;
+    background: var(--accent-soft);
+    border-bottom: 1px solid var(--line-strong);
+  }
+  tbody td, tbody th {
+    padding: 0.62rem 0.85rem;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+    text-align: left;
+  }
+  tbody th { font-weight: 500; color: var(--body); font-family: var(--serif); }
+  tbody tr:last-child td, tbody tr:last-child th { border-bottom: none; }
+  .num-col, td.num, th.num {
+    font-family: var(--sans);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+  }
+  tr.total th, tr.total td {
+    border-top: 2px solid var(--line-strong);
+    font-weight: 700;
+    color: var(--ink);
+  }
+  tr.total td.num { color: var(--accent-ink); }
+
+  /* status pills */
+  .pill {
+    display: inline-block;
+    font-family: var(--sans);
+    font-size: 0.74rem;
+    font-weight: 600;
+    line-height: 1.3;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .pill.ok { color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); }
+  .pill.warn { color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); }
+  .pill.plan { color: var(--muted); background: color-mix(in srgb, var(--muted) 13%, transparent); }
+
+  /* key-figure inline callout */
+  .keyline {
+    font-family: var(--sans);
+    font-size: 0.98rem;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 0.75rem 1rem;
+    margin: 0.4rem 0 1rem;
+  }
+  .keyline b { color: var(--accent-ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  hr.foot {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 3rem 0 1.25rem;
+  }
+  .foot-note {
+    font-family: var(--sans);
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  @media print {
+    body { background: #fff; color: #000; font-size: 11pt; }
+    .page { max-width: none; padding: 0; }
+    section, table { break-inside: avoid; }
+    blockquote.thesis, .keyline, thead th { background: #f2f2f2 !important; }
+  }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="masthead">
+    <p class="eyebrow">Confidential · Friends &amp; Family Round</p>
+    <h1>Parachute</h1>
+    <p class="dek">A private knowledge vault your AI can read and write. Host it yourself, or let us run it.</p>
+    <div class="meta">
+      <span><b>Business Plan</b></span>
+      <span>Version 3</span>
+      <span>July 9, 2026</span>
+      <span>Aaron Gabriel · Parachute (PBC)</span>
+    </div>
+  </header>
+
+  <p class="lead">Parachute is a private place to keep your notes, documents, and voice memos, connected to the AI you already use. Your AI can read and write to it, so it actually remembers your work and can act on it. You can run Parachute yourself on your own machine, or let us host it for a few dollars a month.</p>
+
+  <blockquote class="thesis">
+    <p>We're raising <strong>$150K</strong> from friends and family at a <strong>$5M</strong> cap to fund the next six months. By November we'll either be in TechStars Boulder (which adds <strong>$220K</strong> and sets up a <strong>$1M</strong> round at $20M around the new year), or we'll raise a <strong>$300–500K</strong> bridge at $10M+ to keep going. Either way the goal is the same: reach roughly <strong>100,000 users</strong> and a self-sustaining business in 2027, on a product that costs a dollar or a few and still earns about 83% margin.</p>
+  </blockquote>
+
+  <section>
+    <h2><span class="num">1</span> What we sell</h2>
+    <p>Three ways to make money, all from one codebase:</p>
+    <ol>
+      <li><strong>Hosted cloud.</strong> Parachute Cloud is the hosted version, $1 to $10 a month. Customers connect the AI they already pay for (Claude or ChatGPT), so we spend nothing on AI ourselves. And because the whole system runs serverless, a vault that's just sitting there costs us almost nothing. This is where the margin comes from.</li>
+      <li><strong>Services.</strong> We take on paid engagements running vaults for organizations. Our first is a $2k/month enterprise pilot with the Gitcoin team, who use a shared Parachute vault as their team brain. It brings in revenue today and teaches us what bigger customers need.</li>
+      <li><strong>Enterprise licensing.</strong> Parachute is open source under the AGPL, which means a company building on it either shares its own changes publicly or buys a commercial license from us. That's a 2027 revenue line. Cloud and services carry us until then.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2><span class="num">2</span> Where we are today</h2>
+    <p>We've shipped, and money is starting to come in.</p>
+    <ul>
+      <li>We launched the <strong>self-hosted version on April 23</strong>, and about <strong>15 committed beta users</strong> are running it today.</li>
+      <li>On <strong>July 7 we opened the hosted cloud</strong> with live Stripe payments, and <strong>paid users are starting to trickle in</strong>.</li>
+      <li>The cloud runs entirely serverless on Cloudflare (a dedicated database and object storage per vault), rebuilt this past month to replace our earlier container setup. Self-host and cloud both run from the same open-source code.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">3</span> The market, and the long game</h2>
+    <p>Parachute sits where two markets meet.</p>
+    <p>The first is the market for notes and personal-knowledge tools, already worth billions of dollars a year. Notion, Obsidian, Evernote, and Apple Notes have tens of millions of paying users between them. People clearly pay to keep their thinking somewhere good.</p>
+    <p>The second is newer and barely exists yet. As more people run their daily lives through an AI assistant, they need a private, portable place for that AI to remember things and get work done, something they actually own rather than rent from a big platform. That's the layer Parachute is built for.</p>
+    <p>We don't need a big share of either. At our current economics, around <strong>100,000 paying users makes us self-sustaining</strong>, and a million would make us a category leader. Both are small fractions of the people already paying for a notes app. The long-term plan is to grow from a note vault into the trusted home for someone's digital life, raising what each customer is worth over time as we add our higher Surface and Agent tiers on top.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">4</span> The round</h2>
+    <ul>
+      <li><strong>$150K on a SAFE, $5M post-money cap</strong>, from friends and family.</li>
+      <li>The $5M cap reflects how much has already been de-risked: the cloud is live, payments work, and customers are arriving.</li>
+      <li>Checks of $10–50K, structured as a Public Benefit Corporation, with a values-aligned cap table.</li>
+      <li>The money's job is to bridge the next <strong>six months</strong> to a bigger launch and the next raise, not to fund a long slow burn.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">5</span> Use of funds</h2>
+    <p>The $150K buys proof, not headcount. It keeps the founder full-time and pays the existing team as contributors.</p>
+    <div class="table-wrap">
+      <table>
+        <caption>Monthly burn</caption>
+        <thead>
+          <tr><th scope="col">Line</th><th scope="col" class="num">Monthly</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">People — 2 full-time</th><td class="num">$15,000</td></tr>
+          <tr><th scope="row">Part-time / contractor pool</th><td class="num">$8,000</td></tr>
+          <tr><th scope="row">Infrastructure (Cloudflare)</th><td class="num">$150</td></tr>
+          <tr><th scope="row">Legal / accounting</th><td class="num">$1,000</td></tr>
+          <tr><th scope="row">Tools + contingency</th><td class="num">$850</td></tr>
+          <tr class="total"><th scope="row">Total</th><td class="num">~$25,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="keyline">$150K at $25K a month is <b>six months of runway</b>.</div>
+    <p>That $25K is our ideal burn, not a floor. We bootstrapped Parachute to where it is now, and we can scale spending back down whenever we need to stretch the runway further.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">6</span> Unit economics and margins</h2>
+    <p>The serverless rebuild is what makes such low prices work.</p>
+    <ul>
+      <li>An idle vault costs us pennies a month. We only pay for storage, and a vault full of text is a few megabytes.</li>
+      <li>We pay nothing for AI, because customers bring their own model.</li>
+      <li>The only real variable costs are attachment storage and voice-transcription minutes, and both are built into the paid tiers.</li>
+      <li>At a $3 blended price that leaves about <strong>83% gross margin</strong>, roughly $2.50 of margin per user.</li>
+    </ul>
+    <div class="keyline">The upshot: <b>we can charge a dollar and still make money on it</b>. A genuinely cheap entry point is hard for bigger, higher-cost competitors to match, and that's a real part of our moat.</div>
+  </section>
+
+  <section>
+    <h2><span class="num">7</span> Pricing</h2>
+    <p>Four plans, all live today. Storage is <strong>pooled</strong> across a plan's vaults, so a customer can use it for one big vault or several small ones.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Plan</th>
+            <th scope="col" class="num">Price</th>
+            <th scope="col" class="num">Vaults</th>
+            <th scope="col" class="num">Notes</th>
+            <th scope="col" class="num">Attach.</th>
+            <th scope="col" class="num">Voice</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Entry</th><td class="num">$1/mo</td><td class="num">1</td><td class="num">100 MB</td><td class="num">—</td><td class="num">—</td></tr>
+          <tr><th scope="row">Standard</th><td class="num">$3/mo</td><td class="num">3</td><td class="num">250 MB</td><td class="num">2 GiB</td><td class="num">60 min</td></tr>
+          <tr><th scope="row">Plus</th><td class="num">$5/mo</td><td class="num">5</td><td class="num">500 MB</td><td class="num">8 GiB</td><td class="num">300 min</td></tr>
+          <tr><th scope="row">Power</th><td class="num">$10/mo</td><td class="num">10</td><td class="num">1 GiB</td><td class="num">50 GiB</td><td class="num">1,200 min</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>$10 is a deliberate ceiling for now. It goes up once we wire our higher Surface and Agent layers into the cloud. For the moment we're keeping the entry price low on purpose, to win the position as the easiest, cheapest door in.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">8</span> Revenue path to break-even</h2>
+    <ul>
+      <li>Average revenue per user is around <strong>$3</strong>, with about <strong>$2.50 of that being margin</strong>. This is a launch-week estimate, and our first paying users are starting to give us the real number.</li>
+      <li>At that margin, we cover our $25K/month burn at roughly <strong>10,000 paying users</strong>.</li>
+      <li>We don't need to reach break-even before the next raise. The raises are what fund the climb to 10,000, and the services work already covers part of the burn today.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">9</span> The financing staircase</h2>
+    <p>Our runway doesn't depend on any one thing going right.</p>
+    <ul>
+      <li><strong>Now:</strong> the $150K friends-and-family round at a $5M cap closes, giving us six months.</li>
+      <li><strong>By November,</strong> one of two paths:
+        <ul>
+          <li><strong>Path A — TechStars Boulder.</strong> If we get in, it adds $220K, extends the runway, and lets us hire, then sets up a $1M round at a $20M valuation around December or January (about a 4x step up from the $5M cap).</li>
+          <li><strong>Path B — no TechStars.</strong> We raise a $300–500K bridge at $10M or more in November to extend runway on the same trajectory (still a 2x or better step up).</li>
+        </ul>
+      </li>
+      <li><strong>2027:</strong> we grow toward roughly 100,000 users and become self-sustaining. That's about $250K a month in margin, or $3M a year, before counting services and enterprise.</li>
+    </ul>
+    <p>Both paths are up-rounds. Even the downside case is priced, and it's still a 2x or better step up.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">10</span> What investors get back</h2>
+    <ul>
+      <li><strong>On paper:</strong> the friends-and-family cap of $5M steps up to $10–20M at the next round, so roughly 2x to 4x within about six months, with TechStars as outside validation along the way.</li>
+      <li><strong>Longer term:</strong> 100,000 users at about $2.50 of margin each is roughly $3M a year on software margins, before services and enterprise, and before our higher tiers push revenue-per-user above $3.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2><span class="num">11</span> Assumptions and open items</h2>
+    <p>The plan holds together on its own numbers. These are the inputs we're still confirming.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th scope="col">Assumption</th><th scope="col">Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Idle vault costs pennies (serverless)</th><td><span class="pill ok">✓ confirmed by the architecture</span></td></tr>
+          <tr><th scope="row">$5M friends-and-family cap</th><td><span class="pill ok">✓ decided</span></td></tr>
+          <tr><th scope="row">Services ~$2k/mo (first enterprise pilot)</th><td><span class="pill ok">✓ live</span></td></tr>
+          <tr><th scope="row">People cost ~$23k/mo (2 full-time + $8k pool)</th><td><span class="pill plan">planning estimate</span></td></tr>
+          <tr><th scope="row">Revenue per user ~$3, margin ~$2.50</th><td><span class="pill warn">⚠ launch estimate — confirming now</span></td></tr>
+          <tr><th scope="row">Trial → paid conversion rate</th><td><span class="pill warn">⚠ unknown — measuring at launch</span></td></tr>
+          <tr><th scope="row">TechStars Boulder acceptance</th><td><span class="pill warn">⚠ applying — Path B covers a miss</span></td></tr>
+          <tr><th scope="row">November bridge $300–500K @ $10M+</th><td><span class="pill plan">contingency</span></td></tr>
+          <tr><th scope="row">$1M @ $20M, Dec/Jan</th><td><span class="pill plan">target</span></td></tr>
+          <tr><th scope="row">~100k users / sustainable in 2027</th><td><span class="pill plan">trajectory</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Two numbers shape everything downstream, our real revenue-per-user and our trial-to-paid conversion rate, and the launch is about to give us both.</p>
+  </section>
+
+  <hr class="foot" />
+  <p class="foot-note">Parachute is a Public Benefit Corporation. Figures marked as estimates are planning assumptions and will be replaced with real data as the first paid cohort matures. This document is confidential, shared for the friends-and-family round.</p>
+</div>
+</body>
+</html>
