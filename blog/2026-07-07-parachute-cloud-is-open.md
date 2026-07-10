@@ -25,13 +25,13 @@ That's the whole idea. A memory built for a world where most of our thinking is 
 
 Starting is simple:
 
-1. [Sign up with your email](https://cloud.parachute.computer/signup). You get a month free, no credit card.
+1. [Sign up with your email](https://app.parachute.computer/signup). You get a month free, no credit card.
 2. Make a vault and open it in your browser or on your phone.
 3. Paste your vault's link into ChatGPT or Claude and say "help me use my parachute."
 
 If you decide to stick around after the month, it can cost as little as a dollar a month, or a bit more for the fancier stuff like automatic voice transcription and keeping your voice notes around to play back later. ([Here are the plans.](/pricing/))
 
-**[Get a vault →](https://cloud.parachute.computer/signup)**
+**[Get a vault →](https://app.parachute.computer/signup)**
 
 We're early. This is a beta, and you're going to find rough edges. But I'd love for you to be one of the first people actually living in this with us. Give it a try, and tell me what works and what doesn't. Email me directly at aaron@parachute.computer, and I read everything.
 
