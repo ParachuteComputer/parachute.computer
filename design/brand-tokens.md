@@ -9,10 +9,25 @@ ratified design system — Todd asked "is there a design system?" and the honest
 yet." Everything marked **OBSERVED** is copied verbatim from source. Everything marked **PROPOSED** is
 a judgment call this document is introducing — never treat a PROPOSED value as already-decided.
 
-Primary source: `parachute.computer/landing-preview.html` (self-contained, THE canonical new-brand
-artifact — see its own header comment at lines 21-35 for the stated tone target).
-Secondary source: `parachute.computer/style.css` + `_includes/base.njk` (inner pages — ports the
-landing's tokens, with some drift; drift is called out throughout, not smoothed over).
+Primary source (§§1–4 as originally written, 2026-07-09): `parachute.computer/landing-preview.html`
+(self-contained, THE canonical new-brand artifact — see its own header comment at lines 21-35 for the
+stated tone target). Secondary source: `parachute.computer/style.css` + `_includes/base.njk` (inner
+pages — ports the landing's tokens, with some drift; drift is called out throughout, not smoothed
+over).
+
+> **Update (app v0.5.0, 2026-07-11) — the palette has since been ratified downstream, and this doc now
+> mirrors that.** `parachute-app` (seeded from notes-ui, now the portable super-surface) shipped the
+> "hybrid" pass — `app-w2-1-tokens`, merged app PR #12 — moving from the audit's PROPOSED sketches to
+> real, shipped values: warm cream/forest/sage grounds, the coral accent **retained as-is**, sage-tinted
+> shadows, a pill-plus-24px-card radius system, self-hosted Fraunces + Figtree, and a real "forest
+> night" dark theme (Aaron's ratified decision c: "app + site move together"). §1–§3 below have been
+> updated to mirror `parachute-app/src/styles/index.css` at that tag exactly, so this doc no longer
+> just describes what the site does — for grounds/ink/accent/shadow/radius/type it now records the
+> ecosystem's **canonical, shipped** values, sourced from the app rather than the site. **The site's own
+> `landing-preview.html` / `style.css` have not been repainted to match** — they still carry the
+> pre-hybrid hex values recorded below as OBSERVED; adopting the new palette into the site's actual CSS
+> is separate, un-started work. Original per-app delta notes (§5) are left as historical audit record
+> unless a callout says otherwise.
 
 ---
 
@@ -20,12 +35,16 @@ landing's tokens, with some drift; drift is called out throughout, not smoothed 
 
 ### Grounds
 
-| Token | Hex | OBSERVED at | Notes |
+**SHIPPED (app v0.5.0)** — grounds move from blush paper to a cream/sage world; the app's card lifts a
+breath off the canvas instead of sitting at hard white. The site's own `landing-preview.html`/`style.css`
+have not adopted these yet — the "OBSERVED at" column below still points at the site's pre-hybrid values.
+
+| Token | Hex (shipped, app v0.5.0) | Was (site OBSERVED at) | Notes |
 |---|---|---|---|
-| `--pc-paper` | `#fdfaf4` | landing:41, style.css:23 | warm off-white page background |
-| `--pc-paper-2` | `#f7f1e6` | landing:42, style.css:24 | soft warm band (used for section washes) |
-| `--pc-sky-band` | `#eef5f9` | landing:43 (`--sky`), style.css:25 (`--sky-band`) | cool sky band — **name collision, see below** |
-| `--pc-card` | `#ffffff` | landing:44, style.css:26 | card/surface background |
+| `--pc-paper` | **`#fafaf6`** | `#fdfaf4` — landing:41, style.css:23 | cream canvas, app `--color-bg` |
+| `--pc-paper-2` | **`#f7f5ec`** | `#f7f1e6` — landing:42, style.css:24 | recessed/wash band, app `--color-bg-soft` |
+| `--pc-sky-band` | `#eef5f9` (unchanged) | landing:43 (`--sky`), style.css:25 (`--sky-band`) | cool sky band — **name collision, see below** — not touched by the hybrid pass |
+| `--pc-card` | **`#fefefa`** | `#ffffff` — landing:44, style.css:26 | app `--color-card`; a breath off the canvas, not hard white |
 
 **Naming collision to flag:** the landing page names this token `--sky` (landing-preview.html:43).
 `style.css` renamed it `--sky-band` (style.css:25) and then **reused the bare name `--sky`** for a
@@ -37,38 +56,47 @@ different colors depending which file you're in. Any shared token package must n
 
 ### Inks
 
-| Token | Hex | OBSERVED at | Notes |
-|---|---|---|---|
-| `--pc-ink` | `#2a2521` | landing:45, style.css:27 | body text — 14.5:1 on paper (contrast note is in-source) |
-| `--pc-ink-soft` | `#6b6459` | landing:46, style.css:28 | muted text — 5.6:1 on paper |
-| `--pc-line` | `#ece5d8` | landing:47, style.css:29 | hairline border, lighter |
-| `--pc-line-2` | `#e2d9c8` | landing:48, style.css:30 | hairline border, more visible (used on interactive elements) |
+**SHIPPED (app v0.5.0)** — ink moves from warm brown to **forest**, with a sage-cast secondary tier;
+values below are the app's, the "Was" column is the site's current (unchanged) values.
 
-style.css adds one ink not present in the landing's token set at all:
-`--fg-dim: #9a9184` (style.css:55) — a warm "dim" tier below `ink-soft`, used for timestamps/labels on
-inner pages (e.g. blog post dates, footer fine print in some contexts). **New token, not in the
-canonical landing file** — worth deciding if it's promoted into the shared system or was an
-inner-pages-only expedient.
+| Token | Hex (shipped, app v0.5.0) | Was (site OBSERVED at) | Notes |
+|---|---|---|---|
+| `--pc-ink` | **`#233c2a`** | `#2a2521` — landing:45, style.css:27 | forest ink, app `--color-fg` — 11.46:1 on the new `--pc-paper` |
+| `--pc-ink-soft` | **`#5b6f5e`** | `#6b6459` — landing:46, style.css:28 | sage-cast secondary text, app `--color-fg-muted` — 5.17:1 |
+| `--pc-line` | **`#e4ece4`** | `#ece5d8` — landing:47, style.css:29 | lighter hairline, sage-cast, app `--color-border-light` |
+| `--pc-line-2` | **`#d6e2d6`** | `#e2d9c8` — landing:48, style.css:30 | visible hairline, sage-cast, app `--color-border` |
+
+The doc's own open question is now resolved: `--fg-dim` (`#9a9184`, style.css:55 — "New token, not in
+the canonical landing file... worth deciding if it's promoted") **is promoted**, as `--pc-ink-dim`, with
+a new shipped value: `#8a968b` (app `--color-fg-dim`, 2.94:1 — tertiary/placeholder text only, sub-AA
+**by design**, never body copy). The site's own `#9a9184` inner-pages-only value is unchanged.
 
 ### Accents
 
+**Coral confirmed RETAINED, unchanged, by the hybrid pass (ratified decision c)** — the accent hue does
+not move; only the grounds and ink around it do. Ratios were recomputed on the new cream canvas and
+still pass AA: `--pc-coral-btn` is 4.97:1 white-on-button (unchanged) and 4.75:1 sitting directly on the
+new `--pc-paper` (was checked against the old paper before). One value shifts (`--pc-grass-soft`) and one
+token is net-new (`--pc-sage`) — both called out below; everything else in this table is unchanged.
+
 | Token | Hex | OBSERVED at | Role |
 |---|---|---|---|
-| `--pc-coral` | `#e05d3c` | landing:49, style.css:31 | display accent — **large text only**, not for small UI (in-source comment) |
-| `--pc-coral-btn` | `#bf4a2a` | landing:50, style.css:32 | button bg + white text — 4.97:1 (documented in-source) |
-| `--pc-coral-soft` | `#fbe4d9` | landing:51, style.css:33 | tinted background for coral-family chips/badges/"featured" cards |
-| `--pc-coral-ink` | `#8f3417` | landing:52, style.css:34 | coral-family text on `coral-soft` background (AA) |
+| `--pc-coral` | `#e05d3c` | landing:49, style.css:31 | display accent — **large text only**, not for small UI (in-source comment). **Retained as-is in app v0.5.0.** |
+| `--pc-coral-btn` | `#bf4a2a` | landing:50, style.css:32 | button bg + white text — 4.97:1 (documented in-source). **Retained as-is**; recomputed at 4.75:1 on the new cream canvas (app). |
+| `--pc-coral-soft` | `#fbe4d9` | landing:51, style.css:33 | tinted background for coral-family chips/badges/"featured" cards. **Retained as-is.** |
+| `--pc-coral-ink` | `#8f3417` | landing:52, style.css:34 | coral-family text on `coral-soft` background (AA). **Retained as-is** — 6.44:1 (app). |
 | `--pc-link` | `#2f6f96` | landing:53, style.css:35 | link color / secondary interactive text — 5.26:1 |
 | `--pc-link-hover` | `#245570` | style.css:36 only (`--link-hover`, aka "blue-ink") | not a separate token in landing's `:root`, but landing uses the identical hex inline as `--blue-ink` (landing:55) |
 | `--pc-link-light` | `#7ba7c1` | style.css:37 only | soft blue for borders/bullets/dots — inner-pages-only addition, not in landing |
 | `--pc-blue-soft` | `#dcebf3` | landing:54, style.css:38 | tinted blue background (chips) |
-| `--pc-sun` | `#f4c020` | landing:56, style.css:39 | playful highlight; ink text on it is ~9:1 (in-source) |
-| `--pc-sun-soft` | `#fdf1c9` | landing:57, style.css:40 | tinted sun background |
-| `--pc-sun-ink` | `#6b5200` | landing:58, style.css:41 | sun-family text |
-| `--pc-grass` | `#3f8a58` | landing:59 | "grow-with-you" green, large accent only |
-| `--pc-grass-btn` | `#2f7647` | landing:60 | button-weight grass |
-| `--pc-grass-soft` | `#dcefe0` | landing:61 | tinted grass background |
-| `--pc-grass-ink` | `#245c39` | landing:62 | grass-family text |
+| `--pc-sun` | `#f4c020` | landing:56, style.css:39 | playful highlight; ink text on it is ~9:1 (in-source). **Retained as-is.** |
+| `--pc-sun-soft` | `#fdf1c9` | landing:57, style.css:40 | tinted sun background. **Retained as-is.** |
+| `--pc-sun-ink` | `#6b5200` | landing:58, style.css:41 | sun-family text. **Retained as-is.** |
+| `--pc-grass` | `#3f8a58` | landing:59 | "grow-with-you" green, large accent only. **Retained as-is.** |
+| `--pc-grass-btn` | `#2f7647` | landing:60 | button-weight grass. **Retained as-is.** |
+| `--pc-grass-soft` | **`#e1f0e4`** (was `#dcefe0`) | landing:61 (site unchanged); app `--color-grass-soft` | tinted grass background — nudged sage-ward in app v0.5.0; grass-ink is 6.67:1 on it |
+| `--pc-grass-ink` | `#245c39` | landing:62 | grass-family text. **Retained as-is.** |
+| **`--pc-sage`** (NEW, app v0.5.0) | **`#527e5d`** | app `--color-sage`, `src/styles/index.css` | the app prototype's sage **green** — eyebrows, section labels, quiet icons (4.46:1 on `--pc-paper`, 4.27:1 on `--pc-paper-2`). **Naming collision, flagged so it isn't repeated:** the app's own codebase (notes-ui lineage) previously had `--color-sage` meaning *blue* (identical to `--pc-status-active` / app `--color-sky`, `#5b8fa8` — see the `--sky` collision above); v0.5.0 fixed that in-app (five call sites repointed to `--color-sky`) so `--color-sage` now means green, as any reader would assume. This doc has never carried a `--pc-sage` token before now, so there's nothing to rename here — just don't reintroduce the blue meaning under this name. |
 
 **Inconsistency:** the full `--grass` family (5 values, landing:59-62) is **not carried into
 style.css's `:root` at all**. style.css only reuses the grass hue as hardcoded literals in one place —
@@ -89,28 +117,43 @@ reds rather than introducing a fourth.
 
 ### Dark theme
 
-**Neither the landing page nor style.css has any dark theme, `prefers-color-scheme`, or `data-theme`
-handling.** Confirmed by full read of both files — no such block exists. Everything below this line is
-**PROPOSED**, not observed, and is unverified for contrast (no ratios computed — a real contrast pass
-is needed before shipping any of it).
+**The site itself (landing page + `style.css`) still has no dark theme, `prefers-color-scheme`, or
+`data-theme` handling** — that part of the original observation stands, unchanged. But the "PROPOSED,
+unverified" sketch that used to fill out this section is now **superseded by a real, shipped dark
+theme**: `parachute-app` v0.5.0 shipped **"forest night"** — a net-new dark design (the prototype this
+palette comes from never had a dark mode to fall back on), not a proposal. The table below replaces the
+old sketch with the app's actual shipped values, read from `src/styles/index.css`'s private `--_d-*`
+dark-token block; ratios are the app's own recomputed figures, not estimates.
 
-The one piece of real prior art in the ecosystem is notes-ui's shipped dark theme (forest-green accent,
-not coral) — its *technique* (a private `--_d-*` token block behind both `@media
-(prefers-color-scheme:dark)` and an explicit `[data-theme="dark"]` override, warm near-black ground
-rather than cold slate, and inverting on-accent text to dark ink when the accent lightens) is worth
-copying even though its hue isn't ours. Proposed coral-brand dark equivalents, loosely following that
-shape:
+The technique (private `--_d-*` tokens behind both `@media (prefers-color-scheme:dark)` and an explicit
+`[data-theme="dark"]` override, so both gates share one source of truth) is unchanged from the prior
+notes-ui lineage — see brand-tokens §5 for that history. What's new in the hybrid pass is the palette
+itself: warm near-black gives way to a **green-cast** near-black, and the coral accent lightens for the
+dark ground exactly as the old proposal predicted, with contrast now measured rather than guessed.
 
-| Token | Proposed hex | Derived from |
-|---|---|---|
-| `--pc-bg-dark` (PROPOSED) | `~#1c1815` | warm near-black, nudged off notes-ui's `#1a1917` toward the coral/warm family |
-| `--pc-card-dark` (PROPOSED) | `~#252019` | one step up from bg, mirrors notes-ui's bg→card delta |
-| `--pc-ink-dark` (PROPOSED) | `~#f0ebe1` | warm off-white, mirrors notes-ui's `#e8e5de` |
-| `--pc-ink-soft-dark` (PROPOSED) | `~#a89f8f` | |
-| `--pc-line-dark` (PROPOSED) | `~#3a332a` | |
-| `--pc-coral-dark` (PROPOSED) | `~#ec7a5c` | lightened/desaturated-up coral so it holds contrast on dark ground, same move notes-ui made (`#4a7c59`→`#7ab087`) |
+| Token | Hex (shipped, app v0.5.0) | Was (this doc's prior PROPOSED sketch) | Notes |
+|---|---|---|---|
+| `--pc-bg-dark` | **`#161d18`** | `~#1c1815` (proposed) | forest-night ground, app `--_d-bg` |
+| `--pc-bg-soft-dark` | **`#1c241d`** | *(not previously proposed)* | recessed dark surface, app `--_d-bg-soft` |
+| `--pc-card-dark` | **`#1e271f`** | `~#252019` (proposed) | app `--_d-card` |
+| `--pc-ink-dark` | **`#e7ece5`** | `~#f0ebe1` (proposed) | app `--_d-fg` |
+| `--pc-ink-soft-dark` | **`#a7b3a7`** | `~#a89f8f` (proposed) | app `--_d-fg-muted` |
+| `--pc-ink-dim-dark` | **`#71806f`** | *(not previously proposed)* | tertiary/placeholder, app `--_d-fg-dim` — mirrors the `--pc-ink-dim` promotion above |
+| `--pc-line-dark` | **`#303b31`** | `~#3a332a` (proposed) | app `--_d-border` |
+| `--pc-line-light-dark` | **`#283229`** | *(not previously proposed)* | app `--_d-border-light` |
+| `--pc-coral-dark` | **`#ec7a5c`** | `~#ec7a5c` (proposed — landed exactly) | app `--_d-accent` — 6.14:1 on `--pc-bg-dark`, 5.50:1 on `--pc-card-dark` |
+| `--pc-coral-hover-dark` | **`#f08d70`** | *(not previously proposed)* | app `--_d-accent-hover` — 7.15:1 on `--pc-bg-dark` |
+| `--pc-sage-dark` | **`#8fb096`** | *(net-new; `--pc-sage` itself is new — see Accents)* | app `--_d-sage` — 7.21:1 on `--pc-bg-dark`, 6.46:1 on `--pc-card-dark` |
+| `--pc-grass-soft-dark` | **`#1e3527`** | *(not previously proposed)* | app `--_d-grass-soft` |
 
-Treat this whole block as a starting sketch for a design pass, not a spec.
+**The WCAG-AA on-accent flip, now real:** because the dark accent *lightens* (unlike the light-mode
+accent, which is a saturated button hue), white-on-accent text would fail contrast in dark mode. The app
+resolves this by flipping `--color-on-accent` to a **dark warm ink** (`#2a1710`, 6.11:1 on the dark
+accent) whenever dark mode is active, rather than keeping white — the same on-accent-flip technique the
+prior notes-ui dark theme used, now carrying the coral hue instead of forest-green.
+
+Treat this table as the shipped reference for whenever the *site* adopts a dark theme — the app side of
+this is no longer a sketch.
 
 ---
 
@@ -125,11 +168,38 @@ Treat this whole block as a starting sketch for a design pass, not a spec.
 | `--font-body` | `-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif` | body copy | landing:65, style.css:48 |
 | `--mono` | `ui-monospace,"SF Mono","JetBrains Mono",Menlo,Monaco,"Cascadia Code",monospace` | inner-pages-only micro-labels | style.css:70 — **not present in landing at all** |
 
-All three brand fonts are deliberately **system stacks — no webfont download**. This is explicit,
+All three brand fonts were deliberately **system stacks — no webfont download**. This was explicit,
 stated intent: landing-preview.html:27-28 ("Fonts are system stacks... no webfont download") and
-style.css:12 ("Fonts are system stacks... Google Fonts retired"). This is the single most important
-fact for the delta-notes below: **both downstream apps still load Google Fonts**, which directly
-contradicts a decision the brand pilot already made for itself.
+style.css:12 ("Fonts are system stacks... Google Fonts retired"). **The site itself still holds this
+line** — landing-preview.html and style.css are unchanged, still system-stack-only.
+
+**SHIPPED (app v0.5.0) — the app has since moved off system stacks, on purpose, letter and all:**
+`parachute-app` now ships **Fraunces (display) + Figtree (body/chrome)**, self-hosted via
+`@fontsource-variable` (OFL-licensed, woff2 bundled by Vite, precached by the service worker — no
+Google Fonts, no CDN request, ever; `font-display: swap` with the tuned system stacks above kept as
+fallbacks so first paint is never blocked on the font download). Read literally, this breaks the old
+"no webfont download" sentence — but it keeps the principle that sentence was protecting (no
+third-party/CDN font request, CSP-safe, works offline): self-hosted is not the same risk as
+Google-Fonts-hosted. The app's actual stacks:
+
+| Token (app) | Stack | Role |
+|---|---|---|
+| `--font-serif` | `"Fraunces Variable", ui-serif, "New York", "Iowan Old Style", Georgia, serif` | display headlines — ships the `opsz` (optical-size) axis **and** the italic file; the optical-size axis IS the display voice, and the italic file is load-bearing for the accent-word device below |
+| `--font-sans` | `"Figtree Variable", -apple-system, system-ui, "Segoe UI", Roboto, sans-serif` | body copy **and** UI chrome — buttons, nav, labels, eyebrows |
+| `--font-round` | alias of `--font-sans` | **retired** as a distinct family — the rounded UI voice folded into Figtree; the var name is kept (zero component churn) but it now just points at the body stack |
+
+Font weight, in the site's own precache-budget terms: Fraunces (opsz + italic) + Figtree (upright), all
+subsets bundled, is **~344 KiB** woff2 (a latin-only subset would run closer to ~165 KiB) — within the
+app's own ~350 KB type budget.
+
+**The one coral italic accent word.** Fraunces's italic file exists specifically to carry a device the
+app uses on hero/arrival copy: exactly one word per headline set in italic coral (`--pc-coral`/
+`--color-accent-light`), the rest of the headline in the regular serif weight/color — "playfulness kept
+contained" (§4) made literal in type rather than decoration. Real italics (not a synthetic
+oblique) are why the italic axis had to ship alongside the upright opsz axis.
+
+The site's own system-stack fonts remain unchanged; adopting Fraunces/Figtree on the site is not part of
+this update.
 
 ### Scale (fluid `clamp()` literals — there is no discrete `--text-*` scale on the brand side)
 
@@ -170,15 +240,18 @@ cloud console) is **pill buttons at `999px`/`9999px`**. Everything else diverges
 |---|---|---|
 | Landing (`landing-preview.html`) | **18–26px** — `.vg-static`/`.vg-vault` 24, `.vg-recall` 20, `.price` 22, `.join-card` 26, `.moment`/`.vcard` 18 | landing:186,211,271,320,339,294,301 |
 | Inner pages (`style.css`) | **8–13px** — `.product`/`.blog-post-card`/`.cta` 12, `.code-inline` 8, `.nav-menu-panel` 13, `.ladder-rail rung` 11 | style.css:548,986,628,700,294,1516 |
-| notes-ui | **3–14px** systematic ramp (`--radius-xs` 3 → `--radius-xl` 14), cards use `lg` = 10px | agent report |
+| **`parachute-app` (SHIPPED, v0.5.0)** | **24px cards/modals** (`--radius-2xl`, net-new) — `.card`, `.dialog-panel`; `--radius-lg` 10→12px, `--radius-xl` 14→16px also stepped up; `.btn`/`.input`/`.select` moved to full pills (`--radius-full`, 9999px), `.textarea` to `--radius-xl` | `src/styles/index.css` `--radius-*` block |
+| notes-ui (pre-hybrid baseline `parachute-app` was seeded from) | **3–14px** systematic ramp (`--radius-xs` 3 → `--radius-xl` 14), cards use `lg` = 10px | agent report, 2026-07-09 audit |
 | Cloud console | **7–14px** one-off literals, `.card` 14, inputs/buttons 9 | agent report |
 
-**This is the biggest shape gap in the whole audit.** The landing page's own cards (18–26px) are
-noticeably softer/rounder than its sibling `style.css` (8–13px) — and both downstream apps cluster in
-that same tighter 6–14px "boxy-professional" range, not the homepage's generous softness. If the
-big-radius soft card is meant to be *the* brand card language, nothing downstream matches it yet,
-including the brand's own inner pages. If it's meant to stay homepage-only spectacle, that should be
-said explicitly so nobody chases 24px radii into a settings page. Flagging the decision, not making it.
+**The biggest shape gap in the original audit is now partly resolved, one surface at a time.**
+`parachute-app` (seeded from notes-ui) has moved its card radius from 10px all the way to **24px** —
+landing directly closer to the homepage's generous 18–26px softness than any downstream surface managed
+before. The site's own inner pages (`style.css`, 8–13px) and the cloud console (7–14px) are unchanged and
+still sit in the tighter "boxy-professional" range — so the gap between the *site's* two faces (soft
+landing vs. boxy inner pages) is exactly as unresolved as it was on 2026-07-09. Only the app side has
+moved. If 24px/pill is meant to become *the* brand card language, the site's own `style.css` and the
+cloud console are the surfaces still left to convert.
 
 ### Borders / hairlines
 
@@ -195,11 +268,32 @@ warm, ink-tinted, ported **byte-identical** from landing:66-67 into style.css:43
 doesn't apply them consistently: several inner-page components fall back to hardcoded **neutral**
 `rgba(0,0,0,…)` shadows instead — `.product` (style.css:551), `.blog-post-card` (style.css:991),
 `.sow-meta` (style.css:831), `.nav-menu-panel` (style.css:295) — which read flatter/colder than the
-landing's warm glow. notes-ui independently converged on the same idea (warm ink-mixed shadows via
-`color-mix(in srgb, #2c2a26 N%, transparent)` — and `#2c2a26` and `rgba(60,45,30,…)` are close cousins
-in the same warm-brown family), which is an encouraging signal even though it wasn't coordinated. Cloud
-console has **zero** `box-shadow` declarations anywhere — it conveys elevation purely through borders
-and flat background swaps, which is the flattest-reading surface in the whole set.
+landing's warm glow. Cloud console has **zero** `box-shadow` declarations anywhere — it conveys
+elevation purely through borders and flat background swaps, which is the flattest-reading surface in the
+whole set. (All of the above is still true and unchanged — it describes the site + cloud console, not
+the app.)
+
+**SHIPPED (app v0.5.0) — the tint moves from warm-brown to sage-green, and the geometry changes too.**
+The old notes-ui shadows were warm ink-mixed (`color-mix(in srgb, #2c2a26 N%, transparent)` —
+`#2c2a26` and the site's `rgba(60,45,30,…)` were close cousins in the same warm-brown family, an
+encouraging if uncoordinated convergence). The hybrid pass retunes that tint to **forest** for the
+elevation ramp, and gives the resting/floating pair (`-soft`/`-lift`) a genuinely different geometry —
+sage-tinted, negative-spread, in `oklch` rather than `rgba`:
+
+| Token | Shipped value (app v0.5.0) | Notes |
+|---|---|---|
+| `--shadow-sm` | `0 1px 2px color-mix(in srgb, #24422e 6%, transparent)` | app `--shadow-sm` — same percentages as before, tint moved warm-brown→forest |
+| `--shadow-md` | `0 2px 8px color-mix(in srgb, #24422e 8%, transparent), 0 1px 2px color-mix(in srgb, #24422e 5%, transparent)` | app `--shadow-md` |
+| `--shadow-lg` | `0 8px 24px color-mix(in srgb, #24422e 12%, transparent), 0 2px 6px color-mix(in srgb, #24422e 6%, transparent)` | app `--shadow-lg` |
+| `--shadow-soft` | `0 12px 40px -18px oklch(40% 0.05 152 / 0.22)` | app `--shadow-soft` — the prototype's negative-spread "settling gently onto paper" resting-card shadow; net-new geometry, not a retint of the old `--shadow-soft` |
+| `--shadow-lift` | `0 24px 60px -30px oklch(40% 0.05 152 / 0.28)` | app `--shadow-lift` — floating sheet / FAB / popover / command-palette elevation |
+
+This is a real divergence worth flagging, not smoothing over: the site's own `--shadow-soft`/`-lift`
+(warm-brown `rgba`, byte-identical since landing:66-67) and the app's `--shadow-soft`/`-lift` (sage-green
+`oklch`, negative-spread) now share names but not values or even color models. If this file becomes the
+single source of truth, that collision needs a resolution (rename one, or accept that "soft/lift" means
+two different things depending on surface) — flagging the decision, not making it, same as the radii
+gap above.
 
 ### Gradient / wash motifs
 
@@ -218,6 +312,12 @@ and flat background swaps, which is the flattest-reading surface in the whole se
   (coral) / `.pc-gore` (coral-btn) / `.pc-string` (ink-soft) / `.pc-load` (sun) / `.pc-load-ring`
   (sun-ink) — shared between landing and every `base.njk` page (nav + footer). Explicitly NOT Apple's
   copyrighted glyph and NOT the old network-graph logo (in-source comment, landing:29-30).
+- **SHIPPED (app v0.5.0) — canvas wash retinted, coral → grass/sage.** `parachute-app`'s own top-of-page
+  wash (`--canvas-wash`, consumed by `.app-canvas`) moved from a coral-tinted glow to a grass/sage-tinted
+  one — "the blush wash → misty sage morning" move, at 7% in light mode / 5% in dark. This is a
+  different wash from the site's blue "sky-wash" gradient above (different hue family, different
+  technique — a `color-mix` radial vs. a fixed linear gradient) — noted here for completeness, not as a
+  claim that the two are related.
 
 ### Spacing rhythm
 
@@ -245,6 +345,16 @@ than leaking into UI chrome, which stays calm and legible.
 ---
 
 ## 5. Delta notes per app
+
+> **2026-07-11 update:** the section below is left as the historical 2026-07-09 audit record — it's
+> what prompted the swaps, not a live status board. For the record: `parachute-app` (seeded from
+> notes-ui — `git log` shows "Scaffold parachute-app — the super-surface (seed from notes-ui 0.2.1)")
+> has since shipped several of the "highest-impact swaps" listed for notes-ui below, most visibly #2
+> (ground warmth — now the full cream/sage grounds, not just a small nudge), #4 (card radius — now 24px,
+> not just 16-20px), and a version of #3 (font sourcing — Fraunces + Figtree, self-hosted, rather than
+> either "keep Instrument Serif" or "adopt the brand's bare system stack"). See the updated §1–§3 above
+> for the shipped values. Swap #1 (accent hue) reads as already-coral in the current app codebase, so it
+> must have shipped in an earlier pass not covered by this doc.
 
 ### notes-ui (`parachute-surface/packages/notes-ui`)
 
@@ -357,3 +467,11 @@ maintaining two copies.
 state, as Phase-4 groundwork of the onboarding-coherence run (see parachute-surface#180). The `--sky`
 naming collision called out in §1 was resolved in `style.css` the same day (the status hue renamed to
 `--status-active`); the OBSERVED line references predate that rename.
+
+**Provenance (2026-07-11 update):** §1–§3's shipped values (grounds, inks, the new `--pc-sage` token,
+dark theme, typography, radii, shadows) were updated to mirror `parachute-app@0.5.0`'s
+`src/styles/index.css` — the "hybrid" pass (`app-w2-1-tokens`, merged app PR #12) — per Aaron's ratified
+decision c ("app + site move together"). This is a documentation-only mirror: no CSS in this repo
+changed. The site's own `landing-preview.html`/`style.css` still carry the pre-hybrid values recorded
+throughout as OBSERVED; bringing the site's actual styles in line with the app is separate, un-started
+work.
