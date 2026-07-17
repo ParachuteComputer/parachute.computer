@@ -35,7 +35,7 @@ Cloud**, each vault card at [cloud.parachute.computer/console](https://cloud.par
 shows that vault's own URL:
 
 ```
-claude mcp add --transport http parachute-<vault> https://u.parachute.computer/vault/<vault>/mcp
+claude mcp add --transport http parachute-<vault> https://my.parachute.computer/vault/<vault>/mcp
 ```
 
 **Self-hosting**, it's the same command pointed at your own hub:
