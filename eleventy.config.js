@@ -13,6 +13,20 @@ module.exports = function (eleventyConfig) {
   // truth, byte-identical, never drifts). /start presents server.sh as the
   // one-liner; digitalocean.sh stays served so circulated links don't break.
   eleventyConfig.addPassthroughCopy({ "install/digitalocean.sh": "install/server.sh" });
+  // Machine-readable site index (llmstxt.org convention). Served verbatim as
+  // text/plain at /llms.txt — no layout, no templating. `.txt` isn't a
+  // templateFormat, so a plain passthrough is all it takes.
+  eleventyConfig.addPassthroughCopy("llms.txt");
+  // The agent-facing install runbook, emitted TWICE from ONE source file:
+  //   • raw markdown at /install.md — the pasteable URL you hand an agent
+  //     (this passthrough copies the file byte-for-byte), and
+  //   • rendered HTML at /install/runbook/ — so a human opening it in a
+  //     browser gets the site's typography rather than a plain-text dump.
+  // 11ty templates the same .md through the normal pipeline; its frontmatter
+  // lives in the sibling install-runbook.11tydata.json so the RAW copy carries
+  // no YAML noise. Passthrough and template processing are independent, so the
+  // two outputs coexist and can never drift — there is only one source.
+  eleventyConfig.addPassthroughCopy({ "install-runbook.md": "install.md" });
   // Favicon + webclip + PWA icons at site root
   eleventyConfig.addPassthroughCopy("*.png");
   eleventyConfig.addPassthroughCopy("site.webmanifest");
