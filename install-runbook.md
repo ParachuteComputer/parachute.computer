@@ -337,15 +337,21 @@ leave the hub.
 These are current, real, and will waste your time if you discover them the hard
 way.
 
-**`parachute install app` fails with a 404.** The super-surface front door,
-`@openparachute/parachute-app`, is not published to npm. The hub's install path
-resolves the short name `app` to that package and runs `bun add -g` against it,
-which 404s. There is no flag that fixes this. Building from source is currently
-the only path — the repo is
-[ParachuteComputer/parachute-app](https://github.com/ParachuteComputer/parachute-app).
-Until it publishes, use [my.parachute.computer](https://my.parachute.computer)
-as the UI: it is a browser app that talks to any vault, so it needs nothing
-installed on the box.
+**`parachute install app` may fail with a 404 — check before you rely on it.**
+The hub resolves the short name `app` to `@openparachute/parachute-app` and runs
+`bun add -g` against it. That package is being published, so verify rather than
+assume:
+
+```sh
+npm view @openparachute/parachute-app version
+```
+
+If that 404s, the package is not on npm yet and `parachute install app` will
+fail — no flag fixes it. Two paths that work either way: build from source
+([ParachuteComputer/parachute-app](https://github.com/ParachuteComputer/parachute-app)),
+or skip installing a UI entirely and use
+[my.parachute.computer](https://my.parachute.computer) — a browser app that
+talks to any vault, so it needs nothing on the box.
 
 **Do not install scribe.** `@openparachute/scribe`, the standalone
 transcription module, was deprecated on 2026-07-24. Its capability is folding
@@ -452,7 +458,7 @@ case "$code" in
   *) echo "vault not reachable (HTTP $code)" >&2; exit 1 ;;
 esac
 
-parachute status
+parachute status || true
 TOKEN="$(parachute auth mint-token --scope "vault:$VAULT_NAME:read" | tail -n1)"
 [ "$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $TOKEN" \
      "$HUB/vault/$VAULT_NAME/api/notes")" = "200" ]
