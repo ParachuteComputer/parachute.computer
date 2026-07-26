@@ -338,12 +338,12 @@ These are current, real, and will waste your time if you discover them the hard
 way.
 
 **`parachute install app` may fail with a 404 — check before you rely on it.**
-The hub resolves the short name `app` to `@openparachute/parachute-app` and runs
+The hub resolves the short name `app` to `@openparachute/app` and runs
 `bun add -g` against it. That package is being published, so verify rather than
 assume:
 
 ```sh
-npm view @openparachute/parachute-app version
+npm view @openparachute/app version
 ```
 
 If that 404s, the package is not on npm yet and `parachute install app` will
