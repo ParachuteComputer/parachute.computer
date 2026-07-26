@@ -1,0 +1,9 @@
+{
+    "layout": "guide.njk",
+    "title": "Install runbook — for AI agents",
+    "tagline": "Point an agent at parachute.computer/install.md and it can stand up the self-hosted stack headlessly, first try. Derived from the CI-proven end-to-end install.",
+    "description": "The agent-facing install runbook for self-hosted Parachute: exact non-interactive commands for hub + vault on a fresh Ubuntu/Debian box or a Mac, with verification steps, known gaps, and troubleshooting. Also served raw at parachute.computer/install.md.",
+    "permalink": "/install/runbook/",
+    "templateEngineOverride": "md",
+    "eleventyExcludeFromCollections": true
+}

@@ -1,0 +1,58 @@
+# Parachute
+
+> Parachute is an open, self-hosted memory that you and any AI can both read and write. A **vault** — a knowledge graph of plain markdown notes — speaks MCP and REST; a **hub** supervises it on a box you own; **surfaces** are custom UIs built over it. You own the box, the data, and the export.
+
+Two doors, one wire contract: run it yourself on your own hardware, or let us
+host it. Both speak the same REST/MCP/OAuth endpoints and the same portable
+markdown, so moving between them is a copy, not a migration.
+
+If you are an AI agent asked to install Parachute on a machine, read the
+install runbook first. It is derived from the CI-proven headless install and it
+is the only path that works without a human at a terminal.
+
+## Install
+
+- [Headless install runbook](https://parachute.computer/install.md): imperative, copy-pasteable, non-interactive install of hub + vault on a fresh Ubuntu/Debian box or a Mac. Includes verification commands, known gaps, and troubleshooting. Same page rendered for humans: https://parachute.computer/install/runbook/
+- [Self-host, for humans](https://parachute.computer/start/): the narrative version — why self-host, where to run it, what the setup wizard asks.
+- [Server one-liner](https://parachute.computer/install/server.sh): the curl-able script the human page recommends for a fresh Ubuntu/Debian box with a public IP. Installs hub + vault + Caddy and gets a real Let's Encrypt certificate. Stops at "open this URL in your browser" — an agent must finish it with `parachute setup-wizard` (see the runbook).
+
+## Guides
+
+- [Getting started](https://parachute.computer/guides/getting-started/): the note that ships inside every fresh vault — the vault-design brief an AI reads to help shape the vault around its owner.
+- [Welcome to your vault](https://parachute.computer/guides/welcome-to-your-vault/): what a vault is and what lives in it.
+- [Capture anything](https://parachute.computer/guides/capture-anything/): how notes get in.
+- [Connect your AI](https://parachute.computer/guides/connect-your-ai/): pointing Claude, ChatGPT, Claude Code, Cursor, or your own agent at a vault over MCP.
+- [Tags and the graph](https://parachute.computer/guides/tags-and-the-graph/): tags are types; how the knowledge graph is shaped.
+- [Yours to keep](https://parachute.computer/guides/yours-to-keep/): export, portability, and leaving.
+
+## Building on it
+
+- [Build a surface](https://parachute.computer/surfaces/): a custom browser UI over a vault, using `@openparachute/surface-client` (OAuth + typed vault API) and `@openparachute/surface-render` (note rendering).
+- [Script your vault](https://parachute.computer/scripting/): driving the vault REST API from bash, Python, or JS.
+- [Multi-user](https://parachute.computer/multi-user/): hosting vaults for other people on one hub.
+- [Modules](https://parachute.computer/modules/): what each module in the ecosystem does.
+
+## Endpoints
+
+Every path below is relative to the hub origin — the address the hub answers
+on, the same URL a person signs in at. It is *not* the vault's own port (1940);
+the vault is reached through the hub.
+
+- MCP: `<hub-origin>/vault/<vault-name>/mcp` — OAuth happens on the first connection. The `/mcp` suffix is required.
+- REST notes API: `<hub-origin>/vault/<vault-name>/api/notes` — `Authorization: Bearer <token>`.
+- Hub health: `<hub-origin>/health` — 200 with a JSON body carrying `"db":"ok"` when healthy.
+- Vault health: `<hub-origin>/vault/<vault-name>/health` — **401 means healthy.** The vault is auth-gated; an unauthenticated probe getting 401 proves it is up and correctly refusing anonymous callers.
+- Default ports on the box: hub `1939`, vault `1940`.
+
+## Hosted
+
+- [Parachute Cloud](https://parachute.computer/pricing/): the hosted door. We run the box, you keep the vault, same wire contract.
+- [my.parachute.computer](https://my.parachute.computer): the hosted Notes app. It runs in the browser and talks to *any* vault — self-hosted or cloud — so it is also the quickest way to look at a vault you just stood up.
+
+## Source
+
+- [github.com/ParachuteComputer](https://github.com/ParachuteComputer): all modules, open source.
+- [parachute-hub](https://github.com/ParachuteComputer/parachute-hub): the hub + the `parachute` CLI (`@openparachute/hub` on npm).
+- [parachute-vault](https://github.com/ParachuteComputer/parachute-vault): the vault — knowledge graph, MCP server, REST API (`@openparachute/vault` on npm).
+- [parachute-surface](https://github.com/ParachuteComputer/parachute-surface): the UI host and the surface SDK.
+- [Blog](https://parachute.computer/blog/): release notes and thinking, in public.
