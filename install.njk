@@ -73,7 +73,7 @@ permalink: /start/
     <section class="section">
         <h2>Pick where it runs</h2>
 
-        <p>Two homes, one stack. An always-on <strong>Linux box</strong> your phone and your AIs can reach around the clock, or your own <strong>Mac</strong> to try it in a minute. Nothing's locked in &mdash; start on the laptop and move to a box whenever you like.</p>
+        <p>Two homes, one stack, <strong>one command</strong>. An always-on <strong>Linux box</strong> your phone and your AIs can reach around the clock, or your own <strong>Mac</strong> to try it in a minute &mdash; the same line sets up either. Nothing's locked in &mdash; start on the laptop and move to a box whenever you like.</p>
 
         <div class="where-grid">
 
@@ -83,10 +83,10 @@ permalink: /start/
                 <p>Any fresh <strong>Ubuntu or Debian</strong> box works the same way: <strong>Hetzner</strong> (x86 or arm64), <strong>EC2</strong>, <strong>DigitalOcean</strong>, or an Ubuntu machine in your closet. Create it, open a root shell, and paste one line:</p>
 
                 <div class="code-inline">
-<code>curl -fsSL https://parachute.computer/install/server.sh | bash</code>
+<code>curl -fsSL https://parachute.computer/install/parachute.sh | bash</code>
                 </div>
 
-                <p>It self-installs hub + vault, fetches a real Let's Encrypt cert via <a href="https://caddyserver.com" target="_blank" rel="noopener">Caddy</a>, and prints your <strong>bootstrap token</strong> and <strong>setup URL</strong> right there. Open the URL, set your username + password in the browser &mdash; you're the owner. No SSH key to wrangle, and <strong>no domain needed</strong>: you get working HTTPS at <code>https://&lt;your-ip&gt;.sslip.io</code> automatically.</p>
+                <p>It self-installs hub + vault + the app, sets up local transcription, fetches a real Let's Encrypt cert via <a href="https://caddyserver.com" target="_blank" rel="noopener">Caddy</a>, and prints your <strong>setup URL</strong> right there. Open the URL, set your username + password in the browser &mdash; you're the owner. No SSH key to wrangle, and <strong>no domain needed</strong>: you get working HTTPS at <code>https://&lt;your-ip&gt;.sslip.io</code> automatically.</p>
 
                 <p class="muted"><strong>Firewall:</strong> open ports <strong>80</strong> and <strong>443</strong> &mdash; a <em>Security Group</em> on EC2, a <em>Cloud Firewall</em> on Hetzner. DigitalOcean droplets and closet boxes need nothing.</p>
 
@@ -108,14 +108,14 @@ permalink: /start/
                     <summary>Use your own domain</summary>
                     <p style="margin-top: 1rem;">First point it at the box &mdash; in your DNS provider add an <strong>A record</strong> for the hostname you want (e.g. <code>vault.example.com</code>) &rarr; your box's public IPv4. Then run it with the domain set:</p>
                     <div class="code-inline">
-<code>PARACHUTE_DOMAIN=vault.example.com curl -fsSL https://parachute.computer/install/server.sh | bash</code>
+<code>PARACHUTE_DOMAIN=vault.example.com curl -fsSL https://parachute.computer/install/parachute.sh | bash</code>
                     </div>
                     <p style="margin-top: 0.75rem;">Caddy fetches a Let's Encrypt cert for it automatically. Already running and want to switch addresses later? On the box, <code>parachute hub set-origin https://vault.example.com</code> rewrites Caddy, fetches a fresh cert, and restarts your modules &mdash; your data and account are untouched. Afterward, re-point your AI / MCP clients at the new URL.</p>
                 </details>
 
                 <details style="margin-top: 0.75rem;">
                     <summary>Prefer unattended / Infrastructure-as-Code?</summary>
-                    <p style="margin-top: 1rem;">Paste the <em>same</em> one-liner into the box's <strong>cloud-init / User Data</strong> at create time, prefixed with a <code>#!/bin/bash</code> line &mdash; it self-installs on first boot, no Console step:</p>
+                    <p style="margin-top: 1rem;">The unattended path still uses the older <code>server.sh</code>, which writes your bootstrap token to a file you can read over SSH &mdash; paste it into the box's <strong>cloud-init / User Data</strong> at create time, prefixed with a <code>#!/bin/bash</code> line, and it self-installs on first boot with no Console step:</p>
                     <div class="code-inline">
 <code>#!/bin/bash<br>
 curl -fsSL https://parachute.computer/install/server.sh | bash</code>
@@ -127,10 +127,10 @@ curl -fsSL https://parachute.computer/install/server.sh | bash</code>
             {# ---- MAC ---- #}
             <div class="where-card">
                 <h3>Your Mac &mdash; try it in a minute</h3>
-                <p>Runs on your own machine under <strong>launchd</strong>, free, in about a minute. The catch: it sleeps when your Mac sleeps, so your phone and your AIs can't reach it while it's closed &mdash; perfect for kicking the tires. You'll need <a href="https://bun.sh" target="_blank" rel="noopener">Bun</a> 1.3 or later, then one command:</p>
+                <p>Runs on your own machine under <strong>launchd</strong>, free, in about a minute. The catch: it sleeps when your Mac sleeps, so your phone and your AIs can't reach it while it's closed &mdash; perfect for kicking the tires. <strong>The same one line</strong> as the Linux box &mdash; it installs <a href="https://bun.sh" target="_blank" rel="noopener">Bun</a> for you if you don't have it:</p>
 
                 <div class="code-inline">
-<code>bun add -g @openparachute/hub &amp;&amp; parachute init</code>
+<code>curl -fsSL https://parachute.computer/install/parachute.sh | bash</code>
                 </div>
 
                 <p><code>parachute init</code> starts your hub, installs your vault, and opens the browser setup wizard. On a laptop the <strong>Expose</strong> step auto-skips &mdash; you're signed in locally. Want it reachable around the clock later? Move to an always-on Linux box &mdash; same stack, nothing's locked in.</p>
@@ -241,7 +241,7 @@ curl -fsSL https://parachute.computer/install/server.sh | bash</code>
 
     <section class="cta">
         <div class="code-inline" style="margin: 1.5rem auto 0.75rem; max-width: 640px; text-align: left;">
-<code>curl -fsSL https://parachute.computer/install/server.sh | bash</code>
+<code>curl -fsSL https://parachute.computer/install/parachute.sh | bash</code>
         </div>
         <p class="cta-secondary" style="margin-bottom: 1.5rem;">One line on a fresh Ubuntu/Debian box &mdash; or <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code> on your Mac to try it first.</p>
         <a href="https://github.com/ParachuteComputer/parachute-vault" class="button" target="_blank" rel="noopener">Parachute Vault on GitHub</a>
