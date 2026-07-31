@@ -229,8 +229,28 @@ if [ -n "$NO_TRANSCRIPTION" ]; then
   info "Set it up later with: parachute-vault transcription install"
 else
   step "Setting up local transcription"
-  info "Downloads a speech model (a few hundred MB) and verifies it end-to-end."
-  if run parachute-vault transcription install --yes; then
+  # Short-circuit when it's already done. `transcription install` re-downloads
+  # the model and re-runs verification unconditionally, which on a re-run costs
+  # several minutes and a few hundred MB to arrive back where it started. This
+  # script's header promises safe re-runs; "safe" should also mean "cheap", and
+  # on a small box the re-verify is the heaviest thing it does.
+  #
+  # Probes the FILESYSTEM rather than parsing `transcription status` output.
+  # Tried the latter first and it didn't match: the readiness line it looks for
+  # only exists in a vault version that isn't released yet, so on every real box
+  # the skip would silently never fire — a no-op that looks like a feature.
+  # Model + engine + ffmpeg on disk IS what "ready" means, and those paths are
+  # stable across versions.
+  TRANSCRIPTION_HOME="${PARACHUTE_HOME:-$HOME/.parachute}/transcription"
+  if [ -z "$DRY_RUN" ] \
+     && command -v ffmpeg >/dev/null 2>&1 \
+     && ls "$TRANSCRIPTION_HOME"/models/*.bin >/dev/null 2>&1 \
+     && { ls "$TRANSCRIPTION_HOME"/bin/*whisper* >/dev/null 2>&1 \
+          || ls "$TRANSCRIPTION_HOME"/bin/*parakeet* >/dev/null 2>&1 \
+          || command -v whisper-cli >/dev/null 2>&1 \
+          || command -v parakeet-cli >/dev/null 2>&1; }; then
+    ok "Transcription already set up — skipping"
+  elif run parachute-vault transcription install --yes; then
     ok "Transcription ready"
   else
     # Never fatal: a working Parachute that can't transcribe is still a working
@@ -295,7 +315,13 @@ if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
     fi
   fi
   if [ -z "$DRY_RUN" ]; then
-    printf '%s {\n\treverse_proxy 127.0.0.1:1939\n}\n' "$DOMAIN" | $SUDO tee /etc/caddy/Caddyfile >/dev/null
+    # Line 1 MUST be this marker. `parachute hub set-origin` matches the prefix
+    # "# Managed by Parachute install" to decide whether the Caddyfile is its
+    # own to rewrite; without it, set-origin reports "No Parachute-managed
+    # Caddyfile", sets the origin in hub_settings, and silently loses the
+    # ability to update the vhost later. Observed on a real box: HTTPS worked,
+    # but the two halves disagreed about who owned the file.
+    printf '# Managed by Parachute install — edits may be overwritten\n%s {\n\treverse_proxy 127.0.0.1:1939\n}\n' "$DOMAIN" | $SUDO tee /etc/caddy/Caddyfile >/dev/null
   else
     info "[dry-run] write /etc/caddy/Caddyfile for ${DOMAIN} → 127.0.0.1:1939"
   fi
