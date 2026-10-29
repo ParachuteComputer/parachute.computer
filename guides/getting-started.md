@@ -22,9 +22,10 @@ shape the vault around how they actually think and work.
 
 A vault is **notes + tags + links** in one graph, reachable over MCP (you, now),
 a REST API (scripts), and any surface (a UI). It ships *nearly blank* — just a
-small welcome web and the `capture` tag the Notes surface uses; no other
-predefined tags or schema. You and the operator design the structure that fits
-*their* life and work. The vault is the engine; the meaning is yours to bring.
+small welcome web, and on some vaults the `capture` inbox tag; no other
+predefined tags or schema. (The Notes app tags new notes `capture` only if the
+person turns on its inbox option, "Tag new notes as an inbox".) You and the
+operator design the structure that fits *their* life and work. The vault is the engine; the meaning is yours to bring.
 
 Core moves you already have as MCP tools:
 - `create-note` / `update-note` / `delete-note` — write notes (single or batch).
