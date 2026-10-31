@@ -8,10 +8,10 @@ description: "A new committed-core module that finds job notes tagged `job` in a
 **Status:** Proposed. Targets v0.7. The Gitcoin Brain prototype (May 2026) and the parachute-agent retirement (2026-05-20) collectively name the audience this module serves; this doc settles its shape.
 
 **Companions:**
-- [`2026-05-18-v06-deploy-architecture.md`](./2026-05-18-v06-deploy-architecture.md) — hub-as-supervisor deploy constraints runner must fit
-- [`2026-04-20-module-architecture.md`](./2026-04-20-module-architecture.md) — module protocol (info / config / services.json / well-known)
-- [`../../parachute-patterns/patterns/trust-gradient-isolation.md`](../../parachute-patterns/patterns/trust-gradient-isolation.md) — the principle that names runner's audience
-- [`../../parachute-agent/DEPRECATED.md`](../../parachute-agent/DEPRECATED.md) — what we learned that informs runner
+- [`2026-05-18-v06-deploy-architecture.md`](/design/2026-05-18-v06-deploy-architecture/) — hub-as-supervisor deploy constraints runner must fit
+- [`2026-04-20-module-architecture.md`](/design/2026-04-20-module-architecture/) — module protocol (info / config / services.json / well-known)
+- [`../../parachute-patterns/patterns/trust-gradient-isolation.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/trust-gradient-isolation.md) — the principle that names runner's audience
+- `parachute-agent/DEPRECATED.md` (never published) — what we learned that informs runner
 - Aaron's private design notes — `mirrormirror/gitcoin_brain_design/for_parachute_round_4.md` — the seed observation, vault-as-job-substrate exploration
 
 ## The decision
@@ -204,7 +204,7 @@ This is load-bearing for two reasons:
 }
 ```
 
-(Per the [canonical-ports pattern](../../parachute-patterns/patterns/canonical-ports.md), runner will claim the next unassigned slot in the reserved 1939–1949 Parachute range at ship time — currently 1945 is unassigned. The formal reservation lands in a PR to `parachute-hub/src/service-spec.ts` (and the canonical-ports table) alongside the runner module ship, not in this design doc. For reference, the current table: hub 1939, vault 1940, channel 1941, notes 1942, scribe 1943, agent 1944, with 1945–1949 unassigned.)
+(Per the [canonical-ports pattern](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/canonical-ports.md), runner will claim the next unassigned slot in the reserved 1939–1949 Parachute range at ship time — currently 1945 is unassigned. The formal reservation lands in a PR to `parachute-hub/src/service-spec.ts` (and the canonical-ports table) alongside the runner module ship, not in this design doc. For reference, the current table: hub 1939, vault 1940, channel 1941, notes 1942, scribe 1943, agent 1944, with 1945–1949 unassigned.)
 
 **HTTP surface (small, debug-oriented):**
 
@@ -256,7 +256,7 @@ The bearer the runner holds (`vault_token` in its config) has `vault:<name>:writ
 - **Bearer storage.** Stored encrypted on disk at `$PARACHUTE_HOME/runner/secrets.db`, AES-GCM with master key at `$PARACHUTE_HOME/runner/master.key` (chmod 0600), same pattern parachute-agent uses for credentials. The encrypted form never appears in logs, never traverses the HTTP admin surface, never lands in any error message. (Runner's `.parachute/config` GET redacts it.)
 - **Path-traversal guards on output writes.** A malicious `output_path: "../../../../etc/passwd"` is bounded by the vault REST API's own path normalization; runner doesn't write files outside the vault directly. If the vault accepts the path, the vault accepts the consequences. Runner doesn't try to be a second line of defense — it relies on the vault's existing path discipline. (vault#308 portable-md path-traversal guards are the load-bearing layer here.)
 - **No claude-spawned scope escalation.** Runner passes `--allowedTools` to claude verbatim from the job's frontmatter, never widens it. The bearer scope is the upper bound; `--allowedTools` is a further restriction the operator imposes per-job.
-- **Subprocess environment scrubbing.** Per [`trust-gradient-isolation.md`](../../parachute-patterns/patterns/trust-gradient-isolation.md) decision 3, runner spawns `claude -p` with a scrubbed env — only the vars claude needs to run (PATH restricted to its expected location, HOME, plus any claude-cli-specific vars), not the runner's full process env. The runner's own bearer + master key never enter the child's env. (If claude-cli grows its own env-scrubbing surface upstream, runner delegates to that; until then, scrubbing happens at the `Bun.spawn` boundary.)
+- **Subprocess environment scrubbing.** Per [`trust-gradient-isolation.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/trust-gradient-isolation.md) decision 3, runner spawns `claude -p` with a scrubbed env — only the vars claude needs to run (PATH restricted to its expected location, HOME, plus any claude-cli-specific vars), not the runner's full process env. The runner's own bearer + master key never enter the child's env. (If claude-cli grows its own env-scrubbing surface upstream, runner delegates to that; until then, scrubbing happens at the `Bun.spawn` boundary.)
 
 **What runner explicitly does NOT do:**
 

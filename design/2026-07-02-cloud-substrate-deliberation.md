@@ -1,6 +1,6 @@
 # Cloud substrate deliberation — thin-around-hub vs. Cloudflare-native
 
-*Design doc — 2026-07-02. Status: **RECOMMENDATION for Aaron**. Addendum to [`2026-07-01-parachute-cloud-v1.md`](./2026-07-01-parachute-cloud-v1.md). Method: two adversarial steelmen (VPS, Cloudflare) + a neutral workload analyst who measured the real system; every load-bearing fact below was verified against code, a live box, or vendor docs dated July 2026.*
+*Design doc — 2026-07-02. Status: **RECOMMENDATION for Aaron**. Addendum to [`2026-07-01-parachute-cloud-v1.md`](/design/2026-07-01-parachute-cloud-v1/). Method: two adversarial steelmen (VPS, Cloudflare) + a neutral workload analyst who measured the real system; every load-bearing fact below was verified against code, a live box, or vendor docs dated July 2026.*
 
 Aaron's ask: *"think deeply about whether we should just be doing this thin wrapper around hub, or whether cloud should be its own thing on more easily scalable architecture such as Cloudflare — better to take time upfront to nail this than cut corners."*
 

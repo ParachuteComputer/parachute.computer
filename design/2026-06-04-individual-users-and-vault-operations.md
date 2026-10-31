@@ -8,11 +8,11 @@ description: "Make Parachute work for individual (non-admin) users on a shared s
 **Status:** Design proposal — informs the hub + vault code PR chain that follows. No code ships with this PR. Companion to the multi-user arc (hub#252) and the git-projection arc.
 
 **Companions:**
-- [`2026-05-20-multi-user-phase-1.md`](./2026-05-20-multi-user-phase-1.md) — the multi-user foundation (admin-creates-user, force-change-password, per-user vault assignment). This doc is the Phase 2 continuation: invite links, self-serve config, owner-vs-shared roles, usage — all the things that doc explicitly punted.
-- [`2026-05-20-vault-as-git-projection.md`](./2026-05-20-vault-as-git-projection.md) — the mirror/backup system (presets, field mapping, "no mirror until enabled" default this doc changes).
-- [`2026-04-20-hub-as-portal-oauth-and-service-catalog.md`](./2026-04-20-hub-as-portal-oauth-and-service-catalog.md) — hub-as-issuer OAuth (the substrate every scope claim rides on).
-- [`2026-05-18-v06-deploy-architecture.md`](./2026-05-18-v06-deploy-architecture.md) — single-container hosted deploy (the disk-posture question for `default_mirror` on cloud).
-- [`2026-06-01-hub-as-supervisor-unification.md`](./2026-06-01-hub-as-supervisor-unification.md) — hub-as-supervisor (where module reachability mediation would live if we decide to mediate).
+- [`2026-05-20-multi-user-phase-1.md`](/design/2026-05-20-multi-user-phase-1/) — the multi-user foundation (admin-creates-user, force-change-password, per-user vault assignment). This doc is the Phase 2 continuation: invite links, self-serve config, owner-vs-shared roles, usage — all the things that doc explicitly punted.
+- [`2026-05-20-vault-as-git-projection.md`](/design/2026-05-20-vault-as-git-projection/) — the mirror/backup system (presets, field mapping, "no mirror until enabled" default this doc changes).
+- [`2026-04-20-hub-as-portal-oauth-and-service-catalog.md`](/design/2026-04-20-hub-as-portal-oauth-and-service-catalog/) — hub-as-issuer OAuth (the substrate every scope claim rides on).
+- [`2026-05-18-v06-deploy-architecture.md`](/design/2026-05-18-v06-deploy-architecture/) — single-container hosted deploy (the disk-posture question for `default_mirror` on cloud).
+- [`2026-06-01-hub-as-supervisor-unification.md`](/design/2026-06-01-hub-as-supervisor-unification/) — hub-as-supervisor (where module reachability mediation would live if we decide to mediate).
 
 > **Grounding note.** This doc is written against the real source at `main` across `parachute-hub`, `parachute-vault`, and `parachute-scribe`. Every file:line below was read by a 7-area research fan-out (account-surface, git-mirror-system, vault-creation-flow, user-auth-model, invites-onboarding, monitoring-usage, security-surface), not assumed. Recommendations Uni makes that need an Aaron call are tagged **Recommendation (Uni) — confirm**; the genuine product decisions are consolidated in §11.
 

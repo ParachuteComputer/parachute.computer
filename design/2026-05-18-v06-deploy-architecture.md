@@ -5,12 +5,12 @@ description: "v0.6 self-host on Render runs one container; hub supervises vault/
 # v0.6 deploy architecture — single Render container, hub-as-supervisor
 
 **Date:** 2026-05-18
-**Status:** Locked in. Supersedes the multi-container exploration in [`2026-04-20-cloud-offering-sketch.md`](./2026-04-20-cloud-offering-sketch.md) for the **self-host** path; that sketch remains the north star for a future Parachute-operated hosted offering.
+**Status:** Locked in. Supersedes the multi-container exploration in [`2026-04-20-cloud-offering-sketch.md`](/design/2026-04-20-cloud-offering-sketch/) for the **self-host** path; that sketch remains the north star for a future Parachute-operated hosted offering.
 
 **Companions:**
-- [`2026-04-20-module-architecture.md`](./2026-04-20-module-architecture.md) — module protocol (info / config / services.json / well-known)
-- [`2026-04-20-hub-as-portal-oauth-and-service-catalog.md`](./2026-04-20-hub-as-portal-oauth-and-service-catalog.md) — OAuth architecture with hub-as-issuer
-- [`2026-04-20-cloud-offering-sketch.md`](./2026-04-20-cloud-offering-sketch.md) — multi-tenant cloud sketch (long-horizon, separate axis from v0.6 self-host)
+- [`2026-04-20-module-architecture.md`](/design/2026-04-20-module-architecture/) — module protocol (info / config / services.json / well-known)
+- [`2026-04-20-hub-as-portal-oauth-and-service-catalog.md`](/design/2026-04-20-hub-as-portal-oauth-and-service-catalog/) — OAuth architecture with hub-as-issuer
+- [`2026-04-20-cloud-offering-sketch.md`](/design/2026-04-20-cloud-offering-sketch/) — multi-tenant cloud sketch (long-horizon, separate axis from v0.6 self-host)
 
 ## The decision
 
@@ -111,7 +111,7 @@ Phase 2 (post-v0.6 polish, not gating ship):
 
 Phase 3 (later):
 
-- Multi-tenant hosted offering operated by Parachute — see [`2026-04-20-cloud-offering-sketch.md`](./2026-04-20-cloud-offering-sketch.md). Depends on multi-user UX (hub#252) and is a separate substantive build.
+- Multi-tenant hosted offering operated by Parachute — see [`2026-04-20-cloud-offering-sketch.md`](/design/2026-04-20-cloud-offering-sketch/). Depends on multi-user UX (hub#252) and is a separate substantive build.
 
 ## What this changes about earlier docs
 

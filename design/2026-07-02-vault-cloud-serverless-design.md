@@ -1,6 +1,6 @@
 # Vault Cloud — the serverless per-tenant design
 
-*Design doc — 2026-07-02. Status: **DEEP DESIGN** (per `Decisions/2026-07-02-cloud-do-per-vault`: serverless per-tenant is the direction; Cloudflare is the default, not an attachment; bounded runtime divergence accepted; maximize shared core + shared wire contract). Author: uni/session (with Aaron). Grounded in three commissioned inventories run against the actual code and July-2026 vendor docs: the vault-core portability audit, the wire-contract map, and the substrate survey. Supersedes nothing — this is the "how it gets created" companion to [`2026-07-01-parachute-cloud-v1.md`](./2026-07-01-parachute-cloud-v1.md) and the [substrate deliberation](./2026-07-02-cloud-substrate-deliberation.md).*
+*Design doc — 2026-07-02. Status: **DEEP DESIGN** (per `Decisions/2026-07-02-cloud-do-per-vault`: serverless per-tenant is the direction; Cloudflare is the default, not an attachment; bounded runtime divergence accepted; maximize shared core + shared wire contract). Author: uni/session (with Aaron). Grounded in three commissioned inventories run against the actual code and July-2026 vendor docs: the vault-core portability audit, the wire-contract map, and the substrate survey. Supersedes nothing — this is the "how it gets created" companion to [`2026-07-01-parachute-cloud-v1.md`](/design/2026-07-01-parachute-cloud-v1/) and the [substrate deliberation](/design/2026-07-02-cloud-substrate-deliberation/).*
 
 ---
 

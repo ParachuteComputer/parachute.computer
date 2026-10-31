@@ -5,10 +5,10 @@ description: "Exploration of the radical alternative to A/B: git IS the canonica
 # Vault as git-canonical — a thought experiment (Architecture C)
 
 **Date:** 2026-05-20
-**Status:** Thought experiment, **not a commitment.** Companion to [`2026-05-20-vault-as-git-projection.md`](./2026-05-20-vault-as-git-projection.md). That doc recommends shipping Architecture A in v0.7; this one explores what C — the radical alternative — would actually look like if we ever chose to build it. Read both if you're weighing the trade-off between them.
+**Status:** Thought experiment, **not a commitment.** Companion to [`2026-05-20-vault-as-git-projection.md`](/design/2026-05-20-vault-as-git-projection/). That doc recommends shipping Architecture A in v0.7; this one explores what C — the radical alternative — would actually look like if we ever chose to build it. Read both if you're weighing the trade-off between them.
 
 **Companions:**
-- [`2026-05-20-vault-as-git-projection.md`](./2026-05-20-vault-as-git-projection.md) — the A/B/C framing; A is the v0.7 ship.
+- [`2026-05-20-vault-as-git-projection.md`](/design/2026-05-20-vault-as-git-projection/) — the A/B/C framing; A is the v0.7 ship.
 - [`parachute-patterns/patterns/trust-gradient-isolation.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/trust-gradient-isolation.md) — the "name the audience, ship the smallest viable primitive" pattern this exploration honours.
 - [`parachute-patterns/cookbook/vault-portable-export.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/cookbook/vault-portable-export.md) — the lossless export format that would become canonical under C.
 
@@ -221,7 +221,7 @@ Three audiences C is the wrong shape for, even if the constraints listed in §3 
 
 **High-write-rate workloads.** Gitcoin Brain at scale: every job run becomes a git commit. Git scales to thousands of commits per day fine, but vault writes are async + many — burst-paste-imports, agents running in parallel, MCP-driven note updates. Either git operations become serialized (vault slows down behind the git lock), or commits batch (the audit trail gets lossy — multiple writes hidden inside one commit). Both are worse than A's debounce-and-export model, which doesn't have the per-write git overhead.
 
-**Multi-user single-vault.** Two users editing the same vault simultaneously will hit git conflicts often. The Phase 1 multi-user design ([`2026-05-20-multi-user-phase-1.md`](./2026-05-20-multi-user-phase-1.md)) pins each user to a separate vault, which dodges this entirely — but if multi-user-single-vault ever becomes a goal (collaborative team vault, shared knowledge graph), C makes it actively harder than A/B do.
+**Multi-user single-vault.** Two users editing the same vault simultaneously will hit git conflicts often. The Phase 1 multi-user design ([`2026-05-20-multi-user-phase-1.md`](/design/2026-05-20-multi-user-phase-1/)) pins each user to a separate vault, which dodges this entirely — but if multi-user-single-vault ever becomes a goal (collaborative team vault, shared knowledge graph), C makes it actively harder than A/B do.
 
 **Hosted Cloud at scale.** Per-tenant git repos work but cost operational overhead per tenant (backup, auth, quota, garbage collection). Centralized SQLite is cheaper to operate at scale. C is plausibly the right shape for Cloud Tier 1 ("bring your own git remote, we run the vault layer over it") but actively wrong for Tier 2 ("hosted vault, we manage everything, you get an API key"). Tier 2 wants SQLite or Postgres, not per-tenant git.
 
@@ -261,10 +261,10 @@ The questions that would need real answers BEFORE committing to C. Each one is a
 
 ## 9. Cross-references
 
-- [`2026-05-20-vault-as-git-projection.md`](./2026-05-20-vault-as-git-projection.md) — the companion design. If you're choosing between A and C, read both.
+- [`2026-05-20-vault-as-git-projection.md`](/design/2026-05-20-vault-as-git-projection/) — the companion design. If you're choosing between A and C, read both.
 - [`parachute-patterns/patterns/trust-gradient-isolation.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/trust-gradient-isolation.md) — the precedent for "name the audience, ship the smallest viable primitive." This thought experiment names C's audience (git-native power-users + Obsidian-first editors) and explicitly chooses not to ship for them yet because A's audience is wider and ready now.
 - [`parachute-patterns/cookbook/vault-portable-export.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/cookbook/vault-portable-export.md) — the format that would become canonical under C. The lossless round-trip property makes C's "git is the truth" claim plausible; without it, C wouldn't be feasible at all.
-- [`2026-05-20-multi-user-phase-1.md`](./2026-05-20-multi-user-phase-1.md) — the multi-user design that pins users to separate vaults. Important to read alongside C because C amplifies multi-user-single-vault pain (see §5).
+- [`2026-05-20-multi-user-phase-1.md`](/design/2026-05-20-multi-user-phase-1/) — the multi-user design that pins users to separate vaults. Important to read alongside C because C amplifies multi-user-single-vault pain (see §5).
 
 ## Closing — what this doc is for
 
