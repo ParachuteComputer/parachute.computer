@@ -1,11 +1,11 @@
 ---
 layout: base.njk
-title: "Pricing — the four cloud plans"
-description: "Four Parachute Cloud plans, from $1/mo. Try any one free for 30 days, no card. Every plan is a full vault you can export and leave anytime — or self-host free forever."
+title: "Pricing — free during the open beta"
+description: "Parachute Cloud is in open beta, and it's free for now. Before any paid plan, we'll tell you well ahead, and everyone already here gets notice and a fair path. Or self-host free forever."
 permalink: /pricing/
 ---
 <style>
-/* Pricing — four cloud plan cards + the free-trial / self-host framing.
+/* Pricing — the open-beta card + the self-host framing.
    Reuses the shared tokens/classes from style.css; only the plan grid is
    page-scoped here (matches the modules/install/since-launch pattern). */
 
@@ -146,51 +146,19 @@ permalink: /pricing/
         <p class="tagline fade-up fade-up-3">Simple plans. Your data either way.</p>
     </section>
 
-    {# ============ THE TRIAL — the hero of the pricing story ============ #}
+    {# ============ THE OPEN BETA — one money story, every page ============ #}
     <div class="trial-banner fade-up fade-up-3">
-        <strong>Try any plan free for 30 days &mdash; no card.</strong>
-        <p>During the trial every plan is a full vault &mdash; attachments, voice, nightly snapshots, and your own AI. Try it all, then keep the tier that fits.</p>
+        <strong>Free during the open beta.</strong>
+        <p>Parachute is in open beta, and it&rsquo;s free for now. Before any paid plan, we&rsquo;ll tell you well ahead, and everyone already here gets notice and a fair path.</p>
     </div>
 
-    {# ============ THE FOUR PLANS ============ #}
-    <div class="plan-grid fade-up fade-up-4">
+    {# ============ WHAT THE BETA INCLUDES ============ #}
+    <div class="plan-grid fade-up fade-up-4" style="grid-template-columns:minmax(0,22rem);justify-content:center">
 
         <div class="plan">
-            <p class="plan-name">Entry</p>
-            <p class="plan-price">$1<small>&nbsp;/mo</small></p>
-            <p class="plan-billing">Billed $3/quarter or $10/year &mdash; no monthly option.</p>
-            <ul class="plan-features">
-                <li><span class="pf-label">Notes storage</span><span class="pf-val">100 MB</span></li>
-                <li><span class="pf-label">Attachments</span><span class="pf-val none">Notes only</span></li>
-                <li><span class="pf-label">Voice transcription</span><span class="pf-val none">&mdash;</span></li>
-                <li><span class="pf-label">Vaults</span><span class="pf-val">1</span></li>
-            </ul>
-            <div class="plan-cta">
-                <a class="btn btn-primary" href="https://my.parachute.computer/">Start free &rarr;</a>
-                <p class="plan-trial">30-day free trial, no card</p>
-            </div>
-        </div>
-
-        <div class="plan">
-            <p class="plan-name">Standard</p>
-            <p class="plan-price">$3<small>&nbsp;/mo</small></p>
-            <p class="plan-billing">Monthly, or $7/quarter, or $25/year.</p>
-            <ul class="plan-features">
-                <li><span class="pf-label">Notes storage</span><span class="pf-val">250 MB</span></li>
-                <li><span class="pf-label">Attachments</span><span class="pf-val">2 GB</span></li>
-                <li><span class="pf-label">Voice transcription</span><span class="pf-val">60 min/mo</span></li>
-                <li><span class="pf-label">Vaults</span><span class="pf-val">3</span></li>
-            </ul>
-            <div class="plan-cta">
-                <a class="btn btn-primary" href="https://my.parachute.computer/">Start free &rarr;</a>
-                <p class="plan-trial">30-day free trial, no card</p>
-            </div>
-        </div>
-
-        <div class="plan">
-            <p class="plan-name">Plus</p>
-            <p class="plan-price">$5<small>&nbsp;/mo</small></p>
-            <p class="plan-billing">Monthly, or $12/quarter, or $40/year.</p>
+            <p class="plan-name">Open beta</p>
+            <p class="plan-price">Free</p>
+            <p class="plan-billing">No card needed.</p>
             <ul class="plan-features">
                 <li><span class="pf-label">Notes storage</span><span class="pf-val">500 MB</span></li>
                 <li><span class="pf-label">Attachments</span><span class="pf-val">8 GB</span></li>
@@ -198,31 +166,13 @@ permalink: /pricing/
                 <li><span class="pf-label">Vaults</span><span class="pf-val">5</span></li>
             </ul>
             <div class="plan-cta">
-                <a class="btn btn-primary" href="https://my.parachute.computer/">Start free &rarr;</a>
-                <p class="plan-trial">30-day free trial, no card</p>
-            </div>
-        </div>
-
-        <div class="plan">
-            <p class="plan-name">Power</p>
-            <p class="plan-price">$10<small>&nbsp;/mo</small></p>
-            <p class="plan-billing">Monthly, or $25/quarter, or $80/year.</p>
-            <ul class="plan-features">
-                <li><span class="pf-label">Notes storage</span><span class="pf-val">1 GB</span></li>
-                <li><span class="pf-label">Attachments</span><span class="pf-val">50 GB</span></li>
-                <li><span class="pf-label">Voice transcription</span><span class="pf-val">1200 min/mo</span></li>
-                <li><span class="pf-label">Vaults</span><span class="pf-val">10</span></li>
-            </ul>
-            <p class="plan-extra">+ bring your own domain</p>
-            <div class="plan-cta">
-                <a class="btn btn-primary" href="https://my.parachute.computer/">Start free &rarr;</a>
-                <p class="plan-trial">30-day free trial, no card</p>
+                <a class="btn btn-primary" href="https://my.parachute.computer/">Get a vault &rarr;</a>
             </div>
         </div>
 
     </div>
 
-    <p class="plan-includes fade-up fade-up-4"><strong>Every plan includes</strong> nightly snapshots, your own AI over one MCP endpoint, and lossless markdown export &mdash; the same open stack as self-host.</p>
+    <p class="plan-includes fade-up fade-up-4"><strong>The beta includes</strong> nightly snapshots of your notes, your own AI over one MCP endpoint, and lossless markdown export &mdash; the same open stack as self-host. Need more room than this? Write <a href="mailto:hello@parachute.computer">hello@parachute.computer</a>.</p>
 
     {# ============ SELF-HOST — the trust flex ============ #}
     <section class="cta fade-up fade-up-5">
@@ -235,21 +185,20 @@ permalink: /pricing/
     <section class="section fade-up fade-up-5">
         <h2>What counts against storage?</h2>
         <p>Two meters, counted separately, and each is a <strong>total across all your vaults</strong> &mdash; not a per-vault limit. <strong>Notes</strong> is your writing (the text, tags, and links); <strong>Attachments</strong> is the files and audio you drop in. They don&rsquo;t share a bucket, so a plan with a small notes allowance can still hold plenty of attachments &mdash; and you can spend the budget on one big vault or spread it across several.</p>
-        <p>Notes are just text, so a little goes a long way: <strong>100 MB is roughly 25,000&#8202;+&nbsp;notes</strong> &mdash; more than most people write in years. Standard&rsquo;s 250 MB is ~60,000, Plus&rsquo;s 500 MB ~125,000, and Power&rsquo;s 1 GB ~250,000. You&rsquo;ll almost certainly run out of things to write before you run out of room.</p>
-        <p class="muted">Entry is notes-only &mdash; a plain-text vault, no attachments or voice. Every other plan meters both, plus a monthly pool of voice transcription.</p>
+        <p>Notes are just text, so a little goes a long way: the beta&rsquo;s <strong>500 MB is roughly 125,000&nbsp;notes</strong> &mdash; more than most people write in years. You&rsquo;ll almost certainly run out of things to write before you run out of room.</p>
     </section>
 
     {# ============ NO LOCK-IN ============ #}
     <section class="section fade-up fade-up-6">
-        <h2>No plan locks you in</h2>
-        <p>Cancel anytime; export everything, anytime. Every note, tag, and link comes out as plain markdown with the structure intact &mdash; because a connection you can&rsquo;t leave isn&rsquo;t a relationship. See <a href="/guides/yours-to-keep/">Yours to keep</a> for how export works.</p>
+        <h2>Nothing locks you in</h2>
+        <p>Leave anytime; export everything, anytime. Every note, tag, and link comes out as plain markdown with the structure intact &mdash; because a connection you can&rsquo;t leave isn&rsquo;t a relationship. See <a href="/guides/yours-to-keep/">Yours to keep</a> for how export works.</p>
     </section>
 
     {# ============ CTA ============ #}
     <section class="cta fade-up fade-up-6">
-        <h2>Start free</h2>
-        <p>Pick a plan in the app, or start on any tier and change your mind during the trial. No card for 30 days.</p>
-        <a href="https://my.parachute.computer/" class="button">Start free</a>
+        <h2>Get a vault</h2>
+        <p>Free during the open beta. One email, no card, about a minute.</p>
+        <a href="https://my.parachute.computer/" class="button">Get a vault</a>
         <p class="cta-secondary">Rather run it yourself? <a href="/start/">Self-host in one command &rarr;</a></p>
     </section>
 
