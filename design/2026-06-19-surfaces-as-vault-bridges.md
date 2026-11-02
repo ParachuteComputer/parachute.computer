@@ -4,7 +4,7 @@
 the model, the patterns, the operator flow, and the roadmap. Companion to the
 P1–P11 primitive spec (`parachute-surface/design/2026-06-10-surface-runtime-primitives.md`,
 in the surface repo) and
-[`2026-05-21-parachute-surface-design.md`](./2026-05-21-parachute-surface-design.md)
+[`2026-05-21-parachute-surface-design.md`](/design/2026-05-21-parachute-surface-design/)
 (the host shape). Written 2026-06-19 alongside the first two backed surfaces —
 `meeting-ingest` (write) and `meeting-mcp` (read).
 

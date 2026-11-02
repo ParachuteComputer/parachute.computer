@@ -8,11 +8,11 @@ description: "What scribe's `.parachute/config/schema` needs to grow so the hub 
 **Status:** Proposed. Targets v0.6 (Part 1) and v0.6 / Phase 2 (Part 2 — see phasing). Aaron's framing on 2026-05-20: scribe needs its own config surface; vault should be able to send voice uploads to scribe automatically; *neither side should know more about the other than the HTTP contract.*
 
 **Companions:**
-- [`2026-04-20-module-architecture.md`](./2026-04-20-module-architecture.md) — module protocol (info / config / services.json / well-known). Where `dependencies.configures` lives.
-- [`2026-05-18-v06-deploy-architecture.md`](./2026-05-18-v06-deploy-architecture.md) — hub-as-supervisor single-container deploy. Why loopback service-discovery is enough for v0.6.
-- [`2026-05-21-parachute-runner-design.md`](./2026-05-21-parachute-runner-design.md) — sibling "module owns its config + secrets" doc; this design references its secret-storage approach and diverges deliberately for scribe's threat model.
-- [`../../parachute-patterns/patterns/canonical-ports.md`](../../parachute-patterns/patterns/canonical-ports.md) — vault 1940 / scribe 1943.
-- [`../../parachute-patterns/patterns/service-to-service-auth.md`](../../parachute-patterns/patterns/service-to-service-auth.md) and the `service-to-service HTTP` memory — HTTP + hub-issued JWT is canonical; loopback shared-bearer is the v0.6 stepping stone.
+- [`2026-04-20-module-architecture.md`](/design/2026-04-20-module-architecture/) — module protocol (info / config / services.json / well-known). Where `dependencies.configures` lives.
+- [`2026-05-18-v06-deploy-architecture.md`](/design/2026-05-18-v06-deploy-architecture/) — hub-as-supervisor single-container deploy. Why loopback service-discovery is enough for v0.6.
+- [`2026-05-21-parachute-runner-design.md`](/design/2026-05-21-parachute-runner-design/) — sibling "module owns its config + secrets" doc; this design references its secret-storage approach and diverges deliberately for scribe's threat model.
+- [`../../parachute-patterns/patterns/canonical-ports.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/canonical-ports.md) — vault 1940 / scribe 1943.
+- [`../../parachute-patterns/patterns/service-to-service-auth.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/service-to-service-auth.md) and the `service-to-service HTTP` memory — HTTP + hub-issued JWT is canonical; loopback shared-bearer is the v0.6 stepping stone.
 - vault#343 — `vault → scribe handoff: auto-transcribe voice uploads`. The upstream issue this enables.
 
 ## The two asks, in one doc
@@ -333,7 +333,7 @@ Three options the brief raised:
 - **Direct loopback with no service discovery** (hardcoded `http://127.0.0.1:1943`): brittle the moment scribe moves to a non-loopback host. Works today but rots in v0.7+.
 - **Service discovery via services.json + direct call** (recommended).
 
-services.json is already the canonical registry per [`module-architecture.md`](./2026-04-20-module-architecture.md). Vault reads it on boot to discover `{name: "parachute-scribe", port: 1943, paths: ["/scribe"]}`, constructs the URL `http://127.0.0.1:1943`, holds it through the process lifetime, refreshes on file-change events (chokidar or equivalent). When scribe moves to a different host in v0.7 cloud Tier-1/2 splits, services.json grows an `origin` field; vault honors it without code change.
+services.json is already the canonical registry per [`module-architecture.md`](/design/2026-04-20-module-architecture/). Vault reads it on boot to discover `{name: "parachute-scribe", port: 1943, paths: ["/scribe"]}`, constructs the URL `http://127.0.0.1:1943`, holds it through the process lifetime, refreshes on file-change events (chokidar or equivalent). When scribe moves to a different host in v0.7 cloud Tier-1/2 splits, services.json grows an `origin` field; vault honors it without code change.
 
 **Auth — loopback shared bearer for v0.6.** Scribe already supports `SCRIBE_AUTH_TOKEN` (per the README and `src/auth.ts`). At install time, hub generates a random bearer (`openssl rand -hex 32`), sets it as scribe's `SCRIBE_AUTH_TOKEN` env var, and writes it to vault's config as `scribe_bearer`. Vault sends `Authorization: Bearer <scribe_bearer>` on every transcribe call.
 
@@ -344,7 +344,7 @@ This bearer is:
 - A **shared secret**, not a JWT — scribe doesn't validate scope, just compares the string. This is fine for loopback in a single-container deploy; the trust gradient is flat.
 - Surfaced in vault's `/.parachute/config` schema with `writeOnly: true` (same pattern as scribe's API keys).
 
-**The v0.7 upgrade path** is hub-issued JWT with scope `scribe:transcribe`. Scribe already has the JWT validation seam (`parachute-scribe/src/hub-jwt.ts`, `auth-hub-jwt.test.ts`). When hub-as-issuer issues service-to-service JWTs (per [`service-to-service-auth.md`](../../parachute-patterns/patterns/service-to-service-auth.md) and the `service-to-service HTTP` memory), vault swaps the bearer for a hub-issued JWT and scribe validates scope server-side. No design change required — the wire shape stays `Authorization: Bearer <token>`, only the token's contents (and issuer) change.
+**The v0.7 upgrade path** is hub-issued JWT with scope `scribe:transcribe`. Scribe already has the JWT validation seam (`parachute-scribe/src/hub-jwt.ts`, `auth-hub-jwt.test.ts`). When hub-as-issuer issues service-to-service JWTs (per [`service-to-service-auth.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/service-to-service-auth.md) and the `service-to-service HTTP` memory), vault swaps the bearer for a hub-issued JWT and scribe validates scope server-side. No design change required — the wire shape stays `Authorization: Bearer <token>`, only the token's contents (and issuer) change.
 
 ### Design question 3 — output shape
 
@@ -386,7 +386,7 @@ The vault config schema grows three fields:
 **Why vault config, not scribe config:**
 
 - The vault is the entity being configured ("auto-transcribe *my uploads*"). The scribe is the engine; multiple vaults could share one scribe with their own per-vault toggles.
-- Mirrors the module-architecture inter-module-wiring shape from [`module-architecture.md`](./2026-04-20-module-architecture.md) (`dependencies.configures` block): vault declares `dependencies.scribe.optional = true`; hub auto-populates `autoTranscribe.scribeUrl` from `services.scribe.url` on install. The `dependencies.configures` mechanism is the canonical place for "hub knows how to wire vault to scribe."
+- Mirrors the module-architecture inter-module-wiring shape from [`module-architecture.md`](/design/2026-04-20-module-architecture/) (`dependencies.configures` block): vault declares `dependencies.scribe.optional = true`; hub auto-populates `autoTranscribe.scribeUrl` from `services.scribe.url` on install. The `dependencies.configures` mechanism is the canonical place for "hub knows how to wire vault to scribe."
 - Single config surface for "what should happen to my uploads" — the friend doesn't need to context-switch to scribe's config page to set up a vault behavior.
 
 **What the SPA shows on the vault page:**
@@ -418,7 +418,7 @@ Audit trail: every transcription attempt (success or failure) is recorded — fa
 
 **Decision:** v0.6 = one vault, one scribe per install. Multi-scribe / multi-vault is parachute-cloud territory (Phase 3+). Acknowledged, not designed.
 
-The single-container v0.6 deploy ([`2026-05-18-v06-deploy-architecture.md`](./2026-05-18-v06-deploy-architecture.md)) is explicit: hub supervises *one* vault, *one* scribe, *one* notes. Multiple vaults or multiple scribes within one install are out of scope.
+The single-container v0.6 deploy ([`2026-05-18-v06-deploy-architecture.md`](/design/2026-05-18-v06-deploy-architecture/)) is explicit: hub supervises *one* vault, *one* scribe, *one* notes. Multiple vaults or multiple scribes within one install are out of scope.
 
 What this means for the design:
 
@@ -445,7 +445,7 @@ If a single operator wants two vaults on one host, they run two parachute instal
 - **Auto-retry on transient failures** (scribe 5xx, network errors), with backoff and a per-attempt cap, surfaced as `transcript_retry_count` in frontmatter.
 - **Live-tail of transcription progress** in the vault SPA (websocket or SSE from scribe). Today's flow is fire-and-write-when-done; live progress is polish.
 - **Per-provider fine-grained config:** Whisper model selection in detail (large-v3 / large-v3-turbo / etc.), language defaults, prompt biasing per provider.
-- **Audio retention policy:** "keep / until_transcribed / never" — the vault config field from [`module-architecture.md`](./2026-04-20-module-architecture.md)'s example. Defaults to keep for v0.6.
+- **Audio retention policy:** "keep / until_transcribed / never" — the vault config field from [`module-architecture.md`](/design/2026-04-20-module-architecture/)'s example. Defaults to keep for v0.6.
 
 ### Phase 3 (deferred)
 
