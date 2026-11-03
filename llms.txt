@@ -14,7 +14,7 @@ is the only path that works without a human at a terminal.
 
 - [Headless install runbook](https://parachute.computer/install.md): imperative, copy-pasteable, non-interactive install of hub + vault on a fresh Ubuntu/Debian box or a Mac. Includes verification commands, known gaps, and troubleshooting. Same page rendered for humans: https://parachute.computer/install/runbook/
 - [Self-host, for humans](https://parachute.computer/start/): the narrative version — why self-host, where to run it, what the setup wizard asks.
-- [Server one-liner](https://parachute.computer/install/server.sh): the curl-able script the human page recommends for a fresh Ubuntu/Debian box with a public IP. Installs hub + vault + Caddy and gets a real Let's Encrypt certificate. Stops at "open this URL in your browser" — an agent must finish it with `parachute setup-wizard` (see the runbook).
+- [One-line installer](https://parachute.computer/install/parachute.sh): the curl-able script the human page (/start/) recommends, for a Ubuntu/Debian box or a Mac. Installs hub + vault + app; on a Linux box with a public IP it adds Caddy and a real Let's Encrypt certificate, and falls back to http://127.0.0.1:1939 if that address isn't reachable (`--local` skips it). It also works as cloud-init User Data. ([server.sh](https://parachute.computer/install/server.sh) is an older cloud-init script; prefer parachute.sh.) Stops at "open this URL in your browser" — an agent must finish it with `parachute setup-wizard` (see the runbook).
 
 ## Guides
 
@@ -52,7 +52,7 @@ the vault is reached through the hub.
 ## Source
 
 - [github.com/ParachuteComputer](https://github.com/ParachuteComputer): all modules, open source.
-- [parachute-hub](https://github.com/ParachuteComputer/parachute-hub): the hub + the `parachute` CLI (`@openparachute/hub` on npm).
-- [parachute-vault](https://github.com/ParachuteComputer/parachute-vault): the vault — knowledge graph, MCP server, REST API (`@openparachute/vault` on npm).
+- [parachute-core](https://github.com/ParachuteComputer/parachute-core): Parachute 0.8, the hub and the vault as one program with one command, `parachute` (`@openparachute/core` on npm; the installer uses its `next` tag). What the one-line installer installs.
+- [parachute-hub](https://github.com/ParachuteComputer/parachute-hub) and [parachute-vault](https://github.com/ParachuteComputer/parachute-vault): Parachute 0.7, the hub + `parachute` CLI and the vault as separate packages (`@openparachute/hub`, `@openparachute/vault`). Boxes already on 0.7 stay on it.
 - [parachute-surface](https://github.com/ParachuteComputer/parachute-surface): the UI host and the surface SDK.
 - [Blog](https://parachute.computer/blog/): release notes and thinking, in public.

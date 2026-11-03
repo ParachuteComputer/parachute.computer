@@ -12,16 +12,23 @@
 # What it does, in order:
 #   1. Prerequisites for this platform (bun, ffmpeg, and on Linux the base
 #      packages a fresh cloud image lacks).
-#   2. Installs @openparachute/hub + @openparachute/vault.
-#   3. `parachute init` — starts the hub under launchd/systemd, installs the
-#      vault and the app, opens the setup wizard.
+#   2. Installs Parachute 0.8 (@openparachute/core: the hub and the vault as
+#      one program). A box that already runs 0.7 (@openparachute/hub) stays
+#      on 0.7; --v07 asks for 0.7 on a fresh box.
+#   3. `parachute init` — starts the hub under launchd/systemd, sets up the
+#      vault and installs the app, opens the setup wizard.
 #   4. Local transcription (whisper.cpp + a model), verified end-to-end.
-#   5. On a Linux box with PARACHUTE_DOMAIN set: Caddy + a real certificate.
+#   5. On a Linux server: Caddy + a real certificate for --domain, or for
+#      <ip>.sslip.io with none, checked from outside before it's called live
+#      (falls back to http://127.0.0.1:1939 if not). --local skips it.
 #
 # Options (flags or env — flags win):
 #   --domain <host>        PARACHUTE_DOMAIN      public hostname; enables Caddy (Linux)
-#   --channel <latest|rc>  PARACHUTE_CHANNEL     npm dist-tag to install (default latest)
+#   --channel <tag>        PARACHUTE_CHANNEL     npm dist-tag: next for 0.8 (until 0.8.0 ships);
+#                                                latest (default) or rc with --v07
+#   --v07                  PARACHUTE_V07=1       install 0.7 (@openparachute/hub + vault) instead
 #   --no-transcription     PARACHUTE_NO_TRANSCRIPTION=1
+#   --local                PARACHUTE_LOCAL=1     stay on http://127.0.0.1:1939; skip public HTTPS (Linux)
 #   --dry-run              PARACHUTE_DRY_RUN=1   print every step, change nothing
 #   --help
 #
@@ -30,6 +37,9 @@
 # Everything is a flag or an environment variable.
 
 set -euo pipefail
+# cloud-init runs User Data with HOME unset; everything below lives under it.
+export HOME="${HOME:-$(getent passwd "$(id -un)" 2>/dev/null | cut -d: -f6)}"
+export HOME="${HOME:-/root}"
 
 # ── output ───────────────────────────────────────────────────────────────────
 if [ -t 1 ]; then
@@ -46,30 +56,77 @@ die()  { printf "\n%serror:%s %s\n" "$RED" "$RESET" "$1" >&2; exit 1; }
 
 # ── options ──────────────────────────────────────────────────────────────────
 DOMAIN="${PARACHUTE_DOMAIN:-}"
-CHANNEL="${PARACHUTE_CHANNEL:-latest}"
+CHANNEL="${PARACHUTE_CHANNEL:-}"
+V07="${PARACHUTE_V07:-}"
+# Testing only: install core from this spec (a .tgz path or name@version) instead of npm's dist-tag.
+CORE_SPEC="${PARACHUTE_CORE_SPEC:-}"
 NO_TRANSCRIPTION="${PARACHUTE_NO_TRANSCRIPTION:-}"
+LOCAL_ONLY="${PARACHUTE_LOCAL:-}"
 DRY_RUN="${PARACHUTE_DRY_RUN:-}"
+DOMAIN_KEPT=""
 
 usage() {
-  sed -n '2,32p' "$0" | sed 's/^# \{0,1\}//'
+  if [ -f "$0" ] && head -1 "$0" | grep -q bash; then
+    sed -n '2,37p' "$0" | sed 's/^# \{0,1\}//'
+  else
+    # Under `curl … | bash` there's no file to read the header from.
+    printf '%s\n' "Options: --domain <host>  --local  --no-transcription  --channel <next>  --v07  --dry-run" \
+      "Details: curl -fsSL https://parachute.computer/install/parachute.sh | head -40"
+  fi
   exit 0
 }
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --domain)  DOMAIN="${2:-}"; [ -n "$DOMAIN" ] || die "--domain needs a hostname"; shift 2 ;;
-    --channel) CHANNEL="${2:-}"; [ -n "$CHANNEL" ] || die "--channel needs latest or rc"; shift 2 ;;
+    --channel) CHANNEL="${2:-}"; [ -n "$CHANNEL" ] || die "--channel needs a dist-tag (next, latest, rc)"; shift 2 ;;
+    --v07)     V07=1; shift ;;
     --no-transcription) NO_TRANSCRIPTION=1; shift ;;
+    --local)   LOCAL_ONLY=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
     --help|-h) usage ;;
     *) die "unknown option: $1  (try --help)" ;;
   esac
 done
 
-case "$CHANNEL" in
-  latest|rc) ;;
-  *) die "--channel must be 'latest' or 'rc' (got '$CHANNEL')" ;;
-esac
+# Which Parachute. 0.8 is @openparachute/core; 0.7 is @openparachute/hub + @openparachute/vault. A box that
+# already runs 0.7 stays on it: `bun add -g @openparachute/core` there would silently take over the
+# `parachute` command while the running hub and its data stay 0.7's (parachute-core README, "On a machine
+# with Parachute 0.7"). Moving a running home to 0.8 is a deliberate step, not a side effect of a re-run.
+export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+GLOBAL_MODULES="$BUN_INSTALL/install/global/node_modules/@openparachute"
+HAS_07=""; HAS_08=""
+[ -d "$GLOBAL_MODULES/hub" ] && HAS_07=1
+[ -d "$GLOBAL_MODULES/core" ] && HAS_08=1
+if [ -n "$V07" ] && [ -n "$HAS_08" ]; then
+  die "--v07 on a box that already has Parachute 0.8 (@openparachute/core) isn't supported."
+fi
+# Both installed: fine once `parachute-core takeover` has moved the home to 0.8 (the old programs stay
+# installed, off). Without that record, 0.7 still owns the data, and this script won't guess.
+if [ -n "$HAS_07" ] && [ -n "$HAS_08" ] && [ -z "$V07" ] \
+   && ! grep -q '"state": *"taken-over"' "${PARACHUTE_HOME:-$HOME/.parachute}/takeover.json" 2>/dev/null; then
+  die "this box has both Parachute 0.7 (@openparachute/hub) and 0.8 (@openparachute/core), and its home hasn't been moved to 0.8. Run \`parachute-core takeover --dry-run\` to see which one owns it."
+fi
+STAYING_07=""
+if [ -z "$V07" ] && [ -n "$HAS_07" ] && [ -z "$HAS_08" ]; then
+  V07=1; STAYING_07=1
+fi
+if [ -n "$V07" ]; then
+  CHANNEL="${CHANNEL:-latest}"
+  case "$CHANNEL" in
+    latest|rc) ;;
+    next) CHANNEL="latest" ;;   # 0.7 has no `next`; its newest stable is `latest`
+    *) die "--channel for 0.7 must be 'latest' or 'rc' (got '$CHANNEL')" ;;
+  esac
+else
+  # Only `next` until 0.8.0 ships: @openparachute/core's `latest` is a prerelease that can't set up a fresh
+  # box, and installing it over a newer core would downgrade the running program. Flip this when 0.8.0 is out.
+  CHANNEL="${CHANNEL:-next}"
+  case "$CHANNEL" in
+    next) ;;
+    *) die "--channel for 0.8 must be 'next' for now (got '$CHANNEL'); --v07 installs 0.7" ;;
+  esac
+fi
 
 # Every mutating command goes through `run`, which is what makes --dry-run
 # trustworthy: there is no second path that could quietly do something.
@@ -97,8 +154,13 @@ if [ "$PLATFORM" = "linux" ] && [ "$(id -u)" -ne 0 ]; then
   SUDO="sudo"
 fi
 
-step "Parachute setup — ${PLATFORM} (${ARCH}), channel ${CHANNEL}"
+if [ -n "$V07" ]; then VERSION_LINE="0.7"; else VERSION_LINE="0.8"; fi
+step "Parachute ${VERSION_LINE} setup — ${PLATFORM} (${ARCH}), channel ${CHANNEL}"
 [ -n "$DRY_RUN" ] && warn "DRY RUN — nothing will be installed or changed."
+if [ -n "$STAYING_07" ]; then
+  warn "This box already runs Parachute 0.7 (@openparachute/hub), so this run keeps it on 0.7."
+  warn "Moving a running box to 0.8 isn't automatic; see https://github.com/ParachuteComputer/parachute-core#install"
+fi
 [ -n "$DOMAIN" ] && info "Public hostname: ${DOMAIN}"
 
 # ── 1. prerequisites ─────────────────────────────────────────────────────────
@@ -130,6 +192,7 @@ if [ "$PLATFORM" = "linux" ]; then
   NEED=""
   command -v curl  >/dev/null 2>&1 || NEED="$NEED curl"
   command -v unzip >/dev/null 2>&1 || NEED="$NEED unzip"
+  command -v gpg   >/dev/null 2>&1 || NEED="$NEED gnupg"   # Caddy's apt key; Debian cloud images lack it
   [ -f /etc/ssl/certs/ca-certificates.crt ] || NEED="$NEED ca-certificates"
   if [ -n "$NEED" ]; then
     info "Installing base packages:$NEED"
@@ -139,11 +202,22 @@ if [ "$PLATFORM" = "linux" ]; then
   ok "Base packages present"
 fi
 
+# Was this box already answering on HTTPS before this run touched anything? Then a failed check later (a slow
+# restart, a blip) must not reset the origin and stop Caddy on a box that worked.
+WAS_LIVE=""
+PRE_HOST="$DOMAIN"
+if [ -z "$PRE_HOST" ] && [ "$PLATFORM" = "linux" ] && [ -f /etc/caddy/Caddyfile ]; then
+  PRE_HOST="$(sed -n '2s/^\([^ {]*\).*/\1/p' /etc/caddy/Caddyfile)"
+fi
+if [ -z "$DRY_RUN" ] && [ -n "$PRE_HOST" ] \
+   && curl -fsS --max-time 5 "https://${PRE_HOST}/health" 2>/dev/null | grep -q '"db":"ok"'; then
+  WAS_LIVE=1
+fi
+
 # Bun. On Mac this was the documented manual prerequisite ("You'll need Bun 1.3
 # or later") and the single most common reason a Mac install stalled before it
 # began. Installing it is one line; making someone go read another site first is
 # the friction this script exists to delete.
-export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
 if command -v bun >/dev/null 2>&1; then
   ok "bun $(bun --version) already installed"
 elif [ -x "$BUN_INSTALL/bin/bun" ]; then
@@ -156,6 +230,20 @@ else
   if [ -z "$DRY_RUN" ]; then
     command -v bun >/dev/null 2>&1 || die "bun install finished but bun isn't on PATH ($BUN_INSTALL/bin)"
     ok "bun $(bun --version) installed"
+  fi
+fi
+# Parachute 0.8 runs on Bun 1.4 or newer (@openparachute/core's engines). Update a Bun this script's installer
+# put in $BUN_INSTALL; leave any other (Homebrew, a distro package) to its owner.
+if [ -z "$V07" ] && [ -z "$DRY_RUN" ] && command -v bun >/dev/null 2>&1; then
+  BUN_V="$(bun --version)"
+  if [ "$(printf '%s\n' 1.4.0 "$BUN_V" | sort -V | head -1)" != "1.4.0" ]; then
+    if [ "$(command -v bun)" = "$BUN_INSTALL/bin/bun" ]; then
+      info "Parachute 0.8 needs Bun 1.4 or newer (found ${BUN_V}); updating it…"
+      run bun upgrade || die "couldn't update Bun — run: bun upgrade"
+      ok "bun $(bun --version)"
+    else
+      die "Parachute 0.8 needs Bun 1.4 or newer; $(command -v bun) is ${BUN_V}. Update it (brew upgrade bun, or bun upgrade) and re-run."
+    fi
   fi
 fi
 
@@ -180,14 +268,42 @@ else
 fi
 
 # ── 2. parachute ─────────────────────────────────────────────────────────────
-step "Installing Parachute (hub + vault, channel: ${CHANNEL})"
-run bun add -g "@openparachute/hub@${CHANNEL}" "@openparachute/vault@${CHANNEL}"
-ok "hub + vault installed"
+# What ran before this run, so an update can restart the hub onto the new version (init won't: it leaves a
+# hub that already answers alone).
+# shellcheck disable=SC2046  # unquoted on purpose: a missing parachute-vault (0.8) leaves no stray space
+installed_versions() { echo $(parachute --version 2>/dev/null || true) $(parachute-vault --version 2>/dev/null || true); }
+BEFORE_VERSION="$(installed_versions)"
+if [ -n "$V07" ]; then
+  step "Installing Parachute 0.7 (hub + vault, channel: ${CHANNEL})"
+  run bun add -g "@openparachute/hub@${CHANNEL}" "@openparachute/vault@${CHANNEL}"
+  ok "hub + vault installed"
+  LINKS="bun parachute parachute-vault"
+  VAULT_CMD=(parachute-vault)
+  INIT_CHANNEL="$CHANNEL"
+else
+  step "Installing Parachute 0.8 (@openparachute/core, channel: ${CHANNEL})"
+  run bun add -g "${CORE_SPEC:-@openparachute/core@${CHANNEL}}"
+  # 0.8.0-pre.1 and pre.2 set up a fresh box with the 0.7 vault from npm. The build that runs its own vault
+  # carries core-host.ts; refuse anything older rather than leave a half-0.7 box behind, and take it off
+  # again if this run put it there, so --v07 works next.
+  if [ -z "$DRY_RUN" ] && [ ! -f "$GLOBAL_MODULES/core/packages/hub/src/core-host.ts" ]; then
+    if [ -n "$HAS_08" ]; then
+      die "the @openparachute/core on '${CHANNEL}' is older than this script needs. Your running Parachute is untouched; put the package back with: bun add -g @openparachute/core@next"
+    fi
+    bun remove -g @openparachute/core >/dev/null 2>&1 || true
+    die "the @openparachute/core on '${CHANNEL}' can't set up a fresh box yet (it would pull the 0.7 vault from npm). For now, run again with --v07 to install Parachute 0.7."
+  fi
+  ok "Parachute 0.8 installed"
+  LINKS="bun parachute parachute-core"
+  VAULT_CMD=(parachute vault)
+  # init's --channel picks the app's dist-tag; the app has no `next`.
+  INIT_CHANNEL="latest"
+fi
 
 # Put bun + parachute on the system PATH NOW, so `parachute …` works in this
 # very shell rather than only after a re-login. Idempotent and non-fatal.
 if [ "$PLATFORM" = "linux" ]; then
-  for b in bun parachute parachute-vault; do
+  for b in $LINKS; do
     src="$BUN_INSTALL/bin/$b"
     [ -x "$src" ] || [ -n "$DRY_RUN" ] || continue
     run $SUDO ln -sf "$src" "/usr/local/bin/$b" 2>/dev/null \
@@ -210,7 +326,7 @@ step "Starting the hub and installing your vault + app"
 # --no-browser on a server: there's no browser to open, and init would just
 # print a failed `xdg-open`. Locally we let it open the wizard, which is the
 # whole point of finishing here.
-INIT_ARGS=(--no-expose-prompt --channel "$CHANNEL")
+INIT_ARGS=(--no-expose-prompt --channel "$INIT_CHANNEL")
 if [ "$PLATFORM" = "linux" ]; then
   # No browser to open on a server, and the public origin isn't resolved yet
   # (sslip.io needs the IP), so the HTTPS step below sets it with
@@ -218,6 +334,11 @@ if [ "$PLATFORM" = "linux" ]; then
   INIT_ARGS+=(--no-browser)
 fi
 run parachute init "${INIT_ARGS[@]}"
+AFTER_VERSION="$(installed_versions)"
+if [ -z "$DRY_RUN" ] && [ -n "${BEFORE_VERSION// /}" ] && [ "$BEFORE_VERSION" != "$AFTER_VERSION" ]; then
+  info "Updated ${BEFORE_VERSION} → ${AFTER_VERSION}; restarting the hub onto it"
+  run parachute restart || warn "couldn't restart the hub — run: parachute restart"
+fi
 ok "hub running; vault + app installed"
 
 # ── 4. transcription ─────────────────────────────────────────────────────────
@@ -226,7 +347,7 @@ ok "hub running; vault + app installed"
 # before reporting success — so a green line here means it actually works.
 if [ -n "$NO_TRANSCRIPTION" ]; then
   step "Skipping transcription (--no-transcription)"
-  info "Set it up later with: parachute-vault transcription install"
+  info "Set it up later with: ${VAULT_CMD[*]} transcription install"
 else
   step "Setting up local transcription"
   # Short-circuit when it's already done. `transcription install` re-downloads
@@ -250,14 +371,14 @@ else
           || command -v whisper-cli >/dev/null 2>&1 \
           || command -v parakeet-cli >/dev/null 2>&1; }; then
     ok "Transcription already set up — skipping"
-  elif run parachute-vault transcription install --yes; then
+  elif run "${VAULT_CMD[@]}" transcription install --yes; then
     ok "Transcription ready"
   else
     # Never fatal: a working Parachute that can't transcribe is still a working
     # Parachute, and failing the whole install over an optional extra would be
     # a much worse outcome than a warning.
     warn "Transcription setup didn't complete — everything else is fine."
-    warn "Retry any time: parachute-vault transcription install"
+    warn "Retry any time: ${VAULT_CMD[*]} transcription install"
   fi
 fi
 
@@ -279,8 +400,20 @@ fetch_public_ip() {
   PUBLIC_IP="$(printf '%s' "$PUBLIC_IP" | tr -d '[:space:]')"
 }
 
+# A re-run without --domain keeps the address an earlier run or `parachute hub set-origin` wrote to the
+# Caddyfile, instead of replacing a domain of your own with <ip>.sslip.io.
+if [ -z "$DOMAIN" ] && [ -z "$LOCAL_ONLY" ] && [ "$PLATFORM" = "linux" ] \
+   && head -1 /etc/caddy/Caddyfile 2>/dev/null | grep -q '^# Managed by Parachute install'; then
+  KEPT="$(sed -n '2s/^\([^ {]*\).*/\1/p' /etc/caddy/Caddyfile)"
+  if printf '%s' "$KEPT" | grep -qE '^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$'; then
+    DOMAIN="$KEPT"; DOMAIN_KEPT=1
+    info "Keeping the address set up earlier: ${DOMAIN} (pass --domain to change it)"
+  fi
+fi
 PUBLIC_HOST="$DOMAIN"
-if [ "$PLATFORM" = "linux" ] && [ -z "$PUBLIC_HOST" ]; then
+if [ -n "$LOCAL_ONLY" ] && [ -z "$DOMAIN" ]; then
+  info "--local: staying on http://127.0.0.1:1939 (no public HTTPS)."
+elif [ "$PLATFORM" = "linux" ] && [ -z "$PUBLIC_HOST" ]; then
   fetch_public_ip
   # Shape-check the IPv4 — guards against a metadata blip returning an error
   # page, which would otherwise become a nonsense hostname Caddy can't serve.
@@ -293,7 +426,7 @@ if [ "$PLATFORM" = "linux" ] && [ -z "$PUBLIC_HOST" ]; then
     warn "Couldn't determine a public IP — staying on localhost."
     warn "Expose it later with: parachute expose tailnet"
   fi
-elif [ -n "$DOMAIN" ] && [ "$PLATFORM" = "linux" ]; then
+elif [ -n "$DOMAIN" ] && [ "$PLATFORM" = "linux" ] && [ -z "${DOMAIN_KEPT:-}" ]; then
   info "Point an A-record for ${DOMAIN} at this box before/while this runs,"
   info "or Let's Encrypt's challenge fails. Re-run once DNS lands — it's idempotent."
 fi
@@ -301,6 +434,7 @@ fi
 if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
   DOMAIN="$PUBLIC_HOST"
   step "Serving ${DOMAIN} over HTTPS"
+  [ "$PRE_HOST" = "$DOMAIN" ] || WAS_LIVE=""
   if command -v caddy >/dev/null 2>&1; then
     ok "Caddy already installed"
   else
@@ -321,15 +455,53 @@ if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
     # Caddyfile", sets the origin in hub_settings, and silently loses the
     # ability to update the vhost later. Observed on a real box: HTTPS worked,
     # but the two halves disagreed about who owned the file.
-    printf '# Managed by Parachute install — edits may be overwritten\n%s {\n\treverse_proxy 127.0.0.1:1939\n}\n' "$DOMAIN" | $SUDO tee /etc/caddy/Caddyfile >/dev/null
+    # This Caddy is the edge: strip the trust signals only a real Cloudflare / Tailscale edge may set, or a
+    # client could send Tailscale-User-Login and be labelled "tailnet" (as server.sh does).
+    printf '# Managed by Parachute install — edits may be overwritten\n%s {\n\treverse_proxy 127.0.0.1:1939 {\n\t\theader_up -Cf-Ray\n\t\theader_up -Cf-Connecting-Ip\n\t\theader_up -Tailscale-Funnel-Request\n\t\theader_up -Tailscale-User-Login\n\t}\n}\n' "$DOMAIN" | $SUDO tee /etc/caddy/Caddyfile >/dev/null
   else
     info "[dry-run] write /etc/caddy/Caddyfile for ${DOMAIN} → 127.0.0.1:1939"
   fi
+  # enable as well as start: an earlier run may have disabled it on fallback
+  run $SUDO systemctl -q enable caddy || true
   run $SUDO systemctl reload caddy 2>/dev/null || run $SUDO systemctl restart caddy || warn "couldn't reload Caddy"
   # The hub's OAuth issuer must match the public origin, or every token it mints
   # is rejected at the door it was minted for.
   run parachute hub set-origin "https://${DOMAIN}" || warn "couldn't set the hub origin — run: parachute hub set-origin https://${DOMAIN}"
-  ok "https://${DOMAIN} is live"
+  # Don't claim "live" on faith. A box behind a home router finds the router's
+  # public IP, but the certificate challenge never reaches it. Check for real,
+  # and if it isn't reachable, fall back to loopback so setup still works.
+  LIVE=""
+  if [ -n "$DRY_RUN" ]; then
+    LIVE=1
+  else
+    info "Checking https://${DOMAIN} from this box (up to 2 minutes)…"
+    # Time-boxed, not count-boxed: a pending certificate fails fast, and a slow
+    # first ACME order deserves the full two minutes.
+    PROBE_END=$((SECONDS + 120))
+    while [ "$SECONDS" -lt "$PROBE_END" ]; do
+      HEALTH="$(curl -fsS --max-time 5 "https://${DOMAIN}/health" 2>/dev/null || true)"
+      case "$HEALTH" in *'"db":"ok"'*) LIVE=1; break ;; esac
+      sleep 5
+    done
+  fi
+  if [ -n "$LIVE" ]; then
+    ok "https://${DOMAIN} is live"
+  elif [ -n "$WAS_LIVE" ]; then
+    # It answered before this run: a slow restart or a blip, not a box nobody can reach. Leave it as it was.
+    warn "https://${DOMAIN} answered before this run but not just now. Leaving the HTTPS setup as it was."
+    warn "Check in a minute: curl -s https://${DOMAIN}/health"
+  else
+    warn "https://${DOMAIN} isn't reachable yet (no certificate, or ports 80/443 don't reach this box)."
+    warn "Staying on http://127.0.0.1:1939 for now, so setup still works."
+    warn "Behind a home router? Forward ports 80 and 443 here, or use: parachute expose tailnet"
+    warn "Have a domain? Point its A record here, then re-run with --domain yours.example.com"
+    run parachute hub set-origin "http://127.0.0.1:1939" --no-caddy || warn "couldn't reset the origin — run: parachute hub set-origin http://127.0.0.1:1939 --no-caddy"
+    # Stop Caddy too: if the certificate lands later, it would serve a hub whose
+    # sign-in issuer is loopback, and keep retrying ACME against a shared limit.
+    run $SUDO systemctl disable --now caddy 2>/dev/null || true   # and keep it off across reboots
+    warn "Once the address is reachable, re-run this script to switch to HTTPS."
+    DOMAIN=""
+  fi
 elif [ -n "$DOMAIN" ]; then
   warn "--domain is a Linux-server option; on a Mac use: parachute expose public --cloudflare --domain ${DOMAIN}"
 fi
@@ -341,7 +513,34 @@ if [ -n "$DOMAIN" ] && [ "$PLATFORM" = "linux" ]; then
 else
   info "Open  http://127.0.0.1:1939  to finish setup in your browser."
 fi
-cat <<'NEXT'
+# The browser wizard asks for a one-time setup token. The hub hands it to
+# loopback callers at /admin/setup (the same read server.sh uses), on every
+# platform. It changes on each hub restart, so read it now, after the last one,
+# and retry briefly while the restarted hub comes up. No token means an admin
+# already exists (a re-run): nothing to print.
+if [ -z "$DRY_RUN" ]; then
+  BOOT_TOKEN=""
+  for _ in $(seq 1 10); do
+    SETUP_JSON="$(curl -fsS --max-time 3 -H 'Accept: application/json' http://127.0.0.1:1939/admin/setup 2>/dev/null || true)"
+    BOOT_TOKEN="$(printf '%s' "$SETUP_JSON" | grep -oE 'parachute-bootstrap-[A-Za-z0-9_-]+' | head -1 || true)"
+    [ -n "$BOOT_TOKEN" ] && break
+    case "$SETUP_JSON" in '{'*'"hasAdmin":true'*) break ;; esac   # the hub answered JSON with no token: an admin exists
+    sleep 2
+  done
+  if [ -n "$BOOT_TOKEN" ]; then
+    info "Setup token, for the first screen only:"
+    info "  ${BOOT_TOKEN}"
+  else
+    case "$SETUP_JSON" in
+      '{'*'"hasAdmin":true'*) ;;   # already set up: sign in instead
+      *) info "Setup token: curl -s -H 'Accept: application/json' http://127.0.0.1:1939/admin/setup | grep -o 'parachute-bootstrap-[A-Za-z0-9_-]*'" ;;
+    esac
+  fi
+fi
+if [ -z "$V07" ] && [ -z "$DRY_RUN" ]; then
+  info "Parachute $(parachute version 2>/dev/null || echo 0.8)"
+fi
+cat <<NEXT
 
     What you have:
       hub          the coordinator, on :1939
@@ -350,9 +549,9 @@ cat <<'NEXT'
       transcribe   voice memos become text, locally
 
     Useful next:
-      parachute status                     what's installed and running
-      parachute doctor                     check health, get the one fix
-      parachute-vault transcription status is transcription working
-      parachute expose tailnet             reach it from your phone
+      parachute status                      what's installed and running
+      parachute doctor                      check health, get the one fix
+      ${VAULT_CMD[*]} transcription status  is transcription working
+      parachute expose tailnet              reach it from your phone
 
 NEXT

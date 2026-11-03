@@ -21,7 +21,7 @@ avoidable in a single decision:
 1. **Do not install from a git checkout.** `git clone` + `bun link` is the
    *developer* path — it wires the CLI to a working tree, which may be any
    commit, including an old release candidate. For an install, use npm:
-   `bun add -g @openparachute/hub`. See step 2.
+   `bun add -g @openparachute/core@next`. See step 2.
 2. **Do not let anything prompt.** The setup wizard must be driven entirely by
    flags. Piping answers into it does **not** work. See step 4.
 3. **A 401 from the vault means the vault is healthy.** It is auth-gated on
@@ -33,9 +33,12 @@ avoidable in a single decision:
 - **A machine you have root or `sudo` on.** A fresh Ubuntu or Debian box
   (Hetzner, EC2, DigitalOcean, a VM, a box in a closet) is the tested target;
   macOS works too. RPM distros (Amazon Linux, RHEL) are not supported.
-- **[Bun](https://bun.sh) 1.3.0 or later.** Step 1 installs it if it is
+- **[Bun](https://bun.sh) 1.4 or later** (Parachute 0.8 requires it). Step 1 installs it if it is
   missing. Bun is the only runtime — there is no Node requirement.
 - **Outbound HTTPS**, to reach npm and bun.sh.
+- **`unzip`**, which Bun's installer needs. Stock Ubuntu and Debian cloud images
+  don't ship it, and on a fresh image the package lists are empty and cloud-init
+  may hold the apt lock: `apt-get update -qq && apt-get -o DPkg::Lock::Timeout=120 install -y unzip`.
 - **Two free local ports: `1939` (hub) and `1940` (vault).** The hub pins 1939
   with no fallback — if something else holds it, the install fails loudly
   rather than moving. Neither port needs to be open to the internet; on Linux
@@ -49,6 +52,7 @@ avoidable in a single decision:
 ## 1. Install Bun
 
 ```bash
+command -v unzip >/dev/null || { apt-get -o DPkg::Lock::Timeout=120 update -qq && apt-get -o DPkg::Lock::Timeout=120 install -y unzip; }
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 command -v bun >/dev/null || curl -fsSL https://bun.sh/install | bash
@@ -56,23 +60,31 @@ hash -r
 bun --version
 ```
 
-`bun --version` must print `1.3.0` or higher. On older Bun you may see cosmetic
-`InvalidPackageResolution` or `FileNotFound` warnings during the next step; run
-`bun upgrade` to clear them.
+`bun --version` must print `1.4.0` or higher. If it doesn't, run `bun upgrade`
+(or `brew upgrade bun` for a Homebrew Bun) before the next step.
 
 Add `export PATH="$HOME/.bun/bin:$PATH"` to the shell profile of whoever will
 run `parachute` later, or the binary will vanish on the next login.
 
-## 2. Install the hub from npm
+## 2. Install Parachute from npm
 
 ```bash
-bun add -g @openparachute/hub
+bun add -g @openparachute/core@next
 hash -r
 command -v parachute && parachute --version
 ```
 
-This is the whole install. `@openparachute/hub` ships the `parachute` binary,
-and the binary is the front door to everything else.
+This is the whole install. `@openparachute/core` is Parachute 0.8: the hub and
+the vault as one program, with one command, `parachute`. Vault commands are
+`parachute vault <command>`. Install from the `next` tag, as the one-line
+installer does.
+
+**On a machine that already runs Parachute 0.7** (`@openparachute/hub`, whose
+command is also `parachute`), stop here. `bun add -g @openparachute/core` would
+silently take over the `parachute` command while the running hub and its data
+stay 0.7's. Keep such a box on 0.7 (`bun add -g @openparachute/hub`) unless you
+were asked to move it; moving a home is
+[`parachute-core takeover`](https://github.com/ParachuteComputer/parachute-core#install).
 
 **Do not `git clone` the repo and `bun link` it.** That is how contributors run
 the hub from a working tree, and it is the single most common way an agent
@@ -80,11 +92,13 @@ install goes wrong: the linked binary follows whatever commit is checked out —
 frequently a stale release candidate — and `parachute status` will then report
 `bun-linked → …` instead of a released version. If you see `bun-linked` in the
 `SOURCE` column of `parachute status` on a machine you were asked to *install*,
-you took the wrong path.
+you took the wrong path. (On 0.8 the hub and vault rows show the versions of
+the 0.7 code they grew from; `parachute version` gives the release.)
 
-Check the output of `bun add -g` for a line reading `Blocked N postinstall`. If
-it appears, Bun refused to run a package's postinstall and the install is
-silently broken — re-run it, do not proceed.
+If `bun add -g` prints `Blocked N postinstalls`, run `bun pm -g untrusted` to
+see which. `onnxruntime-node` and `protobufjs` are expected: their postinstalls
+only fetch optional GPU binaries, and the install works without them. Any other
+package there means the install may be broken: re-run it and do not proceed.
 
 ## 3. Bring the hub up (non-interactive)
 
@@ -159,8 +173,10 @@ Notes on the flags:
   `--vault-mode import --vault-import-url <url>` (add `--vault-import-pat` for
   a private repo).
 - `--transcribe-mode` accepts `none`, `local`, `groq`, or `openai`. **Use
-  `none`.** Transcription is optional, and the module behind it is deprecated —
-  see "Known gaps" below.
+  `none`** here. Transcription is optional and now lives in the vault: add it
+  later with `parachute vault transcription install` (it downloads a ~400 MB
+  model and checks it works). Only the old standalone scribe module is
+  deprecated; see "Known gaps" below.
 - `--expose-mode` accepts `localhost`, `tailnet`, or `public`. Use `localhost`
   here and handle exposure deliberately in step 6.
 
@@ -252,10 +268,14 @@ a script that does hub + vault + Caddy + a real Let's Encrypt certificate in
 one pass:
 
 ```bash
-curl -fsSL https://parachute.computer/install/server.sh | bash
+curl -fsSL https://parachute.computer/install/parachute.sh | bash
 ```
 
-It is fully non-interactive and it replaces steps 1–3 above. With no domain you
+It is fully non-interactive and it replaces steps 1–3 above. It also works as
+cloud-init User Data; the setup token then lands in
+`/var/log/cloud-init-output.log`. (The older `install/server.sh` installs the
+deprecated scribe and doesn't check that HTTPS works; don't use it for a new
+box.) With no domain you
 get working HTTPS at `https://<your-ip>.sslip.io`; set
 `PARACHUTE_DOMAIN=vault.example.com` (with an A record already pointing at the
 box) to use your own. **It stops where an agent cannot follow**: it prints a
@@ -337,32 +357,28 @@ leave the hub.
 These are current, real, and will waste your time if you discover them the hard
 way.
 
-**`parachute install app` may fail with a 404 — check before you rely on it.**
-The hub resolves the short name `app` to `@openparachute/app` and runs
-`bun add -g` against it. That package is being published, so verify rather than
-assume:
+**The app is installed for you, and my.parachute.computer needs HTTPS.**
+`parachute init` installs `@openparachute/app` and serves it at the hub's `/`.
+On a loopback install (`http://127.0.0.1:1939`), use that: the hosted
+[my.parachute.computer](https://my.parachute.computer) runs in the browser under
+a policy that only allows HTTPS connections, so it cannot open an `http://` hub.
 
-```sh
-npm view @openparachute/app version
-```
-
-If that 404s, the package is not on npm yet and `parachute install app` will
-fail — no flag fixes it. Two paths that work either way: build from source
-([ParachuteComputer/parachute-app](https://github.com/ParachuteComputer/parachute-app)),
-or skip installing a UI entirely and use
-[my.parachute.computer](https://my.parachute.computer) — a browser app that
-talks to any vault, so it needs nothing on the box.
+**If `parachute auth mint-token` says `unexpected "iss" claim value`,** the
+hub's origin changed after the CLI's operator token was issued (for example
+after `parachute hub set-origin`). Run `parachute auth rotate-operator`, then
+mint again. `parachute doctor` names this fix too.
 
 **Do not install scribe.** `@openparachute/scribe`, the standalone
-transcription module, was deprecated on 2026-07-24. Its capability is folding
-into the vault. Existing installs keep running; new ones should not be created.
-This is why step 4 passes `--transcribe-mode none`, and why you should ignore
-any prompt or document that suggests `parachute install scribe`.
+transcription module, was deprecated on 2026-07-24. Transcription now lives in
+the vault (`parachute vault transcription install`; the one-line installer runs
+it unless you pass `--no-transcription`). Existing scribe installs keep running;
+new ones should not be created. Ignore any prompt or screen that suggests
+`parachute install scribe`, including the setup wizard's last screen.
 
 **Modules that *are* published and installable**, if you were asked for them:
-`parachute install vault` (`@openparachute/vault`, which `parachute init`
-already installs) and `parachute install surface` (`@openparachute/surface` —
-the UI host). Confirm before installing anything else:
+`parachute install surface` (`@openparachute/surface`, the UI host). The vault
+is part of Parachute 0.8 and `parachute init` sets it up; don't
+`parachute install vault` from npm next to it. Confirm before installing anything else:
 
 ```bash
 npm view @openparachute/<name> version
@@ -391,7 +407,7 @@ taken, the same applies: free it rather than working around it.
 
 **`parachute status` says `bun-linked → …` on a fresh install.** You installed
 from a git checkout instead of npm. See step 2. Remove the link and
-`bun add -g @openparachute/hub`.
+`bun add -g @openparachute/core@next`.
 
 **A client cannot reach the MCP endpoint.** Confirm the URL ends in `/mcp`,
 points at the *hub* origin rather than port 1940, and carries the right vault
@@ -415,14 +431,16 @@ PARACHUTE_ADMIN_PASS="<a strong password you generated and recorded>"
 VAULT_NAME="default"
 HUB="http://127.0.0.1:1939"
 
-# 1. bun
+# 1. bun (its installer needs unzip, which cloud images lack)
+command -v unzip >/dev/null || { apt-get -o DPkg::Lock::Timeout=120 update -qq && apt-get -o DPkg::Lock::Timeout=120 install -y unzip; }
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 command -v bun >/dev/null || curl -fsSL https://bun.sh/install | bash
 hash -r
 
-# 2. hub, from npm
-bun add -g @openparachute/hub
+# 2. Parachute 0.8, from npm (a box that already has 0.7 stays on it: see step 2)
+[ ! -d "$BUN_INSTALL/install/global/node_modules/@openparachute/hub" ] || { echo "Parachute 0.7 is installed here; see step 2" >&2; exit 1; }
+bun add -g @openparachute/core@next
 hash -r
 parachute --version
 
@@ -463,20 +481,24 @@ TOKEN="$(parachute auth mint-token --scope "vault:$VAULT_NAME:read" | tail -n1)"
 [ "$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $TOKEN" \
      "$HUB/vault/$VAULT_NAME/api/notes")" = "200" ]
 
+# keep `parachute` on PATH for the next login shell
+grep -q '.bun/bin' ~/.bashrc 2>/dev/null || echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.bashrc
+
 echo "Parachute is up. MCP endpoint: $HUB/vault/$VAULT_NAME/mcp"
 ```
 
 ## Housekeeping
 
-- **Upgrade everything**: `parachute upgrade` sweeps the hub and every installed
-  module to the latest release; vault migrations run automatically on the first
-  post-upgrade boot.
+- **Upgrade**: Parachute itself with `bun add -g @openparachute/core@next`, then
+  `parachute restart`; vault migrations run automatically on the first boot
+  after. `parachute upgrade` updates the app and other modules; it leaves the
+  hub and vault to that line, since they are part of core.
 - **Logs**: `parachute logs vault -f` (or `hub`, `surface`).
 - **Lifecycle**: `parachute start|stop|restart <service>` — short service names
   (`vault`, not `parachute-vault`).
 - **Health triage**: `parachute doctor` runs the checks and names the one thing
   to fix.
-- **Backup**: `parachute-vault export <dir>` writes the whole vault to portable
+- **Backup**: `parachute vault export <dir>` writes the whole vault to portable
   markdown; `import` reads it back. Everything is plain files — leaving is a
   copy, not a migration.
 - **Config lives in `~/.parachute/`** (override with `PARACHUTE_HOME`), with
