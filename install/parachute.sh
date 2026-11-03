@@ -54,6 +54,7 @@ CHANNEL="${PARACHUTE_CHANNEL:-latest}"
 NO_TRANSCRIPTION="${PARACHUTE_NO_TRANSCRIPTION:-}"
 LOCAL_ONLY="${PARACHUTE_LOCAL:-}"
 DRY_RUN="${PARACHUTE_DRY_RUN:-}"
+DOMAIN_KEPT=""
 
 usage() {
   if [ -f "$0" ] && head -1 "$0" | grep -q bash; then
@@ -152,6 +153,18 @@ if [ "$PLATFORM" = "linux" ]; then
   ok "Base packages present"
 fi
 
+# Was this box already answering on HTTPS before this run touched anything? Then a failed check later (a slow
+# restart, a blip) must not reset the origin and stop Caddy on a box that worked.
+WAS_LIVE=""
+PRE_HOST="$DOMAIN"
+if [ -z "$PRE_HOST" ] && [ "$PLATFORM" = "linux" ] && [ -f /etc/caddy/Caddyfile ]; then
+  PRE_HOST="$(sed -n '2s/^\([^ {]*\).*/\1/p' /etc/caddy/Caddyfile)"
+fi
+if [ -z "$DRY_RUN" ] && [ -n "$PRE_HOST" ] \
+   && curl -fsS --max-time 5 "https://${PRE_HOST}/health" 2>/dev/null | grep -q '"db":"ok"'; then
+  WAS_LIVE=1
+fi
+
 # Bun. On Mac this was the documented manual prerequisite ("You'll need Bun 1.3
 # or later") and the single most common reason a Mac install stalled before it
 # began. Installing it is one line; making someone go read another site first is
@@ -196,7 +209,8 @@ fi
 step "Installing Parachute (hub + vault, channel: ${CHANNEL})"
 # What ran before this run, so an update can restart the hub onto the new version (init won't: it leaves a
 # hub that already answers alone).
-BEFORE_VERSION="$(parachute --version 2>/dev/null || true)"
+installed_versions() { echo "$(parachute --version 2>/dev/null || true) $(parachute-vault --version 2>/dev/null || true)"; }
+BEFORE_VERSION="$(installed_versions)"
 run bun add -g "@openparachute/hub@${CHANNEL}" "@openparachute/vault@${CHANNEL}"
 ok "hub + vault installed"
 
@@ -234,8 +248,8 @@ if [ "$PLATFORM" = "linux" ]; then
   INIT_ARGS+=(--no-browser)
 fi
 run parachute init "${INIT_ARGS[@]}"
-AFTER_VERSION="$(parachute --version 2>/dev/null || true)"
-if [ -z "$DRY_RUN" ] && [ -n "$BEFORE_VERSION" ] && [ "$BEFORE_VERSION" != "$AFTER_VERSION" ]; then
+AFTER_VERSION="$(installed_versions)"
+if [ -z "$DRY_RUN" ] && [ -n "${BEFORE_VERSION// /}" ] && [ "$BEFORE_VERSION" != "$AFTER_VERSION" ]; then
   info "Updated ${BEFORE_VERSION} → ${AFTER_VERSION}; restarting the hub onto it"
   run parachute restart || warn "couldn't restart the hub — run: parachute restart"
 fi
@@ -304,8 +318,11 @@ fetch_public_ip() {
 # Caddyfile, instead of replacing a domain of your own with <ip>.sslip.io.
 if [ -z "$DOMAIN" ] && [ -z "$LOCAL_ONLY" ] && [ "$PLATFORM" = "linux" ] \
    && head -1 /etc/caddy/Caddyfile 2>/dev/null | grep -q '^# Managed by Parachute install'; then
-  DOMAIN="$(sed -n '2s/^\([^ {]*\).*/\1/p' /etc/caddy/Caddyfile)"
-  [ -n "$DOMAIN" ] && info "Keeping the address set up earlier: ${DOMAIN} (pass --domain to change it)"
+  KEPT="$(sed -n '2s/^\([^ {]*\).*/\1/p' /etc/caddy/Caddyfile)"
+  if printf '%s' "$KEPT" | grep -qE '^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$'; then
+    DOMAIN="$KEPT"; DOMAIN_KEPT=1
+    info "Keeping the address set up earlier: ${DOMAIN} (pass --domain to change it)"
+  fi
 fi
 PUBLIC_HOST="$DOMAIN"
 if [ -n "$LOCAL_ONLY" ] && [ -z "$DOMAIN" ]; then
@@ -323,7 +340,7 @@ elif [ "$PLATFORM" = "linux" ] && [ -z "$PUBLIC_HOST" ]; then
     warn "Couldn't determine a public IP — staying on localhost."
     warn "Expose it later with: parachute expose tailnet"
   fi
-elif [ -n "$DOMAIN" ] && [ "$PLATFORM" = "linux" ]; then
+elif [ -n "$DOMAIN" ] && [ "$PLATFORM" = "linux" ] && [ -z "${DOMAIN_KEPT:-}" ]; then
   info "Point an A-record for ${DOMAIN} at this box before/while this runs,"
   info "or Let's Encrypt's challenge fails. Re-run once DNS lands — it's idempotent."
 fi
@@ -331,10 +348,7 @@ fi
 if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
   DOMAIN="$PUBLIC_HOST"
   step "Serving ${DOMAIN} over HTTPS"
-  WAS_LIVE=""
-  if [ -z "$DRY_RUN" ] && curl -fsS --max-time 5 "https://${DOMAIN}/health" 2>/dev/null | grep -q '"db":"ok"'; then
-    WAS_LIVE=1
-  fi
+  [ "$PRE_HOST" = "$DOMAIN" ] || WAS_LIVE=""
   if command -v caddy >/dev/null 2>&1; then
     ok "Caddy already installed"
   else
@@ -355,7 +369,9 @@ if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
     # Caddyfile", sets the origin in hub_settings, and silently loses the
     # ability to update the vhost later. Observed on a real box: HTTPS worked,
     # but the two halves disagreed about who owned the file.
-    printf '# Managed by Parachute install — edits may be overwritten\n%s {\n\treverse_proxy 127.0.0.1:1939\n}\n' "$DOMAIN" | $SUDO tee /etc/caddy/Caddyfile >/dev/null
+    # This Caddy is the edge: strip the trust signals only a real Cloudflare / Tailscale edge may set, or a
+    # client could send Tailscale-User-Login and be labelled "tailnet" (as server.sh does).
+    printf '# Managed by Parachute install — edits may be overwritten\n%s {\n\treverse_proxy 127.0.0.1:1939 {\n\t\theader_up -Cf-Ray\n\t\theader_up -Cf-Connecting-Ip\n\t\theader_up -Tailscale-Funnel-Request\n\t\theader_up -Tailscale-User-Login\n\t}\n}\n' "$DOMAIN" | $SUDO tee /etc/caddy/Caddyfile >/dev/null
   else
     info "[dry-run] write /etc/caddy/Caddyfile for ${DOMAIN} → 127.0.0.1:1939"
   fi
