@@ -14,7 +14,7 @@ is the only path that works without a human at a terminal.
 
 - [Headless install runbook](https://parachute.computer/install.md): imperative, copy-pasteable, non-interactive install of hub + vault on a fresh Ubuntu/Debian box or a Mac. Includes verification commands, known gaps, and troubleshooting. Same page rendered for humans: https://parachute.computer/install/runbook/
 - [Self-host, for humans](https://parachute.computer/start/): the narrative version — why self-host, where to run it, what the setup wizard asks.
-- [One-line installer](https://parachute.computer/install/parachute.sh): the curl-able script the human page (/start/) recommends, for a Ubuntu/Debian box or a Mac. Installs hub + vault + app; on a Linux box with a public IP it adds Caddy and a real Let's Encrypt certificate, and falls back to http://127.0.0.1:1939 if that address isn't reachable (`--local` skips it). [server.sh](https://parachute.computer/install/server.sh) is the cloud-init variant. Stops at "open this URL in your browser" — an agent must finish it with `parachute setup-wizard` (see the runbook).
+- [One-line installer](https://parachute.computer/install/parachute.sh): the curl-able script the human page (/start/) recommends, for a Ubuntu/Debian box or a Mac. Installs hub + vault + app; on a Linux box with a public IP it adds Caddy and a real Let's Encrypt certificate, and falls back to http://127.0.0.1:1939 if that address isn't reachable (`--local` skips it). It also works as cloud-init User Data. ([server.sh](https://parachute.computer/install/server.sh) is an older cloud-init script; prefer parachute.sh.) Stops at "open this URL in your browser" — an agent must finish it with `parachute setup-wizard` (see the runbook).
 
 ## Guides
 

@@ -262,9 +262,11 @@ one pass:
 curl -fsSL https://parachute.computer/install/parachute.sh | bash
 ```
 
-It is fully non-interactive and it replaces steps 1–3 above. (For cloud-init
-User Data, `install/server.sh` does the same and writes the setup token to
-`/root/parachute-setup.txt`.) With no domain you
+It is fully non-interactive and it replaces steps 1–3 above. It also works as
+cloud-init User Data; the setup token then lands in
+`/var/log/cloud-init-output.log`. (The older `install/server.sh` installs the
+deprecated scribe and doesn't check that HTTPS works; don't use it for a new
+box.) With no domain you
 get working HTTPS at `https://<your-ip>.sslip.io`; set
 `PARACHUTE_DOMAIN=vault.example.com` (with an A record already pointing at the
 box) to use your own. **It stops where an agent cannot follow**: it prints a

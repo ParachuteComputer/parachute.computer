@@ -31,6 +31,9 @@
 # Everything is a flag or an environment variable.
 
 set -euo pipefail
+# cloud-init runs User Data with HOME unset; everything below lives under it.
+export HOME="${HOME:-$(getent passwd "$(id -un)" 2>/dev/null | cut -d: -f6)}"
+export HOME="${HOME:-/root}"
 
 # ── output ───────────────────────────────────────────────────────────────────
 if [ -t 1 ]; then
@@ -53,7 +56,13 @@ LOCAL_ONLY="${PARACHUTE_LOCAL:-}"
 DRY_RUN="${PARACHUTE_DRY_RUN:-}"
 
 usage() {
-  sed -n '2,32p' "$0" | sed 's/^# \{0,1\}//'
+  if [ -f "$0" ] && head -1 "$0" | grep -q bash; then
+    sed -n '2,31p' "$0" | sed 's/^# \{0,1\}//'
+  else
+    # Under `curl … | bash` there's no file to read the header from.
+    printf '%s\n' "Options: --domain <host>  --local  --no-transcription  --channel <latest|rc>  --dry-run" \
+      "Details: curl -fsSL https://parachute.computer/install/parachute.sh | head -32"
+  fi
   exit 0
 }
 
@@ -185,6 +194,9 @@ fi
 
 # ── 2. parachute ─────────────────────────────────────────────────────────────
 step "Installing Parachute (hub + vault, channel: ${CHANNEL})"
+# What ran before this run, so an update can restart the hub onto the new version (init won't: it leaves a
+# hub that already answers alone).
+BEFORE_VERSION="$(parachute --version 2>/dev/null || true)"
 run bun add -g "@openparachute/hub@${CHANNEL}" "@openparachute/vault@${CHANNEL}"
 ok "hub + vault installed"
 
@@ -222,6 +234,11 @@ if [ "$PLATFORM" = "linux" ]; then
   INIT_ARGS+=(--no-browser)
 fi
 run parachute init "${INIT_ARGS[@]}"
+AFTER_VERSION="$(parachute --version 2>/dev/null || true)"
+if [ -z "$DRY_RUN" ] && [ -n "$BEFORE_VERSION" ] && [ "$BEFORE_VERSION" != "$AFTER_VERSION" ]; then
+  info "Updated ${BEFORE_VERSION} → ${AFTER_VERSION}; restarting the hub onto it"
+  run parachute restart || warn "couldn't restart the hub — run: parachute restart"
+fi
 ok "hub running; vault + app installed"
 
 # ── 4. transcription ─────────────────────────────────────────────────────────
@@ -283,6 +300,13 @@ fetch_public_ip() {
   PUBLIC_IP="$(printf '%s' "$PUBLIC_IP" | tr -d '[:space:]')"
 }
 
+# A re-run without --domain keeps the address an earlier run or `parachute hub set-origin` wrote to the
+# Caddyfile, instead of replacing a domain of your own with <ip>.sslip.io.
+if [ -z "$DOMAIN" ] && [ -z "$LOCAL_ONLY" ] && [ "$PLATFORM" = "linux" ] \
+   && head -1 /etc/caddy/Caddyfile 2>/dev/null | grep -q '^# Managed by Parachute install'; then
+  DOMAIN="$(sed -n '2s/^\([^ {]*\).*/\1/p' /etc/caddy/Caddyfile)"
+  [ -n "$DOMAIN" ] && info "Keeping the address set up earlier: ${DOMAIN} (pass --domain to change it)"
+fi
 PUBLIC_HOST="$DOMAIN"
 if [ -n "$LOCAL_ONLY" ] && [ -z "$DOMAIN" ]; then
   info "--local: staying on http://127.0.0.1:1939 (no public HTTPS)."
@@ -307,6 +331,10 @@ fi
 if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
   DOMAIN="$PUBLIC_HOST"
   step "Serving ${DOMAIN} over HTTPS"
+  WAS_LIVE=""
+  if [ -z "$DRY_RUN" ] && curl -fsS --max-time 5 "https://${DOMAIN}/health" 2>/dev/null | grep -q '"db":"ok"'; then
+    WAS_LIVE=1
+  fi
   if command -v caddy >/dev/null 2>&1; then
     ok "Caddy already installed"
   else
@@ -344,7 +372,7 @@ if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
   if [ -n "$DRY_RUN" ]; then
     LIVE=1
   else
-    info "Checking https://${DOMAIN} from the outside (up to 2 minutes)…"
+    info "Checking https://${DOMAIN} from this box (up to 2 minutes)…"
     # Time-boxed, not count-boxed: a pending certificate fails fast, and a slow
     # first ACME order deserves the full two minutes.
     PROBE_END=$((SECONDS + 120))
@@ -356,6 +384,10 @@ if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
   fi
   if [ -n "$LIVE" ]; then
     ok "https://${DOMAIN} is live"
+  elif [ -n "$WAS_LIVE" ]; then
+    # It answered before this run: a slow restart or a blip, not a box nobody can reach. Leave it as it was.
+    warn "https://${DOMAIN} answered before this run but not just now. Leaving the HTTPS setup as it was."
+    warn "Check in a minute: curl -s https://${DOMAIN}/health"
   else
     warn "https://${DOMAIN} isn't reachable yet (no certificate, or ports 80/443 don't reach this box)."
     warn "Staying on http://127.0.0.1:1939 for now, so setup still works."

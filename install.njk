@@ -75,7 +75,7 @@ permalink: /start/
             <li>
                 <h3>Open the address and make your account</h3>
                 <p>Open the address from the last step in a browser. At home, use a browser <em>on that box</em>, or forward it to your laptop with <code>ssh -L 1939:127.0.0.1:1939 you@the-box</code> and open <code>http://127.0.0.1:1939</code> there.</p>
-                <p>The setup wizard has five short screens:</p>
+                <p>The setup wizard has five steps (Welcome and Account share the first screen):</p>
                 <p class="start-wizard">
                     <span class="status-badge status-done">Welcome</span> <span aria-hidden="true">&rarr;</span>
                     <span class="status-badge status-done">Account</span> <span aria-hidden="true">&rarr;</span>
@@ -103,7 +103,7 @@ parachute doctor    # every check passes, or it names the one fix</code></pre>
                 <ul>
                     <li><strong>Claude Code</strong> (on the same box or over your network): <code>claude mcp add --transport http parachute &lt;your-address&gt;/vault/default/mcp</code>, then start a new session and run <code>/mcp</code>. The first use opens your hub's sign-in.</li>
                     <li><strong>claude.ai, ChatGPT and other web AIs</strong> add it as a <strong>custom connector</strong>. They connect from their own servers, so they need a public HTTPS address: a server, or <code>parachute expose public</code> (see <a href="#reach">below</a>). A <code>127.0.0.1</code> address won't work for them.</li>
-                    <li><strong>A script or a client without sign-in:</strong> mint a token on the vault's <strong>Tokens</strong> page, and set its scope to <strong>write</strong> (the page starts on admin), or run <code>parachute auth mint-token --scope vault:default:write</code>. Send it as <code>Authorization: Bearer &lt;token&gt;</code>.</li>
+                    <li><strong>A script or a client without sign-in:</strong> mint a token on the vault's <strong>Tokens</strong> page, and set its scope to <strong>write</strong> (the page starts on admin), or run <code>parachute auth mint-token --scope vault:default:write</code> (on an HTTPS address, run <code>parachute auth rotate-operator</code> once first; a known issue). Send it as <code>Authorization: Bearer &lt;token&gt;</code>.</li>
                 </ul>
             </li>
             <li>
@@ -159,9 +159,9 @@ parachute doctor    # every check passes, or it names the one fix</code></pre>
 
         <details style="margin-top: 0.75rem;">
             <summary>Unattended (cloud-init) or an AI doing the install</summary>
-            <p style="margin-top: 1rem;">For a box that installs itself at first boot, put this in its <strong>cloud-init / User Data</strong>; it writes the setup token to <code>/root/parachute-setup.txt</code>:</p>
+            <p style="margin-top: 1rem;">For a box that installs itself at first boot, put the same line in its <strong>cloud-init / User Data</strong>. The setup token lands in the boot log (<code>grep -A1 'Setup token' /var/log/cloud-init-output.log</code>), or read it any time as under <em>Lost the token?</em>:</p>
             <div class="code-inline"><code>#!/bin/bash<br>
-curl -fsSL https://parachute.computer/install/server.sh | bash</code></div>
+curl -fsSL https://parachute.computer/install/parachute.sh | bash</code></div>
             <p style="margin-top: 0.75rem;">Asking an AI agent to install it? Hand it <a href="/install.md">parachute.computer/install.md</a>: a runbook that drives setup entirely by flags, with the checks that prove it worked.</p>
         </details>
     </section>
@@ -206,7 +206,7 @@ curl -fsSL https://parachute.computer/install/server.sh | bash</code></div>
                 <li><strong>&ldquo;Wrong bootstrap token.&rdquo;</strong> The hub makes a new one each time it restarts. Show the current one, on the box: <code>curl -s -H 'Accept: application/json' http://127.0.0.1:1939/admin/setup | grep -o 'parachute-bootstrap-[A-Za-z0-9_-]*'</code>.</li>
                 <li><strong>The wizard sent you to a sign-in page after the Vault step.</strong> Sign in with the account you just made. Your vault exists; its connection details are at <code>&lt;your-address&gt;/vault/default/admin/</code>.</li>
                 <li><strong><code>mint-token</code> says <code>unexpected "iss" claim value</code>.</strong> The hub's address changed after the CLI got its key. Run <code>parachute auth rotate-operator</code>, then mint again.</li>
-                <li><strong><code>parachute: command not found</code> in a new shell.</strong> Add Bun to your path: <code>echo 'export PATH="$HOME/.bun/bin:$PATH"' &gt;&gt; ~/.bashrc</code>, then open a new shell.</li>
+                <li><strong><code>parachute: command not found</code> in a new shell.</strong> Add Bun to your path: <code>echo 'export PATH="$HOME/.bun/bin:$PATH"' &gt;&gt; ~/.bashrc</code> (on a Mac, <code>~/.zshrc</code>), then open a new shell.</li>
                 <li><strong>&ldquo;Blocked &hellip; postinstalls&rdquo; during install.</strong> Run <code>bun pm -g untrusted</code> to see which. If they're only <code>onnxruntime-node</code> and <code>protobufjs</code>, that's expected: they only fetch optional GPU files. Anything else, re-run the install.</li>
                 <li><strong>Port 1939 or 1940 already in use.</strong> The hub always uses 1939, with the vault on 1940. Find what holds the port with <code>lsof -i :1939</code> and free it.</li>
                 <li><strong>A client can't reach the MCP endpoint.</strong> Confirm the URL ends in <code>/mcp</code> and points at the <em>hub</em> origin (the address you sign in at), not the vault's own port <code>1940</code>.</li>
