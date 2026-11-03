@@ -36,6 +36,8 @@ avoidable in a single decision:
 - **[Bun](https://bun.sh) 1.3.0 or later.** Step 1 installs it if it is
   missing. Bun is the only runtime — there is no Node requirement.
 - **Outbound HTTPS**, to reach npm and bun.sh.
+- **`unzip`**, which Bun's installer needs. Stock Ubuntu and Debian cloud images
+  don't ship it: `apt-get install -y unzip`.
 - **Two free local ports: `1939` (hub) and `1940` (vault).** The hub pins 1939
   with no fallback — if something else holds it, the install fails loudly
   rather than moving. Neither port needs to be open to the internet; on Linux
@@ -49,6 +51,7 @@ avoidable in a single decision:
 ## 1. Install Bun
 
 ```bash
+command -v unzip >/dev/null || apt-get install -y unzip
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 command -v bun >/dev/null || curl -fsSL https://bun.sh/install | bash
@@ -82,9 +85,9 @@ frequently a stale release candidate — and `parachute status` will then report
 `SOURCE` column of `parachute status` on a machine you were asked to *install*,
 you took the wrong path.
 
-Check the output of `bun add -g` for a line reading `Blocked N postinstall`. If
-it appears, Bun refused to run a package's postinstall and the install is
-silently broken — re-run it, do not proceed.
+`Blocked 2 postinstalls` during install is expected: they are
+`onnxruntime-node` and `protobufjs`, whose postinstalls only fetch optional GPU
+binaries. The install works without them.
 
 ## 3. Bring the hub up (non-interactive)
 
@@ -252,10 +255,12 @@ a script that does hub + vault + Caddy + a real Let's Encrypt certificate in
 one pass:
 
 ```bash
-curl -fsSL https://parachute.computer/install/server.sh | bash
+curl -fsSL https://parachute.computer/install/parachute.sh | bash
 ```
 
-It is fully non-interactive and it replaces steps 1–3 above. With no domain you
+It is fully non-interactive and it replaces steps 1–3 above. (For cloud-init
+User Data, `install/server.sh` does the same and writes the setup token to
+`/root/parachute-setup.txt`.) With no domain you
 get working HTTPS at `https://<your-ip>.sslip.io`; set
 `PARACHUTE_DOMAIN=vault.example.com` (with an A record already pointing at the
 box) to use your own. **It stops where an agent cannot follow**: it prints a
@@ -337,21 +342,16 @@ leave the hub.
 These are current, real, and will waste your time if you discover them the hard
 way.
 
-**`parachute install app` may fail with a 404 — check before you rely on it.**
-The hub resolves the short name `app` to `@openparachute/app` and runs
-`bun add -g` against it. That package is being published, so verify rather than
-assume:
+**The app is installed for you, and my.parachute.computer needs HTTPS.**
+`parachute init` installs `@openparachute/app` and serves it at the hub's `/`.
+On a loopback install (`http://127.0.0.1:1939`), use that: the hosted
+[my.parachute.computer](https://my.parachute.computer) runs in the browser under
+a policy that only allows HTTPS connections, so it cannot open an `http://` hub.
 
-```sh
-npm view @openparachute/app version
-```
-
-If that 404s, the package is not on npm yet and `parachute install app` will
-fail — no flag fixes it. Two paths that work either way: build from source
-([ParachuteComputer/parachute-app](https://github.com/ParachuteComputer/parachute-app)),
-or skip installing a UI entirely and use
-[my.parachute.computer](https://my.parachute.computer) — a browser app that
-talks to any vault, so it needs nothing on the box.
+**If `parachute auth mint-token` says `unexpected "iss" claim value`,** the
+hub's origin changed after the CLI's operator token was issued (for example
+after `parachute hub set-origin`). Run `parachute auth rotate-operator`, then
+mint again. `parachute doctor` names this fix too.
 
 **Do not install scribe.** `@openparachute/scribe`, the standalone
 transcription module, was deprecated on 2026-07-24. Its capability is folding
@@ -415,7 +415,8 @@ PARACHUTE_ADMIN_PASS="<a strong password you generated and recorded>"
 VAULT_NAME="default"
 HUB="http://127.0.0.1:1939"
 
-# 1. bun
+# 1. bun (its installer needs unzip, which cloud images lack)
+command -v unzip >/dev/null || apt-get install -y unzip
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 command -v bun >/dev/null || curl -fsSL https://bun.sh/install | bash
@@ -462,6 +463,9 @@ parachute status || true
 TOKEN="$(parachute auth mint-token --scope "vault:$VAULT_NAME:read" | tail -n1)"
 [ "$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $TOKEN" \
      "$HUB/vault/$VAULT_NAME/api/notes")" = "200" ]
+
+# keep `parachute` on PATH for the next login shell
+grep -q '.bun/bin' ~/.bashrc 2>/dev/null || echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.bashrc
 
 echo "Parachute is up. MCP endpoint: $HUB/vault/$VAULT_NAME/mcp"
 ```

@@ -1,14 +1,14 @@
 ---
 layout: base.njk
 title: "Self-host Parachute"
-description: "Stand up your own Parachute — one hub, your vault at the core, one command. Runs on any fresh Ubuntu/Debian box (Hetzner, EC2, DigitalOcean, or a machine in your closet) or your Mac. Own the box, own the data, no rent."
+description: "Stand up your own Parachute in five steps: one command on a Ubuntu/Debian server, a Linux box at home, or your Mac; a setup wizard; then connect your AI. Own the box, own the data, no rent."
 permalink: /start/
 ---
 <main>
 
     <section class="hero">
         <h1 class="fade-up fade-up-2">Self-host Parachute</h1>
-        <p class="tagline fade-up fade-up-3">Your own box. Your own data. One command.</p>
+        <p class="tagline fade-up fade-up-3">Your own box. Your own data. One command, five steps, about ten minutes.</p>
     </section>
 
     {# ============ MOVEMENT 1 · WHY ============ #}
@@ -28,169 +28,154 @@ permalink: /start/
         <p class="muted">Rather not run a box at all? <a href="/pricing/">Parachute Cloud</a> is the hosted path &mdash; we run the box, you keep the vault. Everything below is for running it yourself.</p>
     </section>
 
-    {# ============ MOVEMENT 2 · MENTAL MODEL ============ #}
+    {# ============ MOVEMENT 2 · PICK YOUR BOX ============ #}
     <section class="section">
-        <h2>What you're standing up</h2>
+        <h2>Pick your box</h2>
 
-        <p>One picture holds the whole thing. A <strong>hub</strong> supervises everything. Your <strong>vault</strong> &mdash; the knowledge graph your notes and your AI read and write &mdash; is the core. <strong>One command</strong> brings the hub up, and a browser <strong>setup wizard</strong> walks the rest.</p>
-
-        <div class="mm-wrap">
-            <div class="mm" role="img" aria-label="One command brings up the hub, which supervises the modules — with the vault as the core — and a setup wizard walks the rest.">
-                <div class="mm-cmd"><code>one command</code> <span>&rarr; the hub comes up</span></div>
-                <div class="mm-arrow" aria-hidden="true">&#8595;</div>
-                <div class="mm-hub">
-                    <div class="mm-hub-label">Hub &middot; supervises everything &middot; :1939</div>
-                    <div class="mm-modules">
-                        <div class="mm-mod mm-mod-core">Vault<small>the core &mdash; your memory</small></div>
-                        <div class="mm-mod">Surface<small>the UI</small></div>
-                        <div class="mm-mod">Scribe<small>transcription</small></div>
-                        <div class="mm-mod">Agent<small>preview</small></div>
-                    </div>
-                </div>
-                <div class="mm-arrow" aria-hidden="true">&#8595;</div>
-                <div class="mm-wizard">A setup wizard opens in your browser and walks the rest.</div>
-            </div>
-        </div>
-
-        <p style="margin-top: 1.75rem;">That wizard is four short steps &mdash; the same on every path:</p>
-
-        <p style="margin-bottom: 1.25rem;">
-            <span class="status-badge status-done">Account</span> <span style="color: var(--fg-dim);">&rarr;</span>
-            <span class="status-badge status-done">Vault</span> <span style="color: var(--fg-dim);">&rarr;</span>
-            <span class="status-badge status-done">Expose</span> <span style="color: var(--fg-dim);">&rarr;</span>
-            <span class="status-badge status-done">Done</span>
-        </p>
-
-        <ul>
-            <li><strong>Account.</strong> Create your admin login. On a server you paste a one-time bootstrap token first, then choose your own username + password &mdash; in the browser, never in a config file.</li>
-            <li><strong>Vault.</strong> Create your first vault, or import one from a git repo. A fresh vault opens with a <strong>Getting Started</strong> note &mdash; a short guide your AI reads to help shape the vault around how you actually think and work.</li>
-            <li><strong>Expose.</strong> Choose how (or whether) to reach your hub from outside. Auto-skips on a laptop; pre-selects public on a server so the wizard URL is reachable.</li>
-            <li><strong>Done.</strong> The wizard hands you everything you need to connect your AI.</li>
-        </ul>
-    </section>
-
-    {# ============ MOVEMENT 3 · PICK WHERE IT RUNS ============ #}
-    <section class="section">
-        <h2>Pick where it runs</h2>
-
-        <p>Two homes, one stack, <strong>one command</strong>. An always-on <strong>Linux box</strong> your phone and your AIs can reach around the clock, or your own <strong>Mac</strong> to try it in a minute &mdash; the same line sets up either. Nothing's locked in &mdash; start on the laptop and move to a box whenever you like.</p>
+        <p>The same one-line installer sets up all three. What changes is the address you'll open at the end.</p>
 
         <div class="where-grid">
-
-            {# ---- LINUX / ANY VPS ---- #}
             <div class="where-card">
-                <h3>Any Linux box &mdash; always-on</h3>
-                <p>Any fresh <strong>Ubuntu or Debian</strong> box works the same way: <strong>Hetzner</strong> (x86 or arm64), <strong>EC2</strong>, <strong>DigitalOcean</strong>, or an Ubuntu machine in your closet. Create it, open a root shell, and paste one line:</p>
-
-                <div class="code-inline">
-<code>curl -fsSL https://parachute.computer/install/parachute.sh | bash</code>
-                </div>
-
-                <p>It self-installs hub + vault + the app, sets up local transcription, fetches a real Let's Encrypt cert via <a href="https://caddyserver.com" target="_blank" rel="noopener">Caddy</a>, and prints your <strong>setup URL</strong> right there. Open the URL, set your username + password in the browser &mdash; you're the owner. No SSH key to wrangle, and <strong>no domain needed</strong>: you get working HTTPS at <code>https://&lt;your-ip&gt;.sslip.io</code> automatically.</p>
-
-                <p class="muted"><strong>Firewall:</strong> open ports <strong>80</strong> and <strong>443</strong> &mdash; a <em>Security Group</em> on EC2, a <em>Cloud Firewall</em> on Hetzner. DigitalOcean droplets and closet boxes need nothing.</p>
-
-                <p class="muted"><strong>apt-based only.</strong> RPM distros (Amazon Linux, RHEL) aren't supported yet.</p>
-
-                <details style="margin-top: 1rem;">
-                    <summary>DigitalOcean, click by click</summary>
-                    <ol style="margin-top: 1rem;">
-                        <li><strong>Create an Ubuntu 24.04 droplet.</strong> In the DigitalOcean console (<a href="https://cloud.digitalocean.com" target="_blank" rel="noopener">cloud.digitalocean.com</a>) &rarr; <strong>Create &rarr; Droplets</strong>: image <strong>Ubuntu 24.04 (LTS) x64</strong>, size <strong>$6/mo (1 GB)</strong> for hub + vault (pick $12/mo / 2 GB for on-box transcription or to run Claude Code on the box), region nearest you. An SSH key is optional &mdash; you won't need it.</li>
-                        <li><strong>Open the droplet's Console.</strong> On its page click <strong>Access &rarr; Launch Droplet Console</strong> &mdash; a root terminal right in your browser. (If it prompts for a password, set one on that Access tab first.)</li>
-                        <li><strong>Paste the one-liner above and run it.</strong></li>
-                        <li><strong>Wait ~2&ndash;3 minutes.</strong> It prints your <strong>bootstrap token</strong> (<code>parachute-bootstrap-&hellip;</code>) and <strong>setup URL</strong> in the Console.</li>
-                        <li><strong>Open that URL</strong> &mdash; it lands on <code>/admin/setup</code>. Paste the token, choose your username + password. Done.</li>
-                    </ol>
-                    <p style="margin-top: 0.75rem;">The token is single-use and regenerates if the hub restarts; re-read the current one any time with <code>cat parachute-setup.txt</code>.</p>
-                </details>
-
-                <details style="margin-top: 0.75rem;">
-                    <summary>Use your own domain</summary>
-                    <p style="margin-top: 1rem;">First point it at the box &mdash; in your DNS provider add an <strong>A record</strong> for the hostname you want (e.g. <code>vault.example.com</code>) &rarr; your box's public IPv4. Then run it with the domain set:</p>
-                    <div class="code-inline">
-<code>PARACHUTE_DOMAIN=vault.example.com curl -fsSL https://parachute.computer/install/parachute.sh | bash</code>
-                    </div>
-                    <p style="margin-top: 0.75rem;">Caddy fetches a Let's Encrypt cert for it automatically. Already running and want to switch addresses later? On the box, <code>parachute hub set-origin https://vault.example.com</code> rewrites Caddy, fetches a fresh cert, and restarts your modules &mdash; your data and account are untouched. Afterward, re-point your AI / MCP clients at the new URL.</p>
-                </details>
-
-                <details style="margin-top: 0.75rem;">
-                    <summary>Prefer unattended / Infrastructure-as-Code?</summary>
-                    <p style="margin-top: 1rem;">The unattended path still uses the older <code>server.sh</code>, which writes your bootstrap token to a file you can read over SSH &mdash; paste it into the box's <strong>cloud-init / User Data</strong> at create time, prefixed with a <code>#!/bin/bash</code> line, and it self-installs on first boot with no Console step:</p>
-                    <div class="code-inline">
-<code>#!/bin/bash<br>
-curl -fsSL https://parachute.computer/install/server.sh | bash</code>
-                    </div>
-                    <p style="margin-top: 0.75rem;">Then grab your bootstrap token once it's up: <code>ssh root@&lt;your-ip&gt; cat parachute-setup.txt</code> (or open the Console and <code>cat parachute-setup.txt</code>). For a domain in this path, add an <code>export PARACHUTE_DOMAIN=vault.example.com</code> line above the <code>curl</code>.</p>
-                </details>
+                <h3>A server with a public address</h3>
+                <p>A fresh <strong>Ubuntu or Debian</strong> VPS: DigitalOcean, Hetzner, EC2. Reachable by your phone and by web AIs like claude.ai, around the clock.</p>
+                <div class="code-inline"><code>curl -fsSL https://parachute.computer/install/parachute.sh | bash</code></div>
+                <p class="muted">You get HTTPS at <code>https://&lt;your-ip&gt;.sslip.io</code> with no domain. Open ports <strong>80</strong> and <strong>443</strong> first (a Security Group on EC2, a Cloud Firewall on Hetzner; DigitalOcean needs nothing).</p>
             </div>
-
-            {# ---- MAC ---- #}
             <div class="where-card">
-                <h3>Your Mac &mdash; try it in a minute</h3>
-                <p>Runs on your own machine under <strong>launchd</strong>, free, in about a minute. The catch: it sleeps when your Mac sleeps, so your phone and your AIs can't reach it while it's closed &mdash; perfect for kicking the tires. <strong>The same one line</strong> as the Linux box &mdash; it installs <a href="https://bun.sh" target="_blank" rel="noopener">Bun</a> for you if you don't have it:</p>
-
-                <div class="code-inline">
-<code>curl -fsSL https://parachute.computer/install/parachute.sh | bash</code>
-                </div>
-
-                <p><code>parachute init</code> starts your hub, installs your vault, and opens the browser setup wizard. On a laptop the <strong>Expose</strong> step auto-skips &mdash; you're signed in locally. Want it reachable around the clock later? Move to an always-on Linux box &mdash; same stack, nothing's locked in.</p>
-
-                <details style="margin-top: 1rem;">
-                    <summary>Checking your Bun version</summary>
-                    <ul style="margin-top: 1rem;">
-                        <li><strong>Check it.</strong> <code>bun --version</code> &mdash; if it's below 1.3, run <code>bun upgrade</code>.</li>
-                        <li><strong>Stuck on 1.2.x?</strong> You may see a cosmetic <code>InvalidPackageResolution</code> or <code>FileNotFound</code> warning during install &mdash; the package installs anyway. Upgrading to Bun 1.3 clears it.</li>
-                    </ul>
-                </details>
-
-                <details style="margin-top: 0.75rem;">
-                    <summary>Ports, and re-running</summary>
-                    <ul style="margin-top: 1rem;">
-                        <li><strong>Ports.</strong> The hub answers on <code>1939</code>; the vault runs on <code>1940</code> behind it.</li>
-                        <li><strong>Safe to re-run.</strong> <code>init</code> is idempotent. Check the stack any time with <code>parachute status</code>.</li>
-                    </ul>
-                </details>
+                <h3>A Linux box at home</h3>
+                <p>A spare machine or a laptop behind your home router. Private to you, and free.</p>
+                <div class="code-inline"><code>curl -fsSL https://parachute.computer/install/parachute.sh | bash -s -- --local</code></div>
+                <p class="muted"><code>--local</code> keeps it on <code>http://127.0.0.1:1939</code>. Without it the script tries public HTTPS, checks whether it's reachable, and falls back to local if your router doesn't forward ports 80 and 443.</p>
             </div>
-
+            <div class="where-card">
+                <h3>Your Mac</h3>
+                <p>To try it in a few minutes. It sleeps when your Mac sleeps, so your phone can't reach it while the lid is closed.</p>
+                <div class="code-inline"><code>curl -fsSL https://parachute.computer/install/parachute.sh | bash</code></div>
+                <p class="muted">Installs <a href="https://bun.sh" target="_blank" rel="noopener">Bun</a> if you don't have it, runs under launchd, and stays on <code>http://127.0.0.1:1939</code>.</p>
+            </div>
         </div>
+
+        <p class="muted">Apt-based Linux only for now (Ubuntu, Debian); RPM distros aren't supported yet. On a 1&nbsp;GB box, add <code>--no-transcription</code> to skip the ~400&nbsp;MB speech model; you can add it later with <code>parachute-vault transcription install</code>.</p>
+    </section>
+
+    {# ============ MOVEMENT 3 · FIVE STEPS ============ #}
+    <section class="section">
+        <h2>Five steps, about ten minutes</h2>
+
+        <ol class="start-flow">
+            <li>
+                <h3>Run the line for your box</h3>
+                <p>Open a root shell on the box (on a VPS, the provider's web console works) and paste the line from above. It takes two or three minutes, most of it downloading. It's safe to re-run. When it finishes you'll see:</p>
+<pre class="start-output"><code>==&gt; Done
+    Open  https://203.0.113.7.sslip.io  to finish setup in your browser.
+    Setup token, for the first screen only (ignore it if your admin account exists):
+      parachute-bootstrap-…</code></pre>
+                <p class="muted">At home or on a Mac the address is <code>http://127.0.0.1:1939</code>. Keep the token: you'll paste it once.</p>
+            </li>
+            <li>
+                <h3>Open the address and make your account</h3>
+                <p>Open the address from the last step in a browser. At home, use a browser <em>on that box</em>, or forward it to your laptop with <code>ssh -L 1939:127.0.0.1:1939 you@the-box</code> and open <code>http://127.0.0.1:1939</code> there.</p>
+                <p>The setup wizard has five short screens:</p>
+                <p class="start-wizard">
+                    <span class="status-badge status-done">Welcome</span> <span aria-hidden="true">&rarr;</span>
+                    <span class="status-badge status-done">Account</span> <span aria-hidden="true">&rarr;</span>
+                    <span class="status-badge status-done">Vault</span> <span aria-hidden="true">&rarr;</span>
+                    <span class="status-badge status-done">Expose</span> <span aria-hidden="true">&rarr;</span>
+                    <span class="status-badge status-done">Done</span>
+                </p>
+                <ul>
+                    <li><strong>Account:</strong> paste the setup token, then pick a username and password.</li>
+                    <li><strong>Vault:</strong> give it a name, or leave it blank for <code>default</code>. It opens with a <strong>Getting Started</strong> note your AI can read.</li>
+                    <li><strong>Expose:</strong> keep what's selected; you can change it later.</li>
+                    <li><strong>Done:</strong> your connection details. They're also on the vault's admin page any time: <code>&lt;your-address&gt;/vault/default/admin/</code>.</li>
+                </ul>
+            </li>
+            <li>
+                <h3>Check it worked</h3>
+                <p>On the box:</p>
+<pre class="start-output"><code>parachute status    # parachute-vault on 1940, active
+parachute doctor    # every check passes, or it names the one fix</code></pre>
+            </li>
+            <li id="connect-mcp-clients">
+                <h3>Connect your AI</h3>
+                <p>Every AI connects with one address, your vault's MCP endpoint:</p>
+                <div class="code-inline"><code>&lt;your-address&gt;/vault/default/mcp</code></div>
+                <ul>
+                    <li><strong>Claude Code</strong> (on the same box or over your network): <code>claude mcp add --transport http parachute &lt;your-address&gt;/vault/default/mcp</code>, then start a new session and run <code>/mcp</code>. The first use opens your hub's sign-in.</li>
+                    <li><strong>claude.ai, ChatGPT and other web AIs</strong> add it as a <strong>custom connector</strong>. They connect from their own servers, so they need a public HTTPS address: a server, or <code>parachute expose public</code> (see <a href="#reach">below</a>). A <code>127.0.0.1</code> address won't work for them.</li>
+                    <li><strong>A script or a client without sign-in:</strong> mint a token on the vault's <strong>Tokens</strong> page, and set its scope to <strong>write</strong> (the page starts on admin), or run <code>parachute auth mint-token --scope vault:default:write</code>. Send it as <code>Authorization: Bearer &lt;token&gt;</code>.</li>
+                </ul>
+            </li>
+            <li>
+                <h3>See your first note</h3>
+                <p>Ask your AI to <em>&ldquo;jot down that I'm trying Parachute today.&rdquo;</em> Then look:</p>
+                <ul>
+                    <li><strong>On an HTTPS address:</strong> open <a href="https://my.parachute.computer" target="_blank" rel="noopener">my.parachute.computer</a>, choose <strong>Connect your own vault</strong>, and enter <code>&lt;your-address&gt;/vault/default</code>.</li>
+                    <li><strong>On <code>http://127.0.0.1:1939</code>:</strong> open that address itself. The app is built into your hub. (my.parachute.computer can only open HTTPS addresses.)</li>
+                </ul>
+                <p>Then ask your AI to <em>&ldquo;read the Getting Started note and help me set up my parachute.&rdquo;</em></p>
+            </li>
+        </ol>
+    </section>
+
+    {# ============ MOVEMENT 3b · THE PICTURE ============ #}
+    <section class="section">
+        <h2>What you just stood up</h2>
+
+        <p>A <strong>hub</strong> on port 1939 signs you in and supervises everything. Your <strong>vault</strong>, the notes your AI reads and writes, sits behind it on 1940; every client reaches it through the hub. The <strong>app</strong> is the hub's front door at <code>/</code>. Voice notes become text inside the vault, on the box.</p>
+
+        <div class="mm-wrap">
+            <div class="mm" role="img" aria-label="The hub supervises the vault, the app, and any surfaces you build; your AI connects through the hub.">
+                <div class="mm-cmd"><code>your AI</code> <span>&rarr; &lt;address&gt;/vault/default/mcp</span></div>
+                <div class="mm-arrow" aria-hidden="true">&#8595;</div>
+                <div class="mm-hub">
+                    <div class="mm-hub-label">Hub &middot; sign-in and supervision &middot; :1939</div>
+                    <div class="mm-modules">
+                        <div class="mm-mod mm-mod-core">Vault<small>your notes &middot; :1940</small></div>
+                        <div class="mm-mod">App<small>the front door at /</small></div>
+                        <div class="mm-mod">Surfaces<small>UIs you build</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <details style="margin-top: 1.5rem;">
+            <summary>DigitalOcean, click by click</summary>
+            <ol style="margin-top: 1rem;">
+                <li><strong>Create an Ubuntu 24.04 droplet.</strong> In <a href="https://cloud.digitalocean.com" target="_blank" rel="noopener">cloud.digitalocean.com</a> &rarr; <strong>Create &rarr; Droplets</strong>: image <strong>Ubuntu 24.04 (LTS) x64</strong>, size <strong>$6/mo (1 GB)</strong> for hub + vault (add <code>--no-transcription</code>, or pick $12/mo for on-box transcription), region nearest you.</li>
+                <li><strong>Open the droplet's Console.</strong> On its page click <strong>Access &rarr; Launch Droplet Console</strong>: a root terminal in your browser.</li>
+                <li><strong>Paste the server line and wait two or three minutes.</strong> It ends with your address and your setup token.</li>
+                <li><strong>Open the address,</strong> paste the token, choose your username and password. Then follow steps 3 to 5 above.</li>
+            </ol>
+            <p style="margin-top: 0.75rem;">Lost the token? It changes whenever the hub restarts. Show the current one with <code>journalctl -u parachute-hub | grep -o 'parachute-bootstrap-[A-Za-z0-9_-]*' | tail -n1</code>.</p>
+        </details>
+
+        <details style="margin-top: 0.75rem;">
+            <summary>Use your own domain</summary>
+            <p style="margin-top: 1rem;">In your DNS provider, add an <strong>A record</strong> for the hostname you want (e.g. <code>vault.example.com</code>) pointing at the box's public IPv4. Then run:</p>
+            <div class="code-inline"><code>curl -fsSL https://parachute.computer/install/parachute.sh | bash -s -- --domain vault.example.com</code></div>
+            <p style="margin-top: 0.75rem;">Switching later? <code>parachute hub set-origin https://vault.example.com</code> rewrites Caddy, fetches a fresh certificate and restarts your modules; your data and account are untouched. Then re-point your AI clients at the new address.</p>
+        </details>
+
+        <details style="margin-top: 0.75rem;">
+            <summary>Unattended (cloud-init) or an AI doing the install</summary>
+            <p style="margin-top: 1rem;">For a box that installs itself at first boot, put this in its <strong>cloud-init / User Data</strong>; it writes the setup token to <code>/root/parachute-setup.txt</code>:</p>
+            <div class="code-inline"><code>#!/bin/bash<br>
+curl -fsSL https://parachute.computer/install/server.sh | bash</code></div>
+            <p style="margin-top: 0.75rem;">Asking an AI agent to install it? Hand it <a href="/install.md">parachute.computer/install.md</a>: a runbook that drives setup entirely by flags, with the checks that prove it worked.</p>
+        </details>
     </section>
 
     {# ============ MOVEMENT 4 · GROW ============ #}
     <section class="section">
         <h2>Grow from here</h2>
 
-        <p>Your hub is up and you're signed in. Three moves open the rest: reach it from anywhere, connect your AI, and build a surface of your own over your vault.</p>
+        <p>Your hub is up and your AI is connected. Two moves open the rest: reach it from anywhere, and build a surface of your own over your vault.</p>
 
-        <h3>Reach it from anywhere</h3>
-        <p>The Linux one-liner already did this &mdash; Caddy-direct with a real Let's Encrypt cert on your own HTTPS address, no tunnel. On a <strong>Mac</strong> or any box you set up by hand, <code>parachute expose public</code> gives you a public URL: add <code>--cloudflare --domain vault.example.com</code> for a <a href="https://www.cloudflare.com/products/tunnel/" target="_blank" rel="noopener">Cloudflare Tunnel</a> on your own domain (the apex must already be a Cloudflare zone; the free tier is fine, and <code>expose</code> <em>creates</em> the tunnel for you). Drop <code>--cloudflare</code> for a domain-free <code>*.ts.net</code> URL over <a href="https://tailscale.com" target="_blank" rel="noopener">Tailscale</a> Funnel; or <code>tailscale serve</code> keeps the hub private to your own tailnet.</p>
+        <h3 id="reach">Reach it from anywhere</h3>
+        <p>On a server, the one-liner already did this: Caddy with a real Let's Encrypt certificate on your own HTTPS address, no tunnel. At home or on a <strong>Mac</strong>, <code>parachute expose public</code> gives you a public URL: add <code>--cloudflare --domain vault.example.com</code> for a <a href="https://www.cloudflare.com/products/tunnel/" target="_blank" rel="noopener">Cloudflare Tunnel</a> on your own domain (the apex must already be a Cloudflare zone; the free tier is fine, and <code>expose</code> <em>creates</em> the tunnel for you). Drop <code>--cloudflare</code> for a domain-free <code>*.ts.net</code> URL over <a href="https://tailscale.com" target="_blank" rel="noopener">Tailscale</a> Funnel; or <code>tailscale serve</code> keeps the hub private to your own tailnet.</p>
 
-        <h3 id="connect-mcp-clients">Connect your AI</h3>
-        <p>Connecting any AI &mdash; Claude.ai on the web, ChatGPT, Claude Code, Cursor, Zed, your own agent &mdash; comes down to one URL: your vault's MCP endpoint. Point your client at it (web UIs call this a <strong>connector</strong>):</p>
-
-        <div class="code-inline">
-<code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code>
-        </div>
-
-        <p><code>&lt;hub-origin&gt;</code> is the address your hub answers on &mdash; the same URL you sign in at, <em>not</em> the vault's own port <code>1940</code>. <code>&lt;name&gt;</code> is your vault name (<code>default</code> unless you changed it). The <strong><code>/mcp</code> suffix is required</strong>. OAuth-capable clients send you through hub sign-in automatically.</p>
-
-        <details open>
-            <summary>Claude.ai, ChatGPT &amp; other web AIs</summary>
-            <p style="margin-top: 1rem;">In your AI's settings, add a new <strong>connector</strong> (custom MCP server) pointing at <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code>. You'll be sent to your hub to sign in and approve &mdash; then the AI can read and write your vault. Nothing to install; the easiest path for most people.</p>
-        </details>
-
-        <details>
-            <summary>Claude Code &amp; other CLI / MCP clients</summary>
-            <p style="margin-top: 1rem;">Register the server once with <code>claude mcp add</code> &mdash; the wizard's done screen gives you a ready-to-paste command. The first connection sends you through your hub's sign-in in the browser (OAuth); after that, start a new session and run <code>/mcp</code> &mdash; the vault's tools are there. Codex, Goose, Cursor, and Zed take the same <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code> URL. (Headless box that can't do the browser flow? Mint a token on the vault's Tokens page and append <code>--header "Authorization: Bearer &lt;token&gt;"</code>.)</p>
-        </details>
-
-        <details>
-            <summary>Clients that need a bearer token</summary>
-            <p style="margin-top: 1rem;">Some clients can't do OAuth and want a static token instead. Mint one from the vault admin's <strong>Tokens</strong> page, then give it to the client alongside the same <code>&lt;hub-origin&gt;/vault/&lt;name&gt;/mcp</code> URL.</p>
-        </details>
-
-        <h3>See your first note &mdash; then build a surface</h3>
-        <p>Here's the payoff. Ask your AI to jot a quick note (&ldquo;jot down that I'm trying Parachute today&rdquo;), then look at it. <strong>Nothing to install:</strong> open <a href="https://my.parachute.computer" target="_blank" rel="noopener">my.parachute.computer</a>, the hosted Notes app, enter your hub's vault URL (<code>&lt;hub-origin&gt;/vault/&lt;name&gt;</code>) and sign in. The app runs in your browser; your notes never leave your hub.</p>
-
+        <h3>Build a surface</h3>
         <p>When you're ready for something shaped to <em>your</em> brain &mdash; a dashboard, a daily journal, a garden &mdash; build a <strong>surface</strong>: a custom UI over your vault, in your own codebase, no Parachute install needed. <a href="https://www.npmjs.com/package/@openparachute/surface-client" target="_blank" rel="noopener"><code>@openparachute/surface-client</code></a> gives you OAuth sign-in + the vault API and <a href="https://www.npmjs.com/package/@openparachute/surface-render" target="_blank" rel="noopener"><code>surface-render</code></a> renders your notes &mdash; a working surface in a few lines, hosted free on GitHub Pages.</p>
 
         <figure style="margin: 1.5rem 0 0;">
@@ -209,7 +194,7 @@ curl -fsSL https://parachute.computer/install/server.sh | bash</code>
         <p style="margin-top: 1.5rem;"><strong>Staying current:</strong> <code>parachute upgrade</code> sweeps the hub and every installed service to the latest release (add <code>--channel rc</code> to track release candidates). Vault migrations run automatically on first post-upgrade boot. Back up your whole vault to portable markdown with <code>parachute-vault export &lt;dir&gt;</code> (and <code>import</code> back).</p>
     </section>
 
-    {# ============ TROUBLESHOOTING (preserved) ============ #}
+    {# ============ TROUBLESHOOTING ============ #}
     <section class="section">
         <h2>Troubleshooting</h2>
 
@@ -217,7 +202,13 @@ curl -fsSL https://parachute.computer/install/server.sh | bash</code>
             <summary>Something not working?</summary>
             <ul style="margin-top: 1rem;">
                 <li><strong>Claude Code doesn't see the vault.</strong> Start a new session (MCP config loads at session start) and run <code>/mcp</code>. Still missing? Re-run <code>parachute-vault mcp-install</code> on the hub machine.</li>
-                <li><strong>Port 1940 already in use.</strong> Run <code>lsof -i :1940</code> to see what's there; change ports in <code>~/.parachute/vault/.env</code>.</li>
+                <li><strong>&ldquo;https://&hellip;sslip.io isn't reachable yet.&rdquo;</strong> The installer couldn't reach your box from outside, so it kept you on <code>http://127.0.0.1:1939</code>. On a server, open ports 80 and 443 and re-run. At home, that's expected: use <code>--local</code>, or <code>parachute expose tailnet</code> to reach it from your own devices.</li>
+                <li><strong>&ldquo;Wrong bootstrap token.&rdquo;</strong> The hub makes a new one each time it restarts. Show the current one: <code>journalctl -u parachute-hub | grep -o 'parachute-bootstrap-[A-Za-z0-9_-]*' | tail -n1</code>.</li>
+                <li><strong>The wizard sent you to a sign-in page after the Vault step.</strong> Sign in with the account you just made. Your vault exists; its connection details are at <code>&lt;your-address&gt;/vault/default/admin/</code>.</li>
+                <li><strong><code>mint-token</code> says <code>unexpected "iss" claim value</code>.</strong> The hub's address changed after the CLI got its key. Run <code>parachute auth rotate-operator</code>, then mint again.</li>
+                <li><strong><code>parachute: command not found</code> in a new shell.</strong> Add Bun to your path: <code>echo 'export PATH="$HOME/.bun/bin:$PATH"' &gt;&gt; ~/.bashrc</code>, then open a new shell.</li>
+                <li><strong>&ldquo;Blocked 2 postinstalls&rdquo; during install.</strong> Expected and harmless: two optional GPU downloads are skipped.</li>
+                <li><strong>Port 1939 or 1940 already in use.</strong> The hub always uses 1939, with the vault on 1940. Find what holds the port with <code>lsof -i :1939</code> and free it.</li>
                 <li><strong>A client can't reach the MCP endpoint.</strong> Confirm the URL ends in <code>/mcp</code> and points at the <em>hub</em> origin (the address you sign in at), not the vault's own port <code>1940</code>.</li>
                 <li><strong>Stuck on Bun 1.2.x?</strong> You may see a cosmetic <code>InvalidPackageResolution</code> or <code>FileNotFound</code> warning &mdash; the package installs anyway. Upgrading to Bun 1.3 clears it.</li>
                 <li>
@@ -243,7 +234,7 @@ curl -fsSL https://parachute.computer/install/server.sh | bash</code>
         <div class="code-inline" style="margin: 1.5rem auto 0.75rem; max-width: 640px; text-align: left;">
 <code>curl -fsSL https://parachute.computer/install/parachute.sh | bash</code>
         </div>
-        <p class="cta-secondary" style="margin-bottom: 1.5rem;">One line on a fresh Ubuntu/Debian box &mdash; or <code>bun add -g @openparachute/hub &amp;&amp; parachute init</code> on your Mac to try it first.</p>
+        <p class="cta-secondary" style="margin-bottom: 1.5rem;">The same line on a Ubuntu/Debian server or your Mac. At home, add <code>-s -- --local</code> after <code>bash</code>.</p>
         <a href="https://github.com/ParachuteComputer/parachute-vault" class="button" target="_blank" rel="noopener">Parachute Vault on GitHub</a>
     </section>
 
@@ -254,6 +245,26 @@ curl -fsSL https://parachute.computer/install/server.sh | bash</code>
        scroll-guards so nothing overflows a narrow viewport.
        ============================================================ */
 
+    /* The five-step flow: a real sequence, so it carries real numbers. */
+    .start-flow { list-style: none; counter-reset: step; padding: 0; margin: 1.5rem 0 0; }
+    .start-flow > li { counter-increment: step; position: relative; padding: 0 0 1.75rem 3.25rem; margin: 0; border-left: 1px solid var(--border); margin-left: 1.1rem; }
+    .start-flow > li:last-child { border-left-color: transparent; padding-bottom: 0.5rem; }
+    .start-flow > li::before {
+        content: counter(step); position: absolute; left: -1.15rem; top: -0.1rem;
+        width: 2.3rem; height: 2.3rem; border-radius: 50%; display: grid; place-items: center;
+        background: var(--accent-soft); color: var(--accent); border: 1.5px solid color-mix(in srgb, var(--accent) 32%, transparent);
+        font-family: var(--round); font-weight: 600; font-size: 1rem;
+    }
+    .start-flow > li > h3 { margin-top: 0.1rem; }
+    .start-flow ul { margin-top: 0.5rem; }
+    .start-output { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem 1rem; overflow-x: auto; margin: 0.75rem 0 1rem; font-size: 0.85rem; line-height: 1.55; }
+    .start-output code { background: none; padding: 0; white-space: pre; }
+    .where-card .code-inline code { overflow-wrap: anywhere; word-break: break-all; white-space: normal; }
+    .start-wizard { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; color: var(--fg-dim); }
+    @media (max-width: 560px) {
+        .start-flow > li { padding-left: 2rem; margin-left: 0.9rem; }
+        .start-flow > li::before { width: 1.9rem; height: 1.9rem; left: -0.95rem; font-size: 0.9rem; }
+    }
     /* Movement 2 — the "what you're standing up" mental-model diagram. */
     .mm-wrap { overflow-x: auto; }        /* backstop; the diagram itself wraps */
     .mm {
