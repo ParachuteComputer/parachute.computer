@@ -209,7 +209,8 @@ fi
 step "Installing Parachute (hub + vault, channel: ${CHANNEL})"
 # What ran before this run, so an update can restart the hub onto the new version (init won't: it leaves a
 # hub that already answers alone).
-installed_versions() { echo "$(parachute --version 2>/dev/null || true) $(parachute-vault --version 2>/dev/null || true)"; }
+# shellcheck disable=SC2046  # unquoted on purpose: a missing parachute-vault (0.8) leaves no stray space
+installed_versions() { echo $(parachute --version 2>/dev/null || true) $(parachute-vault --version 2>/dev/null || true); }
 BEFORE_VERSION="$(installed_versions)"
 run bun add -g "@openparachute/hub@${CHANNEL}" "@openparachute/vault@${CHANNEL}"
 ok "hub + vault installed"
