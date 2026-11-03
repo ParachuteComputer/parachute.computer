@@ -164,8 +164,10 @@ Notes on the flags:
   `--vault-mode import --vault-import-url <url>` (add `--vault-import-pat` for
   a private repo).
 - `--transcribe-mode` accepts `none`, `local`, `groq`, or `openai`. **Use
-  `none`.** Transcription is optional, and the module behind it is deprecated —
-  see "Known gaps" below.
+  `none`** here. Transcription is optional and now lives in the vault: add it
+  later with `parachute-vault transcription install` (it downloads a ~400 MB
+  model and checks it works). Only the old standalone scribe module is
+  deprecated; see "Known gaps" below.
 - `--expose-mode` accepts `localhost`, `tailnet`, or `public`. Use `localhost`
   here and handle exposure deliberately in step 6.
 
@@ -356,10 +358,11 @@ after `parachute hub set-origin`). Run `parachute auth rotate-operator`, then
 mint again. `parachute doctor` names this fix too.
 
 **Do not install scribe.** `@openparachute/scribe`, the standalone
-transcription module, was deprecated on 2026-07-24. Its capability is folding
-into the vault. Existing installs keep running; new ones should not be created.
-This is why step 4 passes `--transcribe-mode none`, and why you should ignore
-any prompt or document that suggests `parachute install scribe`.
+transcription module, was deprecated on 2026-07-24. Transcription now lives in
+the vault (`parachute-vault transcription install`; the one-line installer runs
+it unless you pass `--no-transcription`). Existing scribe installs keep running;
+new ones should not be created. Ignore any prompt or screen that suggests
+`parachute install scribe`, including the setup wizard's last screen.
 
 **Modules that *are* published and installable**, if you were asked for them:
 `parachute install vault` (`@openparachute/vault`, which `parachute init`
