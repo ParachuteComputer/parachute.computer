@@ -21,7 +21,7 @@ avoidable in a single decision:
 1. **Do not install from a git checkout.** `git clone` + `bun link` is the
    *developer* path — it wires the CLI to a working tree, which may be any
    commit, including an old release candidate. For an install, use npm:
-   `bun add -g @openparachute/hub`. See step 2.
+   `bun add -g @openparachute/core@next`. See step 2.
 2. **Do not let anything prompt.** The setup wizard must be driven entirely by
    flags. Piping answers into it does **not** work. See step 4.
 3. **A 401 from the vault means the vault is healthy.** It is auth-gated on
@@ -67,16 +67,25 @@ bun --version
 Add `export PATH="$HOME/.bun/bin:$PATH"` to the shell profile of whoever will
 run `parachute` later, or the binary will vanish on the next login.
 
-## 2. Install the hub from npm
+## 2. Install Parachute from npm
 
 ```bash
-bun add -g @openparachute/hub
+bun add -g @openparachute/core@next
 hash -r
 command -v parachute && parachute --version
 ```
 
-This is the whole install. `@openparachute/hub` ships the `parachute` binary,
-and the binary is the front door to everything else.
+This is the whole install. `@openparachute/core` is Parachute 0.8: the hub and
+the vault as one program, with one command, `parachute`. Vault commands are
+`parachute vault <command>`. 0.8 is in prerelease, so ask for the `next` tag:
+the package's `latest` tag still points at an older prerelease.
+
+**On a machine that already runs Parachute 0.7** (`@openparachute/hub`, whose
+command is also `parachute`), stop here. `bun add -g @openparachute/core` would
+silently take over the `parachute` command while the running hub and its data
+stay 0.7's. Keep such a box on 0.7 (`bun add -g @openparachute/hub`) unless you
+were asked to move it; moving a home is
+[`parachute-core takeover`](https://github.com/ParachuteComputer/parachute-core#install).
 
 **Do not `git clone` the repo and `bun link` it.** That is how contributors run
 the hub from a working tree, and it is the single most common way an agent
@@ -84,7 +93,8 @@ install goes wrong: the linked binary follows whatever commit is checked out —
 frequently a stale release candidate — and `parachute status` will then report
 `bun-linked → …` instead of a released version. If you see `bun-linked` in the
 `SOURCE` column of `parachute status` on a machine you were asked to *install*,
-you took the wrong path.
+you took the wrong path. (On 0.8 the hub and vault rows show the versions of
+the 0.7 code they grew from; `parachute version` gives the release.)
 
 If `bun add -g` prints `Blocked N postinstalls`, run `bun pm -g untrusted` to
 see which. `onnxruntime-node` and `protobufjs` are expected: their postinstalls
@@ -165,7 +175,7 @@ Notes on the flags:
   a private repo).
 - `--transcribe-mode` accepts `none`, `local`, `groq`, or `openai`. **Use
   `none`** here. Transcription is optional and now lives in the vault: add it
-  later with `parachute-vault transcription install` (it downloads a ~400 MB
+  later with `parachute vault transcription install` (it downloads a ~400 MB
   model and checks it works). Only the old standalone scribe module is
   deprecated; see "Known gaps" below.
 - `--expose-mode` accepts `localhost`, `tailnet`, or `public`. Use `localhost`
@@ -361,15 +371,15 @@ mint again. `parachute doctor` names this fix too.
 
 **Do not install scribe.** `@openparachute/scribe`, the standalone
 transcription module, was deprecated on 2026-07-24. Transcription now lives in
-the vault (`parachute-vault transcription install`; the one-line installer runs
+the vault (`parachute vault transcription install`; the one-line installer runs
 it unless you pass `--no-transcription`). Existing scribe installs keep running;
 new ones should not be created. Ignore any prompt or screen that suggests
 `parachute install scribe`, including the setup wizard's last screen.
 
 **Modules that *are* published and installable**, if you were asked for them:
-`parachute install vault` (`@openparachute/vault`, which `parachute init`
-already installs) and `parachute install surface` (`@openparachute/surface` —
-the UI host). Confirm before installing anything else:
+`parachute install surface` (`@openparachute/surface`, the UI host). The vault
+is part of Parachute 0.8 and `parachute init` sets it up; don't
+`parachute install vault` from npm next to it. Confirm before installing anything else:
 
 ```bash
 npm view @openparachute/<name> version
@@ -398,7 +408,7 @@ taken, the same applies: free it rather than working around it.
 
 **`parachute status` says `bun-linked → …` on a fresh install.** You installed
 from a git checkout instead of npm. See step 2. Remove the link and
-`bun add -g @openparachute/hub`.
+`bun add -g @openparachute/core@next`.
 
 **A client cannot reach the MCP endpoint.** Confirm the URL ends in `/mcp`,
 points at the *hub* origin rather than port 1940, and carries the right vault
@@ -429,8 +439,8 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 command -v bun >/dev/null || curl -fsSL https://bun.sh/install | bash
 hash -r
 
-# 2. hub, from npm
-bun add -g @openparachute/hub
+# 2. Parachute 0.8, from npm
+bun add -g @openparachute/core@next
 hash -r
 parachute --version
 
@@ -479,15 +489,16 @@ echo "Parachute is up. MCP endpoint: $HUB/vault/$VAULT_NAME/mcp"
 
 ## Housekeeping
 
-- **Upgrade everything**: `parachute upgrade` sweeps the hub and every installed
-  module to the latest release; vault migrations run automatically on the first
-  post-upgrade boot.
+- **Upgrade**: Parachute itself with `bun add -g @openparachute/core@next`, then
+  `parachute restart`; vault migrations run automatically on the first boot
+  after. `parachute upgrade` updates the app and other modules; it leaves the
+  hub and vault to that line, since they are part of core.
 - **Logs**: `parachute logs vault -f` (or `hub`, `surface`).
 - **Lifecycle**: `parachute start|stop|restart <service>` — short service names
   (`vault`, not `parachute-vault`).
 - **Health triage**: `parachute doctor` runs the checks and names the one thing
   to fix.
-- **Backup**: `parachute-vault export <dir>` writes the whole vault to portable
+- **Backup**: `parachute vault export <dir>` writes the whole vault to portable
   markdown; `import` reads it back. Everything is plain files — leaving is a
   copy, not a migration.
 - **Config lives in `~/.parachute/`** (override with `PARACHUTE_HOME`), with

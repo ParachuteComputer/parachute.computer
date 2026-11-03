@@ -55,7 +55,7 @@ permalink: /start/
             </div>
         </div>
 
-        <p class="muted">Apt-based Linux only for now (Ubuntu, Debian); RPM distros aren't supported yet. On a 1&nbsp;GB box, add <code>--no-transcription</code> to skip the ~400&nbsp;MB speech model; you can add it later with <code>parachute-vault transcription install</code>.</p>
+        <p class="muted">Apt-based Linux only for now (Ubuntu, Debian); RPM distros aren't supported yet. On a 1&nbsp;GB box, add <code>--no-transcription</code> to skip the ~400&nbsp;MB speech model; you can add it later with <code>parachute vault transcription install</code>.</p>
     </section>
 
     {# ============ MOVEMENT 3 · FIVE STEPS ============ #}
@@ -191,7 +191,7 @@ curl -fsSL https://parachute.computer/install/parachute.sh | bash</code></div>
             <p>See how the pieces compose in the <a href="/modules/">modules overview</a>, build your own UI with the <a href="/surfaces/">surface guide</a>, and for power moves, <a href="/scripting/">script your vault</a> from bash, Python, or JS &mdash; or host for friends and family with the <a href="/multi-user/">multi-user operator guide</a>.</p>
         </div>
 
-        <p style="margin-top: 1.5rem;"><strong>Staying current:</strong> <code>parachute upgrade</code> sweeps the hub and every installed service to the latest release (add <code>--channel rc</code> to track release candidates). Vault migrations run automatically on first post-upgrade boot. Back up your whole vault to portable markdown with <code>parachute-vault export &lt;dir&gt;</code> (and <code>import</code> back).</p>
+        <p style="margin-top: 1.5rem;"><strong>Staying current:</strong> re-run the line for your box; it updates Parachute in place and keeps your data. <code>parachute upgrade</code> updates the app and other modules. Vault migrations run automatically on the first boot after an update. Back up your whole vault to portable markdown with <code>parachute vault export &lt;dir&gt;</code> (and <code>import</code> back).</p>
     </section>
 
     {# ============ TROUBLESHOOTING ============ #}
@@ -201,7 +201,8 @@ curl -fsSL https://parachute.computer/install/parachute.sh | bash</code></div>
         <details>
             <summary>Something not working?</summary>
             <ul style="margin-top: 1rem;">
-                <li><strong>Claude Code doesn't see the vault.</strong> Start a new session (MCP config loads at session start) and run <code>/mcp</code>. Still missing? Re-run <code>parachute-vault mcp-install</code> on the hub machine.</li>
+                <li><strong>Claude Code doesn't see the vault.</strong> Start a new session (MCP config loads at session start) and run <code>/mcp</code>. Still missing? Re-run <code>parachute vault mcp-install</code> on the hub machine.</li>
+                <li><strong>&ldquo;This box already runs Parachute 0.7.&rdquo;</strong> The installer found an older Parachute and kept it, so nothing you have breaks. Moving a running box to the new version is a separate, deliberate step: <a href="https://github.com/ParachuteComputer/parachute-core#install" target="_blank" rel="noopener">parachute-core takeover</a>.</li>
                 <li><strong>&ldquo;https://&hellip;sslip.io isn't reachable yet.&rdquo;</strong> The installer couldn't reach your box from outside, so it kept you on <code>http://127.0.0.1:1939</code>. On a server, open ports 80 and 443 and re-run; it switches to HTTPS once the address answers. At home, that's expected: use <code>--local</code>, or <code>parachute expose tailnet</code> to reach it from your own devices.</li>
                 <li><strong>&ldquo;Wrong bootstrap token.&rdquo;</strong> The hub makes a new one each time it restarts. Show the current one, on the box: <code>curl -s -H 'Accept: application/json' http://127.0.0.1:1939/admin/setup | grep -o 'parachute-bootstrap-[A-Za-z0-9_-]*'</code>.</li>
                 <li><strong>The wizard sent you to a sign-in page after the Vault step.</strong> Sign in with the account you just made. Your vault exists; its connection details are at <code>&lt;your-address&gt;/vault/default/admin/</code>.</li>
@@ -226,7 +227,7 @@ curl -fsSL https://parachute.computer/install/parachute.sh | bash</code></div>
                     </details>
                 </li>
             </ul>
-            <p style="margin-top: 1rem;">Found something we missed? <a href="https://github.com/ParachuteComputer/parachute-vault/issues" target="_blank" rel="noopener">Open an issue</a>.</p>
+            <p style="margin-top: 1rem;">Found something we missed? <a href="https://github.com/ParachuteComputer/parachute-core/issues" target="_blank" rel="noopener">Open an issue</a>.</p>
         </details>
     </section>
 
@@ -235,7 +236,7 @@ curl -fsSL https://parachute.computer/install/parachute.sh | bash</code></div>
 <code>curl -fsSL https://parachute.computer/install/parachute.sh | bash</code>
         </div>
         <p class="cta-secondary" style="margin-bottom: 1.5rem;">The same line on a Ubuntu/Debian server or your Mac. At home, add <code>-s -- --local</code> after <code>bash</code>.</p>
-        <a href="https://github.com/ParachuteComputer/parachute-vault" class="button" target="_blank" rel="noopener">Parachute Vault on GitHub</a>
+        <a href="https://github.com/ParachuteComputer/parachute-core" class="button" target="_blank" rel="noopener">Parachute on GitHub</a>
     </section>
 
     <style>
