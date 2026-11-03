@@ -332,7 +332,7 @@ if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
     info "[dry-run] write /etc/caddy/Caddyfile for ${DOMAIN} → 127.0.0.1:1939"
   fi
   # enable as well as start: an earlier run may have disabled it on fallback
-  run $SUDO systemctl enable caddy >/dev/null 2>&1 || true
+  run $SUDO systemctl -q enable caddy || true
   run $SUDO systemctl reload caddy 2>/dev/null || run $SUDO systemctl restart caddy || warn "couldn't reload Caddy"
   # The hub's OAuth issuer must match the public origin, or every token it mints
   # is rejected at the door it was minted for.
