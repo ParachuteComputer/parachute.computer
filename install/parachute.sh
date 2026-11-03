@@ -22,6 +22,7 @@
 #   --domain <host>        PARACHUTE_DOMAIN      public hostname; enables Caddy (Linux)
 #   --channel <latest|rc>  PARACHUTE_CHANNEL     npm dist-tag to install (default latest)
 #   --no-transcription     PARACHUTE_NO_TRANSCRIPTION=1
+#   --local                PARACHUTE_LOCAL=1     stay on http://127.0.0.1:1939; skip public HTTPS (Linux)
 #   --dry-run              PARACHUTE_DRY_RUN=1   print every step, change nothing
 #   --help
 #
@@ -48,6 +49,7 @@ die()  { printf "\n%serror:%s %s\n" "$RED" "$RESET" "$1" >&2; exit 1; }
 DOMAIN="${PARACHUTE_DOMAIN:-}"
 CHANNEL="${PARACHUTE_CHANNEL:-latest}"
 NO_TRANSCRIPTION="${PARACHUTE_NO_TRANSCRIPTION:-}"
+LOCAL_ONLY="${PARACHUTE_LOCAL:-}"
 DRY_RUN="${PARACHUTE_DRY_RUN:-}"
 
 usage() {
@@ -60,6 +62,7 @@ while [ $# -gt 0 ]; do
     --domain)  DOMAIN="${2:-}"; [ -n "$DOMAIN" ] || die "--domain needs a hostname"; shift 2 ;;
     --channel) CHANNEL="${2:-}"; [ -n "$CHANNEL" ] || die "--channel needs latest or rc"; shift 2 ;;
     --no-transcription) NO_TRANSCRIPTION=1; shift ;;
+    --local)   LOCAL_ONLY=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
     --help|-h) usage ;;
     *) die "unknown option: $1  (try --help)" ;;
@@ -130,6 +133,7 @@ if [ "$PLATFORM" = "linux" ]; then
   NEED=""
   command -v curl  >/dev/null 2>&1 || NEED="$NEED curl"
   command -v unzip >/dev/null 2>&1 || NEED="$NEED unzip"
+  command -v gpg   >/dev/null 2>&1 || NEED="$NEED gnupg"   # Caddy's apt key; Debian cloud images lack it
   [ -f /etc/ssl/certs/ca-certificates.crt ] || NEED="$NEED ca-certificates"
   if [ -n "$NEED" ]; then
     info "Installing base packages:$NEED"
@@ -280,7 +284,9 @@ fetch_public_ip() {
 }
 
 PUBLIC_HOST="$DOMAIN"
-if [ "$PLATFORM" = "linux" ] && [ -z "$PUBLIC_HOST" ]; then
+if [ -n "$LOCAL_ONLY" ] && [ -z "$DOMAIN" ]; then
+  info "--local: staying on http://127.0.0.1:1939 (no public HTTPS)."
+elif [ "$PLATFORM" = "linux" ] && [ -z "$PUBLIC_HOST" ]; then
   fetch_public_ip
   # Shape-check the IPv4 — guards against a metadata blip returning an error
   # page, which would otherwise become a nonsense hostname Caddy can't serve.
@@ -329,7 +335,30 @@ if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
   # The hub's OAuth issuer must match the public origin, or every token it mints
   # is rejected at the door it was minted for.
   run parachute hub set-origin "https://${DOMAIN}" || warn "couldn't set the hub origin — run: parachute hub set-origin https://${DOMAIN}"
-  ok "https://${DOMAIN} is live"
+  # Don't claim "live" on faith. A box behind a home router finds the router's
+  # public IP, but the certificate challenge never reaches it. Check for real,
+  # and if it isn't reachable, fall back to loopback so setup still works.
+  LIVE=""
+  if [ -n "$DRY_RUN" ]; then
+    LIVE=1
+  else
+    info "Checking https://${DOMAIN} from the outside (up to 90 s)…"
+    for _ in $(seq 1 18); do
+      HEALTH="$(curl -fsS --max-time 5 "https://${DOMAIN}/health" 2>/dev/null || true)"
+      case "$HEALTH" in *'"db":"ok"'*) LIVE=1; break ;; esac
+      sleep 5
+    done
+  fi
+  if [ -n "$LIVE" ]; then
+    ok "https://${DOMAIN} is live"
+  else
+    warn "https://${DOMAIN} isn't reachable yet (no certificate, or ports 80/443 don't reach this box)."
+    warn "Staying on http://127.0.0.1:1939 for now, so setup still works."
+    warn "Behind a home router? Forward ports 80 and 443 here, or use: parachute expose tailnet"
+    warn "Have a domain? Point its A record here, then re-run with --domain yours.example.com"
+    run parachute hub set-origin "http://127.0.0.1:1939" --no-caddy || warn "couldn't reset the origin — run: parachute hub set-origin http://127.0.0.1:1939 --no-caddy"
+    DOMAIN=""
+  fi
 elif [ -n "$DOMAIN" ]; then
   warn "--domain is a Linux-server option; on a Mac use: parachute expose public --cloudflare --domain ${DOMAIN}"
 fi
@@ -340,6 +369,28 @@ if [ -n "$DOMAIN" ] && [ "$PLATFORM" = "linux" ]; then
   info "Open  https://${DOMAIN}  to finish setup in your browser."
 else
   info "Open  http://127.0.0.1:1939  to finish setup in your browser."
+fi
+# The browser wizard asks for a one-time setup token. Print it here so nobody
+# has to dig through the journal (it's only needed until the admin exists).
+if [ -z "$DRY_RUN" ] && [ "$PLATFORM" = "linux" ] && command -v journalctl >/dev/null 2>&1; then
+  # Read it from the CURRENT hub process's log only: the hub restarts during
+  # setup (set-origin) and every start prints a fresh token, so an older one in
+  # the journal is already dead. Give the new process a moment to print it.
+  BOOT_TOKEN=""
+  for _ in $(seq 1 20); do
+    HUB_INV="$($SUDO systemctl show -p InvocationID --value parachute-hub 2>/dev/null || true)"
+    if [ -n "$HUB_INV" ]; then
+      BOOT_TOKEN="$($SUDO journalctl "_SYSTEMD_INVOCATION_ID=${HUB_INV}" --no-pager -o cat 2>/dev/null | grep -o 'parachute-bootstrap-[A-Za-z0-9_-]*' | tail -n1 || true)"
+    fi
+    [ -n "$BOOT_TOKEN" ] && break
+    sleep 1
+  done
+  if [ -n "$BOOT_TOKEN" ]; then
+    info "Setup token, for the first screen only (ignore it if your admin account exists):"
+    info "  ${BOOT_TOKEN}"
+  else
+    info "Setup token: journalctl -u parachute-hub | grep -o 'parachute-bootstrap-[A-Za-z0-9_-]*' | tail -n1"
+  fi
 fi
 cat <<'NEXT'
 
