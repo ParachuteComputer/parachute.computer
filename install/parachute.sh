@@ -22,6 +22,7 @@
 #   --domain <host>        PARACHUTE_DOMAIN      public hostname; enables Caddy (Linux)
 #   --channel <latest|rc>  PARACHUTE_CHANNEL     npm dist-tag to install (default latest)
 #   --no-transcription     PARACHUTE_NO_TRANSCRIPTION=1
+#   --local                PARACHUTE_LOCAL=1     stay on http://127.0.0.1:1939; skip public HTTPS (Linux)
 #   --dry-run              PARACHUTE_DRY_RUN=1   print every step, change nothing
 #   --help
 #
@@ -30,6 +31,9 @@
 # Everything is a flag or an environment variable.
 
 set -euo pipefail
+# cloud-init runs User Data with HOME unset; everything below lives under it.
+export HOME="${HOME:-$(getent passwd "$(id -un)" 2>/dev/null | cut -d: -f6)}"
+export HOME="${HOME:-/root}"
 
 # ── output ───────────────────────────────────────────────────────────────────
 if [ -t 1 ]; then
@@ -48,10 +52,18 @@ die()  { printf "\n%serror:%s %s\n" "$RED" "$RESET" "$1" >&2; exit 1; }
 DOMAIN="${PARACHUTE_DOMAIN:-}"
 CHANNEL="${PARACHUTE_CHANNEL:-latest}"
 NO_TRANSCRIPTION="${PARACHUTE_NO_TRANSCRIPTION:-}"
+LOCAL_ONLY="${PARACHUTE_LOCAL:-}"
 DRY_RUN="${PARACHUTE_DRY_RUN:-}"
+DOMAIN_KEPT=""
 
 usage() {
-  sed -n '2,32p' "$0" | sed 's/^# \{0,1\}//'
+  if [ -f "$0" ] && head -1 "$0" | grep -q bash; then
+    sed -n '2,31p' "$0" | sed 's/^# \{0,1\}//'
+  else
+    # Under `curl … | bash` there's no file to read the header from.
+    printf '%s\n' "Options: --domain <host>  --local  --no-transcription  --channel <latest|rc>  --dry-run" \
+      "Details: curl -fsSL https://parachute.computer/install/parachute.sh | head -32"
+  fi
   exit 0
 }
 
@@ -60,6 +72,7 @@ while [ $# -gt 0 ]; do
     --domain)  DOMAIN="${2:-}"; [ -n "$DOMAIN" ] || die "--domain needs a hostname"; shift 2 ;;
     --channel) CHANNEL="${2:-}"; [ -n "$CHANNEL" ] || die "--channel needs latest or rc"; shift 2 ;;
     --no-transcription) NO_TRANSCRIPTION=1; shift ;;
+    --local)   LOCAL_ONLY=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
     --help|-h) usage ;;
     *) die "unknown option: $1  (try --help)" ;;
@@ -130,6 +143,7 @@ if [ "$PLATFORM" = "linux" ]; then
   NEED=""
   command -v curl  >/dev/null 2>&1 || NEED="$NEED curl"
   command -v unzip >/dev/null 2>&1 || NEED="$NEED unzip"
+  command -v gpg   >/dev/null 2>&1 || NEED="$NEED gnupg"   # Caddy's apt key; Debian cloud images lack it
   [ -f /etc/ssl/certs/ca-certificates.crt ] || NEED="$NEED ca-certificates"
   if [ -n "$NEED" ]; then
     info "Installing base packages:$NEED"
@@ -137,6 +151,18 @@ if [ "$PLATFORM" = "linux" ]; then
     install_pkgs_linux $NEED || die "couldn't install base packages"
   fi
   ok "Base packages present"
+fi
+
+# Was this box already answering on HTTPS before this run touched anything? Then a failed check later (a slow
+# restart, a blip) must not reset the origin and stop Caddy on a box that worked.
+WAS_LIVE=""
+PRE_HOST="$DOMAIN"
+if [ -z "$PRE_HOST" ] && [ "$PLATFORM" = "linux" ] && [ -f /etc/caddy/Caddyfile ]; then
+  PRE_HOST="$(sed -n '2s/^\([^ {]*\).*/\1/p' /etc/caddy/Caddyfile)"
+fi
+if [ -z "$DRY_RUN" ] && [ -n "$PRE_HOST" ] \
+   && curl -fsS --max-time 5 "https://${PRE_HOST}/health" 2>/dev/null | grep -q '"db":"ok"'; then
+  WAS_LIVE=1
 fi
 
 # Bun. On Mac this was the documented manual prerequisite ("You'll need Bun 1.3
@@ -181,6 +207,11 @@ fi
 
 # ── 2. parachute ─────────────────────────────────────────────────────────────
 step "Installing Parachute (hub + vault, channel: ${CHANNEL})"
+# What ran before this run, so an update can restart the hub onto the new version (init won't: it leaves a
+# hub that already answers alone).
+# shellcheck disable=SC2046  # unquoted on purpose: a missing parachute-vault (0.8) leaves no stray space
+installed_versions() { echo $(parachute --version 2>/dev/null || true) $(parachute-vault --version 2>/dev/null || true); }
+BEFORE_VERSION="$(installed_versions)"
 run bun add -g "@openparachute/hub@${CHANNEL}" "@openparachute/vault@${CHANNEL}"
 ok "hub + vault installed"
 
@@ -218,6 +249,11 @@ if [ "$PLATFORM" = "linux" ]; then
   INIT_ARGS+=(--no-browser)
 fi
 run parachute init "${INIT_ARGS[@]}"
+AFTER_VERSION="$(installed_versions)"
+if [ -z "$DRY_RUN" ] && [ -n "${BEFORE_VERSION// /}" ] && [ "$BEFORE_VERSION" != "$AFTER_VERSION" ]; then
+  info "Updated ${BEFORE_VERSION} → ${AFTER_VERSION}; restarting the hub onto it"
+  run parachute restart || warn "couldn't restart the hub — run: parachute restart"
+fi
 ok "hub running; vault + app installed"
 
 # ── 4. transcription ─────────────────────────────────────────────────────────
@@ -279,8 +315,20 @@ fetch_public_ip() {
   PUBLIC_IP="$(printf '%s' "$PUBLIC_IP" | tr -d '[:space:]')"
 }
 
+# A re-run without --domain keeps the address an earlier run or `parachute hub set-origin` wrote to the
+# Caddyfile, instead of replacing a domain of your own with <ip>.sslip.io.
+if [ -z "$DOMAIN" ] && [ -z "$LOCAL_ONLY" ] && [ "$PLATFORM" = "linux" ] \
+   && head -1 /etc/caddy/Caddyfile 2>/dev/null | grep -q '^# Managed by Parachute install'; then
+  KEPT="$(sed -n '2s/^\([^ {]*\).*/\1/p' /etc/caddy/Caddyfile)"
+  if printf '%s' "$KEPT" | grep -qE '^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$'; then
+    DOMAIN="$KEPT"; DOMAIN_KEPT=1
+    info "Keeping the address set up earlier: ${DOMAIN} (pass --domain to change it)"
+  fi
+fi
 PUBLIC_HOST="$DOMAIN"
-if [ "$PLATFORM" = "linux" ] && [ -z "$PUBLIC_HOST" ]; then
+if [ -n "$LOCAL_ONLY" ] && [ -z "$DOMAIN" ]; then
+  info "--local: staying on http://127.0.0.1:1939 (no public HTTPS)."
+elif [ "$PLATFORM" = "linux" ] && [ -z "$PUBLIC_HOST" ]; then
   fetch_public_ip
   # Shape-check the IPv4 — guards against a metadata blip returning an error
   # page, which would otherwise become a nonsense hostname Caddy can't serve.
@@ -293,7 +341,7 @@ if [ "$PLATFORM" = "linux" ] && [ -z "$PUBLIC_HOST" ]; then
     warn "Couldn't determine a public IP — staying on localhost."
     warn "Expose it later with: parachute expose tailnet"
   fi
-elif [ -n "$DOMAIN" ] && [ "$PLATFORM" = "linux" ]; then
+elif [ -n "$DOMAIN" ] && [ "$PLATFORM" = "linux" ] && [ -z "${DOMAIN_KEPT:-}" ]; then
   info "Point an A-record for ${DOMAIN} at this box before/while this runs,"
   info "or Let's Encrypt's challenge fails. Re-run once DNS lands — it's idempotent."
 fi
@@ -301,6 +349,7 @@ fi
 if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
   DOMAIN="$PUBLIC_HOST"
   step "Serving ${DOMAIN} over HTTPS"
+  [ "$PRE_HOST" = "$DOMAIN" ] || WAS_LIVE=""
   if command -v caddy >/dev/null 2>&1; then
     ok "Caddy already installed"
   else
@@ -321,15 +370,53 @@ if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
     # Caddyfile", sets the origin in hub_settings, and silently loses the
     # ability to update the vhost later. Observed on a real box: HTTPS worked,
     # but the two halves disagreed about who owned the file.
-    printf '# Managed by Parachute install — edits may be overwritten\n%s {\n\treverse_proxy 127.0.0.1:1939\n}\n' "$DOMAIN" | $SUDO tee /etc/caddy/Caddyfile >/dev/null
+    # This Caddy is the edge: strip the trust signals only a real Cloudflare / Tailscale edge may set, or a
+    # client could send Tailscale-User-Login and be labelled "tailnet" (as server.sh does).
+    printf '# Managed by Parachute install — edits may be overwritten\n%s {\n\treverse_proxy 127.0.0.1:1939 {\n\t\theader_up -Cf-Ray\n\t\theader_up -Cf-Connecting-Ip\n\t\theader_up -Tailscale-Funnel-Request\n\t\theader_up -Tailscale-User-Login\n\t}\n}\n' "$DOMAIN" | $SUDO tee /etc/caddy/Caddyfile >/dev/null
   else
     info "[dry-run] write /etc/caddy/Caddyfile for ${DOMAIN} → 127.0.0.1:1939"
   fi
+  # enable as well as start: an earlier run may have disabled it on fallback
+  run $SUDO systemctl -q enable caddy || true
   run $SUDO systemctl reload caddy 2>/dev/null || run $SUDO systemctl restart caddy || warn "couldn't reload Caddy"
   # The hub's OAuth issuer must match the public origin, or every token it mints
   # is rejected at the door it was minted for.
   run parachute hub set-origin "https://${DOMAIN}" || warn "couldn't set the hub origin — run: parachute hub set-origin https://${DOMAIN}"
-  ok "https://${DOMAIN} is live"
+  # Don't claim "live" on faith. A box behind a home router finds the router's
+  # public IP, but the certificate challenge never reaches it. Check for real,
+  # and if it isn't reachable, fall back to loopback so setup still works.
+  LIVE=""
+  if [ -n "$DRY_RUN" ]; then
+    LIVE=1
+  else
+    info "Checking https://${DOMAIN} from this box (up to 2 minutes)…"
+    # Time-boxed, not count-boxed: a pending certificate fails fast, and a slow
+    # first ACME order deserves the full two minutes.
+    PROBE_END=$((SECONDS + 120))
+    while [ "$SECONDS" -lt "$PROBE_END" ]; do
+      HEALTH="$(curl -fsS --max-time 5 "https://${DOMAIN}/health" 2>/dev/null || true)"
+      case "$HEALTH" in *'"db":"ok"'*) LIVE=1; break ;; esac
+      sleep 5
+    done
+  fi
+  if [ -n "$LIVE" ]; then
+    ok "https://${DOMAIN} is live"
+  elif [ -n "$WAS_LIVE" ]; then
+    # It answered before this run: a slow restart or a blip, not a box nobody can reach. Leave it as it was.
+    warn "https://${DOMAIN} answered before this run but not just now. Leaving the HTTPS setup as it was."
+    warn "Check in a minute: curl -s https://${DOMAIN}/health"
+  else
+    warn "https://${DOMAIN} isn't reachable yet (no certificate, or ports 80/443 don't reach this box)."
+    warn "Staying on http://127.0.0.1:1939 for now, so setup still works."
+    warn "Behind a home router? Forward ports 80 and 443 here, or use: parachute expose tailnet"
+    warn "Have a domain? Point its A record here, then re-run with --domain yours.example.com"
+    run parachute hub set-origin "http://127.0.0.1:1939" --no-caddy || warn "couldn't reset the origin — run: parachute hub set-origin http://127.0.0.1:1939 --no-caddy"
+    # Stop Caddy too: if the certificate lands later, it would serve a hub whose
+    # sign-in issuer is loopback, and keep retrying ACME against a shared limit.
+    run $SUDO systemctl disable --now caddy 2>/dev/null || true   # and keep it off across reboots
+    warn "Once the address is reachable, re-run this script to switch to HTTPS."
+    DOMAIN=""
+  fi
 elif [ -n "$DOMAIN" ]; then
   warn "--domain is a Linux-server option; on a Mac use: parachute expose public --cloudflare --domain ${DOMAIN}"
 fi
@@ -340,6 +427,30 @@ if [ -n "$DOMAIN" ] && [ "$PLATFORM" = "linux" ]; then
   info "Open  https://${DOMAIN}  to finish setup in your browser."
 else
   info "Open  http://127.0.0.1:1939  to finish setup in your browser."
+fi
+# The browser wizard asks for a one-time setup token. The hub hands it to
+# loopback callers at /admin/setup (the same read server.sh uses), on every
+# platform. It changes on each hub restart, so read it now, after the last one,
+# and retry briefly while the restarted hub comes up. No token means an admin
+# already exists (a re-run): nothing to print.
+if [ -z "$DRY_RUN" ]; then
+  BOOT_TOKEN=""
+  for _ in $(seq 1 10); do
+    SETUP_JSON="$(curl -fsS --max-time 3 -H 'Accept: application/json' http://127.0.0.1:1939/admin/setup 2>/dev/null || true)"
+    BOOT_TOKEN="$(printf '%s' "$SETUP_JSON" | grep -oE 'parachute-bootstrap-[A-Za-z0-9_-]+' | head -1 || true)"
+    [ -n "$BOOT_TOKEN" ] && break
+    case "$SETUP_JSON" in '{'*'"hasAdmin":true'*) break ;; esac   # the hub answered JSON with no token: an admin exists
+    sleep 2
+  done
+  if [ -n "$BOOT_TOKEN" ]; then
+    info "Setup token, for the first screen only:"
+    info "  ${BOOT_TOKEN}"
+  else
+    case "$SETUP_JSON" in
+      '{'*'"hasAdmin":true'*) ;;   # already set up: sign in instead
+      *) info "Setup token: curl -s -H 'Accept: application/json' http://127.0.0.1:1939/admin/setup | grep -o 'parachute-bootstrap-[A-Za-z0-9_-]*'" ;;
+    esac
+  fi
 fi
 cat <<'NEXT'
 
