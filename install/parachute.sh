@@ -343,7 +343,10 @@ if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
     LIVE=1
   else
     info "Checking https://${DOMAIN} from the outside (up to 2 minutes)…"
-    for _ in $(seq 1 12); do
+    # Time-boxed, not count-boxed: a pending certificate fails fast, and a slow
+    # first ACME order deserves the full two minutes.
+    PROBE_END=$((SECONDS + 120))
+    while [ "$SECONDS" -lt "$PROBE_END" ]; do
       HEALTH="$(curl -fsS --max-time 5 "https://${DOMAIN}/health" 2>/dev/null || true)"
       case "$HEALTH" in *'"db":"ok"'*) LIVE=1; break ;; esac
       sleep 5
@@ -359,7 +362,7 @@ if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
     run parachute hub set-origin "http://127.0.0.1:1939" --no-caddy || warn "couldn't reset the origin — run: parachute hub set-origin http://127.0.0.1:1939 --no-caddy"
     # Stop Caddy too: if the certificate lands later, it would serve a hub whose
     # sign-in issuer is loopback, and keep retrying ACME against a shared limit.
-    run $SUDO systemctl stop caddy 2>/dev/null || true
+    run $SUDO systemctl disable --now caddy 2>/dev/null || true   # and keep it off across reboots
     warn "Once the address is reachable, re-run this script to switch to HTTPS."
     DOMAIN=""
   fi
@@ -385,12 +388,17 @@ if [ -z "$DRY_RUN" ]; then
     SETUP_JSON="$(curl -fsS --max-time 3 -H 'Accept: application/json' http://127.0.0.1:1939/admin/setup 2>/dev/null || true)"
     BOOT_TOKEN="$(printf '%s' "$SETUP_JSON" | grep -oE 'parachute-bootstrap-[A-Za-z0-9_-]+' | head -1 || true)"
     [ -n "$BOOT_TOKEN" ] && break
-    case "$SETUP_JSON" in *'{'*) break ;; esac   # the hub answered, with no token: setup is already done
+    case "$SETUP_JSON" in '{'*'hasAdmin'*) break ;; esac   # the hub answered JSON with no token: an admin exists
     sleep 2
   done
   if [ -n "$BOOT_TOKEN" ]; then
     info "Setup token, for the first screen only:"
     info "  ${BOOT_TOKEN}"
+  else
+    case "$SETUP_JSON" in
+      '{'*'hasAdmin'*) ;;   # already set up: sign in instead
+      *) info "Setup token: curl -s -H 'Accept: application/json' http://127.0.0.1:1939/admin/setup | grep -o 'parachute-bootstrap-[A-Za-z0-9_-]*'" ;;
+    esac
   fi
 fi
 cat <<'NEXT'
