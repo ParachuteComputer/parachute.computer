@@ -52,7 +52,7 @@ the vault is reached through the hub.
 ## Source
 
 - [github.com/ParachuteComputer](https://github.com/ParachuteComputer): all modules, open source.
-- [parachute-core](https://github.com/ParachuteComputer/parachute-core): Parachute 0.8, the hub and the vault as one program with one command, `parachute` (`@openparachute/core` on npm, `next` tag while 0.8 is in prerelease). What the one-line installer installs.
+- [parachute-core](https://github.com/ParachuteComputer/parachute-core): Parachute 0.8, the hub and the vault as one program with one command, `parachute` (`@openparachute/core` on npm; the installer uses its `next` tag). What the one-line installer installs.
 - [parachute-hub](https://github.com/ParachuteComputer/parachute-hub) and [parachute-vault](https://github.com/ParachuteComputer/parachute-vault): Parachute 0.7, the hub + `parachute` CLI and the vault as separate packages (`@openparachute/hub`, `@openparachute/vault`). Boxes already on 0.7 stay on it.
 - [parachute-surface](https://github.com/ParachuteComputer/parachute-surface): the UI host and the surface SDK.
 - [Blog](https://parachute.computer/blog/): release notes and thinking, in public.

@@ -101,6 +101,12 @@ HAS_07=""; HAS_08=""
 if [ -n "$V07" ] && [ -n "$HAS_08" ]; then
   die "--v07 on a box that already has Parachute 0.8 (@openparachute/core) isn't supported."
 fi
+# Both installed: fine once `parachute-core takeover` has moved the home to 0.8 (the old programs stay
+# installed, off). Without that record, 0.7 still owns the data, and this script won't guess.
+if [ -n "$HAS_07" ] && [ -n "$HAS_08" ] && [ -z "$V07" ] \
+   && ! grep -q '"state": *"taken-over"' "${PARACHUTE_HOME:-$HOME/.parachute}/takeover.json" 2>/dev/null; then
+  die "this box has both Parachute 0.7 (@openparachute/hub) and 0.8 (@openparachute/core), and its home hasn't been moved to 0.8. Run \`parachute-core takeover --dry-run\` to see which one owns it."
+fi
 STAYING_07=""
 if [ -z "$V07" ] && [ -n "$HAS_07" ] && [ -z "$HAS_08" ]; then
   V07=1; STAYING_07=1
@@ -222,6 +228,20 @@ else
   if [ -z "$DRY_RUN" ]; then
     command -v bun >/dev/null 2>&1 || die "bun install finished but bun isn't on PATH ($BUN_INSTALL/bin)"
     ok "bun $(bun --version) installed"
+  fi
+fi
+# Parachute 0.8 runs on Bun 1.4 or newer (@openparachute/core's engines). Update a Bun this script's installer
+# put in $BUN_INSTALL; leave any other (Homebrew, a distro package) to its owner.
+if [ -z "$V07" ] && [ -z "$DRY_RUN" ] && command -v bun >/dev/null 2>&1; then
+  BUN_V="$(bun --version)"
+  if [ "$(printf '%s\n' 1.4.0 "$BUN_V" | sort -V | head -1)" != "1.4.0" ]; then
+    if [ "$(command -v bun)" = "$BUN_INSTALL/bin/bun" ]; then
+      info "Parachute 0.8 needs Bun 1.4 or newer (found ${BUN_V}); updating it…"
+      run bun upgrade || die "couldn't update Bun — run: bun upgrade"
+      ok "bun $(bun --version)"
+    else
+      die "Parachute 0.8 needs Bun 1.4 or newer; $(command -v bun) is ${BUN_V}. Update it (brew upgrade bun, or bun upgrade) and re-run."
+    fi
   fi
 fi
 

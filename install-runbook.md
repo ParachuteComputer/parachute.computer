@@ -33,7 +33,7 @@ avoidable in a single decision:
 - **A machine you have root or `sudo` on.** A fresh Ubuntu or Debian box
   (Hetzner, EC2, DigitalOcean, a VM, a box in a closet) is the tested target;
   macOS works too. RPM distros (Amazon Linux, RHEL) are not supported.
-- **[Bun](https://bun.sh) 1.3.0 or later.** Step 1 installs it if it is
+- **[Bun](https://bun.sh) 1.4 or later** (Parachute 0.8 requires it). Step 1 installs it if it is
   missing. Bun is the only runtime — there is no Node requirement.
 - **Outbound HTTPS**, to reach npm and bun.sh.
 - **`unzip`**, which Bun's installer needs. Stock Ubuntu and Debian cloud images
@@ -60,9 +60,8 @@ hash -r
 bun --version
 ```
 
-`bun --version` must print `1.3.0` or higher. On older Bun you may see cosmetic
-`InvalidPackageResolution` or `FileNotFound` warnings during the next step; run
-`bun upgrade` to clear them.
+`bun --version` must print `1.4.0` or higher. If it doesn't, run `bun upgrade`
+(or `brew upgrade bun` for a Homebrew Bun) before the next step.
 
 Add `export PATH="$HOME/.bun/bin:$PATH"` to the shell profile of whoever will
 run `parachute` later, or the binary will vanish on the next login.
@@ -77,8 +76,8 @@ command -v parachute && parachute --version
 
 This is the whole install. `@openparachute/core` is Parachute 0.8: the hub and
 the vault as one program, with one command, `parachute`. Vault commands are
-`parachute vault <command>`. 0.8 is in prerelease, so ask for the `next` tag:
-the package's `latest` tag still points at an older prerelease.
+`parachute vault <command>`. Install from the `next` tag, as the one-line
+installer does.
 
 **On a machine that already runs Parachute 0.7** (`@openparachute/hub`, whose
 command is also `parachute`), stop here. `bun add -g @openparachute/core` would
@@ -439,7 +438,8 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 command -v bun >/dev/null || curl -fsSL https://bun.sh/install | bash
 hash -r
 
-# 2. Parachute 0.8, from npm
+# 2. Parachute 0.8, from npm (a box that already has 0.7 stays on it: see step 2)
+[ ! -d "$BUN_INSTALL/install/global/node_modules/@openparachute/hub" ] || { echo "Parachute 0.7 is installed here; see step 2" >&2; exit 1; }
 bun add -g @openparachute/core@next
 hash -r
 parachute --version
