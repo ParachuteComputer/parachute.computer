@@ -37,7 +37,8 @@ avoidable in a single decision:
   missing. Bun is the only runtime — there is no Node requirement.
 - **Outbound HTTPS**, to reach npm and bun.sh.
 - **`unzip`**, which Bun's installer needs. Stock Ubuntu and Debian cloud images
-  don't ship it: `apt-get install -y unzip`.
+  don't ship it, and on a fresh image the package lists are empty and cloud-init
+  may hold the apt lock: `apt-get update -qq && apt-get -o DPkg::Lock::Timeout=120 install -y unzip`.
 - **Two free local ports: `1939` (hub) and `1940` (vault).** The hub pins 1939
   with no fallback — if something else holds it, the install fails loudly
   rather than moving. Neither port needs to be open to the internet; on Linux
@@ -51,7 +52,7 @@ avoidable in a single decision:
 ## 1. Install Bun
 
 ```bash
-command -v unzip >/dev/null || apt-get install -y unzip
+command -v unzip >/dev/null || { apt-get -o DPkg::Lock::Timeout=120 update -qq && apt-get -o DPkg::Lock::Timeout=120 install -y unzip; }
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 command -v bun >/dev/null || curl -fsSL https://bun.sh/install | bash
@@ -85,9 +86,10 @@ frequently a stale release candidate — and `parachute status` will then report
 `SOURCE` column of `parachute status` on a machine you were asked to *install*,
 you took the wrong path.
 
-`Blocked 2 postinstalls` during install is expected: they are
-`onnxruntime-node` and `protobufjs`, whose postinstalls only fetch optional GPU
-binaries. The install works without them.
+If `bun add -g` prints `Blocked N postinstalls`, run `bun pm -g untrusted` to
+see which. `onnxruntime-node` and `protobufjs` are expected: their postinstalls
+only fetch optional GPU binaries, and the install works without them. Any other
+package there means the install may be broken: re-run it and do not proceed.
 
 ## 3. Bring the hub up (non-interactive)
 
@@ -416,7 +418,7 @@ VAULT_NAME="default"
 HUB="http://127.0.0.1:1939"
 
 # 1. bun (its installer needs unzip, which cloud images lack)
-command -v unzip >/dev/null || apt-get install -y unzip
+command -v unzip >/dev/null || { apt-get -o DPkg::Lock::Timeout=120 update -qq && apt-get -o DPkg::Lock::Timeout=120 install -y unzip; }
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 command -v bun >/dev/null || curl -fsSL https://bun.sh/install | bash

@@ -65,10 +65,10 @@ permalink: /start/
         <ol class="start-flow">
             <li>
                 <h3>Run the line for your box</h3>
-                <p>Open a root shell on the box (on a VPS, the provider's web console works) and paste the line from above. It takes two or three minutes, most of it downloading. It's safe to re-run. When it finishes you'll see:</p>
+                <p>Open a terminal on the box (on a server, a root shell; the provider's web console works; on a Mac, your own user, not <code>sudo</code>) and paste the line from above. It takes two or three minutes, most of it downloading. It's safe to re-run. When it finishes you'll see:</p>
 <pre class="start-output"><code>==&gt; Done
     Open  https://203.0.113.7.sslip.io  to finish setup in your browser.
-    Setup token, for the first screen only (ignore it if your admin account exists):
+    Setup token, for the first screen only:
       parachute-bootstrap-…</code></pre>
                 <p class="muted">At home or on a Mac the address is <code>http://127.0.0.1:1939</code>. Keep the token: you'll paste it once.</p>
             </li>
@@ -147,7 +147,7 @@ parachute doctor    # every check passes, or it names the one fix</code></pre>
                 <li><strong>Paste the server line and wait two or three minutes.</strong> It ends with your address and your setup token.</li>
                 <li><strong>Open the address,</strong> paste the token, choose your username and password. Then follow steps 3 to 5 above.</li>
             </ol>
-            <p style="margin-top: 0.75rem;">Lost the token? It changes whenever the hub restarts. Show the current one with <code>journalctl -u parachute-hub | grep -o 'parachute-bootstrap-[A-Za-z0-9_-]*' | tail -n1</code>.</p>
+            <p style="margin-top: 0.75rem;">Lost the token? It changes whenever the hub restarts. Show the current one, on the box: <code>curl -s -H 'Accept: application/json' http://127.0.0.1:1939/admin/setup | grep -o 'parachute-bootstrap-[A-Za-z0-9_-]*'</code>.</p>
         </details>
 
         <details style="margin-top: 0.75rem;">
@@ -202,12 +202,12 @@ curl -fsSL https://parachute.computer/install/server.sh | bash</code></div>
             <summary>Something not working?</summary>
             <ul style="margin-top: 1rem;">
                 <li><strong>Claude Code doesn't see the vault.</strong> Start a new session (MCP config loads at session start) and run <code>/mcp</code>. Still missing? Re-run <code>parachute-vault mcp-install</code> on the hub machine.</li>
-                <li><strong>&ldquo;https://&hellip;sslip.io isn't reachable yet.&rdquo;</strong> The installer couldn't reach your box from outside, so it kept you on <code>http://127.0.0.1:1939</code>. On a server, open ports 80 and 443 and re-run. At home, that's expected: use <code>--local</code>, or <code>parachute expose tailnet</code> to reach it from your own devices.</li>
-                <li><strong>&ldquo;Wrong bootstrap token.&rdquo;</strong> The hub makes a new one each time it restarts. Show the current one: <code>journalctl -u parachute-hub | grep -o 'parachute-bootstrap-[A-Za-z0-9_-]*' | tail -n1</code>.</li>
+                <li><strong>&ldquo;https://&hellip;sslip.io isn't reachable yet.&rdquo;</strong> The installer couldn't reach your box from outside, so it kept you on <code>http://127.0.0.1:1939</code>. On a server, open ports 80 and 443 and re-run; it switches to HTTPS once the address answers. At home, that's expected: use <code>--local</code>, or <code>parachute expose tailnet</code> to reach it from your own devices.</li>
+                <li><strong>&ldquo;Wrong bootstrap token.&rdquo;</strong> The hub makes a new one each time it restarts. Show the current one, on the box: <code>curl -s -H 'Accept: application/json' http://127.0.0.1:1939/admin/setup | grep -o 'parachute-bootstrap-[A-Za-z0-9_-]*'</code>.</li>
                 <li><strong>The wizard sent you to a sign-in page after the Vault step.</strong> Sign in with the account you just made. Your vault exists; its connection details are at <code>&lt;your-address&gt;/vault/default/admin/</code>.</li>
                 <li><strong><code>mint-token</code> says <code>unexpected "iss" claim value</code>.</strong> The hub's address changed after the CLI got its key. Run <code>parachute auth rotate-operator</code>, then mint again.</li>
                 <li><strong><code>parachute: command not found</code> in a new shell.</strong> Add Bun to your path: <code>echo 'export PATH="$HOME/.bun/bin:$PATH"' &gt;&gt; ~/.bashrc</code>, then open a new shell.</li>
-                <li><strong>&ldquo;Blocked 2 postinstalls&rdquo; during install.</strong> Expected and harmless: two optional GPU downloads are skipped.</li>
+                <li><strong>&ldquo;Blocked &hellip; postinstalls&rdquo; during install.</strong> Run <code>bun pm -g untrusted</code> to see which. If they're only <code>onnxruntime-node</code> and <code>protobufjs</code>, that's expected: they only fetch optional GPU files. Anything else, re-run the install.</li>
                 <li><strong>Port 1939 or 1940 already in use.</strong> The hub always uses 1939, with the vault on 1940. Find what holds the port with <code>lsof -i :1939</code> and free it.</li>
                 <li><strong>A client can't reach the MCP endpoint.</strong> Confirm the URL ends in <code>/mcp</code> and points at the <em>hub</em> origin (the address you sign in at), not the vault's own port <code>1940</code>.</li>
                 <li><strong>Stuck on Bun 1.2.x?</strong> You may see a cosmetic <code>InvalidPackageResolution</code> or <code>FileNotFound</code> warning &mdash; the package installs anyway. Upgrading to Bun 1.3 clears it.</li>

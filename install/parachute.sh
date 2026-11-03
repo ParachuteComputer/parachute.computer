@@ -342,8 +342,8 @@ if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
   if [ -n "$DRY_RUN" ]; then
     LIVE=1
   else
-    info "Checking https://${DOMAIN} from the outside (up to 90 s)…"
-    for _ in $(seq 1 18); do
+    info "Checking https://${DOMAIN} from the outside (up to 2 minutes)…"
+    for _ in $(seq 1 12); do
       HEALTH="$(curl -fsS --max-time 5 "https://${DOMAIN}/health" 2>/dev/null || true)"
       case "$HEALTH" in *'"db":"ok"'*) LIVE=1; break ;; esac
       sleep 5
@@ -357,6 +357,10 @@ if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
     warn "Behind a home router? Forward ports 80 and 443 here, or use: parachute expose tailnet"
     warn "Have a domain? Point its A record here, then re-run with --domain yours.example.com"
     run parachute hub set-origin "http://127.0.0.1:1939" --no-caddy || warn "couldn't reset the origin — run: parachute hub set-origin http://127.0.0.1:1939 --no-caddy"
+    # Stop Caddy too: if the certificate lands later, it would serve a hub whose
+    # sign-in issuer is loopback, and keep retrying ACME against a shared limit.
+    run $SUDO systemctl stop caddy 2>/dev/null || true
+    warn "Once the address is reachable, re-run this script to switch to HTTPS."
     DOMAIN=""
   fi
 elif [ -n "$DOMAIN" ]; then
@@ -370,26 +374,23 @@ if [ -n "$DOMAIN" ] && [ "$PLATFORM" = "linux" ]; then
 else
   info "Open  http://127.0.0.1:1939  to finish setup in your browser."
 fi
-# The browser wizard asks for a one-time setup token. Print it here so nobody
-# has to dig through the journal (it's only needed until the admin exists).
-if [ -z "$DRY_RUN" ] && [ "$PLATFORM" = "linux" ] && command -v journalctl >/dev/null 2>&1; then
-  # Read it from the CURRENT hub process's log only: the hub restarts during
-  # setup (set-origin) and every start prints a fresh token, so an older one in
-  # the journal is already dead. Give the new process a moment to print it.
+# The browser wizard asks for a one-time setup token. The hub hands it to
+# loopback callers at /admin/setup (the same read server.sh uses), on every
+# platform. It changes on each hub restart, so read it now, after the last one,
+# and retry briefly while the restarted hub comes up. No token means an admin
+# already exists (a re-run): nothing to print.
+if [ -z "$DRY_RUN" ]; then
   BOOT_TOKEN=""
-  for _ in $(seq 1 20); do
-    HUB_INV="$($SUDO systemctl show -p InvocationID --value parachute-hub 2>/dev/null || true)"
-    if [ -n "$HUB_INV" ]; then
-      BOOT_TOKEN="$($SUDO journalctl "_SYSTEMD_INVOCATION_ID=${HUB_INV}" --no-pager -o cat 2>/dev/null | grep -o 'parachute-bootstrap-[A-Za-z0-9_-]*' | tail -n1 || true)"
-    fi
+  for _ in $(seq 1 10); do
+    SETUP_JSON="$(curl -fsS --max-time 3 -H 'Accept: application/json' http://127.0.0.1:1939/admin/setup 2>/dev/null || true)"
+    BOOT_TOKEN="$(printf '%s' "$SETUP_JSON" | grep -oE 'parachute-bootstrap-[A-Za-z0-9_-]+' | head -1 || true)"
     [ -n "$BOOT_TOKEN" ] && break
-    sleep 1
+    case "$SETUP_JSON" in *'{'*) break ;; esac   # the hub answered, with no token: setup is already done
+    sleep 2
   done
   if [ -n "$BOOT_TOKEN" ]; then
-    info "Setup token, for the first screen only (ignore it if your admin account exists):"
+    info "Setup token, for the first screen only:"
     info "  ${BOOT_TOKEN}"
-  else
-    info "Setup token: journalctl -u parachute-hub | grep -o 'parachute-bootstrap-[A-Za-z0-9_-]*' | tail -n1"
   fi
 fi
 cat <<'NEXT'
