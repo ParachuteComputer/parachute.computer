@@ -331,6 +331,8 @@ if [ -n "$PUBLIC_HOST" ] && [ "$PLATFORM" = "linux" ]; then
   else
     info "[dry-run] write /etc/caddy/Caddyfile for ${DOMAIN} → 127.0.0.1:1939"
   fi
+  # enable as well as start: an earlier run may have disabled it on fallback
+  run $SUDO systemctl enable caddy >/dev/null 2>&1 || true
   run $SUDO systemctl reload caddy 2>/dev/null || run $SUDO systemctl restart caddy || warn "couldn't reload Caddy"
   # The hub's OAuth issuer must match the public origin, or every token it mints
   # is rejected at the door it was minted for.
@@ -388,7 +390,7 @@ if [ -z "$DRY_RUN" ]; then
     SETUP_JSON="$(curl -fsS --max-time 3 -H 'Accept: application/json' http://127.0.0.1:1939/admin/setup 2>/dev/null || true)"
     BOOT_TOKEN="$(printf '%s' "$SETUP_JSON" | grep -oE 'parachute-bootstrap-[A-Za-z0-9_-]+' | head -1 || true)"
     [ -n "$BOOT_TOKEN" ] && break
-    case "$SETUP_JSON" in '{'*'hasAdmin'*) break ;; esac   # the hub answered JSON with no token: an admin exists
+    case "$SETUP_JSON" in '{'*'"hasAdmin":true'*) break ;; esac   # the hub answered JSON with no token: an admin exists
     sleep 2
   done
   if [ -n "$BOOT_TOKEN" ]; then
@@ -396,7 +398,7 @@ if [ -z "$DRY_RUN" ]; then
     info "  ${BOOT_TOKEN}"
   else
     case "$SETUP_JSON" in
-      '{'*'hasAdmin'*) ;;   # already set up: sign in instead
+      '{'*'"hasAdmin":true'*) ;;   # already set up: sign in instead
       *) info "Setup token: curl -s -H 'Accept: application/json' http://127.0.0.1:1939/admin/setup | grep -o 'parachute-bootstrap-[A-Za-z0-9_-]*'" ;;
     esac
   fi
