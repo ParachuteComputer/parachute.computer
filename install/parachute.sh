@@ -24,8 +24,8 @@
 #
 # Options (flags or env — flags win):
 #   --domain <host>        PARACHUTE_DOMAIN      public hostname; enables Caddy (Linux)
-#   --channel <tag>        PARACHUTE_CHANNEL     npm dist-tag: next or latest for 0.8 (default next
-#                                                while 0.8 is in prerelease); latest or rc with --v07
+#   --channel <tag>        PARACHUTE_CHANNEL     npm dist-tag: next for 0.8 (until 0.8.0 ships);
+#                                                latest (default) or rc with --v07
 #   --v07                  PARACHUTE_V07=1       install 0.7 (@openparachute/hub + vault) instead
 #   --no-transcription     PARACHUTE_NO_TRANSCRIPTION=1
 #   --local                PARACHUTE_LOCAL=1     stay on http://127.0.0.1:1939; skip public HTTPS (Linux)
@@ -70,7 +70,7 @@ usage() {
     sed -n '2,37p' "$0" | sed 's/^# \{0,1\}//'
   else
     # Under `curl … | bash` there's no file to read the header from.
-    printf '%s\n' "Options: --domain <host>  --local  --no-transcription  --channel <next|latest>  --v07  --dry-run" \
+    printf '%s\n' "Options: --domain <host>  --local  --no-transcription  --channel <next>  --v07  --dry-run" \
       "Details: curl -fsSL https://parachute.computer/install/parachute.sh | head -40"
   fi
   exit 0
@@ -119,10 +119,12 @@ if [ -n "$V07" ]; then
     *) die "--channel for 0.7 must be 'latest' or 'rc' (got '$CHANNEL')" ;;
   esac
 else
+  # Only `next` until 0.8.0 ships: @openparachute/core's `latest` is a prerelease that can't set up a fresh
+  # box, and installing it over a newer core would downgrade the running program. Flip this when 0.8.0 is out.
   CHANNEL="${CHANNEL:-next}"
   case "$CHANNEL" in
-    next|latest) ;;
-    *) die "--channel for 0.8 must be 'next' or 'latest' (got '$CHANNEL')" ;;
+    next) ;;
+    *) die "--channel for 0.8 must be 'next' for now (got '$CHANNEL'); --v07 installs 0.7" ;;
   esac
 fi
 
@@ -285,7 +287,10 @@ else
   # carries core-host.ts; refuse anything older rather than leave a half-0.7 box behind, and take it off
   # again if this run put it there, so --v07 works next.
   if [ -z "$DRY_RUN" ] && [ ! -f "$GLOBAL_MODULES/core/packages/hub/src/core-host.ts" ]; then
-    [ -n "$HAS_08" ] || bun remove -g @openparachute/core >/dev/null 2>&1 || true
+    if [ -n "$HAS_08" ]; then
+      die "the @openparachute/core on '${CHANNEL}' is older than this script needs. Your running Parachute is untouched; put the package back with: bun add -g @openparachute/core@next"
+    fi
+    bun remove -g @openparachute/core >/dev/null 2>&1 || true
     die "the @openparachute/core on '${CHANNEL}' can't set up a fresh box yet (it would pull the 0.7 vault from npm). For now, run again with --v07 to install Parachute 0.7."
   fi
   ok "Parachute 0.8 installed"
