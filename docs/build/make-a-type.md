@@ -38,7 +38,7 @@ manage-types {
 - Checks are advice by default: a record that breaks one is still written, and its `validation_status` says what's wrong. Add `"strict": true` to a field to refuse such writes.
 - `parent_names: ["media"]` makes `book` a subtype of `media`: a query for `media` finds books.
 
-`manage-types` needs a connection that can manage the vault (admin). It also renames (`action: "rename"`), merges and deletes types, drops unused indexes (`prune`) and changes a field's values (`migrate`); `prune` and `migrate` are dry runs until you pass `"apply": true`.
+`manage-types` needs a connection that can manage the vault (admin), today; letting a connection that can write add a type is being worked on. It also renames (`action: "rename"`), merges and deletes types, drops unused indexes (`prune`) and changes a field's values (`migrate`); `prune` and `migrate` are dry runs until you pass `"apply": true`.
 
 ## Then write records of it
 
