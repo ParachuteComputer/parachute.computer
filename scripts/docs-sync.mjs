@@ -2,7 +2,8 @@
 // Writes the generated reference pages in docs/build/reference/ from the code itself, so they can't drift:
 //
 //   mcp.md     the MCP tools, as a running Parachute server lists them (tools/list and vault-info {help}), at each level
-//   applet.md  the app's applet guide, docs/WRITE-AN-APPLET.md from ParachuteComputer/parachute at a commit
+//   applet.md, kit.md, applet-examples.md   the app's applet guide, docs/WRITE-AN-APPLET.md from
+//              ParachuteComputer/parachute at a commit, in three parts
 //
 //   npm run docs:sync -- mcp     PARACHUTE_HUB=http://127.0.0.1:1939 PARACHUTE_VAULT=home PARACHUTE_KEY=<an admin key>
 //                                (a throwaway server is best: the page names no records, only tools)
@@ -97,19 +98,26 @@ async function applet() {
     .replace(/\]\((?!https?:|#|\/)([^)#]+)(#[^)]*)?\)/g, (_m, p, h = "") => `](${blob(new URL(p, "https://x/docs/").pathname.slice(1))}${h})`)
     // and paths in backticks that name files stay as text
     ;
-  const page =
-    front({
-      title: "Applet reference",
-      summary: "The whole manifest, every kit call and part, saved state, links, and worked examples. Copied from the app's own guide.",
-      door: "build",
-      order: 21,
-      nav: "Reference: applets",
-      checked: `copied by scripts/docs-sync.mjs from ParachuteComputer/parachute docs/WRITE-AN-APPLET.md at ${sha.slice(0, 7)}`,
-    }) +
-    `*This page is the app's own guide, [docs/WRITE-AN-APPLET.md](${blob("docs/WRITE-AN-APPLET.md")}) at ${sha.slice(0, 7)}, copied as it is. In it, a bundle is still called an "app". The short version: [Make an applet](/docs/build/make-an-applet/).*\n\n` +
-    body;
-  writeFileSync(join(OUT, "applet.md"), page);
-  console.log(`docs/build/reference/applet.md: from ${sha}`);
+  // Three pages, cut at the guide's own headings, so each fits in one tool result for an AI (the docs tool hands over
+  // one page at a time, and a client keeps a result to about 25k tokens).
+  const cut = (from, to) => {
+    const i = from ? body.indexOf(`\n## ${from}\n`) : 0;
+    const j = to ? body.indexOf(`\n## ${to}\n`) : body.length;
+    if (i < 0 || j < 0) throw new Error(`WRITE-AN-APPLET.md at ${sha} has no heading "${i < 0 ? from : to}": update the cuts`);
+    return body.slice(i, j).trim() + "\n";
+  };
+  const note = (short) => `*Copied as it is from the app's own guide, [docs/WRITE-AN-APPLET.md](${blob("docs/WRITE-AN-APPLET.md")}) at ${sha.slice(0, 7)}; a bundle is still called an "app" there. ${short}*\n\n`;
+  const pages = [
+    ["applet", "Applet reference: the record", "The applet record in full: the manifest, what it opens, its servers, its signals.", 21, "Reference: the applet record", null, "The code", "The short version: [Make an applet](/docs/build/make-an-applet/). Next: [the kit](/docs/build/reference/kit/)."],
+    ["kit", "Applet reference: the kit", "Every call and part an applet imports from \"parachute\", saved state, and links.", 22, "Reference: the kit", "The code", "A worked example", "Before: [the record](/docs/build/reference/applet/). Next: [worked examples](/docs/build/reference/applet-examples/)."],
+    ["applet-examples", "Applet reference: worked examples", "Three whole applets: recipe cards, a home applet, and an area with its room.", 23, "Reference: worked examples", "A worked example", null, "Before: [the kit](/docs/build/reference/kit/)."],
+  ];
+  for (const [file, title, summary, order, nav, from, to, links] of pages) {
+    const text = front({ title, summary, door: "build", order, nav, checked: `copied by scripts/docs-sync.mjs from ParachuteComputer/parachute docs/WRITE-AN-APPLET.md at ${sha.slice(0, 7)}` }) + note(links) + cut(from, to);
+    if (text.length > 40000) throw new Error(`${file}.md is ${text.length} characters: too long for one tool result; cut it again`);
+    writeFileSync(join(OUT, `${file}.md`), text);
+  }
+  console.log(`docs/build/reference/{applet,kit,applet-examples}.md: from ${sha}`);
 }
 
 if (which === "mcp") await mcp();

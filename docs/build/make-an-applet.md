@@ -99,4 +99,4 @@ To put it on the bar or make it the home, write the [bundle](/docs/build/make-a-
 
 ## More
 
-The full manifest (search, screens, servers, signals, components), every kit call and part, and two more worked examples: the [applet reference](/docs/build/reference/applet/).
+The applet reference, copied from the app's own guide: [the record](/docs/build/reference/applet/) (search, screens, servers, signals), [the kit](/docs/build/reference/kit/) (every call and part, saved state, links) and [worked examples](/docs/build/reference/applet-examples/).
