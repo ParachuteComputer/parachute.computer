@@ -1,0 +1,5 @@
+[
+  { "door": "use", "title": "Use Parachute", "who": "For people. Get the app, connect your AI, and see what it writes for you." },
+  { "door": "build", "title": "Build on Parachute", "who": "For builders and their AI. Types, records, applets and bundles are all records in a vault; these pages say how to write each one." },
+  { "door": "run", "title": "Run Parachute", "who": "For whoever keeps the server: Parachute Cloud, or your own." }
+]

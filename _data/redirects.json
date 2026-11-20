@@ -1,0 +1,19 @@
+[
+  { "from": "/v2/", "to": "/", "why": "the 2026-07 landing preview became the homepage" },
+  { "from": "/install/", "to": "/start/", "why": "the old install page" },
+  { "from": "/docs/deploy/", "to": "/docs/run/self-host/", "why": "the old deploy docs" },
+  { "from": "/vault/", "to": "/docs/build/how-it-works/", "why": "the L1 Vault page (T-476: the docs replace the ladder)" },
+  { "from": "/surfaces/", "to": "/docs/build/make-an-applet/", "why": "surfaces became applets" },
+  { "from": "/agents/", "to": "/docs/use/connect-your-ai/", "why": "the L3 Agents page" },
+  { "from": "/modules/", "to": "/docs/run/self-host/", "why": "the 0.7 modules are one program since 0.8" },
+  { "from": "/scripting/", "to": "/docs/build/scripts/", "why": "the scripting guide" },
+  { "from": "/onboarding/surface-build/", "to": "/docs/build/make-an-applet/", "why": "an old onboarding link" },
+  { "from": "/onboarding/vault-setup/", "to": "/docs/use/start/", "why": "an old onboarding link" },
+  { "from": "/guides/", "to": "/docs/", "why": "the guides once seeded into every vault (T-476: the docs replace them)" },
+  { "from": "/guides/getting-started/", "to": "/docs/build/how-it-works/", "why": "the seeded Getting Started guide" },
+  { "from": "/guides/welcome-to-your-vault/", "to": "/docs/use/start/", "why": "a seeded guide" },
+  { "from": "/guides/capture-anything/", "to": "/docs/use/start/", "why": "a seeded guide" },
+  { "from": "/guides/connect-your-ai/", "to": "/docs/use/connect-your-ai/", "why": "a seeded guide" },
+  { "from": "/guides/tags-and-the-graph/", "to": "/docs/build/make-a-type/", "why": "a seeded guide" },
+  { "from": "/guides/yours-to-keep/", "to": "/docs/run/cloud/", "why": "a seeded guide (export)" }
+]

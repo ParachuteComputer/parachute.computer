@@ -1,0 +1,23 @@
+---
+# Every moved page, from _data/redirects.json: a page at the old address that sends you on (GitHub Pages has no
+# server-side redirects).
+pagination:
+  data: redirects
+  size: 1
+  alias: r
+permalink: "{{ r.from }}"
+eleventyExcludeFromCollections: true
+---
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Moved &mdash; Parachute</title>
+    <meta http-equiv="refresh" content="0; url={{ r.to }}">
+    <link rel="canonical" href="https://parachute.computer{{ r.to }}">
+    <meta name="robots" content="noindex">
+</head>
+<body>
+    <p>This page moved: <a href="{{ r.to }}">parachute.computer{{ r.to }}</a>.</p>
+</body>
+</html>

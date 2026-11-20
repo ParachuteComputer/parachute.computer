@@ -4,23 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}{% if title %} | {% endif %}Parachute Computer</title>
-    <meta name="description" content="{{ description or 'You and AI, thinking together. An open, self-hosted memory you and any AI can read and write — on your machine, yours to keep and export anytime.' }}">
+    <meta name="description" content="{{ description or summary or site.oneLine }}">
     {# Internal design notes (design/*.md set noindex) stay reachable via deep links
        but are kept out of search results — they're working material, not polished docs. #}
     {% if noindex %}<meta name="robots" content="noindex">{% endif %}
     {# Fonts are system stacks (see style.css :root) — no webfont download. #}
     <link rel="stylesheet" href="/style.css">
+    {# One look with the app: the app's built-in theme (paper, ink, moss, a book serif), over the older page styles. #}
+    <link rel="stylesheet" href="/assets/site.css">
+    {% if mdTwin %}<link rel="alternate" type="text/markdown" href="{{ mdTwin }}" title="This page as markdown">{% endif %}
+    <link rel="alternate" type="text/plain" href="/llms.txt" title="The docs, for an AI">
     <link rel="icon" href="/assets/parachute-favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
     <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
-    <meta name="theme-color" content="#fdfaf4">
+    <meta name="theme-color" content="#f2ede2">
 
     {# Open Graph / share-preview metadata. Posts can override via
        frontmatter: og_title, og_description, og_image, og_type. #}
     {% set _ogTitle = og_title or title %}
-    {% set _ogDescription = og_description or description or "You and AI, thinking together. An open, self-hosted memory you and any AI can read and write — on your machine, yours to keep and export anytime." %}
+    {% set _ogDescription = og_description or description or summary or site.oneLine %}
     {% set _ogImage = og_image or "/og.png" %}
     {% set _ogType = og_type or "website" %}
     {% set _canonicalUrl = "https://parachute.computer" + (page.url or "/") %}
@@ -69,23 +73,21 @@
       </symbol>
     </svg>
 
+    {# One nav, on every page (the homepage too, since T-476). The three doors: Use (people), Build (builders and
+       their AI), Run (whoever keeps the server). #}
     <header class="site-nav">
         <div class="nav-in">
             <a class="brand" href="/" aria-label="Parachute — home">
                 <svg class="mark" aria-hidden="true"><use href="#pchute"/></svg>
                 <span>Parachute</span>
             </a>
-            {# One canonical, flat nav — identical to the homepage (landing-preview.html).
-               Kept lean on purpose: Pricing (the paid door), Blog (news), Self-host
-               (the free door), GitHub (open source), and the primary CTA. The product
-               ladder (Vault/Surfaces/Agents/Modules), Guides, and Docs live in the
-               footer — the header is for the few things a first-time visitor needs. #}
-            <nav class="nav-right">
-                <a class="nav-drop" href="/pricing/">Pricing</a>
+            <nav class="nav-right" aria-label="Site">
+                <a href="/docs/use/" {% if door == "use" %}aria-current="true"{% endif %}>Use</a>
+                <a href="/docs/build/" {% if door == "build" %}aria-current="true"{% endif %}>Build</a>
+                <a href="/docs/run/" {% if door == "run" %}aria-current="true"{% endif %}>Run</a>
                 <a class="nav-drop" href="/blog/">Blog</a>
-                <a class="selfhost" href="/start/">Self-host</a>
-                <a class="nav-drop" href="https://github.com/ParachuteComputer" target="_blank" rel="noopener">GitHub</a>
-                <a class="btn btn-primary" href="https://my.parachute.computer/">Get a vault</a>
+                <a class="nav-drop" href="https://github.com/ParachuteComputer" rel="noopener">GitHub</a>
+                <a class="btn btn-primary" href="/docs/use/start/">Get Parachute</a>
             </nav>
         </div>
     </header>
@@ -94,22 +96,18 @@
 
     <footer class="site-footer">
         <div class="foot-brand"><svg class="mark" aria-hidden="true"><use href="#pchute"/></svg><span>Parachute</span></div>
-        <p class="foot-tag">Your digital life needs a safe place to land.</p>
-        <nav class="foot-links">
-            <a href="https://my.parachute.computer/">Get a vault</a>
-            <a href="/pricing/">Pricing</a>
-            <a href="/start/">Self-host</a>
-            <a href="/vault/">Vault</a>
-            <a href="/surfaces/">Surfaces</a>
-            <a href="/agents/">Agents</a>
-            <a href="/modules/">Modules</a>
-            <a href="/guides/">Guides</a>
-            <a href="/blog/">Blog</a>
+        <p class="foot-tag">{{ site.oneLine }}</p>
+        <nav class="foot-links" aria-label="More">
             <a href="/docs/">Docs</a>
-            <a href="https://github.com/ParachuteComputer" target="_blank" rel="noopener">GitHub</a>
+            <a href="/docs/use/start/">Get Parachute</a>
+            <a href="/docs/use/connect-your-ai/">Connect your AI</a>
+            <a href="/docs/run/self-host/">Self-host</a>
+            <a href="/pricing/">Pricing</a>
+            <a href="/blog/">Blog</a>
+            <a href="/llms.txt">llms.txt</a>
+            <a href="https://github.com/ParachuteComputer">GitHub</a>
         </nav>
-        <p class="foot-fine">&copy; 2026 Open Parachute, PBC &mdash; a Colorado Public Benefit Corporation building open tools for thinking.</p>
-        <p class="foot-fine"><a href="/terms/">Terms</a> &middot; <a href="/privacy/">Privacy</a></p>
+        <p class="foot-fine">&copy; 2026 Open Parachute, PBC &mdash; a Colorado Public Benefit Corporation. Open source, AGPL. &middot; <a href="/terms/">Terms</a> &middot; <a href="/privacy/">Privacy</a></p>
     </footer>
 
     {# Copy-to-clipboard — progressive enhancement. With JS off, no button

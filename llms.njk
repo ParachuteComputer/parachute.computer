@@ -1,0 +1,31 @@
+---
+# The docs index for an AI (llmstxt.org): generated from the docs pages, so it can't fall behind them.
+permalink: /llms.txt
+eleventyExcludeFromCollections: true
+---
+# Parachute
+
+> {{ site.oneLine }}
+
+Parachute is three things that work as one: a **vault** (your records: notes, typed records, files, links; on Parachute Cloud or a server of your own), the **MCP connection** any AI uses to read and write it, and the **Parachute app** (Android and Mac), a thin app that shows whatever your vault says: the applets (small screens, each one record), the home, and the pins on the bar. You and your AI write all of it as records.
+
+Every page below is plain markdown. If you are an AI working in someone's vault over the Parachute MCP, the `docs` tool returns the same pages: `docs {}` for this list, `docs { topic: "build/make-an-applet" }` for one. Read the page before you build something new.
+{% set heads = { use: "Use: for people", build: "Build: for builders and their AI", run: "Run: for whoever keeps the server" } %}
+{% for d in ["use", "build", "run"] %}
+## {{ heads[d] }}
+
+{% for p in collections.docs | door(d) %}- [{{ p.data.title | safe }}](https://parachute.computer/docs/{{ p.data.slug }}.md): {{ p.data.summary | safe }}
+{% endfor %}{% endfor %}
+## Endpoints
+
+Paths are relative to the hub's address (the one a person signs in at); on Parachute Cloud it is `https://my.parachute.computer`.
+
+- MCP: `<hub>/vault/<vault>/mcp`. OAuth on the first connection; the `/mcp` suffix is required.
+- REST: `<hub>/vault/<vault>/api/records` (0.9; `/api/notes` on 0.8), `Authorization: Bearer <key>`.
+- Hub health: `<hub>/health`. Vault health: `<hub>/vault/<vault>/health` (401 means it is up and refusing strangers).
+
+## More
+
+- [All pages in one file](https://parachute.computer/llms-full.txt)
+- [Install runbook for an AI agent](https://parachute.computer/install.md): non-interactive install on a fresh Ubuntu/Debian box or a Mac.
+- [Source](https://github.com/ParachuteComputer): the app (parachute), the server (parachute-core), Cloud (parachute-cloud). Open source, AGPL.

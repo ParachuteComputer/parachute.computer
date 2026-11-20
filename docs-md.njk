@@ -1,0 +1,10 @@
+---
+# The markdown twin of every docs page: /docs/<page>.md, the page's own markdown with its title and summary on top.
+pagination:
+  data: collections.docs
+  size: 1
+  alias: doc
+permalink: "/docs/{{ doc.data.slug }}.md"
+eleventyExcludeFromCollections: true
+---
+{{ doc | mdTwin | safe }}

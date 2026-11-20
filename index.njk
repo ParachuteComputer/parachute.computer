@@ -1,0 +1,49 @@
+---
+layout: base.njk
+permalink: /
+title: "Parachute: your AI writes it, Parachute shows it"
+description: "Your own vault that any AI can read and write, and an app that shows you what is in it."
+mdTwin: /llms.txt
+---
+<main class="home">
+    <section class="home-hero">
+        <div>
+            <h1>Your AI writes it. Parachute shows it to you.</h1>
+            <p class="lede">A vault of your own that Claude, ChatGPT or any AI can read and write. The Parachute app shows what is in it: your records, the small screens your AI makes for them, and a home you arrange together.</p>
+            <p class="hero-actions"><a class="btn btn-primary" href="/docs/use/start/">Get Parachute</a> <a class="plain" href="/docs/">Read the docs</a></p>
+        </div>
+        <aside class="connect-card" aria-label="Connect your AI">
+            <h2>Connect your AI</h2>
+            <p>Give it your vault's address:</p>
+            <code class="url">https://my.parachute.computer/vault/&lt;your vault&gt;/mcp</code>
+            <p>Then ask it:</p>
+            <ol>
+                <li>Make me a reading tracker I can use in Parachute.</li>
+                <li>What did I capture this week? Sort it into the right places.</li>
+                <li>Make me a home screen with my journal and my reading list pinned.</li>
+            </ol>
+            <p style="margin:.8rem 0 0"><a href="/docs/use/connect-your-ai/">Claude, ChatGPT and others, step by step</a></p>
+        </aside>
+    </section>
+
+    <section class="home-band" aria-labelledby="layers">
+        <h2 id="layers">Everything is a record</h2>
+        <ol class="layers">
+            <li><b>Your vault</b><span>Where it is kept: Parachute Cloud, or a server of your own. Plain markdown you can export.</span><code>https://…/vault/home/mcp</code></li>
+            <li><b>Types and records</b><span>A book, a meeting, a recipe: each a record with fields. Your AI makes the types it needs.</span><code>create-record { "path": "Books/Piranesi", "types": ["book"] }</code></li>
+            <li><b>Applets</b><span>A small screen, one record of code. It runs only after you allow it, and sees only what its card says.</span><code>Applets/Reading · tagged applet</code></li>
+            <li><b>Your home</b><span>A bundle: one record that picks your home, your pins and your applets.</span><code>Parachute/Apps/&lt;id&gt;</code></li>
+        </ol>
+        <p style="margin-top:1rem"><a href="/docs/build/how-it-works/">One reading tracker, through every layer</a></p>
+    </section>
+
+    <section class="home-band" aria-labelledby="doors">
+        <h2 id="doors">The docs</h2>
+        {% include "doors.njk" %}
+    </section>
+
+    <section class="home-band" aria-labelledby="yours">
+        <h2 id="yours">Yours to keep</h2>
+        <p style="max-width:44rem">Open source (AGPL). The same program runs on Parachute Cloud and on your own machine, and a vault moves between them as a file. Your AI works for you on your records; nothing runs that you didn't allow.</p>
+    </section>
+</main>

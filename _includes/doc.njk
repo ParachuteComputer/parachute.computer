@@ -1,0 +1,31 @@
+---
+layout: base.njk
+---
+{# A docs page: the contents beside it, the page, and how to read it as markdown. #}
+{% set doors = { use: "Use: for people", build: "Build: for builders and their AI", run: "Run: for whoever keeps the server" } %}
+<div class="docs">
+    <nav class="toc" aria-label="Docs">
+        <details open><summary>Contents</summary>
+        {% for d in ["use", "build", "run"] %}
+        <h2><a href="/docs/{{ d }}/" {% if d == door %}class="door-here"{% endif %}>{{ doors[d] }}</a></h2>
+        <ol>
+            {% for p in collections.docs | door(d) %}
+            <li><a href="{{ p.url }}" {% if p.url == page.url %}aria-current="page"{% endif %}>{{ p.data.nav or p.data.title }}</a></li>
+            {% endfor %}
+        </ol>
+        {% endfor %}
+        </details>
+    </nav>
+    <article class="doc">
+        <p class="door-label">{{ doors[door] }}</p>
+        <h1>{{ title }}</h1>
+        <p class="summary">{{ summary }}</p>
+        {% if status and status != "current" %}<p class="status"><b>{{ "Next release" if status == "next" else "Coming" }}:</b> {{ status_note }}</p>{% endif %}
+        {{ content | safe }}
+        <p class="page-foot">
+            This page as markdown, for your AI: <a href="/docs/{{ slug }}.md">/docs/{{ slug }}.md</a>. Every page: <a href="/llms.txt">/llms.txt</a>.
+            {% if checked %}<br>Checked against the code: {{ checked }}.{% endif %}
+            <br><a href="https://github.com/ParachuteComputer/parachute.computer/blob/main/docs/{{ slug }}.md">Edit this page</a>
+        </p>
+    </article>
+</div>

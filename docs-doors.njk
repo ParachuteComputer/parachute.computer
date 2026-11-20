@@ -1,0 +1,25 @@
+---
+# /docs/use/, /docs/build/, /docs/run/: one door's pages.
+pagination:
+  data: doorPages
+  size: 1
+  alias: d
+permalink: "/docs/{{ d.door }}/"
+layout: base.njk
+eleventyExcludeFromCollections: true
+eleventyComputed:
+  title: "{{ d.title }}"
+  door: "{{ d.door }}"
+  description: "{{ d.who }}"
+---
+<main class="contents">
+    <h1>{{ d.title }}</h1>
+    <p class="lede">{{ d.who }}</p>
+    <div class="doors" style="grid-template-columns:1fr">
+    <section><ol>
+        {% for p in collections.docs | door(d.door) %}
+        <li><div><a href="{{ p.url }}">{{ p.data.title }}</a><span>{{ p.data.summary }}</span></div></li>
+        {% endfor %}
+    </ol></section>
+    </div>
+</main>

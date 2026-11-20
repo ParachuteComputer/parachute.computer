@@ -1,4 +1,25 @@
+const fs = require("node:fs");
+
+/** A docs page as an agent reads it: the page's own markdown, its title and summary on top, no front matter. */
+function mdTwin(doc) {
+  const raw = fs.readFileSync(doc.inputPath, "utf8").replace(/^---\n[\s\S]*?\n---\n/, "").trim();
+  const d = doc.data;
+  const head = [`# ${d.title}`, "", `> ${d.summary}`, ""];
+  if (d.status && d.status !== "current") head.push(`**${d.status === "next" ? "Next release" : "Coming"}:** ${d.status_note || ""}`, "");
+  const foot = ["", "---", "", `For people: https://parachute.computer/docs/${d.slug}/ · All pages: https://parachute.computer/llms.txt`];
+  if (d.checked) foot.push(`Checked against the code: ${d.checked}`);
+  return [...head, raw, ...foot].join("\n") + "\n";
+}
+
 module.exports = function (eleventyConfig) {
+  eleventyConfig.addFilter("mdTwin", mdTwin);
+  // The docs, in reading order: by door (use, build, run), then `order`.
+  const DOORS = ["use", "build", "run"];
+  eleventyConfig.addCollection("docs", (api) =>
+    api
+      .getFilteredByGlob("docs/**/*.md")
+      .sort((a, b) => DOORS.indexOf(a.data.door) - DOORS.indexOf(b.data.door) || (a.data.order ?? 99) - (b.data.order ?? 99)));
+  eleventyConfig.addFilter("door", (docs, door) => docs.filter((d) => d.data.door === door));
   // Pass through static assets (not processed as templates)
   eleventyConfig.addPassthroughCopy("style.css");
   eleventyConfig.addPassthroughCopy("CNAME");
@@ -13,10 +34,8 @@ module.exports = function (eleventyConfig) {
   // truth, byte-identical, never drifts). /start presents server.sh as the
   // one-liner; digitalocean.sh stays served so circulated links don't break.
   eleventyConfig.addPassthroughCopy({ "install/digitalocean.sh": "install/server.sh" });
-  // Machine-readable site index (llmstxt.org convention). Served verbatim as
-  // text/plain at /llms.txt — no layout, no templating. `.txt` isn't a
-  // templateFormat, so a plain passthrough is all it takes.
-  eleventyConfig.addPassthroughCopy("llms.txt");
+  // Machine-readable site index (llmstxt.org convention). Since T-476
+  // (llms.txt and llms-full.txt are generated from the docs: llms.njk, llms-full.njk.)
   // The agent-facing install runbook, emitted TWICE from ONE source file:
   //   • raw markdown at /install.md — the pasteable URL you hand an agent
   //     (this passthrough copies the file byte-for-byte), and
@@ -37,7 +56,8 @@ module.exports = function (eleventyConfig) {
   // redirect (v2-redirect.njk) because the preview link circulated.
   // The old homepage is archived at /archive/home-v1/ (rendered snapshot
   // + source), per the archive convention.
-  eleventyConfig.addPassthroughCopy({ "landing-preview.html": "index.html" });
+  // Since T-476 the homepage is index.njk on the shared layout; the self-contained landing of 2026-07 is archived
+  // at /archive/home-v2/.
 
   // Unlisted business plan. Self-contained HTML (all CSS inlined), copied
   // verbatim to /business-plan/ — not templated, not in any nav, and carries

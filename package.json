@@ -8,7 +8,8 @@
     "clean": "rm -rf _site",
     "screenshots": "npx playwright install chromium && node scripts/screenshot-pitch.js",
     "dev:worker": "npx wrangler dev",
-    "db:migrate": "npx wrangler d1 migrations apply parachute-interests --remote"
+    "db:migrate": "npx wrangler d1 migrations apply parachute-interests --remote",
+    "docs:sync": "node scripts/docs-sync.mjs"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.1.2",
