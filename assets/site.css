@@ -91,7 +91,7 @@ a { color: var(--accent); }
   .docs nav.toc details:not([open]) ol { display: none; }
 }
 .toc summary { cursor: pointer; font: 600 .95rem var(--serif); margin-bottom: .4rem; }
-@media (min-width: 861px) { .toc summary { display: none; } }
+@media (min-width: 861px) { .toc details[open] > summary { display: none; } }
 
 article.doc { max-width: var(--measure); min-width: 0; }
 .doc .door-label { font: 600 .72rem var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0; }

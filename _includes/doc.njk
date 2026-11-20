@@ -5,7 +5,7 @@ layout: base.njk
 {% set doors = { use: "Use: for people", build: "Build: for builders and their AI", run: "Run: for whoever keeps the server" } %}
 <div class="docs">
     <nav class="toc" aria-label="Docs">
-        <details open><summary>Contents</summary>
+        <details id="toc"><summary>Contents</summary>
         {% for d in ["use", "build", "run"] %}
         <h2><a href="/docs/{{ d }}/" {% if d == door %}class="door-here"{% endif %}>{{ doors[d] }}</a></h2>
         <ol>
@@ -16,6 +16,8 @@ layout: base.njk
         {% endfor %}
         </details>
     </nav>
+    {# Open beside the page on a wide screen; on a phone, one line above it. #}
+    <script>if (matchMedia("(min-width: 861px)").matches) document.getElementById("toc").open = true;</script>
     <article class="doc">
         <p class="door-label">{{ doors[door] }}</p>
         <h1>{{ title }}</h1>
