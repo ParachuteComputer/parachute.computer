@@ -5,7 +5,8 @@ function mdTwin(doc) {
   const raw = fs.readFileSync(doc.inputPath, "utf8").replace(/^---\n[\s\S]*?\n---\n/, "").trim()
     // links to other docs pages point at their markdown, with the host, so an agent can follow them (or ask the docs
     // tool for the same name); other site links get the host
-    .replace(/\]\(\/docs\/([a-z0-9/-]+?)\/?(#[^)]*)?\)/g, (_m, p, h = "") => `](https://parachute.computer/docs/${p}.md${h})`)
+    // (a page is a door and a name, `build/make-a-type`; a door alone, `/docs/build/`, has no twin and stays a page)
+    .replace(/\]\(\/docs\/([a-z0-9-]+\/[a-z0-9/-]+?)\/?(#[^)]*)?\)/g, (_m, p, h = "") => `](https://parachute.computer/docs/${p}.md${h})`)
     .replace(/\]\(\/(?!\/)([^)]*)\)/g, "](https://parachute.computer/$1)");
   const d = doc.data;
   const head = [`# ${d.title}`, "", `> ${d.summary}`, ""];

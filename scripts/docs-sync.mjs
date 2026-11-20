@@ -48,8 +48,12 @@ async function mcp() {
   for (const level of ["read", "write"]) {
     const name = `docs-sync-${level}-${Date.now()}`;
     const minted = await call("tools/call", { name: "manage-keys", arguments: { action: "mint", scope: `vault:${vault}:${level}`, ttl_seconds: 60, name } }).then((r) => JSON.parse(r.content[0].text));
-    seen[level] = new Set((await call("tools/list", {}, minted.token)).tools.map((t) => t.name));
-    await call("tools/call", { name: "manage-keys", arguments: { action: "revoke", name } });
+    if (!minted.token) throw new Error(`manage-keys couldn't mint a ${level} key with PARACHUTE_KEY: ${minted.message ?? minted.error ?? JSON.stringify(minted)}`);
+    try {
+      seen[level] = new Set((await call("tools/list", {}, minted.token)).tools.map((t) => t.name));
+    } finally {
+      await call("tools/call", { name: "manage-keys", arguments: { action: "revoke", name } }).catch(() => {});
+    }
   }
   const levelOf = (n) => (seen.read.has(n) ? "read" : seen.write.has(n) ? "write" : "admin");
   const lines = [
@@ -87,7 +91,7 @@ async function mcp() {
     }
     if (help?.actions) lines.push(`Actions: ${Object.keys(help.actions).map((a) => `\`${a}\``).join(", ")}.`, "");
   }
-  lines.push(`*Server ${version}, release ${release}. Regenerate with \`npm run docs:sync -- mcp\`.*`, "");
+  lines.push("*Generated from a running server (what it was is on this page's `checked` line). Regenerate with `npm run docs:sync -- mcp`.*", "");
   writeFileSync(join(OUT, "mcp.md"), lines.join("\n"));
   console.log(`docs/build/reference/mcp.md: ${fresh.length} tools, ${old.length} old names, from ${release}`);
 }

@@ -82,9 +82,8 @@
                 <span>Parachute</span>
             </a>
             <nav class="nav-right" aria-label="Site">
-                <a href="/docs/use/" {% if door == "use" %}aria-current="true"{% endif %}>Use</a>
-                <a href="/docs/build/" {% if door == "build" %}aria-current="true"{% endif %}>Build</a>
-                <a href="/docs/run/" {% if door == "run" %}aria-current="true"{% endif %}>Run</a>
+                {% for dp in doorPages %}<a href="/docs/{{ dp.door }}/" {% if door == dp.door %}aria-current="true"{% endif %}>{{ dp.name }}</a>
+                {% endfor %}
                 <a class="nav-drop" href="/blog/">Blog</a>
                 <a class="nav-drop" href="https://github.com/ParachuteComputer" rel="noopener">GitHub</a>
                 <a class="btn btn-primary" href="/docs/use/start/">Get Parachute</a>
