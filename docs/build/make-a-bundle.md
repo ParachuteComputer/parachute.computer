@@ -6,6 +6,8 @@ order: 5
 checked: "parachute src/shell/apps.ts appOf (fields read, the id must match the path), docs/NAVIGATION.md (Apps, Where the choices live), docs/design/APP-RECORD.md (What an unsigned record can change, Security levels)"
 ---
 
+*On a 0.8 server (Parachute Cloud today):* `create-note`, with `metadata.app` for `fields.app`.
+
 A **bundle** is a record in the person's home vault that the app follows: the applets its list offers, the pins on its bar, the home it opens on. The person picks one in Settings → **Your app**; **Simple** and **Everything** are always there.
 
 *The app and its record still say "app" for a bundle (`Parachute/Apps/<id>`, `fields.app`, the tag `parachute-app`); a rename to "bundle" is planned. Write the record as below until then.*

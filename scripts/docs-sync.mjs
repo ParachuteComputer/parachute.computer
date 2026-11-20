@@ -63,7 +63,8 @@ async function mcp() {
   ];
   for (const t of fresh) {
     const help = await call("tools/call", { name: "vault-info", arguments: { help: t.name } }).then((r) => JSON.parse(r.content[0].text)).catch(() => null);
-    const props = help?.parameters?.properties ?? t.inputSchema?.properties ?? {};
+    // the help's full reference, plus anything only the advertised schema names (vault-info's own `help`)
+    const props = { ...(t.inputSchema?.properties ?? {}), ...(help?.parameters?.properties ?? {}) };
     lines.push(`## ${t.name}`, "", t.description, "");
     const names = Object.keys(props);
     if (names.length) {

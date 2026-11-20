@@ -6,7 +6,7 @@ order: 1
 checked: "a run on a parachute-core 0.9.0-pre.1 hub (manage-types, create-record, query-records, POST /api/notes); parachute docs/WRITE-AN-APPLET.md, docs/NAVIGATION.md, src/applet/modules/vault.ts"
 ---
 
-Parachute has four layers, and each is records in a vault. Here is one person's reading tracker passing through all four.
+Parachute has four layers: a vault, and three kinds of record in it. Here is one person's reading tracker passing through all four.
 
 | Layer | What it is | The reading tracker |
 |---|---|---|
@@ -15,7 +15,7 @@ Parachute has four layers, and each is records in a vault. Here is one person's 
 | **Applets** | A small screen, one record of code. Runs in the app, sealed, after the person allows it. | `Applets/Reading`: the books by shelf, and a line to add one. |
 | **Bundle** | One record that says what the app shows: the home, the pins, the list. | Reading pinned on the bar. |
 
-The person's AI wrote all four over MCP. The person tapped **Allow** once.
+The person's AI wrote the type, the records, the applet and the bundle over MCP. The person tapped **Allow** once.
 
 ## 1. The type
 

@@ -6,6 +6,8 @@ order: 4
 checked: "parachute docs/WRITE-AN-APPLET.md, src/applet/manifest.ts, src/applet/modules/vault.ts, src/kit/conformance.ts; the example below passes the app's manifest check, its kit conformance check and its TSX transpile (`npm run docs:check-applet`)"
 ---
 
+*On a 0.8 server (Parachute Cloud today):* write the same record with `create-note`: `content` for `body`, `metadata` for `fields`.
+
 An **applet** is a small screen in the Parachute app, and it is **one record** in a vault. You make one with `create-record` and change it with `update-record`. There is no build step: the app reads the record, shows the person what it asks for, and runs it after they allow it.
 
 ## The record

@@ -6,7 +6,9 @@ order: 2
 checked: "parachute-core MCP on 0.9.0-pre.1 (manage-types, list-types, create-record; vault-info {help}), packages/vault/core/src/mcp-short.ts"
 ---
 
-A **type** is a kind of record: `book`, `meeting`, `recipe`. It has a description and fields. A record has one or more types, plus any number of **tags** (plain labels, no fields).
+*On a 0.8 server (Parachute Cloud today):* `manage-types` is `update-tag` (the same `tag`, `description`, `fields`, `parent_names`), `list-types` is `list-tags`, and `create-record` is `create-note` (types go in `tags`, fields in `metadata`).
+
+A **type** is a kind of record: `book`, `meeting`, `recipe`. It has a description and fields. A record has any number of types (usually one), plus any number of **tags** (plain labels, no fields).
 
 ## First, look
 
@@ -30,7 +32,7 @@ manage-types {
 }
 ```
 
-- `tag` is the type's name. Lower case; `a/b` makes a subtype of `a`.
+- `tag` is the type's name, lower case. A `/` in a name (`media/film`) only groups it; `parent_names` (below) is what makes a subtype.
 - `fields`: each has a `type` (`string`, `number`, `integer`, `boolean`, `date`, `reference`, `array`, `object`), and may have `enum`, `default` and `indexed`.
 - `indexed: true` makes queries on that field fast. Index the fields you filter by.
 - Checks are advice by default: a record that breaks one is still written, and its `validation_status` says what's wrong. Add `"strict": true` to a field to refuse such writes.

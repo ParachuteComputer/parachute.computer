@@ -29,7 +29,7 @@ Cursor, Grok, Muse and others take the same address: an MCP server over HTTP, si
 
 ## Then ask it
 
-Your AI starts each conversation knowing your vault's name, its types and how to ask the docs. Try:
+Your AI starts each conversation knowing your vault's name and its types (and, on a server with the `docs` tool, how to read these pages). Try:
 
 - "Make me a reading tracker I can use in Parachute."
 - "What did I capture this week? Sort it into the right places."

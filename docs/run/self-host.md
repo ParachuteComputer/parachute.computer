@@ -10,7 +10,7 @@ Parachute is one program, `parachute` (npm package `@openparachute/core`, source
 
 ## Install
 
-- **One line, on a fresh Linux box or a Mac:** `curl -fsSL https://parachute.computer/install/parachute.sh | bash`. On a box with a public address it also sets up HTTPS. Then open the address it prints.
+- **One line, on a fresh Linux box or a Mac:** `curl -fsSL https://parachute.computer/install/parachute.sh | bash`. On a Linux box with a public address it also sets up HTTPS. Then open the address it prints. (It still installs from npm's `next` tag, an 0.8 prerelease, until it is switched to the 0.8.0 release.)
 - **With npm** (needs Bun 1.4 or newer): `npm i -g @openparachute/core`.
 - **A release bundle** with its own Bun: download `parachute-core-<version>-<platform>.tar.gz` and `SHA256SUMS` from [the releases](https://github.com/ParachuteComputer/parachute-core/releases), check, unpack, run `bin/parachute install`.
 - **An AI doing it for you:** give it the [install runbook](/install.md). It is written for an agent, with nothing to type by hand.
@@ -33,11 +33,11 @@ The server answers on port 1939. To reach it from your phone, put it on your tai
 |---|---|
 | `parachute keys new <name> --vault <vault> --can read` | a key for a script ([Keys](/docs/build/keys-and-scopes/)) |
 | `parachute backup` | the vaults' backups (`now`, `list`, `schedule`) |
-| `parachute upgrade` | the newer release from this server's channel, tried on a copy first |
-| `parachute doctor` | check, and repair what is safe to repair |
+| `parachute upgrade` | the newer release from this server's channel (`--check` tries it on a copy first) |
+| `parachute doctor` | check; `--fix` repairs what is safe to repair |
 | `parachute changes` | what 0.9 renamed, and what replaced it |
 
-Every command: `parachute help --all`.
+Every command: `parachute help`, and `parachute <command> --help`.
 
 ## On a box with Parachute 0.7
 

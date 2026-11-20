@@ -28,7 +28,3 @@ The record routes (`/api/records`) take the same words as the MCP tools: `body`,
 ## Keep keys short
 
 A key in a script should reach one vault at the lowest level that works, and expire when it can (`parachute keys new … --ephemeral`). Keep it in your secret store, not in the script.
-
-## Or don't write code
-
-If what you want is "every morning, look at my vault and write a summary", ask an AI that runs on a schedule (Claude, ChatGPT and others can) with the vault connected. It uses the same connection as a conversation.

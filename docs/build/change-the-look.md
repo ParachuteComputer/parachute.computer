@@ -6,6 +6,8 @@ order: 6
 checked: "parachute docs/THEME.md, docs/CHANGE-YOUR-FRAME.md, docs/WRITE-AN-APPLET.md (theme.get, CSS variables)"
 ---
 
+*On a 0.8 server (Parachute Cloud today):* `create-note`, with `metadata.theme` for `fields.theme`.
+
 The whole app (its own screens, the list, every applet) takes its look from one record: `Parachute/Theme` in the home vault, tagged `parachute-theme`, with the theme in `fields.theme`. With none, the built-in theme: paper, ink, a moss accent, a book serif and a quiet sans.
 
 ## The record
