@@ -1,12 +1,11 @@
-{% set who = { use: ["Use", "For people: get the app, connect your AI, your home."], build: ["Build", "For builders and their AI: types, records, applets, bundles."], run: ["Run", "For whoever keeps the server: Cloud or your own."] } %}
 <div class="doors">
-    {% for d in ["use", "build", "run"] %}
+    {% for dp in doorPages %}
     <section>
-        <h2><a href="/docs/{{ d }}/">{{ who[d][0] }}</a></h2>
-        <p class="who">{{ who[d][1] }}</p>
+        <h2><a href="/docs/{{ dp.door }}/">{{ dp.name }}</a></h2>
+        <p class="who">{{ dp.short }}</p>
         <ol>
-            {% for p in collections.docs | door(d) %}
-            <li><div><a href="{{ p.url }}">{{ p.data.nav or p.data.title }}</a><span>{{ p.data.summary }}</span></div></li>
+            {% for p in collections.docs | door(dp.door) %}
+            <li><div><a href="{{ p.url }}">{{ p.data.nav or p.data.title }}</a><span>{{ p.data.summary | inlineCode | safe }}</span></div></li>
             {% endfor %}
         </ol>
     </section>

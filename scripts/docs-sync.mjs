@@ -24,10 +24,10 @@ async function mcp() {
   const key = process.env.PARACHUTE_KEY;
   if (!hub || !key) throw new Error("set PARACHUTE_HUB and PARACHUTE_KEY (an admin key for PARACHUTE_VAULT)");
   let id = 0;
-  const call = async (method, params) => {
+  const call = async (method, params, bearer = key) => {
     const r = await fetch(`${hub}/vault/${vault}/mcp`, {
       method: "POST",
-      headers: { authorization: `Bearer ${key}`, "content-type": "application/json", accept: "application/json, text/event-stream" },
+      headers: { authorization: `Bearer ${bearer}`, "content-type": "application/json", accept: "application/json, text/event-stream" },
       body: JSON.stringify({ jsonrpc: "2.0", id: ++id, method, params }),
     });
     const b = await r.json();
@@ -40,9 +40,18 @@ async function mcp() {
   // PARACHUTE_CORE_REF names the source when the server runs a branch, not a release (e.g. "next at 6b2d4ca").
   const release = [health.version ?? "unknown", process.env.PARACHUTE_CORE_REF].filter(Boolean).join(", ");
   const { tools } = await call("tools/list", {});
-  const fresh = tools.filter((t) => !t.description.startsWith("Deprecated"));
-  const old = tools.filter((t) => t.description.startsWith("Deprecated"));
-  const LEVEL = { "create-record": "write", "update-record": "write", "delete-record": "write", "manage-types": "admin", "manage-keys": "admin" };
+  const isOld = (t) => (t.description ?? "").startsWith("Deprecated");
+  const fresh = tools.filter((t) => !isOld(t));
+  const old = tools.filter(isOld);
+  // Each tool's level, as the server lists it: what a read key and a write key see (keys minted for a minute, revoked).
+  const seen = {};
+  for (const level of ["read", "write"]) {
+    const name = `docs-sync-${level}-${Date.now()}`;
+    const minted = await call("tools/call", { name: "manage-keys", arguments: { action: "mint", scope: `vault:${vault}:${level}`, ttl_seconds: 60, name } }).then((r) => JSON.parse(r.content[0].text));
+    seen[level] = new Set((await call("tools/list", {}, minted.token)).tools.map((t) => t.name));
+    await call("tools/call", { name: "manage-keys", arguments: { action: "revoke", name } });
+  }
+  const levelOf = (n) => (seen.read.has(n) ? "read" : seen.write.has(n) ? "write" : "admin");
   const lines = [
     front({
       title: "MCP tools",
@@ -56,16 +65,15 @@ async function mcp() {
     "",
     "| Tool | Level | What it does |",
     "|---|---|---|",
-    ...fresh.map((t) => `| \`${t.name}\` | ${LEVEL[t.name] ?? "read"} | ${t.description.split("\n")[0].replace(/\|/g, "\\|")} |`),
+    ...fresh.map((t) => `| \`${t.name}\` | ${levelOf(t.name)} | ${(t.description ?? "").split("\n")[0].replace(/\|/g, "\\|")} |`),
     "",
-    `Still answering through 0.9, gone in 1.0: ${old.map((t) => `\`${t.name}\``).join(", ")}. Each says what replaced it.`,
-    "",
+    ...(old.length ? [`Still answering, and going in 1.0: ${old.map((t) => `\`${t.name}\``).join(", ")}. Each says what replaced it.`, ""] : []),
   ];
   for (const t of fresh) {
     const help = await call("tools/call", { name: "vault-info", arguments: { help: t.name } }).then((r) => JSON.parse(r.content[0].text)).catch(() => null);
     // the help's full reference, plus anything only the advertised schema names (vault-info's own `help`)
     const props = { ...(t.inputSchema?.properties ?? {}), ...(help?.parameters?.properties ?? {}) };
-    lines.push(`## ${t.name}`, "", t.description, "");
+    lines.push(`## ${t.name}`, "", t.description ?? "", "");
     const names = Object.keys(props);
     if (names.length) {
       lines.push("| Parameter | Type | What it is |", "|---|---|---|");

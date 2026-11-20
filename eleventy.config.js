@@ -2,7 +2,11 @@ const fs = require("node:fs");
 
 /** A docs page as an agent reads it: the page's own markdown, its title and summary on top, no front matter. */
 function mdTwin(doc) {
-  const raw = fs.readFileSync(doc.inputPath, "utf8").replace(/^---\n[\s\S]*?\n---\n/, "").trim();
+  const raw = fs.readFileSync(doc.inputPath, "utf8").replace(/^---\n[\s\S]*?\n---\n/, "").trim()
+    // links to other docs pages point at their markdown, with the host, so an agent can follow them (or ask the docs
+    // tool for the same name); other site links get the host
+    .replace(/\]\(\/docs\/([a-z0-9/-]+?)\/?(#[^)]*)?\)/g, (_m, p, h = "") => `](https://parachute.computer/docs/${p}.md${h})`)
+    .replace(/\]\(\/(?!\/)([^)]*)\)/g, "](https://parachute.computer/$1)");
   const d = doc.data;
   const head = [`# ${d.title}`, "", `> ${d.summary}`, ""];
   if (d.status && d.status !== "current") head.push(`**${d.status === "next" ? "Next release" : "Coming"}:** ${d.status_note || ""}`, "");
@@ -13,6 +17,10 @@ function mdTwin(doc) {
 
 module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter("mdTwin", mdTwin);
+  // A summary is a line of markdown: its `code` drawn as code on the page, and plain in a meta description.
+  const esc = (t) => String(t ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  eleventyConfig.addFilter("inlineCode", (t) => esc(t).replace(/`([^`]+)`/g, "<code>$1</code>"));
+  eleventyConfig.addFilter("plainText", (t) => String(t ?? "").replace(/`([^`]+)`/g, "$1"));
   // The docs, in reading order: by door (use, build, run), then `order`.
   const DOORS = ["use", "build", "run"];
   eleventyConfig.addCollection("docs", (api) =>
@@ -26,8 +34,8 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("assets/**/*");
   eleventyConfig.addPassthroughCopy("archive/**/*");
   // Curl-able install scripts (served verbatim, e.g. /install/digitalocean.sh).
-  // NB: /install/index.html is a separate redirect template (install-redirect.njk)
-  // — passthrough files and that template land in the same dir without colliding.
+  // NB: /install/index.html is a redirect (_data/redirects.json, redirects.njk)
+  // — passthrough files and that page land in the same dir without colliding.
   eleventyConfig.addPassthroughCopy("install/**/*");
   // Provider-neutral alias: /install/server.sh is the SAME source file as
   // digitalocean.sh, copied to a second name at build time (single source of
@@ -95,13 +103,6 @@ module.exports = function (eleventyConfig) {
       .getFilteredByGlob("blog/*.md")
       .sort((a, b) => b.date - a.date);
   });
-
-  // Guides collection: the five starter guides that ship in every vault,
-  // in reading order (frontmatter `order`, 1–5).
-  eleventyConfig.addCollection("guides", (api) =>
-    api
-      .getFilteredByGlob("guides/*.md")
-      .sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99)));
 
   return {
     dir: {

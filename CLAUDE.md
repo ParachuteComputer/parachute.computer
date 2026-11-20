@@ -21,7 +21,11 @@ this file only carries what the repo can't tell you.
   `docs/build/reference/` is generated (`npm run docs:sync`): don't edit it by hand.
 - **Don't publish fast-changing metrics** — file counts, version numbers, test
   counts — anywhere on the site or in this file. They go stale silently and then
-  read as truth; link to GitHub for anything that changes frequently.
+  read as truth; link to GitHub for anything that changes frequently. A docs page's
+  `checked:` line may name the version it was checked against: that is a dated record of
+  a check, not a claim about today.
+- **Door labels live in `_data/doorPages.json`** (the nav, the door pages, the homepage
+  and llms.txt all read them).
 
 Architecture design notes live in `design/`; update them when the shape they
 describe changes, not per commit.

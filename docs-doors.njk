@@ -15,10 +15,10 @@ eleventyComputed:
 <main class="contents">
     <h1>{{ d.title }}</h1>
     <p class="lede">{{ d.who }}</p>
-    <div class="doors" style="grid-template-columns:1fr">
+    <div class="doors one">
     <section><ol>
         {% for p in collections.docs | door(d.door) %}
-        <li><div><a href="{{ p.url }}">{{ p.data.title }}</a><span>{{ p.data.summary }}</span></div></li>
+        <li><div><a href="{{ p.url }}">{{ p.data.title }}</a><span>{{ p.data.summary | inlineCode | safe }}</span></div></li>
         {% endfor %}
     </ol></section>
     </div>

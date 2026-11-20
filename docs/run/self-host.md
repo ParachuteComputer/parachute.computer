@@ -10,12 +10,12 @@ Parachute is one program, `parachute` (npm package `@openparachute/core`, source
 
 ## Install
 
-- **One line, on a fresh Linux box or a Mac:** `curl -fsSL https://parachute.computer/install/parachute.sh | bash`. On a Linux box with a public address it also sets up HTTPS. Then open the address it prints. (It still installs from npm's `next` tag, an 0.8 prerelease, until it is switched to the 0.8.0 release.)
+- **One line, on a fresh Linux box or a Mac:** `curl -fsSL https://parachute.computer/install/parachute.sh | bash`. On a Linux box with a public address it also sets up HTTPS. Then open the address it prints. (It still installs from npm's `next` tag, a pre-release, until it is switched to `latest`.)
 - **With npm** (needs Bun 1.4 or newer): `npm i -g @openparachute/core`.
 - **A release bundle** with its own Bun: download `parachute-core-<version>-<platform>.tar.gz` and `SHA256SUMS` from [the releases](https://github.com/ParachuteComputer/parachute-core/releases), check, unpack, run `bin/parachute install`.
 - **An AI doing it for you:** give it the [install runbook](/install.md). It is written for an agent, with nothing to type by hand.
 
-0.8 is the current release; 0.9 is in pre-release on npm's `@beta` tag. The commands below are 0.9's; 0.8's older names still work in 0.9 and say what replaced them.
+npm's `latest` is the current release, and `@beta` the next one's pre-releases ([releases](https://github.com/ParachuteComputer/parachute-core/releases)). The commands below are 0.9's; 0.8's older names still work in 0.9 and say what replaced them.
 
 ## Make a vault, and someone to use it
 

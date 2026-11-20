@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}{% if title %} | {% endif %}Parachute Computer</title>
-    <meta name="description" content="{{ description or summary or site.oneLine }}">
+    <meta name="description" content="{{ description or (summary | plainText) or site.oneLine }}">
     {# Internal design notes (design/*.md set noindex) stay reachable via deep links
        but are kept out of search results — they're working material, not polished docs. #}
     {% if noindex %}<meta name="robots" content="noindex">{% endif %}
@@ -24,7 +24,7 @@
     {# Open Graph / share-preview metadata. Posts can override via
        frontmatter: og_title, og_description, og_image, og_type. #}
     {% set _ogTitle = og_title or title %}
-    {% set _ogDescription = og_description or description or summary or site.oneLine %}
+    {% set _ogDescription = og_description or description or (summary | plainText) or site.oneLine %}
     {% set _ogImage = og_image or "/og.png" %}
     {% set _ogType = og_type or "website" %}
     {% set _canonicalUrl = "https://parachute.computer" + (page.url or "/") %}

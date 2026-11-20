@@ -2,10 +2,10 @@
    Parachute Computer — parachute.computer
    Warm. Open sky. Shares the homepage's design system.
 
-   The homepage (landing-preview.html → /index.html) is a self-contained
-   file with its own inline tokens. THIS stylesheet mirrors that same warm
-   system so every base.njk page (blog, docs, roadmap, /start, terms …)
-   belongs to the same family. Palette + fonts + shadows below are ported
+   Since T-476 every page (the homepage too) is on base.njk, and
+   assets/site.css, loaded after this file, points these tokens at the
+   Parachute app's theme; the 2026-07 landing is archived at
+   /archive/home-v2/. Older notes: Palette + fonts + shadows below are ported
    from the landing's :root; the old semantic token names (--bg, --fg,
    --accent, --serif …) are kept as ALIASES onto the warm palette so the
    many existing rules downstream reskin automatically.
@@ -1628,32 +1628,3 @@ footer.site-footer {
     .ladder-next a:hover { transform: none; }
 }
 
-/* Experimental-preview banner — used at the top of /agents/. Mirrors the
-   modules page's "preview" hue (sky), distinct from the coral/blue rest. */
-.preview-banner {
-    max-width: var(--content-width);
-    margin: 0 auto 2.5rem;
-    border: 1px solid rgba(91, 143, 168, 0.28);
-    border-left: 3px solid var(--status-active);
-    background: var(--status-active-soft);
-    border-radius: 12px;
-    padding: 1.1rem 1.4rem;
-}
-
-.preview-banner .pb-tag {
-    display: inline-block;
-    font-family: var(--mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--status-active);
-    margin-bottom: 0.4rem;
-}
-
-.preview-banner p {
-    margin: 0;
-    color: var(--fg-muted);
-    font-size: 0.95rem;
-    line-height: 1.6;
-    max-width: none;
-}

@@ -16,6 +16,7 @@ eleventyExcludeFromCollections: true
     <meta http-equiv="refresh" content="0; url={{ r.to }}">
     <link rel="canonical" href="https://parachute.computer{{ r.to }}">
     <meta name="robots" content="noindex">
+    <script>location.replace({{ r.to | dump | safe }} + location.hash);</script>
 </head>
 <body>
     <p>This page moved: <a href="{{ r.to }}">parachute.computer{{ r.to }}</a>.</p>

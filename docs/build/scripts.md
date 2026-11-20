@@ -11,19 +11,32 @@ Every vault answers REST at `<server>/vault/<vault>/api/`, with a key as `Author
 ## Read
 
 ```bash
-curl -s "https://my.parachute.computer/vault/home/api/records?type=book" \
+curl -s "https://your-server.example/vault/home/api/records?type=book" \
   -H "Authorization: Bearer $PARACHUTE_KEY"
 ```
 
 ## Write
 
 ```bash
-curl -s -X POST "https://my.parachute.computer/vault/home/api/records" \
+curl -s -X POST "https://your-server.example/vault/home/api/records" \
   -H "Authorization: Bearer $PARACHUTE_KEY" -H "content-type: application/json" \
   -d '{"path": "Books/Piranesi", "types": ["book"], "fields": {"author": "Susanna Clarke"}, "body": ""}'
 ```
 
-The record routes (`/api/records`) take the same words as the MCP tools: `body`, `fields`, `types`, `tags`. A server on 0.8 has `/api/notes` with the older words (`content`, `metadata`, and types as `tags`); 0.9 keeps `/api/notes` working.
+The record routes (`/api/records`) take the same words as the MCP tools: `body`, `fields`, `types`, `tags`.
+
+## On a 0.8 server (Parachute Cloud today)
+
+The routes are `/api/notes`, with the older words: `content` for the body, `metadata` for fields, and types as `tags`.
+
+```bash
+curl -s "https://my.parachute.computer/vault/home/api/notes?tag=book" -H "Authorization: Bearer $PARACHUTE_KEY"
+curl -s -X POST "https://my.parachute.computer/vault/home/api/notes" \
+  -H "Authorization: Bearer $PARACHUTE_KEY" -H "content-type: application/json" \
+  -d '{"path": "Books/Piranesi", "tags": ["book"], "metadata": {"author": "Susanna Clarke"}, "content": ""}'
+```
+
+0.9 keeps `/api/notes` working, and marks it as going in 1.0.
 
 ## Keep keys short
 
