@@ -10,6 +10,10 @@ A **bundle** is a record in the person's home vault that the app follows: the ap
 
 *The app and its record still say "app" for a bundle (`Parachute/Apps/<id>`, `fields.app`, the tag `parachute-app`); a rename to "bundle" is under way. Write the record as below until then.*
 
+## Which vault is home
+
+A bundle lives in the person's **home vault**: the vault of their own the app reads its settings from (Settings in the app shows it; by default the first they signed in to). If the vault you are connected to holds `Parachute/Settings` (`query-records { "id": "Parachute/Settings" }`), it is the home. If it doesn't, ask the person which vault is home, and write the bundle with a connection to that vault. A vault's name in a bundle is the name the person's server gives it, the one in your connection's instructions.
+
 ## The record
 
 ```json

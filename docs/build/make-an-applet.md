@@ -83,6 +83,7 @@ export default function Reading() {
 - Build the screen from the kit's parts: `Page`, `List`, `Field`, `Empty`, `Loading`, `Problem`, `Button`, `Note`, `when` for dates. They follow the person's theme, so your applet looks like the rest of the app.
 - Read with `vault.queryRecords`, `vault.getRecord`; write with `vault.createRecord({ path, body })` and `vault.updateRecord(id, { body, if_updated_at })`.
 - **An applet writes bodies only.** It can't set fields, types or tags, and it never deletes. A record it adds in a folder it `opens` gets that type (and the type's defaults). Fields are for the person's AI to set over MCP, or keep the state in the body.
+- **Opening a record on a tap** takes `"app": ["open"]` in the record's fields and `onPress: () => link.open(book)` on the row (`link` from `"parachute"`). The record opens in the applet that opens its kind (here, this one: it hears it through `onOpen`), else in the plain view. Without `open`, a row with no `onPress` is just text. Say only what your code does.
 - No `<form>` submits (the frame doesn't allow them): use a button's `onClick`.
 
 ## Get it approved
