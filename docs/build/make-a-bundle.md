@@ -8,7 +8,7 @@ checked: "parachute src/shell/apps.ts appOf (fields read, the id must match the 
 
 A **bundle** is a record in the person's home vault that the app follows: the applets its list offers, the pins on its bar, the home it opens on. The person picks one in Settings → **Your app**; **Simple** and **Everything** are always there.
 
-*The app and its record still say "app" for a bundle (`Parachute/Apps/<id>`, `fields.app`, the tag `parachute-app`); a rename to "bundle" is under way. Write the record as below until then.*
+*The app and its record still say "app" for a bundle (`Parachute/Apps/<id>`, `fields.app`, the tag `parachute-app`); a rename to "bundle" is planned. Write the record as below until then.*
 
 ## Which vault is home
 
@@ -34,11 +34,11 @@ create-record {
 | Field | What it says |
 |---|---|
 | `contract` | Always `1`. |
-| `id` | Lower case, up to 40 characters, and the last part of the path: `Parachute/Apps/<id>`. A record whose path doesn't end in its id is ignored. |
-| `name` | What Settings shows (60 characters at most). Optional `glyph` (one character) and `note` (a short line). |
+| `id` | Short kebab-case (a-z, 0-9, -), up to 40 characters, and the last part of the path: `Parachute/Apps/<id>`. A record whose path doesn't end in its id is ignored. |
+| `name` | What Settings shows (60 characters at most). Optional `glyph` (a character or two) and `note` (a short line). |
 | `sources` | Which applets the list offers: one applet (`"applet": "Applets/Reading"`), every applet in a vault (`"applet": "*"`), or every vault on a named server (`"hub": "https://…", "vault": "*"`). No `hub` means the home vault's server. |
 | `hide` | Applets to leave out of the list. |
-| `bar` | The pins, in order (up to 12 show), then **Applets**. Pin the home first to have it there. |
+| `bar` | The pins, in order (up to 12 show), then **Applets** (with `look: "launcher"`). Pin the home first to have it there. |
 | `start` | The home: the applet the app opens on. |
 | `opens` | Which applet opens a kind of record, for every device: `{ "type": "book", "vault": "home", "applet": "Applets/Reading" }`; `"applet": null` is the plain view. |
 | `keep` | How many applets stay running while hidden: `"auto"` (6 on a phone, 12 on a computer) or 0 to 12. Only speed hangs on it. |

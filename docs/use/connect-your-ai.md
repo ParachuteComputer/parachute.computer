@@ -12,7 +12,7 @@ Every vault has one address for AI apps, its **connector address**:
 https://<your server>/vault/<vault name>/mcp
 ```
 
-On Parachute Cloud that is `https://my.parachute.computer/vault/<vault name>/mcp`. The app shows it under **Connect** (with **Copy**), and so does your Cloud account page, with the Claude Code command ready to copy. The first time an AI app connects, you sign in and approve it on your server's page; nothing else to paste.
+On Parachute Cloud that is `https://my.parachute.computer/vault/<vault name>/mcp`. In the app's simple view it is under **Connect** on the bar, with **Copy**; your Cloud account page shows it too, with the Claude Code command ready to copy. The first time an AI app connects, you sign in and approve it on your server's page; nothing else to paste.
 
 ## Claude
 
@@ -35,7 +35,7 @@ Your AI starts each conversation knowing your vault's name, its types and how to
 - "What did I capture this week? Sort it into the right places."
 - "Make me a home screen with my journal and my reading list pinned."
 
-What it makes shows up in the app: records in your vaults, new [applets](/docs/build/make-an-applet/) in the list (each asks you before it runs), and your [home](/docs/use/your-home/).
+What it makes shows up in the app: records in your vaults, new [applets](/docs/build/make-an-applet/) in the list of applets (in **Everything**, or your bundle; each asks you before it runs), and your [home](/docs/use/your-home/).
 
 ## What it can do
 

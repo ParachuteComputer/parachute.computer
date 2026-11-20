@@ -20,12 +20,12 @@ Pick one:
 
 ## 2. The app
 
-Android (8 or newer) and Apple Silicon Macs. The Mac build isn't notarised yet, so macOS asks once before it opens it.
+Android (8 or newer, 64-bit ARM) and Apple Silicon Macs. The Mac build isn't notarised yet, so macOS asks once before it opens it.
 
 ## 3. Sign in
 
 - **On Parachute Cloud:** on the first screen, **Sign in with Parachute Cloud**, then the code it mails you. No key needed. The app opens on your notes.
-- **On a server of your own, or an organisation's:** you sign in with a **key**, a Nostr key the app keeps in your phone's or computer's secure storage. On the first screen choose **Make a new key**, or **Pair from a device that has your key** if one already does. The server's owner links your key to your account once (`parachute user pubkey add`). Then type the server's address, say it is **Mine**, and press **Approve** on the server's page.
+- **On a server of your own, or an organisation's:** you sign in with a **key**, a Nostr key the app keeps in your phone's or computer's secure storage. On the first screen choose **Make a new key**, or **Pair from a device that has your key** if one already does. The server's owner links your key to your account once (`parachute user pubkey add --user <name> <npub>`; the app shows your `npub1…`). Then type the server's address, say it is **Mine**, press **Sign in with your key**, and press **Approve** on the server's page.
 
 The first sign-in reads your **home vault** only. Other vaults on the same server show in Settings as one line each, **Open**, and are read only after you tap it.
 

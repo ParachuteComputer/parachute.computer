@@ -10,9 +10,9 @@ An applet is code your AI (or anyone who can write your vault) put there. So the
 
 ## The card
 
-It says, in plain words, what the applet asks for: which folders it may read or add to ("Read and add notes in Books/"), which kinds of note it opens, any server it talks to and what the app will sign there as you, and the small things (links, files, the microphone) on one **Also** line. **Show details** lists every line.
+It says, in plain words, what the applet asks for: which folders it may read or add to ("Read and add notes in Books/"), which kinds of note it opens, any server it talks to and what the app will sign there as you, web links on their own line (what it reads could leave that way), and the small things (files, the microphone, drafts) on one **Also** line. **Show details** lists every line.
 
-An applet never gets your key, a password or the network. It sees only the folders on its card, in its own vault; it can't change its own code or anyone else's, and it can't delete.
+An applet never gets your key or a password, and has no network of its own. (On Android it could still send what it reads to the internet, so there only code you allowed runs, and the card says so.) It sees only the folders on its card, in its own vault; it can't change its own code or anyone else's, and it can't delete.
 
 ## Changed code asks again
 

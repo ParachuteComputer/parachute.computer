@@ -32,11 +32,11 @@ create-record {
 
 Every key is optional. Anything left out, or written in a form the app doesn't read, stays the built-in value. A colour is hex, or `rgb()`, `hsl()`, `oklch()`, `oklab()` with plain numbers. Nothing else is read, so a theme can't load anything from the network.
 
-If the record already exists, change it with `update-record` (`fields` merges). In the app: Settings → **Look**.
+If the record already exists, read it, then `update-record` with the whole `theme` object and the record's `if_updated_at`: `fields` merges one level deep, so a partial `theme` replaces the old one. In the app: Settings → **Look**.
 
 ## In an applet
 
-Use the theme's CSS variables, never your own colours or fonts: `--bg`, `--surface`, `--text`, `--muted`, `--line`, `--accent`, `--danger`, `--serif`, `--sans`, `--mono`, `--pad`, `--gap`, `--radius`, and the type scale `--fs-title` … `--fs-label`. The kit's parts already do.
+Use the theme's CSS variables, never your own colours or fonts: `--bg`, `--surface`, `--text`, `--muted`, `--line`, `--accent`, `--danger`, `--serif`, `--sans`, `--mono`, `--pad`, `--gap`, `--radius`, `--size`, `--leading`, and the type scale `--fs-title` … `--fs-label`. The kit's parts already do.
 
 ## The screens around the notes
 

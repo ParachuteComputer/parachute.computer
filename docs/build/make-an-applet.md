@@ -3,7 +3,7 @@ title: "Make an applet and get it approved"
 summary: "An applet is one record: a manifest in its fields, TSX in its body. Write it, and the person allows it on its card."
 door: build
 order: 4
-checked: "parachute docs/WRITE-AN-APPLET.md, src/applet/manifest.ts, src/applet/modules/vault.ts, src/kit/conformance.ts; the example below passes the app's manifest check, its kit conformance check and its TSX transpile (examples/check-reading.ts)"
+checked: "parachute docs/WRITE-AN-APPLET.md, src/applet/manifest.ts, src/applet/modules/vault.ts, src/kit/conformance.ts; the example below passes the app's manifest check, its kit conformance check and its TSX transpile (`npm run docs:check-applet`)"
 ---
 
 An **applet** is a small screen in the Parachute app, and it is **one record** in a vault. You make one with `create-record` and change it with `update-record`. There is no build step: the app reads the record, shows the person what it asks for, and runs it after they allow it.
@@ -79,7 +79,7 @@ export default function Reading() {
 
 ## The code
 
-- Import only `react`, `react-dom` and `parachute` (the app's kit). No npm packages, no network, no storage of your own.
+- Import only `react`, `react-dom` and `parachute` (the app's kit), and components (`component:<id>`, in [the record reference](/docs/build/reference/applet/)). No npm packages, no network, no storage of your own.
 - Build the screen from the kit's parts: `Page`, `List`, `Field`, `Empty`, `Loading`, `Problem`, `Button`, `Note`, `when` for dates. They follow the person's theme, so your applet looks like the rest of the app.
 - Read with `vault.queryRecords`, `vault.getRecord`; write with `vault.createRecord({ path, body })` and `vault.updateRecord(id, { body, if_updated_at })`.
 - **An applet writes bodies only.** It can't set fields, types or tags, and it never deletes. A record it adds in a folder it `opens` gets that type (and the type's defaults). Fields are for the person's AI to set over MCP, or keep the state in the body.
@@ -91,7 +91,7 @@ export default function Reading() {
 You can't approve it yourself, and you shouldn't try: tell the person what you made and what it asks for.
 
 1. The applet shows in the app's list (in **Everything**, or in a [bundle](/docs/build/make-a-bundle/) that lists its vault).
-2. The first time they open it, a card says what it asks: *Read and add notes in Books/*, *Open book notes in Books/ when you tap one*. Nothing runs until they tap **Allow**.
+2. The first time they open it, a card says what it asks: *Read and add notes in Books/*, *Open book notes in Books/ when you tap one*, *Tag the notes it adds in Books/ as book*. Nothing runs until they tap **Allow**.
 3. If the code doesn't compile, the app says why and runs nothing. If it imports something the kit doesn't have, or throws while starting, the applet shows one line saying why.
 4. Change the code or what it asks for, and the card shows again before the new version runs.
 

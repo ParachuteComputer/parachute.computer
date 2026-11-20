@@ -10,15 +10,15 @@ The Parachute app is thin. It holds your key and your sign-ins, and shows what y
 
 ## What you see
 
-- **The home**: the applet the app opens on. Any applet can be your home.
-- **The bar**: your pins along the bottom, in order, then **Applets**.
+- **The home**: the applet the app opens on. Any applet in a vault of yours can be your home.
+- **The bar**: your pins along the bottom, in order, then **Applets**. (In the simple view it is **Notes · Capture · Connect**, then your pins.)
 - **The list** (**Applets** on the bar): every applet the bundle offers, in one plain list. Settings is there too.
 - **A note** opens in the applet that opens its kind (a `book` record in your reading applet), else as plain text. Long-press for **Open with…**.
 - **Back** goes where you came from.
 
 ## Change it by hand
 
-- Long-press an applet in the list: **Pin to the bar**, **Unpin**, **Open on start**.
+- Long-press an applet in the list: **Pin to the bar** (or **Unpin from the bar**), **Open on start**.
 - Long-press a pin on the bar: **Move left**, **Move right**, **Unpin**.
 - Settings → **Your app** picks the bundle this device opens: **Simple**, **Everything**, or one of yours.
 
@@ -30,6 +30,6 @@ Ask: "Pin my journal and reading list, and open on the journal." Your AI writes 
 
 Anyone who can write your vault can change a bundle, so the app takes only three things from it: the home, the pins and the list. None of them runs code. An applet still shows its card the first time you open it, and again when its code changes. A home only opens by itself once you have allowed its code *and* chosen it as home on that device. A bundle can make the app stricter (an idle lock, a passcode), never looser.
 
-If a bundle is broken or missing, the app opens the plain list and says *Your app record didn't load*, with Settings. You are never locked out.
+If a bundle is broken or missing, the app falls back to the simple view or **Everything** and says *Your app record didn't load*, with Settings. You are never locked out.
 
-*In the app and its code a bundle is still called an "app" (Settings → Your app, `Parachute/Apps/<id>`); the rename to "bundle" is under way.*
+*In the app and its code a bundle is still called an "app" (Settings → Your app, `Parachute/Apps/<id>`); the rename to "bundle" is planned.*
