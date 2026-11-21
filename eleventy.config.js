@@ -53,7 +53,7 @@ module.exports = function (eleventyConfig) {
   // GitHub makes them, so `#saved-state` links work and sections can be linked; a table sits in a box that scrolls
   // sideways on a narrow screen rather than squeezing its columns.
   eleventyConfig.amendLibrary("md", (md) => {
-    const slug = (t) => t.toLowerCase().trim().replace(/[^\p{L}\p{N}\s-]/gu, "").replace(/\s/g, "-");
+    const slug = (t) => t.toLowerCase().trim().replace(/[^\p{L}\p{M}\p{N}_\s-]/gu, "").replace(/\s/g, "-");
     md.core.ruler.push("heading_ids", (state) => {
       const seen = new Map();
       state.tokens.forEach((t, i) => {

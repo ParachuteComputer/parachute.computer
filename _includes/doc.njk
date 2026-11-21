@@ -32,7 +32,15 @@ layout: base.njk
         </details>
     </nav>
     {# Open beside the page on a wide screen; on a phone, one line above it. #}
-    <script>if (!matchMedia("(max-width: 860px)").matches) document.getElementById("toc").open = true;</script>
+    <script>
+    (function () {
+        var toc = document.getElementById("toc"), narrow = matchMedia("(max-width: 860px)"), at = 0;
+        if (!narrow.matches) toc.open = true;
+        // On a phone the open contents fold away again once the page itself has scrolled on, so they never cover it.
+        toc.addEventListener("toggle", function () { at = scrollY; });
+        addEventListener("scroll", function () { if (narrow.matches && toc.open && Math.abs(scrollY - at) > 120) toc.open = false; }, { passive: true });
+    })();
+    </script>
     <article class="doc arrive">
         <h1>{{ title }}</h1>
         <p class="summary">{{ summary | inlineCode | safe }}</p>
@@ -56,20 +64,25 @@ layout: base.njk
         <ol>{% for s in secs %}<li><a href="#{{ s.id }}">{{ s.text | safe }}</a></li>{% endfor %}</ol>
     </aside>
     {# The section being read is marked in "On this page" (a mark, not a movement): the last heading above the upper
-       third of the screen, worked out once per frame while the page scrolls. #}
+       third of the screen, or the last one once the page is at its end; worked out once a frame while the page
+       scrolls or resizes, and only while "On this page" is shown. #}
     <script>
     (function () {
-        var links = document.querySelectorAll(".onpage a"), heads = [], queued = false;
+        var links = document.querySelectorAll(".onpage a"), heads = [], queued = false, wide = matchMedia("(min-width: 1181px)");
         links.forEach(function (a) { var h = document.getElementById(decodeURIComponent(a.hash.slice(1))); if (h) heads.push([h, a]); });
         if (!heads.length) return;
         function mark() {
             queued = false;
-            var cur = heads[0][1], line = window.innerHeight * 0.35;
-            heads.forEach(function (x) { if (x[0].getBoundingClientRect().top <= line) cur = x[1]; });
+            if (!wide.matches) return;
+            var cur = heads[0][1], line = innerHeight * 0.35, end = scrollY + innerHeight >= document.documentElement.scrollHeight - 2;
+            if (end) cur = heads[heads.length - 1][1];
+            else heads.forEach(function (x) { if (x[0].getBoundingClientRect().top <= line) cur = x[1]; });
             links.forEach(function (a) { a.toggleAttribute("aria-current", a === cur); });
         }
-        addEventListener("scroll", function () { if (!queued) { queued = true; requestAnimationFrame(mark); } }, { passive: true });
-        addEventListener("hashchange", mark);
+        function soon() { if (!queued) { queued = true; requestAnimationFrame(mark); } }
+        addEventListener("scroll", soon, { passive: true });
+        addEventListener("resize", soon);
+        addEventListener("hashchange", soon);
         mark();
     })();
     </script>
