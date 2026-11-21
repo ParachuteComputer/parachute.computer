@@ -158,7 +158,7 @@ code, pre, kbd { font-variant-ligatures: none; }
    arrival the head of the page rises a few pixels into place as the rest fades in, in the same fifth. */
 @view-transition { navigation: auto; }
 ::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--t-state); animation-timing-function: var(--ease-out); }
-@keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+@keyframes rise { from { opacity: .4; transform: translateY(6px); } }   /* readable from its first frame */
 @keyframes fade { from { opacity: 0; } }
 .arrive > :not(.doc-body) { animation: rise var(--t-state) var(--ease-out) both; }
 .arrive > .doc-body { animation: fade var(--t-state) var(--ease-out) both; }
@@ -382,13 +382,17 @@ main.home { max-width: none; padding: 0; }
   .home-hero .keep { order: 2; margin-top: 3rem; }
   .home-hero h1 { margin-bottom: 1rem; }
   .home-hero .lede { margin-bottom: 1.4rem; }
-  .connect-card .addr { padding: .8rem .9rem 3.3rem; }
-  .connect-card .addr .copy-btn { top: auto; bottom: .55rem; transform: none; }
-  .connect-card .addr .copy-btn:active { transform: scale(.97); }
   .hangs { margin-top: 1.8rem; width: 100%; max-width: 30rem; min-width: 0; align-self: center; }
   .home-band { padding-top: 3.5rem; }
   .band-head { grid-template-columns: 1fr; }
   .band-head > :first-child { position: static; }
+}
+
+/* a narrow card: Copy gets its own row under the address */
+@media (max-width: 520px) {
+  .connect-card .addr { padding: .8rem .9rem 3.3rem; }
+  .connect-card .addr .copy-btn { top: auto; bottom: .55rem; transform: none; }
+  .connect-card .addr .copy-btn:active { transform: scale(.97); }
 }
 
 /* ---------- the older pages under the same nav (blog, pricing, terms…): the docs' frame and faces ---------- */
