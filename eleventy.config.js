@@ -56,8 +56,8 @@ module.exports = function (eleventyConfig) {
     const slug = (t) => t.toLowerCase().trim().replace(/[^\p{L}\p{M}\p{N}_ -]/gu, "").replace(/ /g, "-");
     md.core.ruler.push("heading_ids", (state) => {
       // every heading gets an id, as on GitHub: ids written by hand first, then each heading's text, the next free
-      // -1, -2 … for a repeat (the layouts' own ids, page-start and doc-contents, are not words a heading makes)
-      const seen = new Set(state.tokens.filter((t) => t.type === "heading_open" && t.attrGet("id")).map((t) => t.attrGet("id")));
+      // -1, -2 … for a repeat; the layouts' own ids are taken from the start
+      const seen = new Set(["page-start", "doc-contents", "pchute", ...state.tokens.filter((t) => t.type === "heading_open" && t.attrGet("id")).map((t) => t.attrGet("id"))]);
       state.tokens.forEach((t, i) => {
         if (t.type !== "heading_open" || t.attrGet("id")) return;
         const text = state.tokens[i + 1].children.filter((c) => c.type === "text" || c.type === "code_inline").map((c) => c.content).join("");
