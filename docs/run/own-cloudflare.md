@@ -3,7 +3,7 @@ title: "Your own Parachute on your own Cloudflare"
 summary: "Parachute Cloud's own code, under your names, on a Cloudflare account you own. One owner, who signs in with a Nostr key. No computer to keep on."
 door: run
 order: 2
-checked: "parachute-cloud door/0.9 deploy/personal (README.md, deploy.sh, vault-limit.sh, smoke.ts) and a full rehearsal walk on 2026-11-21 (T-476); Cloudflare's pricing and limits pages read 2026-11-21"
+checked: "parachute-cloud door/0.9 612f2b0 deploy/personal; a full rehearsal walk and a cold run of this page from a fresh clone, 2026-11-21 (T-476); Cloudflare's pricing and limits pages read 2026-11-21"
 ---
 
 This is Parachute Cloud's own two workers, deployed under names you choose on **your** Cloudflare account. You hold the account, the data and the bill; there is no server of yours to keep running. One person owns it and signs in with a Nostr key: there are no email sign-ins and no billing.
@@ -34,12 +34,13 @@ Sources: [Workers pricing](https://developers.cloudflare.com/workers/platform/pr
 
 You need [Bun](https://bun.sh) 1.4 or newer, git, a Cloudflare account with a workers.dev subdomain (dashboard: Workers & Pages, your subdomain), and a Nostr key **in a file**: the commands below sign with it, and the app takes the same key. Make one with `bun deploy/personal/nip98.ts keygen ~/parachute/me.key` (from the repo below; it prints the public half), or put a secret key you already have (`nsec1…`) in that file. **Back the file up**: it is your only way in. A second key can be linked as a spare (`POST /account/pubkeys`, which asks for a signature from that key).
 
-1. **Get the code**: `git clone https://github.com/ParachuteComputer/parachute-cloud && cd parachute-cloud && git checkout door/0.9`.
+1. **Get the code**: `git clone https://github.com/ParachuteComputer/parachute-cloud && cd parachute-cloud && git checkout door/0.9 && bun install`. The install ends with "Failed to install 2 packages": that's expected, the deploy fetches those two itself.
 2. **Write a profile**, a small file kept outside the repo, say `~/parachute/me.env`:
 
    ```bash
    ACCOUNT_ID=<32 hex>        # `bunx wrangler whoami` prints it
    PREFIX=me-parachute        # names your workers, database and bucket: lowercase, 4-42 characters, not parachute-* or *-staging
+   WORKERS_SUBDOMAIN=<yours>  # Workers & Pages → your subdomain; needed with `wrangler login` (an API token can look it up)
    OWNER_PUBKEY=<hex or npub1…>   # your key's public half
    OWNER_PLAN=power           # entry, standard, plus or power (10 vaults): set at your first sign-in
    ```
@@ -57,11 +58,11 @@ In a browser tab (the app's web version) there is no key, and this Parachute sen
 ```bash
 D=https://me-parachute-identity.<subdomain>.workers.dev
 bun deploy/personal/nip98.ts token $D ~/parachute/me.key acct.curl      # a 10-minute pass, signed by your key
-curl -K acct.curl $D/account/vaults -d '{"name":"notes"}'                # a vault
-curl -K acct.curl $D/account/keys -d '{"name":"claude","vault":"notes","can":"write"}'   # a key for an AI or app
+curl -K acct.curl $D/account/vaults -d '{"name":"home"}'                 # a vault (a few names, like notes, are reserved)
+curl -K acct.curl $D/account/keys -d '{"name":"claude","vault":"home","can":"write"}'    # a key for an AI or app
 curl -K acct.curl -X DELETE $D/account/keys/claude                       # take it back
 curl -K acct.curl $D/account/session-link -d '{}'                        # a one-time browser sign-in link
-curl -K acct.curl -X POST $D/account/vaults/notes/restore -d '{}'        # newest snapshot → notes-restored-<date>
+curl -K acct.curl -X POST $D/account/vaults/home/restore -d '{}'         # newest snapshot → home-restored-<date>
 ```
 
 A key's `token` is shown once; it lasts a year. [The deploy README](https://github.com/ParachuteComputer/parachute-cloud/blob/door/0.9/deploy/personal/README.md) has the rest.
@@ -71,14 +72,14 @@ A key's `token` is shown once; it lasts a year. [The deploy README](https://gith
 - Every night at 04:00 UTC each vault is snapshotted into your R2 bucket. 14 daily, 8 weekly and 12 monthly snapshots are kept.
 - Files you attach live in the same bucket. Snapshots hold the vault, not the files. `GET $D/vault/<name>/api/export` with a key gives you both, any time: keep a copy off Cloudflare too.
 - **Restore** is one call, always into a new vault (`<name>-restored-<date>`): `POST /account/vaults/<name>/restore`.
-- Take a snapshot now, before something risky: `curl -H "Authorization: Bearer $(cat ~/parachute/private/ops-run-token)" -X POST $D/ops/snapshot-run -d '{"vault":"notes"}'`. Name the vault: without one it only redoes stale backups, and a vault backed up last night isn't stale.
+- Take a snapshot now, before something risky: `curl -H "Authorization: Bearer $(cat ~/parachute/private/ops-run-token)" -X POST $D/ops/snapshot-run -d '{"vault":"home"}'`. Name the vault: without one it only redoes stale backups, and a vault backed up last night isn't stale.
 - Deleting a vault deletes its snapshots too.
 
 ## Upgrades
 
 Pull `door/0.9` and run `deploy.sh` again with the same profile. It upgrades in place: database changes are applied before the new workers start, and your vaults, keys and snapshots stay. To go back, deploy the commit you were on: database changes only ever add, so your data reads, but you lose what the newer code did (going back to before 2026-11-21 takes the app's one address away, and a raised vault limit falls back to your plan's).
 
-To remove it all, first delete every vault, restored copies included (that empties the bucket), then the rest:
+To remove it all, first delete every vault, restored copies included (that empties the bucket), then the rest (the loop needs jq):
 
 ```bash
 for v in $(curl -s -K acct.curl $D/account/vaults | jq -r '.vaults[].name'); do curl -K acct.curl -X DELETE $D/account/vaults/$v -d "{\"confirm\":\"$v\"}"; done
