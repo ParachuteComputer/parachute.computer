@@ -9,7 +9,7 @@ layout: base.njk
 {% set secs = content | sections %}
 <main class="docs docs-page">
     <nav class="toc" aria-label="{{ dp.title }}">
-        <details id="toc">
+        <details id="doc-contents">
             <summary><span class="here-door">{{ dp.name }}</span><span class="here-page">{{ nav or title }}</span></summary>
             <div class="toc-body">
                 <p class="toc-door"><a href="/docs/{{ door }}/">{{ dp.title }}</a><span class="toc-who">{{ dp.short }}</span></p>
@@ -34,15 +34,19 @@ layout: base.njk
     {# Open beside the page on a wide screen; on a phone, one pinned line above it that opens the list (and follows a rotation). #}
     <script>
     (function () {
-        // Folded or not is the stylesheet's call (--fold, set where the contents become one line); this follows it:
-        // open beside the page, folded on a phone, and folded again by Escape or on coming Back to the page.
-        var toc = document.getElementById("toc"), was = null;
+        // Folded or not is the stylesheet's call (--fold, set where the contents become one line); this follows it,
+        // once a frame at most: open beside the page, folded on a phone. Escape (from within the contents) and coming
+        // Back to the page fold them again on a phone.
+        var toc = document.getElementById("doc-contents"), was = null, queued = false;
         function folded() { return getComputedStyle(toc).getPropertyValue("--fold").trim() === "1"; }
-        function fit() { var f = folded(); if (f !== was) { toc.open = !f; was = f; } }
+        function fit() { queued = false; var f = folded(); if (f !== was) { toc.open = !f; was = f; } }
         fit();
-        addEventListener("resize", fit);
-        addEventListener("pageshow", function (e) { if (e.persisted && folded()) toc.open = false; });
-        addEventListener("keydown", function (e) { if (e.key === "Escape" && folded() && toc.open) { toc.open = false; toc.querySelector("summary").focus(); } });
+        addEventListener("resize", function () { if (!queued) { queued = true; requestAnimationFrame(fit); } });
+        addEventListener("pageshow", function (e) { if (e.persisted) { was = null; fit(); } });
+        toc.addEventListener("keydown", function (e) {
+            if (e.key !== "Escape" || e.defaultPrevented || e.isComposing || !toc.open || !folded()) return;
+            toc.open = false; toc.querySelector("summary").focus();
+        });
     })();
     </script>
     <article class="doc arrive">
@@ -72,12 +76,12 @@ layout: base.njk
        scrolls or resizes, and only while "On this page" is shown. #}
     <script>
     (function () {
-        var aside = document.querySelector(".onpage"), links = aside.querySelectorAll("a"), heads = [], queued = false;
+        var aside = document.querySelector(".onpage"), links = aside.querySelectorAll("a"), heads = [], queued = false, shown = true;
         links.forEach(function (a) { var h = document.getElementById(decodeURIComponent(a.hash.slice(1))); if (h) heads.push([h, a]); });
         if (!heads.length) return;
         function mark() {
             queued = false;
-            if (getComputedStyle(aside).display === "none") return;   // shown or not is the stylesheet's call
+            if (!shown) return;
             var root = document.documentElement, view = root.clientHeight, cur = heads[0][1];
             if (root.scrollHeight > view + 2) {
                 if (scrollY + view >= root.scrollHeight - 2) cur = heads[heads.length - 1][1];
@@ -86,10 +90,12 @@ layout: base.njk
             links.forEach(function (a) { a.toggleAttribute("aria-current", a === cur); });
         }
         function soon() { if (!queued) { queued = true; requestAnimationFrame(mark); } }
+        // shown or not is the stylesheet's call; it can change only when the window does
+        function look() { shown = getComputedStyle(aside).display !== "none"; soon(); }
         addEventListener("scroll", soon, { passive: true });
-        addEventListener("resize", soon);
+        addEventListener("resize", look);
         addEventListener("hashchange", soon);
-        mark();
+        look();
     })();
     </script>
     {% endif %}

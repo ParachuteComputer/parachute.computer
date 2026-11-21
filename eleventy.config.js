@@ -49,23 +49,23 @@ module.exports = function (eleventyConfig) {
   // A page's sections, for "On this page": its h2s, with the ids given below.
   eleventyConfig.addFilter("sections", (html) =>
     [...String(html ?? "").matchAll(/<h2\b[^>]*\sid="([^"]+)"[^>]*>([\s\S]*?)<\/h2>/g)].map((m) => ({ id: m[1], text: m[2].replace(/<[^>]+>/g, "") })));
-  // Rendered markdown only (the .md twins are the files as written): every h2 and h3 gets an id from its text, as
+  // Rendered markdown only (the .md twins are the files as written): every heading gets an id from its text, as
   // GitHub makes them, so `#saved-state` links work and sections can be linked; a table sits in a box that scrolls
   // sideways on a narrow screen rather than squeezing its columns.
   eleventyConfig.amendLibrary("md", (md) => {
     const slug = (t) => t.toLowerCase().trim().replace(/[^\p{L}\p{M}\p{N}_ -]/gu, "").replace(/ /g, "-");
     md.core.ruler.push("heading_ids", (state) => {
-      // every heading counts toward the -1, -2 … (as on GitHub), and the layout's own ids are taken already
-      const seen = new Set(["main", "toc", "pchute"]);
+      // every heading gets an id, as on GitHub: ids written by hand first, then each heading's text, the next free
+      // -1, -2 … for a repeat (the layouts' own ids, page-start and doc-contents, are not words a heading makes)
+      const seen = new Set(state.tokens.filter((t) => t.type === "heading_open" && t.attrGet("id")).map((t) => t.attrGet("id")));
       state.tokens.forEach((t, i) => {
-        if (t.type !== "heading_open") return;
-        if (t.attrGet("id")) { seen.add(t.attrGet("id")); return; }
+        if (t.type !== "heading_open" || t.attrGet("id")) return;
         const text = state.tokens[i + 1].children.filter((c) => c.type === "text" || c.type === "code_inline").map((c) => c.content).join("");
         const base = slug(text) || "section";
         let id = base, n = 0;
-        while (seen.has(id)) id = `${base}-${++n}`;   // as GitHub: the next free -1, -2 …
+        while (seen.has(id)) id = `${base}-${++n}`;
         seen.add(id);
-        if (["h2", "h3"].includes(t.tag)) t.attrSet("id", id);
+        t.attrSet("id", id);
       });
     });
     md.renderer.rules.code_inline = (tokens, i) => codeTag(tokens[i].content);

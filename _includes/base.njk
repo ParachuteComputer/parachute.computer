@@ -78,7 +78,7 @@
 
     {# One nav, on every page (the homepage too, since T-476). The three doors: Use (people), Build (builders and
        their AI), Run (whoever keeps the server). #}
-    <a class="skip" href="#main">Skip to the page</a>
+    <a class="skip" href="#page-start">Skip to the page</a>
     <header class="site-nav">
         <div class="nav-in">
             <a class="brand" href="/" aria-label="Parachute — home">
@@ -97,7 +97,7 @@
         </div>
     </header>
 
-    <div id="main" tabindex="-1">{{ content | safe }}</div>
+    <div id="page-start" tabindex="-1">{{ content | safe }}</div>
 
     <footer class="site-footer">
         <div class="foot-brand"><svg class="mark" aria-hidden="true"><use href="#pchute"/></svg><span>Parachute</span></div>
