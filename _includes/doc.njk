@@ -31,14 +31,12 @@ layout: base.njk
             </div>
         </details>
     </nav>
-    {# Open beside the page on a wide screen; on a phone, one line above it. #}
+    {# Open beside the page on a wide screen; on a phone, one pinned line above it that opens the list (and follows a rotation). #}
     <script>
     (function () {
-        var toc = document.getElementById("toc"), narrow = matchMedia("(max-width: 860px)"), at = 0;
-        if (!narrow.matches) toc.open = true;
-        // On a phone the open contents fold away again once the page itself has scrolled on, so they never cover it.
-        toc.addEventListener("toggle", function () { at = scrollY; });
-        addEventListener("scroll", function () { if (narrow.matches && toc.open && Math.abs(scrollY - at) > 120) toc.open = false; }, { passive: true });
+        var toc = document.getElementById("toc"), narrow = matchMedia("(max-width: 860px)");
+        toc.open = !narrow.matches;
+        narrow.addEventListener("change", function (e) { toc.open = !e.matches; });
     })();
     </script>
     <article class="doc arrive">
@@ -68,13 +66,14 @@ layout: base.njk
        scrolls or resizes, and only while "On this page" is shown. #}
     <script>
     (function () {
-        var links = document.querySelectorAll(".onpage a"), heads = [], queued = false, wide = matchMedia("(min-width: 1181px)");
+        var links = document.querySelectorAll(".onpage a"), heads = [], queued = false, wide = matchMedia("(width > 1180px)");
         links.forEach(function (a) { var h = document.getElementById(decodeURIComponent(a.hash.slice(1))); if (h) heads.push([h, a]); });
         if (!heads.length) return;
         function mark() {
             queued = false;
             if (!wide.matches) return;
-            var cur = heads[0][1], line = innerHeight * 0.35, end = scrollY + innerHeight >= document.documentElement.scrollHeight - 2;
+            var root = document.documentElement, cur = heads[0][1], line = innerHeight * 0.35;
+            var end = root.scrollHeight > innerHeight + 2 && scrollY + innerHeight >= root.scrollHeight - 2;
             if (end) cur = heads[heads.length - 1][1];
             else heads.forEach(function (x) { if (x[0].getBoundingClientRect().top <= line) cur = x[1]; });
             links.forEach(function (a) { a.toggleAttribute("aria-current", a === cur); });

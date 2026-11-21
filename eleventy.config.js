@@ -53,16 +53,16 @@ module.exports = function (eleventyConfig) {
   // GitHub makes them, so `#saved-state` links work and sections can be linked; a table sits in a box that scrolls
   // sideways on a narrow screen rather than squeezing its columns.
   eleventyConfig.amendLibrary("md", (md) => {
-    const slug = (t) => t.toLowerCase().trim().replace(/[^\p{L}\p{M}\p{N}_\s-]/gu, "").replace(/\s/g, "-");
+    const slug = (t) => t.toLowerCase().trim().replace(/[^\p{L}\p{M}\p{N}_ -]/gu, "").replace(/ /g, "-");
     md.core.ruler.push("heading_ids", (state) => {
-      const seen = new Map();
+      const seen = new Set();
       state.tokens.forEach((t, i) => {
         if (t.type !== "heading_open" || !["h2", "h3"].includes(t.tag) || t.attrGet("id")) return;
         const text = state.tokens[i + 1].children.filter((c) => c.type === "text" || c.type === "code_inline").map((c) => c.content).join("");
-        let id = slug(text) || "section";
-        const n = seen.get(id) ?? 0;
-        seen.set(id, n + 1);
-        if (n) id += `-${n}`;
+        const base = slug(text) || "section";
+        let id = base, n = 0;
+        while (seen.has(id)) id = `${base}-${++n}`;   // as GitHub: the next free -1, -2 …
+        seen.add(id);
         t.attrSet("id", id);
       });
     });

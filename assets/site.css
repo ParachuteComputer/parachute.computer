@@ -116,8 +116,8 @@ code, pre, kbd { font-variant-ligatures: none; }
 .site-nav a.nav-door[aria-current]::after { content: ""; position: absolute; left: .55rem; right: .55rem; bottom: -.05rem; height: 2px; border-radius: 2px; background: var(--accent); }
 @media (hover: hover) and (pointer: fine) { .site-nav a.nav-door:hover, .site-nav .nav-right a:not(.btn):hover { color: var(--text); } }
 
-.btn, .site-nav .btn-primary, .btn-primary, .button { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-height: 2.75rem; padding: 0 1.2rem; border: 0; border-radius: 999px;
-  background: var(--text); color: var(--bg) !important; font: 600 var(--fs-body)/1 var(--sans); text-decoration: none; box-shadow: none; cursor: pointer;
+.btn, .site-nav .btn-primary, .btn-primary, .button { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; min-height: 2.75rem; padding: .5rem 1.2rem; border: 0; border-radius: 999px; text-align: center;
+  background: var(--text); color: var(--bg) !important; font: 600 var(--fs-body)/1.2 var(--sans); text-decoration: none; box-shadow: none; cursor: pointer;
   transition: transform var(--t-press) var(--ease-out), background-color var(--t-press) var(--ease-out); }
 .btn:active, .button:active { transform: scale(.97); }
 @media (hover: hover) and (pointer: fine) { .btn:hover, .btn-primary:hover, .button:hover { background: color-mix(in srgb, var(--text) 86%, var(--accent)); transform: none; } }
@@ -253,7 +253,7 @@ article.doc { min-width: 0; font: 400 var(--fs-read)/1.7 var(--serif); }
 .onpage a[aria-current]::before { content: ""; position: absolute; left: calc(-.8rem - 1px); top: .3rem; bottom: .3rem; width: 2px; background: var(--accent); }
 .onpage a[aria-current] { color: var(--text); }
 @media (hover: hover) and (pointer: fine) { .onpage a:hover { color: var(--text); } }
-@media (max-width: 1180px) { .docs { grid-template-columns: 13.5rem minmax(0, var(--measure)); } .onpage { display: none; } }
+@media (width <= 1180px) { .docs { grid-template-columns: 13.5rem minmax(0, var(--measure)); } .onpage { display: none; } }
 
 /* a phone: the contents fold into one line that says where you are */
 @media (max-width: 860px) {
@@ -261,7 +261,7 @@ article.doc { min-width: 0; font: 400 var(--fs-read)/1.7 var(--serif); }
   .doc h2, .doc h3 { scroll-margin-top: 7.5rem; }
   .toc { position: sticky; top: calc(3.75rem + 1px); z-index: 5; max-height: none; overflow: visible; margin: 0 calc(-1 * var(--gutter)) 1.8rem; padding: 0; background: var(--bg); border-bottom: 1px solid var(--line); }
   .toc summary { padding: 0 var(--gutter); }
-  .toc .toc-body { max-height: 60vh; overflow: auto; padding: .4rem var(--gutter) 1.2rem; }
+  .toc .toc-body { max-height: 60vh; overflow: auto; overscroll-behavior: contain; padding: .4rem var(--gutter) 1.2rem; }
   .toc details[open] .toc-body { animation: rise var(--t-state) var(--ease-out); }
   .toc .toc-door a { display: flex; align-items: center; min-height: 2.75rem; }
   .toc li a { padding: .78rem .7rem; }
@@ -385,10 +385,10 @@ main.home { max-width: none; padding: 0; }
 @media (max-width: 860px) {
   .home-hero { display: flex; flex-direction: column; padding-top: 1.8rem; }
   .home-hero .say { display: contents; }
+  .home-hero .say { animation: none; }   /* no box here: its children arrive, a step apart */
   .home-hero .lede { animation: rise var(--t-sheet) var(--ease-out) var(--t-step) both; }
   .home-hero .hero-actions { animation: rise var(--t-sheet) var(--ease-out) calc(var(--t-step) * 2) both; }
-  .home-hero .keep { animation: rise var(--t-sheet) var(--ease-out) calc(var(--t-step) * 4) both; }
-  .home-hero .keep { order: 2; margin-top: 3rem; }
+  .home-hero .keep { order: 2; margin-top: 3rem; animation: rise var(--t-sheet) var(--ease-out) calc(var(--t-step) * 4) both; }
   .home-hero h1 { margin-bottom: 1rem; }
   .home-hero .lede { margin-bottom: 1.4rem; }
   .hangs { margin-top: 1.8rem; width: 100%; max-width: 30rem; min-width: 0; align-self: center; }
