@@ -340,6 +340,7 @@ main.home { max-width: none; padding: 0; }
 .connect-card p { margin: 0 0 .6rem; font: var(--fs-small)/1.5 var(--sans); color: var(--muted); }
 .connect-card .addr { position: relative; margin: 0 0 1rem; padding: .8rem 4.6rem .8rem .9rem; border: 1px solid var(--ink-panel-edge); border-radius: 9px; background: var(--ink-panel); color: var(--ink-panel-text); }
 .connect-card .addr code { display: block; background: none; padding: 0; font: var(--fs-code)/1.5 var(--mono); font-variant-ligatures: none; white-space: normal; color: inherit; }
+.connect-card .addr .nb { white-space: nowrap; }
 .connect-card .addr .copy-btn { top: 50%; transform: translateY(-50%); }
 .connect-card .addr .copy-btn:active { transform: translateY(-50%) scale(.97); }
 .connect-card ol { list-style: none; margin: 0 0 .9rem; padding: 0; }
@@ -410,8 +411,9 @@ main:not(.home):not(.contents):not(.docs) .section { max-width: 44rem; }
 @media (max-width: 720px) { .post-content > p > img:only-child { width: calc(100% + 2 * var(--gutter)); max-width: none; margin-left: calc(-1 * var(--gutter)); margin-right: calc(-1 * var(--gutter)); border-radius: 0; } }
 .section p, .post-content p, .post-content li { color: var(--text); }
 .post-content { font-size: var(--fs-read); line-height: 1.7; }
-.post-content pre, .prose pre { background: var(--ink-panel); color: var(--ink-panel-text); border: 1px solid var(--ink-panel-edge); border-radius: 10px; }
+.post-content pre, .prose pre { max-width: 100%; overflow-x: auto; background: var(--ink-panel); color: var(--ink-panel-text); border: 1px solid var(--ink-panel-edge); border-radius: 10px; }
 .post-content pre code, .prose pre code { background: none; color: inherit; }
+.post-content :not(pre) > code { overflow-wrap: anywhere; }
 .blog-list { padding: 0; margin: 0; }
 .blog-post-card { margin: 0; padding: 1.1rem 0 1.25rem; background: none; border: 0; border-top: 1px solid var(--line); border-radius: 0; box-shadow: none; }
 .blog-list li:first-child .blog-post-card { border-top: 0; padding-top: 0; }
