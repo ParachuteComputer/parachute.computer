@@ -11,11 +11,12 @@ Notes and links come first. Tags come later, when you notice a pattern.
 
 A tag answers "what kind of thing is this?" — #person, #recipe, #idea. Tag a
 few notes the same way and a view lights up: all your people, all your recipes,
-everything half-finished. Your vault starts with just two:
+everything half-finished. Two tags matter from the start:
 
-- #capture — the Notes app puts it on whatever you write or speak in directly,
-  marking your own raw words.
 - #guide — these notes.
+- #capture — an inbox tag for your own raw words. The Notes app adds it to a
+  new note you write or speak in only if you open Settings → Tag roles and turn
+  on "Tag new notes as an inbox"; it's off unless you turn it on.
 
 Underneath, everything is one graph: every note a node, every link an edge.
 Open the graph view and watch it grow; ask a connected AI "what's near this
