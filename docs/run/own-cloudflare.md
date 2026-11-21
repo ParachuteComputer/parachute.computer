@@ -42,8 +42,8 @@ You need [Bun](https://bun.sh) 1.4 or newer, git, a Cloudflare account with a wo
    ```
 
 3. **Deploy**: `bunx wrangler login`, then `bash deploy/personal/deploy.sh ~/parachute/me.env ~/parachute/evidence`. It takes about a minute, makes the bucket, the database and both workers, and prints your address: `https://me-parachute-identity.<subdomain>.workers.dev`. That one address is your Parachute: sign-in, your account and every vault answer there.
-4. **Sign in from the Parachute app** (phone or desktop): type that address, choose **Mine**, **Sign in with your key**, and allow. Your first sign-in makes your account. Then make vaults from your account page or the account API.
-5. **Connect your AI**: give it `https://<your address>/vault/<name>/mcp` with a key made for it (`POST /account/keys`, read or write, one vault or several), or add it as a connector, which signs in through your browser. The [deploy README](https://github.com/ParachuteComputer/parachute-cloud/blob/door/0.9/deploy/personal/README.md) has the commands.
+4. **Sign in from the Parachute app** (phone or desktop): type that address, choose **Mine**, **Sign in with your key**, and allow. Your first sign-in makes your account. This needs an app build from 2026-11-21 or later (it carries the key sign-in for this kind of Parachute); an older one says "This hub doesn't take a key to sign in". Then make vaults from your account page or the account API.
+5. **Connect your AI** with a key made for it (`POST /account/keys`, read or write): `https://<your address>/vault/<name>/mcp` for one vault, or `https://<your address>/account/mcp` for a key that names several. Or add `https://<your address>/mcp` as a connector (Claude, ChatGPT): it signs in through your browser, and you pick the vaults it may reach. The [deploy README](https://github.com/ParachuteComputer/parachute-cloud/blob/door/0.9/deploy/personal/README.md) has the commands.
 
 In a browser tab (the app's web version) there is no key, and this Parachute sends no email. So open a browser session first with a one-time link from your key (`POST /account/session-link`; the README shows it), then sign in.
 
