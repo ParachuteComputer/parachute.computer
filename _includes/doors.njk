@@ -6,7 +6,7 @@
         <h2><a href="/docs/{{ dp.door }}/">{{ dp.name }}</a></h2>
         <p class="who">{{ dp.short }}</p>
         <ol>
-            {% for p in all | guides %}<li><a href="{{ p.url }}">{{ p.data.nav or p.data.title }}</a></li>
+            {% for p in all | guides %}<li><a href="{{ p.url }}">{{ p.data.nav or p.data.title }}{% if p.data.summary %}<span class="s">{{ p.data.summary | inlineCode | safe }}</span>{% endif %}</a></li>
             {% endfor %}
         </ol>
         {% if (all | refs).length %}<a class="link-arrow all" href="/docs/{{ dp.door }}/#reference">And the reference</a>{% endif %}

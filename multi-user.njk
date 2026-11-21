@@ -152,7 +152,7 @@ permalink: /multi-user/
 
         <ul>
             <li><strong>No public signup.</strong> Every account starts with you &mdash; an invite link you issue, or an account you create. There's no "sign up with email," no SSO.</li>
-            <li><strong>Roles stop at read-only / read &amp; write per vault.</strong> A shared vault can be granted read-only or read &amp; write (enforced server-side, down to the token scope). There's no finer granularity &mdash; no per-tag or per-note permissions, no delegated admin.</li>
+            <li><strong>A grant stops at read-only / read &amp; write per vault.</strong> A shared vault can be granted read-only or read &amp; write (enforced server-side, down to the token scope). A token can also be narrowed to some tags: mint it with <code class="long">parachute auth mint-token --scope vault:default:write --permissions '{"scoped_tags":["health"]}'</code> and it sees and writes only notes carrying <code>#health</code> or a sub-tag, and can mint only tokens as narrow as itself. There is no per-note permission and no delegated admin.</li>
             <li><strong>2FA is opt-in per user.</strong> Anyone can enroll TOTP two-factor from <code>/account/2fa</code> (recommended on a publicly exposed hub), but you can't <em>require</em> it for your users yet.</li>
             <li><strong>No self-service password reset by the user.</strong> Friends can change their password any time at <code>/account/change-password</code>, but if they forget it, you (the admin) have to reset it via <code>/admin/users</code>. Self-service email-based reset comes later.</li>
         </ul>

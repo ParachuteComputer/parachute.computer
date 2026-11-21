@@ -30,16 +30,21 @@ og_description: "An open memory and knowledge layer for everything you know — 
    When a real <video class="pi-video"> is dropped in, the deck script
    advances slides via timeupdate while the video is playing. */
 .pi-video-widget {
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    z-index: 50;
+    /* In the flow, under the deck and its controls, so it can't cover Next or any text at any width. */
+    position: relative;
+    box-sizing: border-box;
+    width: max-content;
+    max-width: calc(100% - 3rem);
+    margin: 0 1.5rem 4rem auto;
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 14px;
     box-shadow: 0 8px 32px rgba(44, 42, 38, 0.14);
     overflow: hidden;
     transition: width 0.2s ease, box-shadow 0.2s ease;
+}
+@media (min-width: 972px) {
+    .pi-video-widget { margin-right: calc((100% - 920px) / 2 + 1.5rem); }
 }
 .pi-video-widget[data-state="collapsed"] .pi-video-panel {
     display: none;
@@ -150,13 +155,8 @@ og_description: "An open memory and knowledge layer for everything you know — 
 }
 
 @media (max-width: 700px) {
-    .pi-video-widget {
-        bottom: 0.75rem;
-        right: 0.75rem;
-    }
     .pi-video-widget[data-state="expanded"] {
-        left: 0.75rem;
-        width: auto;
+        width: calc(100% - 3rem);
     }
 }
 
@@ -320,6 +320,15 @@ og_description: "An open memory and knowledge layer for everything you know — 
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+}
+/* Narrow screens: Prev, count and Next on one row, Notes and PDF on the next, so nothing runs past the edge. */
+@media (max-width: 480px) {
+    .pi-deck-controls { flex-wrap: wrap; gap: 0.6rem; }
+    .pi-deck-controls .pi-prev { order: 1; }
+    .pi-deck-controls .pi-counter { order: 2; }
+    .pi-deck-controls .pi-next { order: 3; white-space: nowrap; }
+    .pi-deck-controls .pi-notes-toggle,
+    .pi-deck-controls .pi-pdf-dl { order: 4; flex: 1 1 40%; text-align: center; }
 }
 .pi-deck-hint {
     margin-top: 0.85rem;
@@ -1100,7 +1109,7 @@ og_description: "An open memory and knowledge layer for everything you know — 
             {# ── Slide 1: Hero ── #}
             <section class="pi-slide pi-hero pi-slide-center fade-up fade-up-2" data-slide-id="1" data-video-start="0" data-video-end="15">
                 <p class="pi-eyebrow">Open Parachute, PBC &middot; 2026</p>
-                <h1 class="pi-h1">Own your context.<br>Own your AI.</h1>
+                <h1 class="pi-h1">Own your knowledge.<br>Own your memory.</h1>
                 <p class="pi-lede">Truly personal computing. Your knowledge belongs with you &mdash; an open memory and knowledge layer that any AI can use.</p>
                 <aside class="pi-notes">
                     <p>Parachute is a place for your thoughts, projects, and knowledge to live &mdash; on your terms, available to whichever AI you want to use, in whichever interface fits you. Open source. Self-hostable. A few of us building it together in Boulder.</p>
