@@ -15,6 +15,7 @@ You need two things: a **vault** (where your records are kept) and the **Parachu
 Pick one:
 
 - **Parachute Cloud.** Sign up at [my.parachute.computer](https://my.parachute.computer/console) with your email. We run the server; your vault is yours to export. See [Parachute Cloud](/docs/run/cloud/).
+- **Your own Cloudflare.** Parachute Cloud's code on a Cloudflare account you own: one owner, signed in with a Nostr key, nothing to keep on. See [Your own Parachute on your own Cloudflare](/docs/run/own-cloudflare/).
 - **Your own server.** One command installs Parachute on a Mac or a Linux box. See [Run your own](/docs/run/self-host/).
 - **Someone else's.** An organisation or a friend can give you a vault on theirs.
 

@@ -19,7 +19,14 @@ eleventyComputed:
         <h1>{{ d.title }}</h1>
         <p class="lede">{{ d.who }}</p>
     </header>
-    {% if refs.length %}<h2 class="group-label">Guides</h2>{% endif %}
+    {% if d.choose %}<h2 class="group-label">Which one is for me</h2>
+    <ol class="pages choose">
+        {% for c in d.choose %}<li><a href="{{ c.href }}"><span class="t">{{ c.title }}</span><span class="s">{{ c.line }}</span></a></li>
+        {% endfor %}
+    </ol>
+    <p class="lede"><a href="/docs/run/own-cloudflare/#which-one-is-for-me">The three side by side</a></p>
+    <h2 class="group-label">Guides</h2>{% endif %}
+    {% if refs.length and not d.choose %}<h2 class="group-label">Guides</h2>{% endif %}
     <ol class="pages">
         {% for p in all | guides %}<li><a href="{{ p.url }}"><span class="t">{{ p.data.title }}</span><span class="s">{{ p.data.summary | inlineCode | safe }}</span></a></li>
         {% endfor %}

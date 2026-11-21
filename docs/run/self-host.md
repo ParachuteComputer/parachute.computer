@@ -2,7 +2,7 @@
 title: "Run your own"
 summary: "One program, `parachute`, runs your vaults on a Mac or a Linux box. Install it, make a vault, sign in."
 door: run
-order: 2
+order: 3
 checked: "parachute-core README.md (Install), packages/cli/src/front.ts (0.9 command names), `parachute help` on 0.9.0-pre.1, GitHub releases of parachute-core (0.8.0 latest, 0.9.0-pre.1 pre-release); install-runbook.md"
 ---
 
