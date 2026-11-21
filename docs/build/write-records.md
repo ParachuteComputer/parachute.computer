@@ -16,7 +16,7 @@ A **record** has a `path` (like `Books/Piranesi`), `types`, `tags`, `fields` and
 create-record { "path": "Books/Piranesi", "types": ["book"], "fields": { "author": "Susanna Clarke" }, "body": "A gift from Sam." }
 ```
 
-Several at once: `create-record { "records": [ … ] }`. If the path is taken, `if_exists` decides: `error` (the default), `ignore`, `update` or `replace`.
+Several at once: `create-record { "records": [ … ] }`; it is all or nothing. If the path is taken, `if_exists` decides: `error` (the default), `ignore`, `update` or `replace`. In a batch, put `if_exists` inside each item: at the top it doesn't reach them.
 
 ## Find
 
