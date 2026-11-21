@@ -48,12 +48,12 @@ module.exports = function (eleventyConfig) {
   });
   // A page's sections, for "On this page": its h2s, with the ids given below.
   eleventyConfig.addFilter("sections", (html) =>
-    [...String(html ?? "").matchAll(/<h2 id="([^"]+)">([\s\S]*?)<\/h2>/g)].map((m) => ({ id: m[1], text: m[2].replace(/<[^>]+>/g, "") })));
+    [...String(html ?? "").matchAll(/<h2\b[^>]*\sid="([^"]+)"[^>]*>([\s\S]*?)<\/h2>/g)].map((m) => ({ id: m[1], text: m[2].replace(/<[^>]+>/g, "") })));
   // Rendered markdown only (the .md twins are the files as written): every h2 and h3 gets an id from its text, as
   // GitHub makes them, so `#saved-state` links work and sections can be linked; a table sits in a box that scrolls
   // sideways on a narrow screen rather than squeezing its columns.
   eleventyConfig.amendLibrary("md", (md) => {
-    const slug = (t) => t.toLowerCase().trim().replace(/<[^>]+>/g, "").replace(/[^\p{L}\p{N}\s-]/gu, "").replace(/\s/g, "-");
+    const slug = (t) => t.toLowerCase().trim().replace(/[^\p{L}\p{N}\s-]/gu, "").replace(/\s/g, "-");
     md.core.ruler.push("heading_ids", (state) => {
       const seen = new Map();
       state.tokens.forEach((t, i) => {

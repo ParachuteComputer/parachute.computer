@@ -32,7 +32,7 @@ layout: base.njk
         </details>
     </nav>
     {# Open beside the page on a wide screen; on a phone, one line above it. #}
-    <script>if (matchMedia("(min-width: 861px)").matches) document.getElementById("toc").open = true;</script>
+    <script>if (!matchMedia("(max-width: 860px)").matches) document.getElementById("toc").open = true;</script>
     <article class="doc arrive">
         <h1>{{ title }}</h1>
         <p class="summary">{{ summary | inlineCode | safe }}</p>
@@ -55,20 +55,21 @@ layout: base.njk
         <h2>On this page</h2>
         <ol>{% for s in secs %}<li><a href="#{{ s.id }}">{{ s.text | safe }}</a></li>{% endfor %}</ol>
     </aside>
-    {# The section being read is marked in "On this page" (a mark, not a movement). #}
+    {# The section being read is marked in "On this page" (a mark, not a movement): the last heading above the upper
+       third of the screen, worked out once per frame while the page scrolls. #}
     <script>
     (function () {
-        var links = document.querySelectorAll(".onpage a"), heads = [];
+        var links = document.querySelectorAll(".onpage a"), heads = [], queued = false;
         links.forEach(function (a) { var h = document.getElementById(decodeURIComponent(a.hash.slice(1))); if (h) heads.push([h, a]); });
-        if (!heads.length || !("IntersectionObserver" in window)) return;
-        var seen = new Set();
+        if (!heads.length) return;
         function mark() {
-            var cur = heads[0][1];
-            heads.forEach(function (x) { if (x[0].getBoundingClientRect().top < window.innerHeight * 0.35) cur = x[1]; });
+            queued = false;
+            var cur = heads[0][1], line = window.innerHeight * 0.35;
+            heads.forEach(function (x) { if (x[0].getBoundingClientRect().top <= line) cur = x[1]; });
             links.forEach(function (a) { a.toggleAttribute("aria-current", a === cur); });
         }
-        var io = new IntersectionObserver(mark, { rootMargin: "0px 0px -60% 0px" });
-        heads.forEach(function (x) { io.observe(x[0]); });
+        addEventListener("scroll", function () { if (!queued) { queued = true; requestAnimationFrame(mark); } }, { passive: true });
+        addEventListener("hashchange", mark);
         mark();
     })();
     </script>
