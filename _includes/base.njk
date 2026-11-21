@@ -163,21 +163,19 @@
                 el.parentNode.insertBefore(frame, el);
                 frame.appendChild(el);
                 frame.appendChild(btn);
+                // the tab sits at the block's own right edge, even when the block is narrower than the frame
+                var place = function () { btn.style.right = (frame.clientWidth - el.offsetLeft - el.offsetWidth + 11) + "px"; };
+                if ("ResizeObserver" in window) new ResizeObserver(place).observe(frame);
+                place();
             } else {
                 el.appendChild(btn);
             }
         }
 
-        // Rendered fenced-code prompt blocks on the onboarding pages
-        // (and any other markdown post). "Copy prompt" reads right for
-        // the big starter-prompt blocks and is harmless elsewhere.
-        document.querySelectorAll(".post-content pre:not([data-no-copy])").forEach(function (el) {
-            addButton(el, "Copy prompt");
-        });
-
-        // Command blocks, the docs' code, and the address on the homepage.
+        // Command blocks, every code block in a page, and the address on the homepage; a post's blocks are the
+        // starter prompts, so theirs say "Copy prompt".
         document.querySelectorAll(".code-inline:not([data-no-copy]), main pre:not([data-no-copy]), .connect-card .addr").forEach(function (el) {
-            addButton(el, "Copy");
+            addButton(el, el.closest(".post-content") ? "Copy prompt" : "Copy");
         });
 
 

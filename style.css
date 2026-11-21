@@ -54,7 +54,7 @@
     --fg-muted: var(--ink-soft);
     --fg-dim: #9a9184;                       /* warm dim */
     --accent: var(--link);                   /* inline links / small UI = accessible blue */
-    --accent-soft: var(--line);
+    --accent-soft: rgba(47, 111, 150, 0.08);
     --accent-hover: var(--link-hover);
     --accent-light: var(--link-light);
     --display-accent: var(--coral-ink);      /* warm coral for display sub-heads / taglines */
@@ -1086,17 +1086,6 @@ code {
     border-left: 2px solid var(--border);
     padding-left: 0.9rem;
     margin-top: 1.25rem;
-}
-
-/* The onboarding prompt blocks are tall; pin a roomier "Copy prompt"
-   button and pad the pre so it never overlaps the first line. */
-.post-content pre.copy-wrap {
-    padding-top: 2.75rem;
-}
-
-.post-content pre.copy-wrap .copy-btn {
-    top: 0.75rem;
-    right: 0.75rem;
 }
 
 /* Prominent starter-prompt callout on the install page. */

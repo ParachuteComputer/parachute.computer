@@ -221,7 +221,7 @@ article.doc { min-width: 0; font: 400 var(--fs-read)/1.7 var(--serif); }
 .doc code.long, .pages code.long, .lede code.long { white-space: normal; overflow-wrap: break-word; }
 main pre, .doc pre { position: relative; margin: 0 0 1.4rem; padding: 1.05rem 1.2rem; border: 1px solid var(--line); border-radius: 10px; background: var(--code-panel); color: var(--text); overflow: auto; font: var(--fs-code)/1.65 var(--mono); font-variant-ligatures: none; tab-size: 2; scrollbar-width: thin; scrollbar-color: var(--muted) transparent; }
 main pre code, .doc pre code { display: block; background: none; padding: 0; border: 0; font: inherit; font-variant-ligatures: none; color: inherit; white-space: inherit; }
-.code-frame { position: relative; }
+.code-frame { position: relative; margin-top: 1rem; }
 .code-frame > .copy-btn { top: -.85rem; right: .7rem; min-height: 1.7rem; opacity: 1; background: var(--code-panel); box-shadow: none; border-color: var(--line); color: var(--muted); }
 @media (hover: hover) and (pointer: fine) { .code-frame > .copy-btn:hover { color: var(--text); } }
 .copy-wrap { position: relative; }
@@ -353,9 +353,8 @@ main.home { max-width: none; padding: 0; }
 .connect-card .addr { position: relative; margin: 0 0 1rem; padding: .8rem 4.6rem .8rem .9rem; border: 1px solid var(--ink-panel-edge); border-radius: 9px; background: var(--ink-panel); color: var(--ink-panel-text); }
 .connect-card .addr code { display: block; background: none; padding: 0; font: var(--fs-code)/1.5 var(--mono); font-variant-ligatures: none; white-space: normal; color: inherit; }
 .connect-card .addr .nb { white-space: nowrap; }
-.connect-card .addr .copy-btn { background: var(--ink-panel); box-shadow: -14px 0 10px -2px var(--ink-panel); }
+.connect-card .addr .copy-btn { top: 50%; transform: translateY(-50%); background: var(--ink-panel); box-shadow: -14px 0 10px -2px var(--ink-panel); }
 .connect-card .addr :focus-visible { outline-color: var(--ink-panel-text); }
-.connect-card .addr .copy-btn { top: 50%; transform: translateY(-50%); }
 .connect-card .addr .copy-btn:active { transform: translateY(-50%) scale(.97); }
 .connect-card ol { list-style: none; margin: 0 0 .9rem; padding: 0; }
 .connect-card li { padding: .6rem 0; border-top: 1px solid var(--line); font: 400 var(--fs-body)/1.45 var(--serif); }
