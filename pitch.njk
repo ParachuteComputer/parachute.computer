@@ -11,7 +11,7 @@ og_description: "An open memory and knowledge layer for everything you know — 
    Investor-readable as a click-through; "N" toggles speaker notes for depth. */
 
 .pi-page {
-    max-width: 920px;
+    max-width: var(--pi-w);
     margin: 0 auto;
     padding: 3rem 1.5rem 5rem;
 }
@@ -20,6 +20,7 @@ og_description: "An open memory and knowledge layer for everything you know — 
    Sticky header is ~67px. The deck reserves space for prev/notes/next
    controls + hint below each slide. We compute slide height from those. */
 :root {
+    --pi-w: 920px;
     --pi-nav-h: 67px;
     --pi-deck-chrome: 8.5rem; /* page padding + controls + hint, in deck mode */
 }
@@ -43,8 +44,8 @@ og_description: "An open memory and knowledge layer for everything you know — 
     overflow: hidden;
     transition: width 0.2s ease, box-shadow 0.2s ease;
 }
-@media (min-width: 972px) {
-    .pi-video-widget { margin-right: calc((100% - 920px) / 2 + 1.5rem); }
+@media (min-width: 972px) /* --pi-w + 2 × 1.5rem */ {
+    .pi-video-widget { margin-right: calc((100% - var(--pi-w)) / 2 + 1.5rem); }
 }
 .pi-video-widget[data-state="collapsed"] .pi-video-panel {
     display: none;
@@ -321,14 +322,10 @@ og_description: "An open memory and knowledge layer for everything you know — 
     white-space: nowrap;
     border: 0;
 }
-/* Narrow screens: Prev, count and Next on one row, Notes and PDF on the next, so nothing runs past the edge. */
+/* Narrow screens: the controls wrap, in their own order, so nothing runs past the edge. */
 @media (max-width: 480px) {
     .pi-deck-controls { flex-wrap: wrap; gap: 0.6rem; }
-    .pi-deck-controls .pi-prev { order: 1; }
-    .pi-deck-controls .pi-counter { order: 2; }
-    .pi-deck-controls .pi-next { order: 3; white-space: nowrap; }
-    .pi-deck-controls .pi-notes-toggle,
-    .pi-deck-controls .pi-pdf-dl { order: 4; flex: 1 1 40%; text-align: center; }
+    .pi-deck-controls .pi-next { white-space: nowrap; margin-left: auto; }
 }
 .pi-deck-hint {
     margin-top: 0.85rem;
@@ -1594,6 +1591,8 @@ og_description: "An open memory and knowledge layer for everything you know — 
         const expanded = widget.dataset.state === 'expanded';
         widget.dataset.state = expanded ? 'collapsed' : 'expanded';
         toggle.setAttribute('aria-expanded', String(!expanded));
+        // The widget sits under the deck: bring an opened video into view.
+        if (!expanded) widget.scrollIntoView({ block: 'nearest', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     });
 })();
 
