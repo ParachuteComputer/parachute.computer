@@ -1,13 +1,15 @@
 ---
 layout: post.njk
 title: "Parachute Cloud is open"
-subtitle: "The easy way in: a memory layer for you and your AI, yours to keep. One month free, no card."
+subtitle: "The easy way in: a memory layer for you and your AI, yours to keep. Free during the open beta."
 date: 2026-07-07T12:00:00
 author: "Aaron G Neyer"
 permalink: /blog/parachute-cloud-is-open/
-description: "Parachute Cloud is open — a vault of your own in about a minute, no server, no terminal. A place for your notes, captures, and voice memos that you own and can plug straight into ChatGPT or Claude. One month free, no credit card."
+description: "Parachute Cloud is open — a vault of your own in about a minute, no server, no terminal. A place for your notes, captures, and voice memos that you own and can plug straight into ChatGPT or Claude. Free during the open beta."
 og_image: /assets/blog/parachute-cloud-open.png
 ---
+
+> **Update (October 2026):** Parachute is in open beta, and it's free for now. Before any paid plan, we'll tell you well ahead, and everyone already here gets notice and a fair path. The free month and the prices further down are from launch day and no longer apply.
 
 For a while, using Parachute meant being a little technical. You'd spin up your own server and paste some commands into a terminal. We made it about as smooth as that can be, but it's still a leap, and it means running a whole server for something your needs might be pretty small.
 
@@ -25,7 +27,7 @@ That's the whole idea. A memory built for a world where most of our thinking is 
 
 Starting is simple:
 
-1. [Sign up with your email](https://my.parachute.computer/). You get a month free, no credit card.
+1. [Sign up with your email](https://my.parachute.computer/). Free during the open beta.
 2. Make a vault and open it in your browser or on your phone.
 3. Paste your vault's link into ChatGPT or Claude and say "help me use my parachute."
 
