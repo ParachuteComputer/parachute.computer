@@ -16,7 +16,7 @@ The first time an AI app connects, you sign in and approve it on your server's p
 
 **Just one vault:** to give an AI one vault and nothing else, use that vault's own address instead, `https://<your server>/vault/<vault name>/mcp`. Connect lists it under **Just one vault**.
 
-On Parachute Cloud, for now, each vault keeps its own address, `https://my.parachute.computer/vault/<vault name>/mcp`; your Cloud account page shows it with the Claude Code command ready to copy. `https://my.parachute.computer/mcp` works too, and asks you to pick one vault.
+On Parachute Cloud, `https://my.parachute.computer/mcp` reaches one vault for now: you pick it when you allow the AI. Each vault's own address works too, `https://my.parachute.computer/vault/<vault name>/mcp`; your Cloud account page shows it with the Claude Code command ready to copy.
 
 ## Claude
 
