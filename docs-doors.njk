@@ -1,0 +1,36 @@
+---
+# /docs/use/, /docs/build/, /docs/run/: one door's pages.
+pagination:
+  data: doorPages
+  size: 1
+  alias: d
+permalink: "/docs/{{ d.door }}/"
+layout: base.njk
+eleventyExcludeFromCollections: true
+eleventyComputed:
+  title: "{{ d.title }}"
+  door: "{{ d.door }}"
+  description: "{{ d.who }}"
+---
+{% set all = collections.docs | door(d.door) %}
+{% set refs = all | refs %}
+<main class="contents arrive">
+    <header class="contents-head">
+        <h1>{{ d.title }}</h1>
+        <p class="lede">{{ d.who }}</p>
+    </header>
+    {% if refs.length %}<h2 class="group-label">Guides</h2>{% endif %}
+    <ol class="pages">
+        {% for p in all | guides %}<li><a href="{{ p.url }}"><span class="t">{{ p.data.title }}</span><span class="s">{{ p.data.summary | inlineCode | safe }}</span></a></li>
+        {% endfor %}
+    </ol>
+    {% if refs.length %}<h2 class="group-label" id="reference">Reference</h2>
+    <ol class="pages ref">
+        {% for p in refs %}<li><a href="{{ p.url }}"><span class="t">{{ p.data.title | refName }}</span><span class="s">{{ p.data.summary | inlineCode | safe }}</span></a></li>
+        {% endfor %}
+    </ol>{% endif %}
+    <nav class="other-doors" aria-label="The other doors">
+        {% for o in doorPages %}{% if o.door != d.door %}<a href="/docs/{{ o.door }}/"><b>{{ o.title }}</b><span>{{ o.who }}</span></a>{% endif %}
+        {% endfor %}
+    </nav>
+</main>

@@ -1,0 +1,102 @@
+---
+layout: base.njk
+---
+{# A docs page: its door's contents beside it, the page, and its sections. On a phone the contents fold into one line
+   that says where you are. #}
+{% set here = collections.docs | door(door) %}
+{% set dp = doorPages | doorOf(door) %}
+{% set pg = collections.docs | pager(page.url) %}
+{% set secs = content | sections %}
+<main class="docs docs-page">
+    <nav class="toc" aria-label="{{ dp.title }}">
+        <details id="doc-contents">
+            <summary><span class="here-door">{{ dp.name }}</span><span class="here-page">{{ nav or title }}</span></summary>
+            <div class="toc-body">
+                <p class="toc-door"><a href="/docs/{{ door }}/">{{ dp.title }}</a><span class="toc-who">{{ dp.short }}</span></p>
+                {% set refs = here | refs %}
+                {% if refs.length %}<h3>Guides</h3>{% endif %}
+                <ol>
+                    {% for p in here | guides %}<li><a href="{{ p.url }}" {% if p.url == page.url %}aria-current="page"{% endif %}>{{ p.data.nav or p.data.title }}</a></li>
+                    {% endfor %}
+                </ol>
+                {% if refs.length %}<h3>Reference</h3>
+                <ol>
+                    {% for p in refs %}<li><a href="{{ p.url }}" {% if p.url == page.url %}aria-current="page"{% endif %}>{{ (p.data.nav or p.data.title) | refName }}</a></li>
+                    {% endfor %}
+                </ol>{% endif %}
+                <div class="toc-others">
+                    {% for o in doorPages %}{% if o.door != door %}<a href="/docs/{{ o.door }}/"><b>{{ o.name }}</b> · {{ o.short }}</a>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </details>
+    </nav>
+    {# Open beside the page on a wide screen; on a phone, one pinned line above it that opens the list (and follows a rotation). #}
+    <script>
+    (function () {
+        // Folded or not is the stylesheet's call (--fold, set where the contents become one line); this follows it,
+        // once a frame at most: open beside the page, folded on a phone. Escape (from within the contents) and coming
+        // Back to the page fold them again on a phone.
+        var toc = document.getElementById("doc-contents"), was = null, queued = false;
+        function folded() { return getComputedStyle(toc).getPropertyValue("--fold").trim() === "1"; }
+        function fit() { queued = false; var f = folded(); if (f !== was) { toc.open = !f; was = f; } }
+        fit();
+        addEventListener("resize", function () { if (!queued) { queued = true; requestAnimationFrame(fit); } });
+        addEventListener("pageshow", function (e) { if (e.persisted) { was = null; fit(); } });
+        toc.addEventListener("keydown", function (e) {
+            if (e.key !== "Escape" || e.defaultPrevented || e.isComposing || !toc.open || !folded()) return;
+            toc.open = false; toc.querySelector("summary").focus();
+        });
+    })();
+    </script>
+    <article class="doc arrive">
+        <h1>{{ title }}</h1>
+        <p class="summary">{{ summary | inlineCode | safe }}</p>
+        <div class="doc-body">
+            {% if status and status != "current" %}<p class="status"><b>{{ "Next release" if status == "next" else "Coming" }}:</b> {{ status_note }}</p>{% endif %}
+            {{ content | safe }}
+            <nav class="pager" aria-label="Previous and next">
+                {% if pg.prev %}<a class="prev" href="{{ pg.prev.url }}" rel="prev"><span>← Previous</span>{{ pg.prev.data.nav or pg.prev.data.title }}</a>{% endif %}
+                {% if pg.next %}<a class="next" href="{{ pg.next.url }}" rel="next"><span>Next →</span>{{ pg.next.data.nav or pg.next.data.title }}</a>{% endif %}
+            </nav>
+            <p class="for-ai">
+                <b>For your AI:</b> this page as markdown, <a href="/docs/{{ slug }}.md">/docs/{{ slug }}.md</a>; every page, <a href="/llms.txt">/llms.txt</a>.
+                {% if checked %}<br>Checked against the code: {{ checked | inlineCode | safe }}.{% endif %}
+                <br><a href="https://github.com/ParachuteComputer/parachute.computer/blob/main/docs/{{ slug }}.md">Edit this page</a>
+            </p>
+        </div>
+    </article>
+    {% if secs.length > 2 %}
+    <aside class="onpage" aria-label="On this page">
+        <h2>On this page</h2>
+        <ol>{% for s in secs %}<li><a href="#{{ s.id }}">{{ s.text | safe }}</a></li>{% endfor %}</ol>
+    </aside>
+    {# The section being read is marked in "On this page" (a mark, not a movement): the last heading above the upper
+       third of the screen, or the last one once the page is at its end; worked out once a frame while the page
+       scrolls or resizes, and only while "On this page" is shown. #}
+    <script>
+    (function () {
+        var aside = document.querySelector(".onpage"), links = aside.querySelectorAll("a"), heads = [], queued = false, shown = true;
+        links.forEach(function (a) { var h = document.getElementById(decodeURIComponent(a.hash.slice(1))); if (h) heads.push([h, a]); });
+        if (!heads.length) return;
+        function mark() {
+            queued = false;
+            if (!shown) return;
+            var root = document.documentElement, view = root.clientHeight, cur = heads[0][1];
+            if (root.scrollHeight > view + 2) {
+                if (scrollY + view >= root.scrollHeight - 2) cur = heads[heads.length - 1][1];
+                else heads.forEach(function (x) { if (x[0].getBoundingClientRect().top <= view * 0.35) cur = x[1]; });
+            }
+            links.forEach(function (a) { a.toggleAttribute("aria-current", a === cur); });
+        }
+        function soon() { if (!queued) { queued = true; requestAnimationFrame(mark); } }
+        // shown or not is the stylesheet's call; it can change only when the window does
+        function look() { shown = getComputedStyle(aside).display !== "none"; soon(); }
+        addEventListener("scroll", soon, { passive: true });
+        addEventListener("resize", look);
+        addEventListener("hashchange", soon);
+        look();
+    })();
+    </script>
+    {% endif %}
+</main>

@@ -1,0 +1,26 @@
+[
+  {
+    "door": "use",
+    "title": "Use Parachute",
+    "who": "For people. Get the app, connect your AI, and see what it writes for you.",
+    "name": "Use",
+    "label": "Use: for people",
+    "short": "For people: get the app, connect your AI, your home."
+  },
+  {
+    "door": "build",
+    "title": "Build on Parachute",
+    "who": "For builders and their AI. Types, records, applets and bundles are all records in a vault; these pages say how to write each one.",
+    "name": "Build",
+    "label": "Build: for builders and their AI",
+    "short": "For builders and their AI: types, records, applets, bundles."
+  },
+  {
+    "door": "run",
+    "title": "Run Parachute",
+    "who": "For whoever keeps the server: Parachute Cloud, or your own.",
+    "name": "Run",
+    "label": "Run: for whoever keeps the server",
+    "short": "For whoever keeps the server: Cloud or your own."
+  }
+]

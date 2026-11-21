@@ -4,6 +4,11 @@ description: "The new-brand palette, type, and shape tokens extracted from landi
 ---
 # Parachute brand design tokens — seed reference
 
+> **Superseded (2026-11, T-476).** The site no longer uses the coral brand or system font stacks described
+> below. It takes the Parachute app's built-in theme and motion (paper, ink, one moss accent; the app's curves and
+> times), with two open faces served from the site (Literata to read in, Instrument Sans beside it): see
+> `assets/site.css`. This note is kept as a record of the earlier look.
+
 Extracted from the new "vibrant" brand as piloted on `parachute.computer`. This is a **seed**, not a
 ratified design system — Todd asked "is there a design system?" and the honest answer today is "not
 yet." Everything marked **OBSERVED** is copied verbatim from source. Everything marked **PROPOSED** is

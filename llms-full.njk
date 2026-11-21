@@ -1,0 +1,10 @@
+---
+permalink: /llms-full.txt
+eleventyExcludeFromCollections: true
+---
+# Parachute docs, every page
+
+> {{ site.oneLine }}
+{% for p in collections.docs %}
+
+{{ p | mdTwin | safe }}{% endfor %}

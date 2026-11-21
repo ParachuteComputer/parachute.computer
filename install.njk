@@ -66,7 +66,7 @@ permalink: /start/
             <li>
                 <h3>Run the line for your box</h3>
                 <p>Open a terminal on the box (on a server, a root shell; the provider's web console works; on a Mac, your own user, not <code>sudo</code>) and paste the line from above. It takes two or three minutes, most of it downloading. It's safe to re-run. When it finishes you'll see:</p>
-<pre class="start-output"><code>==&gt; Done
+<pre class="start-output" data-no-copy><code>==&gt; Done
     Open  https://203.0.113.7.sslip.io  to finish setup in your browser.
     Setup token, for the first screen only:
       parachute-bootstrap-…</code></pre>
@@ -93,15 +93,15 @@ permalink: /start/
             <li>
                 <h3>Check it worked</h3>
                 <p>On the box:</p>
-<pre class="start-output"><code>parachute status    # parachute-vault on 1940, active
+<pre class="start-output" data-no-copy><code>parachute status    # parachute-vault on 1940, active
 parachute doctor    # every check passes, or it names the one fix</code></pre>
             </li>
             <li id="connect-mcp-clients">
                 <h3>Connect your AI</h3>
-                <p>Every AI connects with one address, your vault's MCP endpoint:</p>
-                <div class="code-inline"><code>&lt;your-address&gt;/vault/default/mcp</code></div>
+                <p>Every AI connects with one address, your hub's own with <code>/mcp</code>. When you allow it, you choose all your vaults (it may make new ones) or only some (to give it just one vault, use <code>&lt;your-address&gt;/vault/&lt;name&gt;/mcp</code> instead; <a href="/docs/use/connect-your-ai/">Connect your AI</a>):</p>
+                <div class="code-inline"><code>&lt;your-address&gt;/mcp</code></div>
                 <ul>
-                    <li><strong>Claude Code</strong> (on the same box or over your network): <code>claude mcp add --transport http parachute &lt;your-address&gt;/vault/default/mcp</code>, then start a new session and run <code>/mcp</code>. The first use opens your hub's sign-in.</li>
+                    <li><strong>Claude Code</strong> (on the same box or over your network): <code>claude mcp add --transport http parachute &lt;your-address&gt;/mcp</code>, then start a new session and run <code>/mcp</code>. The first use opens your hub's sign-in.</li>
                     <li><strong>claude.ai, ChatGPT and other web AIs</strong> add it as a <strong>custom connector</strong>. They connect from their own servers, so they need a public HTTPS address: a server, or <code>parachute expose public</code> (see <a href="#reach">below</a>). A <code>127.0.0.1</code> address won't work for them.</li>
                     <li><strong>A script or a client without sign-in:</strong> mint a token on the vault's <strong>Tokens</strong> page, and set its scope to <strong>write</strong> (the page starts on admin), or run <code>parachute auth mint-token --scope vault:default:write</code> (on an HTTPS address, run <code>parachute auth rotate-operator</code> once first; a known issue). Send it as <code>Authorization: Bearer &lt;token&gt;</code>.</li>
                 </ul>
@@ -126,7 +126,7 @@ parachute doctor    # every check passes, or it names the one fix</code></pre>
 
         <div class="mm-wrap">
             <div class="mm" role="img" aria-label="The hub supervises the vault, the app, and any surfaces you build; your AI connects through the hub.">
-                <div class="mm-cmd"><code>your AI</code> <span>&rarr; &lt;address&gt;/vault/default/mcp</span></div>
+                <div class="mm-cmd"><code>your AI</code> <span>&rarr; &lt;address&gt;/mcp</span></div>
                 <div class="mm-arrow" aria-hidden="true">&#8595;</div>
                 <div class="mm-hub">
                     <div class="mm-hub-label">Hub &middot; sign-in and supervision &middot; :1939</div>
@@ -260,7 +260,7 @@ curl -fsSL https://parachute.computer/install/parachute.sh | bash</code></div>
     .start-flow ul { margin-top: 0.5rem; }
     .start-output { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem 1rem; overflow-x: auto; margin: 0.75rem 0 1rem; font-size: 0.85rem; line-height: 1.55; }
     .start-output code { background: none; padding: 0; white-space: pre; }
-    .where-card .code-inline code { overflow-wrap: anywhere; word-break: break-all; white-space: normal; }
+    .where-card .code-inline code { white-space: pre; }   /* the card's command scrolls sideways rather than breaking a name */
     .start-wizard { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; color: var(--fg-dim); }
     @media (max-width: 560px) {
         .start-flow > li { padding-left: 2rem; margin-left: 0.9rem; }
@@ -296,7 +296,7 @@ curl -fsSL https://parachute.computer/install/parachute.sh | bash</code></div>
         padding: 0;
     }
     .mm-cmd span { font-size: 0.85rem; color: var(--fg-dim); }
-    .mm-arrow { color: var(--accent-light); font-size: 1.2rem; line-height: 1; }
+    .mm-arrow { color: var(--muted); font-size: 1.2rem; line-height: 1; }
     .mm-hub {
         width: 100%;
         border: 1.5px solid color-mix(in srgb, var(--accent) 32%, transparent);
@@ -305,11 +305,10 @@ curl -fsSL https://parachute.computer/install/parachute.sh | bash</code></div>
         padding: 1.1rem 1rem 1.3rem;
     }
     .mm-hub-label {
-        font-family: var(--round);
-        font-size: 0.7rem;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: var(--accent);
+        font-family: var(--sans);
+        font-size: var(--fs-label);
+        font-weight: 500;
+        color: var(--muted);
         margin-bottom: 0.9rem;
     }
     .mm-modules {

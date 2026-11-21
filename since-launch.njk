@@ -6,7 +6,7 @@ permalink: /since-launch/
 ---
 <style>
 .sl-hero {
-    text-align: center;
+    text-align: left;
     margin-bottom: 4rem;
     padding-bottom: 3rem;
     border-bottom: 1px solid var(--border);
@@ -23,12 +23,10 @@ permalink: /since-launch/
 .sl-hero p.lede {
     font-family: var(--serif);
     font-style: italic;
-    font-size: 1.35rem;
-    color: var(--accent);
+    font-size: var(--fs-lead);
+    color: var(--muted);
     margin-bottom: 1.5rem;
     max-width: 36rem;
-    margin-left: auto;
-    margin-right: auto;
     line-height: 1.35;
 }
 .sl-hero p.subhead {
@@ -36,7 +34,7 @@ permalink: /since-launch/
     color: var(--fg-muted);
     line-height: 1.65;
     max-width: 38rem;
-    margin: 0 auto;
+    margin: 0;
 }
 .sl-section {
     margin-bottom: 3.75rem;
@@ -50,23 +48,15 @@ permalink: /since-launch/
     margin-bottom: 0.4rem;
 }
 .sl-section > .sl-eyebrow {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--accent);
-    background: var(--accent-soft);
-    border: 1px solid rgba(74, 124, 89, 0.18);
-    border-radius: 999px;
-    padding: 0.18rem 0.6rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    font-family: var(--sans);
+    font-size: var(--fs-label);
+    font-weight: 500;
+    color: var(--muted);
     display: inline-block;
     margin-bottom: 0.85rem;
 }
 .sl-section > .sl-divider {
-    width: 2.5rem;
-    border: none;
-    border-top: 1px solid var(--accent);
-    margin: 0 0 1.5rem;
+    display: none;
 }
 .sl-headline {
     background: var(--card-bg);
