@@ -3,9 +3,9 @@
 // lines take the theme's colours, light or dark). Run: node scripts/draw-canopy.mjs
 import { writeFileSync } from "node:fs";
 
-const W = 600, H = 200;           // the drawing's box: as wide as the card it carries
-const cx = 300, rimY = 96;        // the canopy's centre and the height of its rim
-const a = 170, b = 86, tilt = 18;  // half-width, height, and how far we see it from below
+const W = 600, H = 230;           // the drawing's box: as wide as the card it carries
+const cx = 300, rimY = 112;       // the canopy's centre and the height of its rim
+const a = 282, b = 104, tilt = 20; // half-width, height, and how far we see it from below
 const r = (n) => Math.round(n * 10) / 10;
 const rad = (d) => (d * Math.PI) / 180;
 // A point on the canopy: phi from the apex (0) to the rim (90), theta around it (-90 left … 90 right).
@@ -40,8 +40,9 @@ for (let g = 0; g < GORES; g++) {
   }
 }
 
-// the rigging: from every seam on the rim down to the card's two top corners (the middle seam to both)
-const corners = [[W * 0.025, H], [W * 0.975, H]];
+// the rigging: from every seam on the rim down to the card's two top corners (the middle seam to both); the canopy is
+// as wide as the card, so the lines fall in towards it, as a load hangs
+const corners = [[W * 0.06, H], [W * 0.94, H]];
 const rigging = seamsAt.flatMap((t, i) => {
   const [x, y] = pt(90, t);
   const to = i < GORES / 2 ? [corners[0]] : i > GORES / 2 ? [corners[1]] : corners;

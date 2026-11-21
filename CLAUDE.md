@@ -24,6 +24,10 @@ this file only carries what the repo can't tell you.
   read as truth; link to GitHub for anything that changes frequently. A docs page's
   `checked:` line may name the version it was checked against: that is a dated record of
   a check, not a claim about today.
+- **The look is `assets/site.css`**: the app's palette and motion tokens under the app's names, one type scale
+  (`--fs-*`), and two open faces served from `assets/fonts/` (SIL OFL, licences beside them). `style.css` is the
+  older pages' layer underneath it. The homepage drawing is generated: `node scripts/draw-canopy.mjs` writes
+  `_includes/canopy.svg`.
 - **Door labels live in `_data/doorPages.json`** (the nav, the door pages, the homepage
   and llms.txt all read them).
 
