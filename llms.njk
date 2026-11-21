@@ -19,7 +19,7 @@ Every page below is plain markdown. If you are an AI working in someone's vault 
 
 Paths are relative to the hub's address (the one a person signs in at); on Parachute Cloud it is `https://my.parachute.computer`.
 
-- MCP: `<hub>/vault/<vault>/mcp`. OAuth on the first connection; the `/mcp` suffix is required.
+- MCP: `<hub>/mcp`, one address for every vault the person gives the AI on its approval page (each vault tool takes a `vault`; `list-vaults` names them; `create-vault` when allowed). One vault only: `<hub>/vault/<vault>/mcp`. OAuth on the first connection; the `/mcp` suffix is required. On Parachute Cloud today each vault keeps its own address, and `<hub>/mcp` asks for one vault.
 - REST: `<hub>/vault/<vault>/api/records` (0.9; `/api/notes` on 0.8, and on Parachute Cloud today), `Authorization: Bearer <key>`.
 - Health: `<hub>/health`; a vault's, `<hub>/vault/<vault>/api/health` with a key (without one, 401 means it is up and refusing strangers).
 

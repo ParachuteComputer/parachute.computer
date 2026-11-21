@@ -319,21 +319,22 @@ issuer moves with it.
 One URL does it:
 
 ```
-<hub-origin>/vault/<vault-name>/mcp
+<hub-origin>/mcp
 ```
 
 `<hub-origin>` is the address the hub answers on — `http://127.0.0.1:1939` for
 a loopback install, your public HTTPS origin after step 6. It is **not** the
-vault's own port 1940; the vault is reached *through* the hub. `<vault-name>`
-is what you passed to `--vault-name` (`default` if you followed this runbook).
-The `/mcp` suffix is required.
+vault's own port 1940; the vault is reached *through* the hub. The `/mcp`
+suffix is required. When the person approves the client they give it all their
+vaults (it may make new ones) or only some, each at a level. To give a client
+just one vault, use `<hub-origin>/vault/<vault-name>/mcp` instead.
 
 **OAuth happens on first use.** An OAuth-capable client registers itself, sends
 the user to the hub to sign in and approve, and receives a token — nothing to
 configure ahead of time. For Claude Code:
 
 ```bash
-claude mcp add --transport http parachute-default http://127.0.0.1:1939/vault/default/mcp
+claude mcp add --transport http parachute http://127.0.0.1:1939/mcp
 ```
 
 Then start a new session (MCP config loads at session start) and run `/mcp` to
@@ -484,7 +485,7 @@ TOKEN="$(parachute auth mint-token --scope "vault:$VAULT_NAME:read" | tail -n1)"
 # keep `parachute` on PATH for the next login shell
 grep -q '.bun/bin' ~/.bashrc 2>/dev/null || echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.bashrc
 
-echo "Parachute is up. MCP endpoint: $HUB/vault/$VAULT_NAME/mcp"
+echo "Parachute is up. MCP endpoint: $HUB/mcp (just this vault: $HUB/vault/$VAULT_NAME/mcp)"
 ```
 
 ## Housekeeping

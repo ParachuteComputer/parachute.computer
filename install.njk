@@ -98,10 +98,10 @@ parachute doctor    # every check passes, or it names the one fix</code></pre>
             </li>
             <li id="connect-mcp-clients">
                 <h3>Connect your AI</h3>
-                <p>Every AI connects with one address, your vault's MCP endpoint:</p>
-                <div class="code-inline"><code>&lt;your-address&gt;/vault/default/mcp</code></div>
+                <p>Every AI connects with one address, your hub's own with <code>/mcp</code>. When you allow it, you choose all your vaults (it may make new ones) or only some (to give it just one vault, use <code>&lt;your-address&gt;/vault/&lt;name&gt;/mcp</code> instead; <a href="/docs/use/connect-your-ai/">Connect your AI</a>):</p>
+                <div class="code-inline"><code>&lt;your-address&gt;/mcp</code></div>
                 <ul>
-                    <li><strong>Claude Code</strong> (on the same box or over your network): <code>claude mcp add --transport http parachute &lt;your-address&gt;/vault/default/mcp</code>, then start a new session and run <code>/mcp</code>. The first use opens your hub's sign-in.</li>
+                    <li><strong>Claude Code</strong> (on the same box or over your network): <code>claude mcp add --transport http parachute &lt;your-address&gt;/mcp</code>, then start a new session and run <code>/mcp</code>. The first use opens your hub's sign-in.</li>
                     <li><strong>claude.ai, ChatGPT and other web AIs</strong> add it as a <strong>custom connector</strong>. They connect from their own servers, so they need a public HTTPS address: a server, or <code>parachute expose public</code> (see <a href="#reach">below</a>). A <code>127.0.0.1</code> address won't work for them.</li>
                     <li><strong>A script or a client without sign-in:</strong> mint a token on the vault's <strong>Tokens</strong> page, and set its scope to <strong>write</strong> (the page starts on admin), or run <code>parachute auth mint-token --scope vault:default:write</code> (on an HTTPS address, run <code>parachute auth rotate-operator</code> once first; a known issue). Send it as <code>Authorization: Bearer &lt;token&gt;</code>.</li>
                 </ul>
@@ -126,7 +126,7 @@ parachute doctor    # every check passes, or it names the one fix</code></pre>
 
         <div class="mm-wrap">
             <div class="mm" role="img" aria-label="The hub supervises the vault, the app, and any surfaces you build; your AI connects through the hub.">
-                <div class="mm-cmd"><code>your AI</code> <span>&rarr; &lt;address&gt;/vault/default/mcp</span></div>
+                <div class="mm-cmd"><code>your AI</code> <span>&rarr; &lt;address&gt;/mcp</span></div>
                 <div class="mm-arrow" aria-hidden="true">&#8595;</div>
                 <div class="mm-hub">
                     <div class="mm-hub-label">Hub &middot; sign-in and supervision &middot; :1939</div>
