@@ -24,7 +24,7 @@ A record of type `template`, at `Templates/<type>/<name>`. Its body is a new rec
 
 ## A pack
 
-A page whose one fenced block carries `"parachute_pack": 1`. The words around it are for the person; apply only the block.
+A page whose one fenced block carries `"parachute_pack": 1`. The words around it are for the person; apply only the block, exactly as written. If you can only get a summary of the page, stop and say so: a pack rebuilt from a summary isn't the pack.
 
 ```json
 { "parachute_pack": 1, "id": "reading", "name": "Reading", "version": 1,

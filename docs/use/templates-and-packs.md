@@ -12,7 +12,7 @@ A **pack** adds a set of kinds of record to a vault, each with its fields and a 
 
 In the app, open **Vault**, then your vault, then **Add a pack**. **Core types** adds people, projects, meetings and tasks, a template for each, and a view of open tasks. It lists what it adds before you tap **Add Core types**, and says afterwards what it added and what it left as you had it. **Installed packs** shows what a vault has. Adding a pack again changes nothing.
 
-Or ask your AI: "Set me up with the core types." It reads [the same pack](/docs/build/packs/core-types/) and adds the same things.
+Or ask your AI: "Apply the Core types pack from parachute.computer/docs/build/packs/core-types.md to my vault." It reads [the same pack](/docs/build/packs/core-types/) and adds the same things.
 
 ## Start from a template
 
