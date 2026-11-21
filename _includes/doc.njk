@@ -21,7 +21,7 @@ layout: base.njk
                 </ol>
                 {% if refs.length %}<h3>Reference</h3>
                 <ol>
-                    {% for p in refs %}<li><a href="{{ p.url }}" {% if p.url == page.url %}aria-current="page"{% endif %}>{{ p.data.nav or p.data.title }}</a></li>
+                    {% for p in refs %}<li><a href="{{ p.url }}" {% if p.url == page.url %}aria-current="page"{% endif %}>{{ (p.data.nav or p.data.title) | refName }}</a></li>
                     {% endfor %}
                 </ol>{% endif %}
                 <div class="toc-others">
@@ -34,7 +34,6 @@ layout: base.njk
     {# Open beside the page on a wide screen; on a phone, one line above it. #}
     <script>if (matchMedia("(min-width: 861px)").matches) document.getElementById("toc").open = true;</script>
     <article class="doc arrive">
-        <p class="door-label"><a href="/docs/{{ door }}/">{{ dp.label }}</a></p>
         <h1>{{ title }}</h1>
         <p class="summary">{{ summary | inlineCode | safe }}</p>
         <div class="doc-body">
@@ -46,7 +45,7 @@ layout: base.njk
             </nav>
             <p class="for-ai">
                 <b>For your AI:</b> this page as markdown, <a href="/docs/{{ slug }}.md">/docs/{{ slug }}.md</a>; every page, <a href="/llms.txt">/llms.txt</a>.
-                {% if checked %}<br>Checked against the code: {{ checked }}.{% endif %}
+                {% if checked %}<br>Checked against the code: {{ checked | inlineCode | safe }}.{% endif %}
                 <br><a href="https://github.com/ParachuteComputer/parachute.computer/blob/main/docs/{{ slug }}.md">Edit this page</a>
             </p>
         </div>
@@ -56,5 +55,22 @@ layout: base.njk
         <h2>On this page</h2>
         <ol>{% for s in secs %}<li><a href="#{{ s.id }}">{{ s.text | safe }}</a></li>{% endfor %}</ol>
     </aside>
+    {# The section being read is marked in "On this page" (a mark, not a movement). #}
+    <script>
+    (function () {
+        var links = document.querySelectorAll(".onpage a"), heads = [];
+        links.forEach(function (a) { var h = document.getElementById(decodeURIComponent(a.hash.slice(1))); if (h) heads.push([h, a]); });
+        if (!heads.length || !("IntersectionObserver" in window)) return;
+        var seen = new Set();
+        function mark() {
+            var cur = heads[0][1];
+            heads.forEach(function (x) { if (x[0].getBoundingClientRect().top < window.innerHeight * 0.35) cur = x[1]; });
+            links.forEach(function (a) { a.toggleAttribute("aria-current", a === cur); });
+        }
+        var io = new IntersectionObserver(mark, { rootMargin: "0px 0px -60% 0px" });
+        heads.forEach(function (x) { io.observe(x[0]); });
+        mark();
+    })();
+    </script>
     {% endif %}
 </main>

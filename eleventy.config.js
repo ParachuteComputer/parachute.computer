@@ -20,7 +20,12 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter("mdTwin", mdTwin);
   // A summary is a line of markdown: its `code` drawn as code on the page, and plain in a meta description.
   const esc = (t) => String(t ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-  eleventyConfig.addFilter("inlineCode", (t) => esc(t).replace(/`([^`]+)`/g, "<code>$1</code>"));
+  // Inline code never breaks inside a name; a long one (an address, a call with its arguments) may break after a slash
+  // or at a space, and nowhere else.
+  const codeTag = (raw) => raw.length > 28
+    ? `<code class="long">${esc(raw).replace(/\//g, "/<wbr>")}</code>`
+    : `<code>${esc(raw)}</code>`;
+  eleventyConfig.addFilter("inlineCode", (t) => String(t ?? "").split(/(`[^`]+`)/).map((part) => /^`[^`]+`$/.test(part) ? codeTag(part.slice(1, -1)) : esc(part)).join(""));
   eleventyConfig.addFilter("plainText", (t) => String(t ?? "").replace(/`([^`]+)`/g, "$1"));
   // The docs, in reading order: by door (use, build, run), then `order`.
   const DOORS = ["use", "build", "run"];
@@ -31,6 +36,8 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter("door", (docs, door) => docs.filter((d) => d.data.door === door));
   // One door's labels (_data/doorPages.json) by its name.
   eleventyConfig.addFilter("doorOf", (doorPages, door) => doorPages.find((d) => d.door === door));
+  // A reference page's name under the "Reference" heading, without saying "Reference: " again.
+  eleventyConfig.addFilter("refName", (t) => { const n = String(t ?? "").replace(/^Reference: /, ""); return n.charAt(0).toUpperCase() + n.slice(1); });
   // A door's pages in two groups: the guides, then the reference (docs/<door>/reference/, generated).
   eleventyConfig.addFilter("guides", (docs) => docs.filter((d) => !d.url.includes("/reference/")));
   eleventyConfig.addFilter("refs", (docs) => docs.filter((d) => d.url.includes("/reference/")));
@@ -59,6 +66,7 @@ module.exports = function (eleventyConfig) {
         t.attrSet("id", id);
       });
     });
+    md.renderer.rules.code_inline = (tokens, i) => codeTag(tokens[i].content);
     md.renderer.rules.table_open = () => '<div class="table-wrap"><table>\n';
     md.renderer.rules.table_close = () => "</table></div>\n";
   });

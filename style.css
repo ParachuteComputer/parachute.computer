@@ -99,27 +99,11 @@ a:hover {
    Fade-in animations — gentle, smooth
    ============================================ */
 
-@keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(12px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.fade-up {
-    animation: fadeUp 0.8s ease-out both;
-}
-
-.fade-up-1 { animation-delay: 0.05s; }
-.fade-up-2 { animation-delay: 0.15s; }
-.fade-up-3 { animation-delay: 0.25s; }
-.fade-up-4 { animation-delay: 0.35s; }
-.fade-up-5 { animation-delay: 0.45s; }
-.fade-up-6 { animation-delay: 0.55s; }
+/* Arrival on the older pages: the same rise, curve and steps as the rest of the site (assets/site.css). */
+.fade-up { animation: rise var(--t-state) var(--ease-out) both; }
+.fade-up-2 { animation-delay: var(--t-step); }
+.fade-up-3 { animation-delay: calc(var(--t-step) * 2); }
+.fade-up-4, .fade-up-5, .fade-up-6 { animation-delay: calc(var(--t-step) * 3); }
 
 @media (prefers-reduced-motion: reduce) {
     .fade-up {
@@ -754,7 +738,7 @@ code {
     padding: 0.35rem 0.85rem;
     display: inline-block;
     margin-top: 0.75rem;
-    transition: all 0.2s ease;
+    transition: color var(--t-press) var(--ease-out), border-color var(--t-press) var(--ease-out);
 }
 
 .prev-link:hover {
@@ -787,14 +771,6 @@ code {
     margin-bottom: 1.5rem;
     text-decoration: none;
     display: block;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-.blog-post-card:hover {
-    border-color: var(--accent-light);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
 }
 
 .blog-post-card h3 {
@@ -982,21 +958,6 @@ code {
 
 .post-nav a:hover {
     color: var(--accent);
-}
-
-/* ============================================
-   Blog post — drop cap
-   ============================================ */
-
-.post-content > p:first-of-type::first-letter {
-    font-family: var(--serif);
-    float: left;
-    font-size: 3.75rem;
-    line-height: 0.8;
-    padding-right: 0.15em;
-    padding-top: 0.08em;
-    color: var(--display-accent);
-    font-weight: 600;
 }
 
 /* ============================================

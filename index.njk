@@ -7,10 +7,14 @@ mdTwin: /llms.txt
 ---
 <main class="home">
     <section class="home-hero">
+        <h1><span>Your AI writes it.</span> <span><em>Parachute</em> shows it to you.</span></h1>
         <div class="say">
-            <h1>Your AI writes it. <em>Parachute</em> shows it to you.</h1>
             <p class="lede">A vault of your own that Claude, ChatGPT or any AI can read and write. The Parachute app shows what is in it: your records, the small screens your AI makes for them, and a home you arrange together.</p>
             <p class="hero-actions"><a class="btn btn-primary" href="/docs/use/start/">Get Parachute</a> <a class="link-arrow" href="/docs/">Read the docs</a></p>
+            <section class="keep" aria-labelledby="yours">
+                <h2 id="yours">Yours to keep</h2>
+                <p>Open source (AGPL). The same vault engine runs on Parachute Cloud and on your own machine, and a vault moves between them as a file. Your AI works for you on your records; nothing runs that you didn't allow.</p>
+            </section>
         </div>
         {# The card hangs from the canopy: the drawing's rigging ends at the card's top edge. #}
         <div class="hangs">
@@ -18,7 +22,7 @@ mdTwin: /llms.txt
             <aside class="connect-card" aria-labelledby="connect">
                 <h2 id="connect">Connect your AI</h2>
                 <p>Give it your vault's address:</p>
-                <div class="addr"><code>https://my.parachute.computer/vault/&lt;your vault&gt;/mcp</code></div>
+                <div class="addr"><code>https://my.parachute.computer/<wbr>vault/<wbr>&lt;your vault&gt;/<wbr>mcp</code></div>
                 <p>Then ask it:</p>
                 <ol>
                     <li>Make me a reading tracker I can use in Parachute.</li>
@@ -50,10 +54,5 @@ mdTwin: /llms.txt
         <h2 id="doors" class="band-title">The docs</h2>
         <p class="band-note">Three doors, by who is reading. Every page is also plain markdown for your AI, at <a href="/llms.txt">/llms.txt</a>.</p>
         {% include "doors.njk" %}
-    </section>
-
-    <section class="home-band keep" aria-labelledby="yours">
-        <h2 id="yours" class="band-title">Yours to keep</h2>
-        <p class="keep-text">Open source (AGPL). The same vault engine runs on Parachute Cloud and on your own machine, and a vault moves between them as a file. Your AI works for you on your records; nothing runs that you didn't allow.</p>
     </section>
 </main>

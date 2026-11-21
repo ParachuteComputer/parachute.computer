@@ -3,9 +3,9 @@
 // lines take the theme's colours, light or dark). Run: node scripts/draw-canopy.mjs
 import { writeFileSync } from "node:fs";
 
-const W = 600, H = 320;           // the drawing's box
-const cx = 300, rimY = 160;       // the canopy's centre and the height of its rim
-const a = 250, b = 140, tilt = 26; // half-width, height, and how far we see it from below
+const W = 600, H = 200;           // the drawing's box: as wide as the card it carries
+const cx = 300, rimY = 96;        // the canopy's centre and the height of its rim
+const a = 170, b = 86, tilt = 18;  // half-width, height, and how far we see it from below
 const r = (n) => Math.round(n * 10) / 10;
 const rad = (d) => (d * Math.PI) / 180;
 // A point on the canopy: phi from the apex (0) to the rim (90), theta around it (-90 left … 90 right).
@@ -35,17 +35,17 @@ for (let g = 0; g < GORES; g++) {
   const t0 = seamsAt[g], t1 = seamsAt[g + 1];
   const shade = (g + 1) / GORES;                       // 0.1 on the left … 1 on the right
   const step = 7 - 4 * shade;                           // degrees between lines
-  for (let phi = 22 + (g % 2) * 2; phi < 86; phi += step) {
+  for (let phi = 24 + (g % 2) * 2; phi < 86; phi += step) {
     hatch.push(line(Array.from({ length: 7 }, (_, i) => pt(phi, t0 + ((t1 - t0) * (i + 0.5)) / 7.4))));
   }
 }
 
-// the rigging: from every seam on the rim down to two risers at the foot of the drawing
-const risers = [[W * 0.36, H], [W * 0.64, H]];
-const rigging = seamsAt.map((t, i) => {
+// the rigging: from every seam on the rim down to the card's two top corners (the middle seam to both)
+const corners = [[W * 0.025, H], [W * 0.975, H]];
+const rigging = seamsAt.flatMap((t, i) => {
   const [x, y] = pt(90, t);
-  const [rx, ry] = risers[i < GORES / 2 ? 0 : i > GORES / 2 ? 1 : (t < 0 ? 0 : 1)];
-  return line([[x, y], [rx, ry]]);
+  const to = i < GORES / 2 ? [corners[0]] : i > GORES / 2 ? [corners[1]] : corners;
+  return to.map((c) => line([[x, y], c]));
 });
 
 const svg = `<svg class="canopy" viewBox="0 0 ${W} ${H}" aria-hidden="true" focusable="false">

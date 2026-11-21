@@ -16,7 +16,6 @@ eleventyComputed:
 {% set refs = all | refs %}
 <main class="contents arrive">
     <header class="contents-head">
-        <p class="door-label">{{ d.label }}</p>
         <h1>{{ d.title }}</h1>
         <p class="lede">{{ d.who }}</p>
     </header>
@@ -27,7 +26,7 @@ eleventyComputed:
     </ol>
     {% if refs.length %}<h2 class="group-label" id="reference">Reference</h2>
     <ol class="pages ref">
-        {% for p in refs %}<li><a href="{{ p.url }}"><span class="t">{{ p.data.title }}</span><span class="s">{{ p.data.summary | inlineCode | safe }}</span></a></li>
+        {% for p in refs %}<li><a href="{{ p.url }}"><span class="t">{{ p.data.title | refName }}</span><span class="s">{{ p.data.summary | inlineCode | safe }}</span></a></li>
         {% endfor %}
     </ol>{% endif %}
     <nav class="other-doors" aria-label="The other doors">
