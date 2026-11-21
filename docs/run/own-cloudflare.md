@@ -32,31 +32,34 @@ Sources: [Workers pricing](https://developers.cloudflare.com/workers/platform/pr
 
 ## Set it up
 
-You need [Bun](https://bun.sh) 1.4 or newer, git, a Cloudflare account with a workers.dev subdomain (dashboard: Workers & Pages, your subdomain), and a Nostr key **in a file**: the commands below sign with it, and the app takes the same key. Make one with `bun deploy/personal/nip98.ts keygen ~/parachute/me.key` (from the repo below; it prints the public half), or put a secret key you already have (`nsec1…`) in that file. **Back the file up**: it is your only way in. A second key can be linked as a spare (`POST /account/pubkeys`, which asks for a signature from that key).
+You need [Bun](https://bun.sh) 1.4 or newer, git, jq, and a Cloudflare account with a workers.dev subdomain (dashboard: Workers & Pages, your subdomain). Work in a folder of its own, say `~/parachute`: the deploy puts two more repos it needs beside the clone.
 
-1. **Get the code**: `git clone https://github.com/ParachuteComputer/parachute-cloud && cd parachute-cloud && git checkout door/0.9 && bun install`. The install ends with "Failed to install 2 packages": that's expected, the deploy fetches those two itself.
-2. **Write a profile**, a small file kept outside the repo, say `~/parachute/me.env`:
+1. **Get the code**: `mkdir -p ~/parachute && cd ~/parachute && git clone https://github.com/ParachuteComputer/parachute-cloud && cd parachute-cloud && git checkout door/0.9 && bun install`. The install ends with "Failed to install 2 packages": that's expected, the deploy fetches those two itself.
+2. **Your key**, in a file outside the repo: `bun deploy/personal/nip98.ts keygen ~/parachute/me.key` prints its public half. Or put a secret key you already have (`nsec1…`) in that file, and `bun deploy/personal/nip98.ts pubkey ~/parachute/me.key` prints the public half. **Back the file up**: it is your only way in. A second key can be linked as a spare (`POST /account/pubkeys`, which asks for a signature from that key).
+3. **Write a profile**, `~/parachute/me.env`:
 
    ```bash
    ACCOUNT_ID=<32 hex>        # `bunx wrangler whoami` prints it
-   PREFIX=me-parachute        # names your workers, database and bucket: lowercase, 4-42 characters, not parachute-* or *-staging
+   PREFIX=me-parachute        # names your workers, database and bucket: starts with a letter; lowercase letters, digits, -;
+                              # 4-42 characters; not parachute, parachute-*, arcade-parachute* or *-staging
    WORKERS_SUBDOMAIN=<yours>  # Workers & Pages → your subdomain; needed with `wrangler login` (an API token can look it up)
    OWNER_PUBKEY=<hex or npub1…>   # your key's public half
    OWNER_PLAN=power           # entry, standard, plus or power (10 vaults): set at your first sign-in
+   # ADMIN_PUBKEYS=<hex or npub>  # optional: more keys that act as you (an agent's own), comma-separated
    ```
 
-   The deploy keeps what must stay secret (an ops token) in `private/` beside the profile; keep both out of git.
+   The deploy keeps what must stay secret (an ops token) in `~/parachute/private/`; keep it, the key and the profile out of git.
 
-3. **Deploy**: `bunx wrangler login`, then `bash deploy/personal/deploy.sh ~/parachute/me.env ~/parachute/evidence` (the last folder gets its log). It takes about a minute, makes the bucket, the database and both workers, and prints two addresses. Yours is the `-identity` one: `https://me-parachute-identity.<subdomain>.workers.dev`. That one address is your Parachute: sign-in, your account and every vault answer there.
-4. **Sign in from the Parachute app** (phone or desktop): paste your key under **Advanced: paste a secret key** (the file's contents), type that address, choose **Mine**, **Sign in with your key**, and allow. Your first sign-in makes your account. This needs an app build from 2026-11-21 or later (it carries the key sign-in for this kind of Parachute); an older one says "This hub doesn't take a key to sign in". Then make vaults from your account page or the account API.
-5. **Connect your AI** with a key made for it (`POST /account/keys`, read or write): `https://<your address>/vault/<name>/mcp` for one vault, or `https://<your address>/account/mcp` for a key that names several. Or add `https://<your address>/mcp` as a connector (Claude, ChatGPT): it signs in through your browser, and you pick the vaults it may reach. The [deploy README](https://github.com/ParachuteComputer/parachute-cloud/blob/door/0.9/deploy/personal/README.md) has the commands.
+4. **Deploy**: `bunx wrangler login`, then `bash deploy/personal/deploy.sh ~/parachute/me.env ~/parachute/evidence` (the last folder gets its log). It takes about a minute, makes the bucket, the database and both workers, and prints two addresses. Yours is the `-identity` one: `https://me-parachute-identity.<subdomain>.workers.dev`. That one address is your Parachute: sign-in, your account and every vault answer there.
+5. **Sign in from the Parachute app** (phone or desktop). On its first screen, open **Advanced: paste a secret key**, paste the key file's contents (the hex is fine, though the hint says nsec) and tap **Keep this key**. Then type your address, choose **Mine**, **Sign in with your key**, and **Allow** on your Parachute's page; pick your home vault, **Continue**, and **Allow** once more. Your first sign-in makes your account. This needs an app build from 2026-11-21 or later (it carries the key sign-in for this kind of Parachute); an older one says "This hub doesn't take a key to sign in".
+6. **Connect your AI** with a key made for it (below): `https://<your address>/vault/<name>/mcp` for one vault, or `https://<your address>/account/mcp` for a key that names several. Or add `https://<your address>/mcp` as a connector (Claude, ChatGPT): it signs in through your browser, and you pick the vaults it may reach.
 
 In a browser tab (the app's web version) there is no key, and this Parachute sends no email, so open a browser session first with a one-time link from your key (below), then sign in.
 
 ### Day to day, from the repo folder
 
 ```bash
-D=https://me-parachute-identity.<subdomain>.workers.dev
+D=https://me-parachute-identity.<subdomain>.workers.dev                  # your address
 bun deploy/personal/nip98.ts token $D ~/parachute/me.key acct.curl      # a 10-minute pass, signed by your key
 curl -K acct.curl $D/account/vaults -d '{"name":"home"}'                 # a vault (a few names, like notes, are reserved)
 curl -K acct.curl $D/account/keys -d '{"name":"claude","vault":"home","can":"write"}'    # a key for an AI or app
@@ -79,10 +82,14 @@ A key's `token` is shown once; it lasts a year. [The deploy README](https://gith
 
 Pull `door/0.9` and run `deploy.sh` again with the same profile. It upgrades in place: database changes are applied before the new workers start, and your vaults, keys and snapshots stay. To go back, deploy the commit you were on: database changes only ever add, so your data reads, but you lose what the newer code did (going back to before 2026-11-21 takes the app's one address away, and a raised vault limit falls back to your plan's).
 
-To remove it all, first delete every vault, restored copies included (that empties the bucket), then the rest (the loop needs jq):
+To remove it all, first delete every vault, restored copies included (that empties the bucket), and check none is left; only then the rest:
 
 ```bash
-for v in $(curl -s -K acct.curl $D/account/vaults | jq -r '.vaults[].name'); do curl -K acct.curl -X DELETE $D/account/vaults/$v -d "{\"confirm\":\"$v\"}"; done
+D=https://me-parachute-identity.<subdomain>.workers.dev
+bun deploy/personal/nip98.ts token $D ~/parachute/me.key acct.curl      # a fresh pass
+for v in $(curl -fsS -K acct.curl $D/account/vaults | jq -r '.vaults[].name'); do curl -fsS -K acct.curl -X DELETE $D/account/vaults/$v -d "{\"confirm\":\"$v\"}"; done
+curl -fsS -K acct.curl $D/account/vaults | jq '.vaults | length'          # must say 0 before you go on
+export CLOUDFLARE_ACCOUNT_ID=<your account id>
 bunx wrangler delete --name <PREFIX>-identity; bunx wrangler delete --name <PREFIX>-vault
 bunx wrangler d1 delete <PREFIX>-identity; bunx wrangler r2 bucket delete <PREFIX>-vault
 ```
@@ -93,7 +100,7 @@ It runs Parachute Cloud's workers, so it has Cloud's current gaps:
 - **Add a pack** in the app stops with "This vault's server doesn't let Parachute make types yet". Making a type takes admin access here, for now.
 - **Published records have no public page**: marking one published keeps it to you and your keys, and the app gives no link.
 - **Changes** lists edits and their put-back, but not deleted records.
-- **One owner.** Extra keys can be listed as admins (an agent's own key, say). They act as the owner, but can't change the sign-in keys or delete the account. Dropping one from the profile and deploying again stops its sign-in; its last 10-minute pass runs out, and the app keys it made stay until you revoke them by name. There are no other people's accounts.
+- **One owner.** Extra keys can be listed as admins (an agent's own key, say). They act as the owner, but can't change the sign-in keys, open a browser session or delete the account. Dropping one from the profile and deploying again stops its sign-in; its last 10-minute pass runs out, and the app keys it made stay until you revoke them by name. There are no other people's accounts.
 - **More vaults**: `bash deploy/personal/vault-limit.sh ~/parachute/me.env 25` (changing `OWNER_PLAN` later doesn't move an account that exists). The refusal at the limit still tells you to write to Parachute; ignore that and use the script.
 
 ## Which one is for me
