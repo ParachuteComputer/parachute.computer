@@ -296,7 +296,7 @@ curl -fsSL https://parachute.computer/install/parachute.sh | bash</code></div>
         padding: 0;
     }
     .mm-cmd span { font-size: 0.85rem; color: var(--fg-dim); }
-    .mm-arrow { color: var(--accent-light); font-size: 1.2rem; line-height: 1; }
+    .mm-arrow { color: var(--muted); font-size: 1.2rem; line-height: 1; }
     .mm-hub {
         width: 100%;
         border: 1.5px solid color-mix(in srgb, var(--accent) 32%, transparent);
@@ -305,11 +305,10 @@ curl -fsSL https://parachute.computer/install/parachute.sh | bash</code></div>
         padding: 1.1rem 1rem 1.3rem;
     }
     .mm-hub-label {
-        font-family: var(--round);
-        font-size: 0.7rem;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: var(--accent);
+        font-family: var(--sans);
+        font-size: var(--fs-label);
+        font-weight: 500;
+        color: var(--muted);
         margin-bottom: 0.9rem;
     }
     .mm-modules {

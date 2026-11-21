@@ -117,8 +117,8 @@
 
     {# Copy-to-clipboard — progressive enhancement. With JS off, no button
        is added and every code block stays plain, fully selectable text.
-       Targets command blocks (.code-inline) and rendered fenced-code
-       prompt blocks (.post-content pre). Opt out with data-no-copy. #}
+       Targets command blocks (.code-inline), every code block in a page (main pre;
+       "Copy prompt" on a post's), and the homepage's address. Opt out with data-no-copy. #}
     <script>
     (function () {
         if (!navigator.clipboard) return;
@@ -155,13 +155,18 @@
                 });
             });
 
-            el.appendChild(btn);
+            // A block that scrolls sideways gets a still frame around it, and Copy sits as a tab on its top edge, so
+            // it never covers a line of code; other blocks hold Copy inside.
+            if (el.tagName === "PRE" || el.classList.contains("code-inline")) {
+                var frame = document.createElement("div");
+                frame.className = "code-frame";
+                el.parentNode.insertBefore(frame, el);
+                frame.appendChild(el);
+                frame.appendChild(btn);
+            } else {
+                el.appendChild(btn);
+            }
         }
-
-        // Command blocks, the docs' code, and the address on the homepage.
-        document.querySelectorAll(".code-inline:not([data-no-copy]), .doc pre:not([data-no-copy]), .connect-card .addr").forEach(function (el) {
-            addButton(el, "Copy");
-        });
 
         // Rendered fenced-code prompt blocks on the onboarding pages
         // (and any other markdown post). "Copy prompt" reads right for
@@ -169,6 +174,13 @@
         document.querySelectorAll(".post-content pre:not([data-no-copy])").forEach(function (el) {
             addButton(el, "Copy prompt");
         });
+
+        // Command blocks, the docs' code, and the address on the homepage.
+        document.querySelectorAll(".code-inline:not([data-no-copy]), main pre:not([data-no-copy]), .connect-card .addr").forEach(function (el) {
+            addButton(el, "Copy");
+        });
+
+
     })();
     </script>
 
