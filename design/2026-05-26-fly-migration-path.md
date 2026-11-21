@@ -8,9 +8,9 @@ description: "Chart of work to migrate self-host from Render to Fly while standi
 **Status:** Proposal. Pre-implementation. Decision point ahead for Aaron.
 
 **Companions:**
-- [`2026-05-18-v06-deploy-architecture.md`](./2026-05-18-v06-deploy-architecture.md) — current Render-based deploy shape; this doc proposes the next substrate
-- [`2026-04-20-cloud-offering-sketch.md`](./2026-04-20-cloud-offering-sketch.md) — long-horizon multi-tenant sketch (subdomain-per-tenant, Postgres-backed); this doc proposes an interim shape that delays the heavy migration
-- [`parachute-hub/render.yaml`](../../parachute-hub/render.yaml) — current Render Blueprint, the artifact being mirrored
+- [`2026-05-18-v06-deploy-architecture.md`](/design/2026-05-18-v06-deploy-architecture/) — current Render-based deploy shape; this doc proposes the next substrate
+- [`2026-04-20-cloud-offering-sketch.md`](/design/2026-04-20-cloud-offering-sketch/) — long-horizon multi-tenant sketch (subdomain-per-tenant, Postgres-backed); this doc proposes an interim shape that delays the heavy migration
+- [`parachute-hub/render.yaml`](https://github.com/ParachuteComputer/parachute-hub/blob/main/render.yaml) — current Render Blueprint, the artifact being mirrored
 
 ## The proposal
 

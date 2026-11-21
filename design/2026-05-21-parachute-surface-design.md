@@ -10,17 +10,17 @@ description: "A new module that supervises a directory of small custom SPAs (Git
 **Naming note:** the module is **parachute-surface** (singular), mirroring the vault precedent — `parachute-vault` (singular module) hosts many vault instances; `parachute-surface` (singular module) hosts many surface instances. Originally shipped as `parachute-app`; renamed to `parachute-surface` on 2026-05-26 (filename changed from `2026-05-21-parachute-apps-design.md` in the same shift). The artifact name is `parachute-surface` throughout.
 
 **Companions:**
-- [`2026-05-21-parachute-runner-design.md`](./2026-05-21-parachute-runner-design.md) — closest precedent (one supervisor, many discovered units); app mirrors its shape on the UI axis
-- [`2026-04-20-module-architecture.md`](./2026-04-20-module-architecture.md) — module protocol app must comply with
-- [`2026-04-20-hub-as-portal-oauth-and-service-catalog.md`](./2026-04-20-hub-as-portal-oauth-and-service-catalog.md) — OAuth architecture each hosted UI integrates against
-- [`../../parachute-patterns/patterns/trust-gradient-isolation.md`](../../parachute-patterns/patterns/trust-gradient-isolation.md) — the owner-operated principle that justifies the shape
-- [`../../parachute-patterns/patterns/canonical-ports.md`](../../parachute-patterns/patterns/canonical-ports.md) — port table app slots into
-- [`../../parachute-patterns/patterns/module-self-registration.md`](../../parachute-patterns/patterns/module-self-registration.md) — registration pattern app follows
-- [`../../parachute-patterns/patterns/mount-path-convention.md`](../../parachute-patterns/patterns/mount-path-convention.md) — Vite-base / BrowserRouter discipline each hosted UI must respect
+- [`2026-05-21-parachute-runner-design.md`](/design/2026-05-21-parachute-runner-design/) — closest precedent (one supervisor, many discovered units); app mirrors its shape on the UI axis
+- [`2026-04-20-module-architecture.md`](/design/2026-04-20-module-architecture/) — module protocol app must comply with
+- [`2026-04-20-hub-as-portal-oauth-and-service-catalog.md`](/design/2026-04-20-hub-as-portal-oauth-and-service-catalog/) — OAuth architecture each hosted UI integrates against
+- [`../../parachute-patterns/patterns/trust-gradient-isolation.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/trust-gradient-isolation.md) — the owner-operated principle that justifies the shape
+- [`../../parachute-patterns/patterns/canonical-ports.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/canonical-ports.md) — port table app slots into
+- [`../../parachute-patterns/patterns/module-self-registration.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/module-self-registration.md) — registration pattern app follows
+- [`../../parachute-patterns/patterns/mount-path-convention.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/mount-path-convention.md) — Vite-base / BrowserRouter discipline each hosted UI must respect
 - [parachute-patterns#74](https://github.com/ParachuteComputer/parachute-patterns/issues/74) — the issue this design resolves
 - [parachute-hub#301](https://github.com/ParachuteComputer/parachute-hub/issues/301) — drop `kind` from module.json; app ships without it
 - [parachute-hub#292](https://github.com/ParachuteComputer/parachute-hub/pull/292) (merged 2026-05-21) — install path now stamps `installDir` on services.json rows; verified hub already reads services.json per-request (no caching)
-- [parachute-notes/DEPRECATED.md](../../parachute-notes/DEPRECATED.md) (planned, Phase 3) — Notes module retirement, mirrors `parachute-agent/DEPRECATED.md`
+- [parachute-notes/DEPRECATED.md](https://github.com/ParachuteComputer/parachute-notes/blob/main/DEPRECATED.md) (planned, Phase 3) — Notes module retirement, mirrors `parachute-agent/DEPRECATED.md`
 - [parachute-notes#151](https://github.com/ParachuteComputer/parachute-notes/issues/151) — dev-rebuild ergonomics (SW caches stale code); solved at the platform level by section 18
 
 ## The decision
@@ -319,7 +319,7 @@ The gate is implemented hub-side (in the reverse-proxy layer), not app-side. App
 >
 > Canonical references:
 > - [`parachute-patterns/patterns/runtime-tenancy-contract.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/runtime-tenancy-contract.md)
-> - [`parachute-patterns/patterns/app-bundle-shape.md#mount-agnosticism`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/app-bundle-shape.md#mount-agnosticism)
+> - [`parachute-patterns/patterns/surface-bundle-shape.md#mount-agnosticism`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/surface-bundle-shape.md#mount-agnosticism)
 > - [parachute-surface#25](https://github.com/ParachuteComputer/parachute-surface/pull/25) — implements the host-side injection
 > - [parachute-surface#27](https://github.com/ParachuteComputer/parachute-surface/pull/27) — implements the consumer-side library
 >
@@ -330,7 +330,7 @@ The gate is implemented hub-side (in the reverse-proxy layer), not app-side. App
 
 **Decision:** MVP ships **no per-UI sandboxing**. All UIs share the hub origin and trust each other through the operator's trust.
 
-This is correct for the v0.6 owner-operated audience per [`trust-gradient-isolation.md`](../../parachute-patterns/patterns/trust-gradient-isolation.md):
+This is correct for the v0.6 owner-operated audience per [`trust-gradient-isolation.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/trust-gradient-isolation.md):
 
 - The operator chose which UIs to install.
 - The operator owns the vault those UIs talk to.
@@ -381,7 +381,7 @@ A few notes on other shape choices:
 
 - `paths: ["/surface", "/.parachute"]` — app owns the entire `/surface` namespace. Per section 12, hosted-UI sub-paths surface in services.json as a separate `uis` map (not appended to `paths`), pending hub-side schema work.
 - `uiUrl: "/surface/admin/"` — app's admin SPA is the module-level "UI." Per-UI uiUrls (the discovery surface for each hosted UI) flow via the hierarchical `uis` field in services.json (section 12).
-- `managementUrl: "/surface/admin/"` — trailing slash, per the fragment-token gotcha documented in [`module-json-extensibility.md`](../../parachute-patterns/patterns/module-json-extensibility.md#managementurl-string).
+- `managementUrl: "/surface/admin/"` — trailing slash, per the fragment-token gotcha documented in [`module-json-extensibility.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/module-json-extensibility.md#managementurl-string).
 - `port: 1946` claims a fresh slot in the canonical 1939–1949 range. Formal reservation lands in a PR to `parachute-hub/src/service-spec.ts` + `canonical-ports.md` alongside the app ship, not in this design doc. (Current table: hub 1939, vault 1940, channel 1941, notes 1942, scribe 1943, agent 1944, runner 1945. 1946 is the next free slot.)
 
 **`.parachute/config/schema` (Draft-07):**
@@ -393,7 +393,7 @@ A few notes on other shape choices:
 | `default_scopes` | array of string | `["vault:*:read"]` | Default `scopes_required` for UIs that don't declare their own. Wildcard default mirrors the multi-vault-by-default expectation. |
 | `disabled` | boolean | `false` | Global kill switch — daemon stays running but unmounts all UIs and returns 404 under their paths. |
 
-**Self-registration:** app follows the [`module-self-registration.md`](../../parachute-patterns/patterns/module-self-registration.md) pattern. On `serve` startup, after HTTP listen, app reads its own `.parachute/module.json`, computes `installDir`, and atomically upserts services.json. On subsequent UI add/remove/reload, app re-runs the upsert with the updated `uis` map (see section 12).
+**Self-registration:** app follows the [`module-self-registration.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/module-self-registration.md) pattern. On `serve` startup, after HTTP listen, app reads its own `.parachute/module.json`, computes `installDir`, and atomically upserts services.json. On subsequent UI add/remove/reload, app re-runs the upsert with the updated `uis` map (see section 12).
 
 ### 12. services.json shape — hierarchical, mirror vault
 

@@ -10,11 +10,11 @@ description: "Hub's mint-token + revoke-token endpoints learn one rule: any bear
 > **What this doc is.** It opens with the original narrow decision — *operator-mintable `vault:<name>:admin`* (PR-A) — because that's where the design started and the security argument for de-escalation is clearest there. §"Generalization: capability attenuation" then records how PR-A turned out to be the first instance of a single broader rule, and what shipped on top of it. Read top-to-bottom for the history; jump to that section for the landed model.
 
 **Companions:**
-- [`2026-04-20-hub-as-portal-oauth-and-service-catalog.md`](./2026-04-20-hub-as-portal-oauth-and-service-catalog.md) — hub-as-issuer, scopes per service, the foundation this builds on.
-- [`../../parachute-patterns/research/auth-architecture-shape.md`](../../parachute-patterns/research/auth-architecture-shape.md) §11 — the AS/RS convergence decision and the pvt_* retirement arc this slots into (§11.6 records this decision as the admin-scope replacement).
+- [`2026-04-20-hub-as-portal-oauth-and-service-catalog.md`](/design/2026-04-20-hub-as-portal-oauth-and-service-catalog/) — hub-as-issuer, scopes per service, the foundation this builds on.
+- [`../../parachute-patterns/research/auth-architecture-shape.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/research/auth-architecture-shape.md) §11 — the AS/RS convergence decision and the pvt_* retirement arc this slots into (§11.6 records this decision as the admin-scope replacement).
 - vault#282 — pvt_* Phase-6 hard removal at vault 0.6.0. The DROP this arc clears the runway for; the only remaining step, gated on the human.
-- [`../../parachute-patterns/patterns/tag-scoped-tokens.md`](../../parachute-patterns/patterns/tag-scoped-tokens.md) — tag-scoping now rides the hub-JWT `permissions.scoped_tags` claim (C0).
-- [`../../parachute-patterns/migrations/2026-05-28-operator-mintable-vault-admin.md`](../../parachute-patterns/migrations/2026-05-28-operator-mintable-vault-admin.md) — the propagation checklist (the landed PR map).
+- [`../../parachute-patterns/patterns/tag-scoped-tokens.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/tag-scoped-tokens.md) — tag-scoping now rides the hub-JWT `permissions.scoped_tags` claim (C0).
+- [`../../parachute-patterns/migrations/2026-05-28-operator-mintable-vault-admin.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/migrations/2026-05-28-operator-mintable-vault-admin.md) — the propagation checklist (the landed PR map).
 
 ## Context / Problem
 
@@ -161,7 +161,7 @@ This is what dissolves the "clean auth vs keep features" tension: features live 
 
 ## Implementation plan (LANDED)
 
-The arc shipped as the PRs below (all merged to `main`); only DROP remains, gated on the human. Full PR map + checklist: [`../../parachute-patterns/migrations/2026-05-28-operator-mintable-vault-admin.md`](../../parachute-patterns/migrations/2026-05-28-operator-mintable-vault-admin.md).
+The arc shipped as the PRs below (all merged to `main`); only DROP remains, gated on the human. Full PR map + checklist: [`../../parachute-patterns/migrations/2026-05-28-operator-mintable-vault-admin.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/migrations/2026-05-28-operator-mintable-vault-admin.md).
 
 - **Hub PR-A (hub#449)** — `api-mint-token.ts` exempts `vault:<name>:admin` from the non-requestable guard when the bearer carries `parachute:host:admin`; exports `isVaultAdminScope` from `scope-explanations.ts`; pins `vault_scope: [<name>]` for admin mints.
 - **Hub ATTEN (hub#452)** — generalizes the guard into `canGrant` / `hasMintingAuthority` (`scope-attenuation.ts`): rule 3 lets a `vault:<N>:admin` bearer mint same-vault subtokens. Subsumes PR-A.

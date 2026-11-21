@@ -8,12 +8,12 @@ description: "Retire the manager-less detached-daemon model (parachute start/exp
 **Status:** Proposed. Design-review artifact — the architectural decision the owner blesses **before any code lands**. No code ships with this PR. The `parachute-patterns/migrations/2026-06-01-hub-as-supervisor.md` propagation checklist lands with **Phase 1**, not with this design PR.
 
 **Companions:**
-- [`2026-05-18-v06-deploy-architecture.md`](./2026-05-18-v06-deploy-architecture.md) — single-container, hub-as-supervisor deploy shape this generalizes off-container
-- [`2026-05-26-fly-migration-path.md`](./2026-05-26-fly-migration-path.md) — Fly as a peer self-host target alongside Render; both are "container runtime = the process manager"
-- [`2026-05-28-operator-mintable-vault-admin.md`](./2026-05-28-operator-mintable-vault-admin.md) — operator-token mint path the CLI→supervisor auth reuses
-- [`2026-04-20-module-architecture.md`](./2026-04-20-module-architecture.md) — module protocol (services.json, startCmd) the supervisor boots from
-- [`../../parachute-patterns/patterns/canonical-ports.md`](../../parachute-patterns/patterns/canonical-ports.md) — 1939 hub-pin (no fallback) that the port-race ordering in §7 must respect
-- [`../../parachute-patterns/patterns/governance.md`](../../parachute-patterns/patterns/governance.md) — RC versioning + reviewer-gated PR discipline the phasing follows
+- [`2026-05-18-v06-deploy-architecture.md`](/design/2026-05-18-v06-deploy-architecture/) — single-container, hub-as-supervisor deploy shape this generalizes off-container
+- [`2026-05-26-fly-migration-path.md`](/design/2026-05-26-fly-migration-path/) — Fly as a peer self-host target alongside Render; both are "container runtime = the process manager"
+- [`2026-05-28-operator-mintable-vault-admin.md`](/design/2026-05-28-operator-mintable-vault-admin/) — operator-token mint path the CLI→supervisor auth reuses
+- [`2026-04-20-module-architecture.md`](/design/2026-04-20-module-architecture/) — module protocol (services.json, startCmd) the supervisor boots from
+- [`../../parachute-patterns/patterns/canonical-ports.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/canonical-ports.md) — 1939 hub-pin (no fallback) that the port-race ordering in §7 must respect
+- [`../../parachute-patterns/patterns/governance.md`](https://github.com/ParachuteComputer/parachute-patterns/blob/main/patterns/governance.md) — RC versioning + reviewer-gated PR discipline the phasing follows
 - parachute-hub#494 — headless systemd user-unit linger (carried into the hub unit, §4)
 - parachute-hub#481 — operator-token `iss` self-heal on `start hub` (the auth bootstrap in §3 must not race)
 - parachute-hub#487 — alive-but-never-bound start failure (the port-readiness parity gap in §6)
