@@ -38,7 +38,7 @@ manage-types {
 - Checks are advice by default: a record that breaks one is still written, and its `validation_status` says what's wrong. Add `"strict": true` to a field to refuse such writes.
 - `parent_names: ["media"]` makes `book` a subtype of `media`: a query for `media` finds books.
 
-`manage-types` needs a connection that can manage the vault (admin), today; letting a connection that can write add a type is being worked on. It also renames (`action: "rename"`), merges and deletes types, drops unused indexes (`prune`) and changes a field's values (`migrate`); `prune` and `migrate` are dry runs until you pass `"apply": true`.
+With a connection that can write, `manage-types` makes a type nobody has defined yet, and adds fields to a type that connection made. Changing or removing a field, a type someone else made, and the actions below need one that can manage the vault (admin); so does `manage-types` at the one address for all vaults (`https://<server>/mcp`): use the vault's own address. It also renames (`action: "rename"`), merges and deletes types, drops unused indexes (`prune`) and changes a field's values (`migrate`); `prune` and `migrate` are dry runs until you pass `"apply": true`.
 
 ## Then write records of it
 

@@ -10,7 +10,8 @@
     "dev:worker": "npx wrangler dev",
     "db:migrate": "npx wrangler d1 migrations apply parachute-interests --remote",
     "docs:sync": "node scripts/docs-sync.mjs",
-    "docs:check-applet": "node scripts/check-applet-example.mjs"
+    "docs:check-applet": "node scripts/check-applet-example.mjs",
+    "docs:check-packs": "node scripts/check-packs.mjs"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.1.2",

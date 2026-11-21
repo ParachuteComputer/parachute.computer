@@ -10,7 +10,7 @@ checked: "parachute src/shell/apps.ts appOf (fields read, the id must match the 
 
 A **bundle** is a record in the person's home vault that the app follows: the applets its list offers, the pins on its bar, the home it opens on. The person picks one in Settings → **Your app**; **Simple** and **Everything** are always there.
 
-*The app and its record still say "app" for a bundle (`Parachute/Apps/<id>`, `fields.app`, the tag `parachute-app`); a rename to "bundle" is planned. Write the record as below until then.*
+*It was called an app record until 11-20; the newer names are `Parachute/Bundles/<id>`, `fields.bundle` and the tag `parachute-bundle`. Until 2026-12-20 apps from before 11-20 read only the older names, so while the vault holds no record under the newer ones, write a new bundle as below, under the older names (`Parachute/Apps/<id>`, `fields.app`, `parachute-app`).*
 
 ## Which vault is home
 
