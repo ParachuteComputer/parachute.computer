@@ -11,8 +11,8 @@ A connection to a vault (an AI app, a script, the Parachute app) holds a **scope
 | Level | It can | MCP tools it sees |
 |---|---|---|
 | `read` | read records, types, files | `query-records`, `list-types`, `vault-info`, `docs`, `doctor`, `read-attachment`, `attachment-url` (download) |
-| `write` | also create, change and delete records, add files | + `create-record`, `update-record`, `delete-record` |
-| `admin` | also manage types, the vault's description and keys | + `manage-types`, `manage-keys` |
+| `write` | also create, change and delete records, add files; make a new type, and add fields to a type it made | + `create-record`, `update-record`, `delete-record`, `manage-types` (at the vault's own address) |
+| `admin` | also change any type, the vault's description and keys | + every `manage-types` action, `manage-keys` |
 
 A tool a connection can't use isn't listed to it, and calling it by name fails. A scope can also be narrowed to some tags: the connection then sees only records with them.
 
