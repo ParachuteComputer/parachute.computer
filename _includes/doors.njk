@@ -1,13 +1,15 @@
+{# The three doors side by side: each door's guides, then a way into all its pages. #}
 <div class="doors">
     {% for dp in doorPages %}
+    {% set all = collections.docs | door(dp.door) %}
     <section>
         <h2><a href="/docs/{{ dp.door }}/">{{ dp.name }}</a></h2>
         <p class="who">{{ dp.short }}</p>
         <ol>
-            {% for p in collections.docs | door(dp.door) %}
-            <li><div><a href="{{ p.url }}">{{ p.data.nav or p.data.title }}</a><span>{{ p.data.summary | inlineCode | safe }}</span></div></li>
+            {% for p in all | guides %}<li><a href="{{ p.url }}">{{ p.data.nav or p.data.title }}</a></li>
             {% endfor %}
         </ol>
+        {% if (all | refs).length %}<a class="link-arrow all" href="/docs/{{ dp.door }}/#reference">And the reference</a>{% endif %}
     </section>
     {% endfor %}
 </div>

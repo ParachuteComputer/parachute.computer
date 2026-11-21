@@ -29,6 +29,39 @@ module.exports = function (eleventyConfig) {
       .getFilteredByGlob("docs/**/*.md")
       .sort((a, b) => DOORS.indexOf(a.data.door) - DOORS.indexOf(b.data.door) || (a.data.order ?? 99) - (b.data.order ?? 99)));
   eleventyConfig.addFilter("door", (docs, door) => docs.filter((d) => d.data.door === door));
+  // One door's labels (_data/doorPages.json) by its name.
+  eleventyConfig.addFilter("doorOf", (doorPages, door) => doorPages.find((d) => d.door === door));
+  // A door's pages in two groups: the guides, then the reference (docs/<door>/reference/, generated).
+  eleventyConfig.addFilter("guides", (docs) => docs.filter((d) => !d.url.includes("/reference/")));
+  eleventyConfig.addFilter("refs", (docs) => docs.filter((d) => d.url.includes("/reference/")));
+  // The pages before and after this one, in reading order (all the doors in a row).
+  eleventyConfig.addFilter("pager", (docs, url) => {
+    const i = docs.findIndex((d) => d.url === url);
+    return { prev: i > 0 ? docs[i - 1] : null, next: i >= 0 && i < docs.length - 1 ? docs[i + 1] : null };
+  });
+  // A page's sections, for "On this page": its h2s, with the ids given below.
+  eleventyConfig.addFilter("sections", (html) =>
+    [...String(html ?? "").matchAll(/<h2 id="([^"]+)">([\s\S]*?)<\/h2>/g)].map((m) => ({ id: m[1], text: m[2].replace(/<[^>]+>/g, "") })));
+  // Rendered markdown only (the .md twins are the files as written): every h2 and h3 gets an id from its text, as
+  // GitHub makes them, so `#saved-state` links work and sections can be linked; a table sits in a box that scrolls
+  // sideways on a narrow screen rather than squeezing its columns.
+  eleventyConfig.amendLibrary("md", (md) => {
+    const slug = (t) => t.toLowerCase().trim().replace(/<[^>]+>/g, "").replace(/[^\p{L}\p{N}\s-]/gu, "").replace(/\s/g, "-");
+    md.core.ruler.push("heading_ids", (state) => {
+      const seen = new Map();
+      state.tokens.forEach((t, i) => {
+        if (t.type !== "heading_open" || !["h2", "h3"].includes(t.tag) || t.attrGet("id")) return;
+        const text = state.tokens[i + 1].children.filter((c) => c.type === "text" || c.type === "code_inline").map((c) => c.content).join("");
+        let id = slug(text) || "section";
+        const n = seen.get(id) ?? 0;
+        seen.set(id, n + 1);
+        if (n) id += `-${n}`;
+        t.attrSet("id", id);
+      });
+    });
+    md.renderer.rules.table_open = () => '<div class="table-wrap"><table>\n';
+    md.renderer.rules.table_close = () => "</table></div>\n";
+  });
   // Pass through static assets (not processed as templates)
   eleventyConfig.addPassthroughCopy("style.css");
   eleventyConfig.addPassthroughCopy("CNAME");

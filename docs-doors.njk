@@ -12,14 +12,26 @@ eleventyComputed:
   door: "{{ d.door }}"
   description: "{{ d.who }}"
 ---
-<main class="contents">
-    <h1>{{ d.title }}</h1>
-    <p class="lede">{{ d.who }}</p>
-    <div class="doors one">
-    <section><ol>
-        {% for p in collections.docs | door(d.door) %}
-        <li><div><a href="{{ p.url }}">{{ p.data.title }}</a><span>{{ p.data.summary | inlineCode | safe }}</span></div></li>
+{% set all = collections.docs | door(d.door) %}
+{% set refs = all | refs %}
+<main class="contents arrive">
+    <header class="contents-head">
+        <p class="door-label">{{ d.label }}</p>
+        <h1>{{ d.title }}</h1>
+        <p class="lede">{{ d.who }}</p>
+    </header>
+    {% if refs.length %}<h2 class="group-label">Guides</h2>{% endif %}
+    <ol class="pages">
+        {% for p in all | guides %}<li><a href="{{ p.url }}"><span class="t">{{ p.data.title }}</span><span class="s">{{ p.data.summary | inlineCode | safe }}</span></a></li>
         {% endfor %}
-    </ol></section>
-    </div>
+    </ol>
+    {% if refs.length %}<h2 class="group-label" id="reference">Reference</h2>
+    <ol class="pages ref">
+        {% for p in refs %}<li><a href="{{ p.url }}"><span class="t">{{ p.data.title }}</span><span class="s">{{ p.data.summary | inlineCode | safe }}</span></a></li>
+        {% endfor %}
+    </ol>{% endif %}
+    <nav class="other-doors" aria-label="The other doors">
+        {% for o in doorPages %}{% if o.door != d.door %}<a href="/docs/{{ o.door }}/"><b>{{ o.title }}</b><span>{{ o.who }}</span></a>{% endif %}
+        {% endfor %}
+    </nav>
 </main>

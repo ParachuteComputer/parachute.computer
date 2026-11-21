@@ -1,32 +1,60 @@
 ---
 layout: base.njk
 ---
-{# A docs page: the contents beside it, the page, and how to read it as markdown. #}
-<div class="docs">
-    <nav class="toc" aria-label="Docs">
-        <details id="toc"><summary>Contents</summary>
-        {% for dp in doorPages %}
-        <h2><a href="/docs/{{ dp.door }}/" {% if dp.door == door %}class="door-here"{% endif %}>{{ dp.label }}</a></h2>
-        <ol>
-            {% for p in collections.docs | door(dp.door) %}
-            <li><a href="{{ p.url }}" {% if p.url == page.url %}aria-current="page"{% endif %}>{{ p.data.nav or p.data.title }}</a></li>
-            {% endfor %}
-        </ol>
-        {% endfor %}
+{# A docs page: its door's contents beside it, the page, and its sections. On a phone the contents fold into one line
+   that says where you are. #}
+{% set here = collections.docs | door(door) %}
+{% set dp = doorPages | doorOf(door) %}
+{% set pg = collections.docs | pager(page.url) %}
+{% set secs = content | sections %}
+<main class="docs docs-page">
+    <nav class="toc" aria-label="{{ dp.title }}">
+        <details id="toc">
+            <summary><span class="here-door">{{ dp.name }}</span><span class="here-page">{{ nav or title }}</span></summary>
+            <div class="toc-body">
+                <p class="toc-door"><a href="/docs/{{ door }}/">{{ dp.title }}</a><span class="toc-who">{{ dp.short }}</span></p>
+                {% set refs = here | refs %}
+                {% if refs.length %}<h3>Guides</h3>{% endif %}
+                <ol>
+                    {% for p in here | guides %}<li><a href="{{ p.url }}" {% if p.url == page.url %}aria-current="page"{% endif %}>{{ p.data.nav or p.data.title }}</a></li>
+                    {% endfor %}
+                </ol>
+                {% if refs.length %}<h3>Reference</h3>
+                <ol>
+                    {% for p in refs %}<li><a href="{{ p.url }}" {% if p.url == page.url %}aria-current="page"{% endif %}>{{ p.data.nav or p.data.title }}</a></li>
+                    {% endfor %}
+                </ol>{% endif %}
+                <div class="toc-others">
+                    {% for o in doorPages %}{% if o.door != door %}<a href="/docs/{{ o.door }}/"><b>{{ o.name }}</b> · {{ o.short }}</a>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
         </details>
     </nav>
     {# Open beside the page on a wide screen; on a phone, one line above it. #}
     <script>if (matchMedia("(min-width: 861px)").matches) document.getElementById("toc").open = true;</script>
-    <article class="doc">
-        {% for dp in doorPages %}{% if dp.door == door %}<p class="door-label">{{ dp.label }}</p>{% endif %}{% endfor %}
+    <article class="doc arrive">
+        <p class="door-label"><a href="/docs/{{ door }}/">{{ dp.label }}</a></p>
         <h1>{{ title }}</h1>
         <p class="summary">{{ summary | inlineCode | safe }}</p>
-        {% if status and status != "current" %}<p class="status"><b>{{ "Next release" if status == "next" else "Coming" }}:</b> {{ status_note }}</p>{% endif %}
-        {{ content | safe }}
-        <p class="page-foot">
-            This page as markdown, for your AI: <a href="/docs/{{ slug }}.md">/docs/{{ slug }}.md</a>. Every page: <a href="/llms.txt">/llms.txt</a>.
-            {% if checked %}<br>Checked against the code: {{ checked }}.{% endif %}
-            <br><a href="https://github.com/ParachuteComputer/parachute.computer/blob/main/docs/{{ slug }}.md">Edit this page</a>
-        </p>
+        <div class="doc-body">
+            {% if status and status != "current" %}<p class="status"><b>{{ "Next release" if status == "next" else "Coming" }}:</b> {{ status_note }}</p>{% endif %}
+            {{ content | safe }}
+            <nav class="pager" aria-label="Previous and next">
+                {% if pg.prev %}<a class="prev" href="{{ pg.prev.url }}" rel="prev"><span>← Previous</span>{{ pg.prev.data.nav or pg.prev.data.title }}</a>{% endif %}
+                {% if pg.next %}<a class="next" href="{{ pg.next.url }}" rel="next"><span>Next →</span>{{ pg.next.data.nav or pg.next.data.title }}</a>{% endif %}
+            </nav>
+            <p class="for-ai">
+                <b>For your AI:</b> this page as markdown, <a href="/docs/{{ slug }}.md">/docs/{{ slug }}.md</a>; every page, <a href="/llms.txt">/llms.txt</a>.
+                {% if checked %}<br>Checked against the code: {{ checked }}.{% endif %}
+                <br><a href="https://github.com/ParachuteComputer/parachute.computer/blob/main/docs/{{ slug }}.md">Edit this page</a>
+            </p>
+        </div>
     </article>
-</div>
+    {% if secs.length > 2 %}
+    <aside class="onpage" aria-label="On this page">
+        <h2>On this page</h2>
+        <ol>{% for s in secs %}<li><a href="#{{ s.id }}">{{ s.text | safe }}</a></li>{% endfor %}</ol>
+    </aside>
+    {% endif %}
+</main>
