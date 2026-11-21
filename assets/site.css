@@ -95,6 +95,7 @@ a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset:
 code, pre, kbd { font-variant-ligatures: none; }
 .skip { position: absolute; left: -999px; top: .5rem; z-index: 20; background: var(--text); color: var(--bg); padding: .5rem .8rem; border-radius: 6px; }
 .skip:focus { left: .5rem; }
+#page-start:focus { outline: none; }   /* where Skip lands: the page itself, not a ring around it */
 
 /* the mark */
 .pc-canopy { fill: var(--accent); }
@@ -164,9 +165,10 @@ code, pre, kbd { font-variant-ligatures: none; }
 /* Between pages the nav and the contents stay where they are and the page crossfades, in a fifth of a second. On
    arrival the head of the page rises a few pixels into place as the rest fades in, in the same fifth. */
 @view-transition { navigation: auto; }
-::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--t-state); animation-timing-function: var(--ease-out); }
+::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: var(--t-state); animation-timing-function: var(--ease-out); }
+@media (prefers-reduced-motion: reduce), (update: slow) { @view-transition { navigation: none; } }
 @keyframes rise { from { opacity: .4; transform: translateY(6px); } }   /* readable from its first frame */
-@keyframes fade { from { opacity: 0; } }
+@keyframes fade { from { opacity: .4; } }
 .arrive > :not(.doc-body) { animation: rise var(--t-state) var(--ease-out) both; }
 .arrive > .doc-body { animation: fade var(--t-state) var(--ease-out) both; }
 
@@ -404,7 +406,7 @@ main.home { max-width: none; padding: 0; }
 }
 
 /* ---------- the older pages under the same nav (blog, pricing, terms…): the docs' frame and faces ---------- */
-main:not(.home):not(.contents):not(.docs) { box-sizing: border-box; max-width: calc(48rem + 2 * var(--gutter)); padding: 3rem var(--gutter) 0; font-family: var(--serif); }
+main:not(.home):not(.contents):not(.docs):not(.pi-page) { box-sizing: border-box; max-width: calc(48rem + 2 * var(--gutter)); padding: 3rem var(--gutter) 0; font-family: var(--serif); }
 .hero, .post-header, .roadmap-header { text-align: left; margin-bottom: 2.6rem; padding-bottom: 1.8rem; border-bottom: 1px solid var(--line); }
 .hero .epigraph { margin-left: 0; }
 .hero h1, .post-header h1, .roadmap-header h1 { margin: 0 0 .8rem; font: 400 var(--fs-title)/1.05 var(--serif); letter-spacing: -.025em; color: var(--text); font-variation-settings: "opsz" 72; }
