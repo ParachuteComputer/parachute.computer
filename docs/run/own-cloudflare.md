@@ -20,6 +20,7 @@ Cloudflare's prices, from its own pages (read 2026-11-21; check them before you 
 |---|---|---|
 | Requests | 100,000 a day | 10 million a month, then $0.30 per million |
 | CPU per request | 10 ms | up to 5 minutes (30 s default) |
+| Vault calls (Durable Objects: one per vault) | 100,000 requests and 13,000 GB-s a day | 1 million requests and 400,000 GB-s a month, then $0.15 per million and $12.50 per million GB-s |
 | Vault storage (Durable Objects, SQLite) | 5 million rows read, 100,000 rows written a day; 5 GB | 25 billion rows read, 50 million written a month; 5 GB-month, then $0.20 per GB-month |
 | Accounts (D1) | 5 million rows read, 100,000 written a day; 500 MB a database | 25 billion read, 50 million written a month; 10 GB a database |
 | Files and backups (R2) | 10 GB-month, 1 million writes and 10 million reads a month | then $0.015 per GB-month; no egress fees on either plan |
@@ -31,22 +32,22 @@ Sources: [Workers pricing](https://developers.cloudflare.com/workers/platform/pr
 
 ## Set it up
 
-You need [Bun](https://bun.sh) 1.4 or newer, git, a Cloudflare account with a workers.dev subdomain (dashboard: Workers & Pages, your subdomain), and a Nostr key. The Parachute app makes you one (**Make a new key**; Settings shows its public half, `npub1…`), or, from the repo below, `bun deploy/personal/nip98.ts keygen ~/parachute/me.key` (it prints the public half as hex, which the profile takes too). **Back the secret half up**: it is your only way in. A second key can be linked as a spare (`POST /account/pubkeys`, which asks for a signature from that key).
+You need [Bun](https://bun.sh) 1.4 or newer, git, a Cloudflare account with a workers.dev subdomain (dashboard: Workers & Pages, your subdomain), and a Nostr key **in a file**: the commands below sign with it, and the app takes the same key. Make one with `bun deploy/personal/nip98.ts keygen ~/parachute/me.key` (from the repo below; it prints the public half), or put a secret key you already have (`nsec1…`) in that file. **Back the file up**: it is your only way in. A second key can be linked as a spare (`POST /account/pubkeys`, which asks for a signature from that key).
 
 1. **Get the code**: `git clone https://github.com/ParachuteComputer/parachute-cloud && cd parachute-cloud && git checkout door/0.9`.
 2. **Write a profile**, a small file kept outside the repo, say `~/parachute/me.env`:
 
    ```bash
    ACCOUNT_ID=<32 hex>        # `bunx wrangler whoami` prints it
-   PREFIX=me-parachute        # names your workers, database and bucket
-   OWNER_PUBKEY=npub1…        # your key's public half
-   OWNER_PLAN=power           # entry, standard, plus or power (10 vaults); you can raise it later
+   PREFIX=me-parachute        # names your workers, database and bucket: lowercase, 4-42 characters, not parachute-* or *-staging
+   OWNER_PUBKEY=<hex or npub1…>   # your key's public half
+   OWNER_PLAN=power           # entry, standard, plus or power (10 vaults): set at your first sign-in
    ```
 
    The deploy keeps what must stay secret (an ops token) in `private/` beside the profile; keep both out of git.
 
-3. **Deploy**: `bunx wrangler login`, then `bash deploy/personal/deploy.sh ~/parachute/me.env ~/parachute/evidence` (the last folder gets its log). It takes about a minute, makes the bucket, the database and both workers, and prints your address: `https://me-parachute-identity.<subdomain>.workers.dev`. That one address is your Parachute: sign-in, your account and every vault answer there.
-4. **Sign in from the Parachute app** (phone or desktop): type that address, choose **Mine**, **Sign in with your key**, and allow. Your first sign-in makes your account. This needs an app build from 2026-11-21 or later (it carries the key sign-in for this kind of Parachute); an older one says "This hub doesn't take a key to sign in". Then make vaults from your account page or the account API.
+3. **Deploy**: `bunx wrangler login`, then `bash deploy/personal/deploy.sh ~/parachute/me.env ~/parachute/evidence` (the last folder gets its log). It takes about a minute, makes the bucket, the database and both workers, and prints two addresses. Yours is the `-identity` one: `https://me-parachute-identity.<subdomain>.workers.dev`. That one address is your Parachute: sign-in, your account and every vault answer there.
+4. **Sign in from the Parachute app** (phone or desktop): paste your key under **Advanced: paste a secret key** (the file's contents), type that address, choose **Mine**, **Sign in with your key**, and allow. Your first sign-in makes your account. This needs an app build from 2026-11-21 or later (it carries the key sign-in for this kind of Parachute); an older one says "This hub doesn't take a key to sign in". Then make vaults from your account page or the account API.
 5. **Connect your AI** with a key made for it (`POST /account/keys`, read or write): `https://<your address>/vault/<name>/mcp` for one vault, or `https://<your address>/account/mcp` for a key that names several. Or add `https://<your address>/mcp` as a connector (Claude, ChatGPT): it signs in through your browser, and you pick the vaults it may reach. The [deploy README](https://github.com/ParachuteComputer/parachute-cloud/blob/door/0.9/deploy/personal/README.md) has the commands.
 
 In a browser tab (the app's web version) there is no key, and this Parachute sends no email, so open a browser session first with a one-time link from your key (below), then sign in.
@@ -77,7 +78,13 @@ A key's `token` is shown once; it lasts a year. [The deploy README](https://gith
 
 Pull `door/0.9` and run `deploy.sh` again with the same profile. It upgrades in place: database changes are applied before the new workers start, and your vaults, keys and snapshots stay. To go back, deploy the commit you were on: database changes only ever add, so your data reads, but you lose what the newer code did (going back to before 2026-11-21 takes the app's one address away, and a raised vault limit falls back to your plan's).
 
-To remove it all: delete your vaults, then `bunx wrangler delete --name <PREFIX>-identity`, the same for `<PREFIX>-vault`, `bunx wrangler d1 delete <PREFIX>-identity`, `bunx wrangler r2 bucket delete <PREFIX>-vault`.
+To remove it all, first delete every vault, restored copies included (that empties the bucket), then the rest:
+
+```bash
+for v in $(curl -s -K acct.curl $D/account/vaults | jq -r '.vaults[].name'); do curl -K acct.curl -X DELETE $D/account/vaults/$v -d "{\"confirm\":\"$v\"}"; done
+bunx wrangler delete --name <PREFIX>-identity; bunx wrangler delete --name <PREFIX>-vault
+bunx wrangler d1 delete <PREFIX>-identity; bunx wrangler r2 bucket delete <PREFIX>-vault
+```
 
 ## Limits today
 
@@ -85,8 +92,8 @@ It runs Parachute Cloud's workers, so it has Cloud's current gaps:
 - **Add a pack** in the app stops with "This vault's server doesn't let Parachute make types yet". Making a type takes admin access here, for now.
 - **Published records have no public page**: marking one published keeps it to you and your keys, and the app gives no link.
 - **Changes** lists edits and their put-back, but not deleted records.
-- **One owner.** Extra keys can be listed as admins (an agent's own key, say), and they act as the owner. Dropping one from the profile and deploying again stops it at once; the app keys it made stay until you revoke them by name. There are no other people's accounts.
-- **More vaults**: `bash deploy/personal/vault-limit.sh ~/parachute/me.env 25`. The refusal at the limit still tells you to write to Parachute; ignore that and use the script.
+- **One owner.** Extra keys can be listed as admins (an agent's own key, say). They act as the owner, but can't change the sign-in keys or delete the account. Dropping one from the profile and deploying again stops its sign-in; its last 10-minute pass runs out, and the app keys it made stay until you revoke them by name. There are no other people's accounts.
+- **More vaults**: `bash deploy/personal/vault-limit.sh ~/parachute/me.env 25` (changing `OWNER_PLAN` later doesn't move an account that exists). The refusal at the limit still tells you to write to Parachute; ignore that and use the script.
 
 ## Which one is for me
 

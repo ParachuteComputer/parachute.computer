@@ -22,22 +22,9 @@
     "name": "Run",
     "label": "Run: for whoever keeps the server",
     "short": "For whoever keeps the server: Cloud, your Cloudflare, or your computer.",
-    "choose": [
-      {
-        "title": "Parachute Cloud",
-        "href": "/docs/run/cloud/",
-        "line": "We run it. Sign up with your email; nothing to set up."
-      },
-      {
-        "title": "Your own Cloudflare",
-        "href": "/docs/run/own-cloudflare/",
-        "line": "Cloud's code on an account you own. One owner, a Nostr key, about 15 minutes in a terminal; nothing to keep on."
-      },
-      {
-        "title": "Your own computer",
-        "href": "/docs/run/self-host/",
-        "line": "One program on your Mac or Linux box. Everything on your disk, as many people as you add; the computer stays on."
-      }
-    ]
+    "compare": {
+      "href": "/docs/run/own-cloudflare/#which-one-is-for-me",
+      "text": "Which one is for me? The three side by side"
+    }
   }
 ]
