@@ -34,9 +34,15 @@ layout: base.njk
     {# Open beside the page on a wide screen; on a phone, one pinned line above it that opens the list (and follows a rotation). #}
     <script>
     (function () {
-        var toc = document.getElementById("toc"), narrow = matchMedia("(max-width: 860px)");
-        toc.open = !narrow.matches;
-        narrow.addEventListener("change", function (e) { toc.open = !e.matches; });
+        // Folded or not is the stylesheet's call (--fold, set where the contents become one line); this follows it:
+        // open beside the page, folded on a phone, and folded again by Escape or on coming Back to the page.
+        var toc = document.getElementById("toc"), was = null;
+        function folded() { return getComputedStyle(toc).getPropertyValue("--fold").trim() === "1"; }
+        function fit() { var f = folded(); if (f !== was) { toc.open = !f; was = f; } }
+        fit();
+        addEventListener("resize", fit);
+        addEventListener("pageshow", function (e) { if (e.persisted && folded()) toc.open = false; });
+        addEventListener("keydown", function (e) { if (e.key === "Escape" && folded() && toc.open) { toc.open = false; toc.querySelector("summary").focus(); } });
     })();
     </script>
     <article class="doc arrive">
@@ -66,16 +72,17 @@ layout: base.njk
        scrolls or resizes, and only while "On this page" is shown. #}
     <script>
     (function () {
-        var links = document.querySelectorAll(".onpage a"), heads = [], queued = false, wide = matchMedia("(width > 1180px)");
+        var aside = document.querySelector(".onpage"), links = aside.querySelectorAll("a"), heads = [], queued = false;
         links.forEach(function (a) { var h = document.getElementById(decodeURIComponent(a.hash.slice(1))); if (h) heads.push([h, a]); });
         if (!heads.length) return;
         function mark() {
             queued = false;
-            if (!wide.matches) return;
-            var root = document.documentElement, cur = heads[0][1], line = innerHeight * 0.35;
-            var end = root.scrollHeight > innerHeight + 2 && scrollY + innerHeight >= root.scrollHeight - 2;
-            if (end) cur = heads[heads.length - 1][1];
-            else heads.forEach(function (x) { if (x[0].getBoundingClientRect().top <= line) cur = x[1]; });
+            if (getComputedStyle(aside).display === "none") return;   // shown or not is the stylesheet's call
+            var root = document.documentElement, view = root.clientHeight, cur = heads[0][1];
+            if (root.scrollHeight > view + 2) {
+                if (scrollY + view >= root.scrollHeight - 2) cur = heads[heads.length - 1][1];
+                else heads.forEach(function (x) { if (x[0].getBoundingClientRect().top <= view * 0.35) cur = x[1]; });
+            }
             links.forEach(function (a) { a.toggleAttribute("aria-current", a === cur); });
         }
         function soon() { if (!queued) { queued = true; requestAnimationFrame(mark); } }

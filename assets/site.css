@@ -133,14 +133,14 @@ code, pre, kbd { font-variant-ligatures: none; }
   .site-nav .nav-drop { display: none; }
   .site-nav a.nav-door { padding: 1rem .5rem; }
   .site-nav a.nav-door[aria-current]::after { bottom: .5rem; left: .5rem; right: .5rem; }
-  .site-nav .nav-right .btn { min-height: 2.75rem; margin-left: .35rem; padding: 0 1rem; }
+  .site-nav .nav-right .btn { min-height: 2.75rem; margin-left: .35rem; padding-inline: 1rem; }
 }
 
 @media (max-width: 360px) {
   .site-nav .nav-in { padding: 0 .9rem; }
   .site-nav a.nav-door { padding: 1rem .35rem; }
   .site-nav a.nav-door[aria-current]::after { left: .35rem; right: .35rem; }
-  .site-nav .nav-right .btn { margin-left: .2rem; padding: 0 .8rem; font-size: var(--fs-label); }
+  .site-nav .nav-right .btn { margin-left: .2rem; padding-inline: .8rem; font-size: var(--fs-label); }
 }
 
 /* ---------- the footer ---------- */
@@ -179,7 +179,7 @@ code, pre, kbd { font-variant-ligatures: none; }
 .toc summary .here-page { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .toc summary::after { content: ""; margin-left: auto; flex: none; width: .5rem; height: .5rem; border: solid var(--muted); border-width: 0 1.5px 1.5px 0; transform: translateY(-2px) rotate(45deg); transition: transform var(--t-state) var(--ease-out); }
 .toc details[open] summary::after { transform: translateY(2px) rotate(-135deg); }
-@media (width > 860px) { .toc details[open] > summary { display: none; } }
+@media not all and (max-width: 860px) { .toc details[open] > summary { display: none; } }
 .toc .toc-door { margin: 0 0 .9rem; font: 500 var(--fs-body)/1.2 var(--serif); }
 .toc .toc-door a { color: var(--text); text-decoration: none; }
 .toc .toc-who { display: block; margin-top: .25rem; font: var(--fs-label)/1.35 var(--sans); color: var(--muted); }
@@ -253,13 +253,13 @@ article.doc { min-width: 0; font: 400 var(--fs-read)/1.7 var(--serif); }
 .onpage a[aria-current]::before { content: ""; position: absolute; left: calc(-.8rem - 1px); top: .3rem; bottom: .3rem; width: 2px; background: var(--accent); }
 .onpage a[aria-current] { color: var(--text); }
 @media (hover: hover) and (pointer: fine) { .onpage a:hover { color: var(--text); } }
-@media (width <= 1180px) { .docs { grid-template-columns: 13.5rem minmax(0, var(--measure)); } .onpage { display: none; } }
+@media (max-width: 1180px) { .docs { grid-template-columns: 13.5rem minmax(0, var(--measure)); } .onpage { display: none; } }
 
 /* a phone: the contents fold into one line that says where you are */
 @media (max-width: 860px) {
   .docs { display: block; padding-top: 0; }
   .doc h2, .doc h3 { scroll-margin-top: 7.5rem; }
-  .toc { position: sticky; top: calc(3.75rem + 1px); z-index: 5; max-height: none; overflow: visible; margin: 0 calc(-1 * var(--gutter)) 1.8rem; padding: 0; background: var(--bg); border-bottom: 1px solid var(--line); }
+  .toc { --fold: 1; position: sticky; top: calc(3.75rem + 1px); z-index: 5; max-height: none; overflow: visible; margin: 0 calc(-1 * var(--gutter)) 1.8rem; padding: 0; background: var(--bg); border-bottom: 1px solid var(--line); }
   .toc summary { padding: 0 var(--gutter); }
   .toc .toc-body { max-height: 60vh; overflow: auto; overscroll-behavior: contain; padding: .4rem var(--gutter) 1.2rem; }
   .toc details[open] .toc-body { animation: rise var(--t-state) var(--ease-out); }
@@ -334,7 +334,7 @@ main.home { max-width: none; padding: 0; }
 .home-hero .say { grid-area: lede; padding-top: .4rem; }
 .home-hero .lede { max-width: 33rem; margin: 0 0 1.8rem; font: 400 var(--fs-lead)/1.55 var(--serif); color: var(--muted); text-wrap: pretty; }
 .home-hero .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.4rem; margin: 0 0 .6rem; }
-.home-hero .btn { min-height: 2.9rem; padding: 0 1.4rem; }
+.home-hero .btn { min-height: 2.9rem; padding-inline: 1.4rem; }
 .hangs { grid-area: hangs; position: relative; max-width: 30rem; }
 .hangs .canopy { display: block; width: 100%; height: auto; margin: 0 0 -1px; overflow: visible; }
 .cn-fill { fill: var(--accent); opacity: .08; }
@@ -384,8 +384,7 @@ main.home { max-width: none; padding: 0; }
 
 @media (max-width: 860px) {
   .home-hero { display: flex; flex-direction: column; padding-top: 1.8rem; }
-  .home-hero .say { display: contents; }
-  .home-hero .say { animation: none; }   /* no box here: its children arrive, a step apart */
+  .home-hero .say { display: contents; animation: none; }   /* no box here: its children arrive, a step apart */
   .home-hero .lede { animation: rise var(--t-sheet) var(--ease-out) var(--t-step) both; }
   .home-hero .hero-actions { animation: rise var(--t-sheet) var(--ease-out) calc(var(--t-step) * 2) both; }
   .home-hero .keep { order: 2; margin-top: 3rem; animation: rise var(--t-sheet) var(--ease-out) calc(var(--t-step) * 4) both; }

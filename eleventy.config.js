@@ -55,15 +55,17 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.amendLibrary("md", (md) => {
     const slug = (t) => t.toLowerCase().trim().replace(/[^\p{L}\p{M}\p{N}_ -]/gu, "").replace(/ /g, "-");
     md.core.ruler.push("heading_ids", (state) => {
-      const seen = new Set();
+      // every heading counts toward the -1, -2 … (as on GitHub), and the layout's own ids are taken already
+      const seen = new Set(["main", "toc", "pchute"]);
       state.tokens.forEach((t, i) => {
-        if (t.type !== "heading_open" || !["h2", "h3"].includes(t.tag) || t.attrGet("id")) return;
+        if (t.type !== "heading_open") return;
+        if (t.attrGet("id")) { seen.add(t.attrGet("id")); return; }
         const text = state.tokens[i + 1].children.filter((c) => c.type === "text" || c.type === "code_inline").map((c) => c.content).join("");
         const base = slug(text) || "section";
         let id = base, n = 0;
         while (seen.has(id)) id = `${base}-${++n}`;   // as GitHub: the next free -1, -2 …
         seen.add(id);
-        t.attrSet("id", id);
+        if (["h2", "h3"].includes(t.tag)) t.attrSet("id", id);
       });
     });
     md.renderer.rules.code_inline = (tokens, i) => codeTag(tokens[i].content);
